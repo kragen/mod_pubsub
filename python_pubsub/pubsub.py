@@ -20,7 +20,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.29 2003/05/30 04:31:40 troutgirl Exp $
+# $Id: pubsub.py,v 1.30 2003/05/31 02:50:25 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -63,27 +63,32 @@
     We use the following standard Python libraries:
     asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py
 
-    Our system contains a Server, some Connections to clients, some
-    Topics, some Routes, and some other Events.
+    Our system contains a Server, some Connections to clients,
+    some Topics, some Routes, and some other Events.
 
     The Server has a root Topic.
+
     The Server reacts to new TCP connections by creating Connections.
+
     A Connection handles a request from a client; it might serve up
       a server status page, create an Event and post it to a Topic,
       create a Route and post it to a Topic, or become a tunnel.
+
     Connections log information about their activities to the Server.
 
     A Topic is a collection of Events --- possibly Topics or Routes.  It
       also has another (possibly null) Topic that contains its Routes,
       and another Topic that is contains its subtopics (including the
       kn_routes topic).
+
     You can ask a Topic to navigate to some path below it.
+
     Route and Topic are kinds of Event.
 
-    There are two ways to post an Event to a Topic --- "notify", which
-    does checks appropriate to do_method=notify, and "post", which
-    doesn't.  Routes and do_method=notify use "notify"; everything else
-    uses "post".
+    There are two ways to post an Event to a Topic --- "notify",
+    which does checks appropriate to do_method=notify, and "post",
+    whcih does not.  Routes and do_method=notify use "notify";
+    everything else uses "post".
 
     Posting an Event to a Topic causes the Event to get posted to all
     the Routes on the route topic of the Topic --- at first immediately,
@@ -91,13 +96,13 @@
 
     Every Topic knows its name.
 
-    The subtopics of a Topic are the events in the Topic's kn_subtopics
-    topic.
+    The subtopics of a Topic are the events in the Topic's
+    kn_subtopics topic.
 
-    When creating a Route, a Connection doesn't talk directly to the
+    When creating a Route, a Connection does not talk directly to the
     kn_routes subtopic; instead it calls create_route() on the topic
-    it is routing out of.  This handles IRP and calls post on the
-    kn_routes subtopic.
+    out of which it is routing.  This handles Initial Route Population (IRP)
+    and calls post on the kn_routes subtopic.
 
 """
 
@@ -106,7 +111,9 @@ PermissionDenied = "403 Permission denied"
 StaleTopic = "404 Expired"
 Error = "pubsub.py error"
 
-import sys, os, asyncore, string, socket, time, cgi, urlparse, urllib, os.path, re, cgitb, getopt, traceback, errno
+import sys, os, os.path, re, string, socket, time, getopt, traceback, errno
+import cgi, urlparse, urllib, cgitb
+import asyncore # FIXME: replace the mod_pubsub-modified asyncore with the standard asyncore.
 from cPickle import dump, load
 from serverutils import *
 
@@ -294,7 +301,7 @@ class Topic(Event):
         """Given an Event, add it to the topic, and route it to the
         appropriate places before returning."""
         if self.update_event(event):
-            if self.kn_subtopics is not None:  # a kludge to avoid infinite recursion
+            if self.kn_subtopics is not None:  # A kludge to avoid infinite recursion.
                 kn_routes = self.get_subtopic('kn_routes')
                 for route in kn_routes.get_events():
                     if route.is_stale() or not route.post(event):
@@ -305,32 +312,47 @@ class Topic(Event):
     def get_events(self):
         return filter(lambda x: x is not None, self.events)
     def notify(self, event):
-        """Given an Event, post it --- if this is allowed."""
+        """Given an Event, post it --- if this action is allowed."""
         self.post(event)
-
-    def clean(self):
-        """Simple brain-dead event deletion -- replace at will!"""
-        # Must clean subtopics, routes, and events
-        if self.kn_subtopics is not None:
-            self.kn_subtopics.clean()
-        if self.kn_routes is not None:
-            self.kn_routes.clean()
-        # Clean yourself
-        # Walk through both event array and eventdict and delete all the expired items
-        for i in range(len(self.events)):
-            evt = self.events[i]
-            if evt is not None:
-                if evt.is_expired():
-                    del self.events[i]
-                    del self.eventdict[evt['kn_id']]
-            
     def getname(self):
         return string.join(map(urllib.quote, self.name), '/')
+    def clean(self):
+        """ Simple event deletion of expired subtopics, routes, and events. """
+        # print "Cleaning " + self.getname() + "\n"
+        if self.kn_subtopics is not None:  # A kludge to avoid infinite recursion.
+            self.kn_subtopics.clean()
+            for subtopic in self.kn_subtopics.get_events():
+                subtopic.clean()
+            kn_routes = self.get_subtopic('kn_routes')
+            if kn_routes is not None:
+                kn_routes.clean()
+        # Walk through both evt array and eventdict, and delete all the expired items.
+        compact = 0
+        for i in range(len(self.events)):
+            event = self.events[i]
+            if event is not None:
+                if event.is_expired(): # Delete this event.
+                    # print "Deleting " + self.getname() + "/" + event['kn_id'] + "\n"
+                    self.events[i] = None
+                    compact = 1
+        if compact:
+            new_events = []
+            new_eventdict = {}
+            for i in range(len(self.events)):
+                event = self.events[i]
+                if event is not None:
+                    new_i = len(new_events)
+                    new_events.append(event)
+                    new_eventdict[event['kn_id']] = new_i
+            self.events = new_events
+            self.eventdict = new_eventdict
+        # FIXME: Cleaner needs to remove stale routes, that is, unsubscribing.
+        # FIXME: Cleaner needs to prune empty subtopics.
     def update_event(self, event):
         kn_id = event['kn_id']
         if self.eventdict.has_key(kn_id):
             oei = self.eventdict[kn_id]
-            if self.events[oei] == event: return 0 # dup squashing
+            if self.events[oei] == event: return 0 # Duplicate squashing.
             self.events[oei] = None
         self.eventdict[kn_id] = len(self.events)
         self.events.append(event)
@@ -437,7 +459,6 @@ class StaticRoute(Route):
     def is_static_route(self): return 1
     def close(self): pass
 
-# FIXME: These guys need to get deleted sometime!
 class Tunnel(Route):
 
     """Responsibilities: format a sequence of events and send them to
@@ -453,7 +474,7 @@ class Tunnel(Route):
         self.dead = 0
         
     def post(self, event):
-        # this assumes that it's always safe to write a space to a
+        # This assumes that it's always safe to write a space to a
         # tunnel as a keepalive byte.  This is true for our existing
         # tunnel formats, but maybe won't be true for every future
         # tunnel format; at that time we'll need to fix this.
@@ -595,11 +616,12 @@ class ServerSaver:
         self.scheduler = scheduler
         self.reschedule()
     def __call__(self):
-        #Fixme:  this would be a good place to do some deletion
-        #Call clean method on root event 
+        # print "Server Saving.\n"
         self.root.clean()
+        # print "Cleaned.\n"
         write_event_pool(self.filename, self.root)
         self.reschedule()
+        # print "Server Rescheduled.\n"
     def reschedule(self):
         self.scheduler.schedule_processing(self, time.time() + self.interval)
 
@@ -617,7 +639,7 @@ class Server:
         self.verbose = verbose
         self.ignorePrologue = ignorePrologue
         self.root_topic = read_event_pool(poolfile)
-        ServerSaver(self.root_topic, poolfile, 30, self.scheduler)
+        ServerSaver(self.root_topic, poolfile, 1, self.scheduler)
 
         self.portnum = portnum
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
