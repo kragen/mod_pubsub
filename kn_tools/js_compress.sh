@@ -1,6 +1,6 @@
 #!/bin/bash --
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: js_compress.sh,v 1.1 2002/11/07 07:09:35 troutgirl Exp $
+# $Id: js_compress.sh,v 1.2 2003/03/19 05:34:39 ifindkarma Exp $
 
 ## JAVASCRIPT COMPRESSION FILTER
 # This heuristic filter automatically compresses a JavaScript file

@@ -29,3 +29,5 @@ TODO: This still has no history, nor can it decode strings representing
 more than one character, nor can it accumulate selected characters into
 a string/textarea for copy'n'paste convenience (that is, act as a
 'virtual keyboard'.)
+
+$Id: README,v 1.2 2003/03/19 05:34:39 ifindkarma Exp $
