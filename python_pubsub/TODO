@@ -1,3 +1,5 @@
+- make a python pubsub client
+- off host routes
 - verbose vs. non-verbose code not covered
 - Task.__repr__ never called
 - scheduled tasks never have errors
@@ -24,7 +26,7 @@
 - send_response's '500 Internal Server Error' catch never gets run for some reason
 - self.sockname never gets interpolated into a string because Host: headers are always sent
 - Connection.repr never gets called because it has the wrong name
-- Conection.kncgi's else never gets called when getknroot() returns ''
+- Connection.kncgi's else never gets called when getknroot() returns ''
 - FinishRouting, ReportRouteStatus, and HttpClient are unused
 - not serving any .gif or .jpg or default files in the test suites
 - most of read_event_pool and write_event_pool don't run
