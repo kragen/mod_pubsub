@@ -2,7 +2,7 @@
 High-level items on the "to do" list.
 -------------------------------------
 
-$Id: TODO,v 1.5 2003/02/22 02:47:13 ifindkarma Exp $
+$Id: TODO,v 1.6 2003/03/12 02:19:31 ifindkarma Exp $
 
  0. Instruct Apache to redirect /kn to pubsub.cgi .
     (Now INSTALL has instructions for how to do this; use
@@ -16,26 +16,36 @@ $Id: TODO,v 1.5 2003/02/22 02:47:13 ifindkarma Exp $
 
  2. After inspecting Phil Harris' python pubsub client from
     http://cvs.developer.knownow.com/
-    it looks like we can really use a decent reference python pubsub client.
+    it looks like we can really use a decent Python PubSub client
+    library that can serve as a reference for future Python PubSub
+    client libraries.
 
-    (Update 2/2003: We have an initial Python PubSub Client in
+    (Update 3/2003: We have an initial Python PubSub Client in
     python_pubsub/pubsublib.py that has publish, subscribe, and
-    unsubscribe.  This still needs several things added; see the
-    source code for FIXME's and TODO's.)
+    unsubscribe.  This still needs a test suite and several other
+    things; see python_pubsub/TODO for next things on the list.)
 
  3. Create a PubSub::Server.Pm and make pubsub.cgi a thin
     wrapper around it.  (Note: we have already merged "KNMS"
     into Client.pm .)  Part of this project may include making
     Tunnel.pm event-driven.
 
- 4. Unify the Perl PubSub client and server and
+    Unify the Perl PubSub client and server and
     submit the PubSub perl package to CPAN.
+
+ 4. Create a java_pubsub client library.
+
+    Greg suggests creating a nice clean Java API usable in any type of
+    Java client (app server based or not) and then layer a JMS
+    provider interface on top of that.  This will make it easier to
+    develop and easier to maintain over time while covering all the bases.
 
  5. Create a php_pubsub client.
 
  6. Revamp RSS Support because kn_sense/rss is an awful hack.
     Use Jeff Barr's wonderful http://www.syndic8.com/ tools.
-    [Note: cxx_pubsub contains an RSS-sensing tool for Windows.]
+
+    (Update 3/2003: cxx_pubsub contains a Windows RSS-sensing tool.)
 
  7. Clean up python_pubsub so it doesn't need to ship with
     all those other .py files.  (Ka-Ping Yee?  We wish...)
@@ -44,18 +54,22 @@ $Id: TODO,v 1.5 2003/02/22 02:47:13 ifindkarma Exp $
 
  9. pubsub.cgi should be less lazy about detecting closed
     sessions.  Bring active presence detection to mod_pubsub.
-    Perhaps do this using a cleanup.py program.
+    Perhaps do this by writing an external cleanup.py program.
 
 10. While we're at it, clean up any broken and/or ugly kn_apps.
     "replay" is a particularly useful kn_app that is broken.
 
-11. pubsub.js -- fix to deal with long lived IE6 sessions.
+11. pubsub.js -- fix it to deal with long lived IE6 sessions.
 
 12. Build an Apache log sensor and use that to create a
     "webmaster's dashboard" application.
 
 13. Get "Pocket NOC" application that monitors machines
     working to create a "sysadmin's dashboard" application.
+
+    (Update 3/2003: kn_apps/sitewatch is a first-pass at this.
+    It needs to be improved significantly, perhaps using
+    kn_sense/apache_logfile.sh .)
 
 14. Write a Jabber gateway using mod_pubsub.
 
@@ -77,4 +91,5 @@ $Id: TODO,v 1.5 2003/02/22 02:47:13 ifindkarma Exp $
     http://cvs.developer.knownow.com/
 
 22. Start a Wiki for this project.
-    (?As part of the REST Wiki?  Talk with Mark Baker & Jeff Bone...)
+    (?As part of the REST Wiki?  Talk with Mark Baker & Jeff Bone...
+    http://internet.conveyor.com/RESTwiki/moin.cgi/ )
