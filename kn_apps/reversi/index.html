@@ -1,0 +1,323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/03/08 02:51:55 ifindkarma Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub reversi game</title>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="/kn?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="/kn?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- X-URL: http://www.irt.org/games/js/reversi/ -->
+
+<!-- Original program  Copyright (C) 1999, Keith Drakard - kif@irt.org
+
+     This program is distributed under the terms of the
+     WebGames License at http://www.irt.org/games/license.txt  -->
+
+<script>
+var player  = 1;
+var running = 1;
+var score   = new Array(3); score[1]= 2; score[2]= 2;
+
+var isMyTurn = true;
+var myPlayerID = 1;
+var gameStarted = false;
+var topic = (kn_argv.kn_topic)? kn_argv.kn_topic : "/what/games/reversi";
+kn.subscribe(topic, makeMove); 
+
+function makeMove(e) 
+{
+    // This function is called by the KNN when a move has occurred.
+    if (!gameStarted) 
+    {
+        // If the first move of the game is theirs,
+        // de facto make myself white, I was second
+        if (e.playerid == 1)
+            myPlayerID = 2;
+        gameStarted = true;
+    }
+    document.forms[0]['player'+e.playerid].value=e.displayname;
+    
+    if (e.pass == "pass") {
+        do_pass();
+    } else if (e.go_x && e.go_y) {
+        go(parseInt(e.go_x), parseInt(e.go_y));
+	if (e.playerid != myPlayerID)
+           isMyTurn = true;
+        do_nextPlayer();
+    }
+}
+
+function preload() {
+    if (document.images) {
+        counter = new makeArray(3);
+        counter[0].src = "images/backg.gif";
+        counter[1].src = "images/counter1.gif";
+        counter[2].src = "images/counter2.gif";
+        mark = new makeArray(2);
+        mark[0].src = "images/blank.gif";
+        mark[1].src = "images/notblank.gif";
+    } else {
+        alert("Sorry, need to run on a browser with images.");
+    }
+}
+
+function play(x,y) 
+{
+    if (document.images["x"+x+"y"+y].src == counter[0].src) 
+    {
+        // It's been played in a blank square
+        if (check_lines(x,y)) 
+        {
+            // And there's at least one legal line
+            // So place the counter and swap counters etc.
+            // originally read: go(x,y);
+            if (isMyTurn && (player == myPlayerID)) 
+            {
+                gameStarted = true;
+                isMyTurn = false;
+                kn.publish(topic, {go_x:x , go_y:y, playerid:myPlayerID});
+            }
+        }
+    }
+}
+
+function do_nextPlayer() {
+    // And now the other player
+    if (running) {
+        document.images["hi"+player].src = mark[0].src;
+        player = 3 - player;
+        document.images["hi"+player].src = mark[1].src;
+    }
+}
+
+function go(x,y) {
+
+    var old = 3 - player;
+    var swap = 0;
+
+    document.images["x"+x+"y"+y].src= counter[player].src;
+    score[player]++;
+
+    for (j=-1; j<2; j++) {
+        for (i=-1; i<2; i++) {
+            swap= check(old,x,y,i,j); score[old]-= swap;
+            while (swap) {
+                document.images["x"+(x+(i*swap))+"y"+(y+(j*swap))].src =
+                    counter[player].src;
+                score[player]++;
+                swap--;
+            }
+        }
+    }
+    // unique KNN-ism: you can not perform blocking human I/O within an event handler.
+    // thus, we delay displaying a "congratulations" alert.
+    setTimeout("update_scores()",1);
+}
+
+function check_lines(x,y) {
+    // We're just concerned here whether or not a legal line exists
+
+    // up OR down:
+    if (check(3-player,x,y,0,-1) || check(3-player,x,y,0,1)) return(1);
+    // left OR right:
+    if (check(3-player,x,y,-1,0) || check(3-player,x,y,1,0)) return(1);
+
+    // up left OR up right
+    if (check(3-player,x,y,-1,-1) || check(3-player,x,y,1,-1)) return(1);
+    // down left OR down right
+    if (check(3-player,x,y,-1,1) || check(3-player,x,y,1,1)) return(1);
+
+    // no legal line in any direction...
+    return(0);
+}
+
+function check(p,tx,ty,dx,dy) {
+    var count= 0; tx+= dx; ty+= dy;
+    while ((tx>=0 && tx<8) && (ty>=0 && ty<8) && document.images["x"+tx+"y"+ty].src== counter[p].src) {
+        // we're still on the board and counting the opposite colour counters...
+        tx+= dx; ty+= dy; count++;
+    }
+
+    // we've stopped counting the opposite colour counters
+    // but have we reached a legal end? - ie. our colour counter
+    // and not the edge of the board or an empty square
+    if ((tx<0 || tx>7) || (ty<0 || ty>7) || document.images["x"+tx+"y"+ty].src== counter[0].src)
+        return(0);
+    else
+        return(count);
+}
+
+function update_scores() {
+    document.forms[0].score1.value= score[1];
+    document.forms[0].score2.value= score[2];
+    if (score[1]== 0 || score[2]== 0 || (score[1]+score[2]== 64)) {
+        if (score[1]> score[2]) alert("Congratulations, "+document.forms[0]['player1'].value);
+         else if (score[2]> score[1]) alert("Congratulations, "+document.forms[0]['player2'].value);
+            else alert("It's a draw");
+        running= 0;
+    }
+}
+
+function newgame() {
+    // Reset the board etc
+    for (y=0; y<8; y++) {
+        for (x=0; x<8; x++) {
+            if ((x==3 && y==3) || (x==4 && y==4)) document.images["x"+x+"y"+y].src= counter[2].src;
+             else if ((x==3 && y==4) || (x==4 && y==3)) document.images["x"+x+"y"+y].src= counter[1].src;
+                else document.images["x"+x+"y"+y].src= counter[0].src;
+        }
+    }
+    document.images["hi"+player].src= mark[0].src; player= 1;
+    document.images["hi1"].src= mark[1].src; running= 1;
+    score[1]= 2; score[2]= 2; update_scores();
+
+    myPlayerID = 1;
+    gameStarted = false;
+}
+
+//another network transaction trap
+function pass() {
+    if (gameStarted && isMyTurn) {
+        isMyTurn = false;
+        kn.publish(topic, {pass:"pass", playerid:myPlayerID});
+    }
+}
+
+function do_pass() {
+    // Only really allowed to pass if no legal moves available...
+    // (but if I could analyse moves like that, there'd be a
+    // computer opponent available - any takers? mail kif@irt.org)
+
+    if (running) { document.images["hi"+player].src= mark[0].src;
+    player= 3- player; document.images["hi"+player].src= mark[1].src; }
+}
+
+// The following function was written by Martin Webb at http://www.irt.org/
+function makeArray(n) {
+    this.length= n; for (i=0; i<n; i++) { this[i] = new Image(); }
+    return this;
+}
+//--></script>
+</head>
+
+<body bgcolor="#ccffcc" text="#000000"
+            link="#000000" vlink="#555555" alink="#ff0000"
+      onload="update_scores()">
+
+<center>
+<font face="Arial, Helvetica, sans-serif">
+
+<script><!-- //
+var output= '';
+output+= '<table align=center cellspacing=12 cellpadding=0 border=0><tr>\n';
+//output+= '<tr><td align=center><H1>Reversi</H1></td><td>&nbsp;</td></tr>\n';
+
+// Create the board
+
+output+= '<td align=center Valign=top><table CELLSPACING=0 CELLPADDING=0 BORDER=1>\n';
+for (y=0; y<8; y++) {
+    output+= '<tr>';
+    for (x=0; x<8; x++) {
+        output+= '<td><a href="javascript:play('+x+','+y+')" onFocus="blur();"><img src="images/';
+        if ((x==3 && y==3) || (x==4 && y==4)) output+= 'counter2';
+         else if ((x==3 && y==4) || (x==4 && y==3)) output+= 'counter1';
+            else output+= 'backg';
+        output+= '.gif" name="x'+x+'y'+y+'" width=60 height=60 alt="" BORDER=0></A></td>';
+    }
+    output+= '</tr>\n';
+}
+output+= '</table><br>';
+
+// Create the whose-go-is-it indicator + score etc
+
+output+= '<td Valign=top><FORM name="user"><table CELLSPACING=0 CELLPADDING=4 BORDER=0>\n';
+//output+= '<tr bgcolor="#00cc00"><td align=center><b>Player</b></td><td align=center><b>Score</b></td></tr>\n';
+
+output+= '<tr bgcolor="#00cc00"><td align=center colspan=2><input type=text size=10 value="player 1" name=player1></td> </tr>';
+
+output+= '<tr bgcolor="#00ff00"><td align=center><img src="../common/notblank.gif" name="hi1" width=4 height=60 alt="">&nbsp;';
+output+= '<img src="images/counter1.gif" width=60 height=60 alt=""></td>';
+output+= '<td align=center><input type="text" name="score1" value=2 size=2 onFocus="blur();"></td></tr>\n';
+
+output+= '<tr bgcolor="#00cc00"><td align=center colspan=2><input type=text size=10 value="player 2" name=player2></td> </tr>';
+
+output+= '<tr bgcolor="#00ff00"><td align=center><img src="../common/blank.gif" name="hi2" width=4 height=60 alt="">&nbsp;';
+output+= '<img src="images/counter2.gif" width=60 height=60 alt=""></td>';
+output+= '<td align=center><input type="text" name="score2" value=2 size=2 onFocus="blur();"></td></tr>\n';
+output+= '<tr bgcolor="#00cc00"><td colspan=2 align=center>';
+output+= '<input type="button" value=" Pass " onClick="pass()"></td></tr>\n';
+
+output+= '<tr><td colspan=2>&nbsp;</td></tr>\n';
+//output+= '<tr bgcolor="#00ff00"><td colspan=2 align=center>';
+//output+= '<input type="button" value=" New Game " onClick="newgame()"></td></tr>\n';
+
+output+= '<tr><td colspan=2>&nbsp;</td></tr>\n';
+output+= '</table></form></td>\n';
+
+output+= '</tr></table>\n';
+
+document.write(output);
+preload();
+
+//--></script>
+
+</font>
+</center>
+
+</body>
+</html>
