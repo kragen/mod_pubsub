@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.10 2003/04/02 03:25:30 ifindkarma Exp $
+# $Id: pubsub.py,v 1.11 2003/04/25 04:03:44 bsittler Exp $
 
 
 """
@@ -511,12 +511,14 @@ class JavaScriptTunnel(Tunnel):
     def headerfrom(self, event):
         return (http_header(event['status'], 'text/html; charset=utf-8') +
                 "<html><head><title>%s</title></head>\n" % event['status'] +
+                html_prologue_string(self._jsTunnel_conn) +
                 '<body bgcolor="#f0f0ff" %s>\n' % (self.watching and (' onload="if (parent.kn_tunnelLoadCallback) ' +
                                                    'parent.kn_tunnelLoadCallback(window)"') or '') +
                 "<h1>%s</h1>" % event['status'] + event['html_payload'] + '<!--');
     def __init__(self, conn, watching):
         Tunnel.__init__(self, conn)
         self.watching = watching
+        self._jsTunnel_conn = conn
     def encode(self, dict):
         return ('--><script type="text/javascript"><!--\n' +
                 'if (parent.kn_sendCallback) parent.kn_sendCallback({elements:[\n' +
@@ -745,6 +747,7 @@ def do_blank(conn):
     conn.report_status('sending blank')
     conn.send(http_header('200 OK', 'text/html; charset=utf-8') +
               "<html><head><title>This Space Intentionally Left Blank</title>\n" +
+              html_prologue_string(conn) +
               '<script type="text/javascript">\n' +
               '<!--\n' +
               'if (parent.kn_redrawCallback) { parent.kn_redrawCallback(window); }\n' +
@@ -825,7 +828,21 @@ def handle_http_request(conn, uri, httpreq, query_string):
         conn.send(http_header('501 Not Implemented', 'text/html') +
                   "The %s method is not supported for %s.\n" % (cgi.escape(httpreq['method']), cgi.escape(uri)))
         conn.finish_sending()
-                  
+
+def html_prologue_string(conn):
+    return ('<script type="text/javascript">\n' +
+            '<!--\n' +
+            js_prologue_string(conn) + '\n' +
+            '// -->\n' +
+            '</script>')
+
+def js_prologue_string(conn):
+    str = ''
+    try:
+        str = conn.pathread(urlpath(conn.getknroot()) + ['kn_apps', 'kn_lib', 'prologue.js'])[1]
+    except: pass
+    return 'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n' + str
+
 def handle_urlroot_request(conn, uri, httpreq, query_string):
     conn.report_status('handling urlroot request: %s' % uri)
     knroot = urlpath(conn.getknroot())
@@ -854,21 +871,19 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
         do_batch(conn, query)
     elif do_method == 'lib':
         header = http_header('200 OK', 'text/javascript')
-        data = (
-            'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n' +
-            conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1])
+        data = js_prologue_string(conn)
         conn.send(header + data)
         conn.finish_sending()
     elif do_method == 'libform':
         conn.send(http_header('200 OK', 'text/javascript') +
-                  'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n' +
+                  js_prologue_string(conn) +
                   conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
                   "\n" +
                   conn.pathread(knroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
         conn.finish_sending()
     elif do_method == 'lib2form':
         conn.send(http_header('200 OK', 'text/javascript') +
-                  'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n' +
+                  js_prologue_string(conn) +
                   conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
                   "\n" +
                   "window.kn__form2way = true;\n" +
@@ -876,7 +891,7 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
         conn.finish_sending()
     elif do_method == 'whoami':
         conn.send(http_header('200 OK', 'text/javascript') +
-                  'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n')
+                  js_prologue_string(conn))
         conn.finish_sending()
     elif do_method == 'noop':
         conn.send(http_header('200 OK', 'text/plain') +
@@ -991,7 +1006,9 @@ class Connection(asyncore.dispatcher_with_send):
         except:
             self.report_status('sending internal server error response')
             self.send(http_header("500 Internal Server Error", "text/html") +
-                      '<html><head><title>500 Internal Server Error</title></head><body bgcolor="#f0f0ff">\n' +
+                      '<html><head><title>500 Internal Server Error</title>' +
+                      html_prologue_string(self) +
+                      '</head><body bgcolor="#f0f0ff">\n' +
                       cgitb.html())
             self.log_err('send_response\n' + cgitb.html())
             self.finish_sending()
