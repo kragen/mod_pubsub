@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.6 2003/05/16 04:37:23 ifindkarma Exp $
+ $Id: index.html,v 1.7 2003/05/16 05:00:09 ifindkarma Exp $
 
 -->
 
@@ -130,14 +130,19 @@ function presenceOnMessage(event)
     var name = event.displayname || event.userid || "(unknown)";
 
     var eventDate = new Date(parseFloat(event.kn_time_t) * 1000);
+    var eventHours = eventDate.getHours();
+    var eventMinutes = eventDate.getMinutes();
+    var eventSeconds = eventDate.getSeconds();
 
     presenceLog.value =
         $_("[%{0}] %{1}  (%{2}:%{3}:%{4})\n",
            name,
            event.kn_payload,
-        // new Date().toTimeString()) +
-        //   new Date(parseFloat(event.kn_time_t) * 1000).toTimeString()) +
-           eventDate.getHours(), eventDate.getMinutes(), eventDate.getSeconds()) +
+        // new Date().toTimeString()) + 
+        // new Date(parseFloat(event.kn_time_t) * 1000).toTimeString()) +
+           eventHours,
+           (eventMinutes < 10) ? ("0" + eventMinutes.toString()) : eventMinutes,
+           (eventSeconds < 10) ? ("0" + eventSeconds.toString()) : eventSeconds) +
         presenceLog.value;
 
 }
