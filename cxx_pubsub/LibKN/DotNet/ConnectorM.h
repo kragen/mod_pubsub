@@ -62,6 +62,15 @@ namespace LibKNDotNet
 		bool Close();
 		bool EnsureConnected();
 
+		__property bool get_Queueing();
+		__property void set_Queueing(bool on);
+
+		bool SaveQueue(String* filename);
+		bool LoadQueue(String* filename);
+		bool Flush();
+		bool Clear();
+		bool HasItems();
+
 		bool Publish(Message* msg, IRequestStatusHandler* sh);
 
 		String* Subscribe(String* topic, IListener* listener, Message* options, IRequestStatusHandler* sh);

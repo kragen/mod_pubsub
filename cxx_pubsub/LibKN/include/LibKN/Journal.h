@@ -99,6 +99,7 @@ private:
 
 	Journal& operator=(const Journal& rhs);
 
+	bool StartTunnelImp();
 	void SetJournalPathImpl();
 
 	bool m_ExpectClosing;
@@ -114,7 +115,7 @@ private:
 	HANDLE m_hReadThread;
 
 	// Event that lets us know the reader thread is running
-	HANDLE m_ThreadDeathEvent;
+	// HANDLE m_ThreadDeathEvent;
 
 	// Reader thread control function 
 	static DWORD WINAPI ReadSimpleTunnelThread(void* args);

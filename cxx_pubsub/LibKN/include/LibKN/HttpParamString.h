@@ -48,11 +48,6 @@ public:
 	BaseEncodingString();
 	virtual ~BaseEncodingString();
 
-	/**
-	 * Clear this object, making it ready for reuse.
-	 */
-	void Clear();
-
 	virtual bool AddParam(const wstring& name, const wstring& value) = 0;
 
 protected:
@@ -60,9 +55,6 @@ protected:
 
 	const string utf8_encode(const wstring& str_to_encode);
 	const string url_encode(const string& str_to_encode);
-
-	char* m_EncodeBuf;
-	unsigned long m_BufLen;
 };
 
 /**
@@ -81,7 +73,6 @@ public:
 	 * Add parameters to this string.
 	 */
 	bool AddParam(const wstring& name, const wstring& value);
-
 };
 
 class SimpleString : public BaseEncodingString

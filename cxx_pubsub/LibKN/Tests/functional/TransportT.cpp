@@ -2,6 +2,8 @@
 //
 
 #include "stdafx.h"
+#include "globals.h"
+#include "testutil.h"
 #include <LibKN\Transport.h>
 
 class TransportTest : public CPPUNIT_NS::TestFixture
@@ -33,6 +35,7 @@ void TransportTest::tearDown()
 
 void TransportTest::testConstructor()
 {
+	TU_INIT_TESTCASE("testConstructor");
 #if 0
 	Transport t(0);
 	CPPUNIT_ASSERT(!t.IsConnected());
@@ -41,6 +44,7 @@ void TransportTest::testConstructor()
 
 void TransportTest::testConnection()
 {
+	TU_INIT_TESTCASE("testConnection");
 #if 0
 	Transport t(0);
 	CPPUNIT_ASSERT(!t.IsConnected());

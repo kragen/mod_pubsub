@@ -1,0 +1,20 @@
+FileVer		Date		Reason
+1.1.0.7		4/24/03		Build for XL testing
+1.1.0.6		4/24/03		Half-finished binary payloads
+1.1.0.5		4/20/03		Changed OnStatus to be called with Connection status when publish 
+1.1.0.4		4/20/03		Added VARIANT_BOOL retval for COM's publish API.
+1.1.0.0		4/18/03		Added StampVer to binaries.
+						const Message& options to Connector::Subscribe() (2/20/03)
+						serialize/deserialize to Message (2/20/03)
+						UTF8 conversion routines (3/15/03)
+						PocketPC 2000 support (3/15/03)
+						makefile (3/15/03)
+						Desktop installer (4/5/03)
+						Logger (4/5/03)
+							Need to write to file (4/10/03)
+							Need LogCfgUtil
+						Need PocketPC, PocketPC 2k installs (4/8/03)
+						Added VS.NET 2K3 support (VC71) (4/13/03)
+						Added version stamping to build process (4/17/03)
+						
+

@@ -38,6 +38,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <LibKN\Message.h>
 #include <LibKN\StrUtil.h>
 #include <LibKN\SimpleParser.h>
+#include <LibKN\Logger.h>
 
 Message::Message() :
 	m_ItemsHaveChanged(true)
@@ -115,7 +116,9 @@ void Message::Set(const wstring& f, const wstring& v)
 	Lock autoLock(this);
 
 	m_ItemsHaveChanged = true;
-	m_Container[f] = v;
+
+	// m_Container[f] = v;
+	m_Container[f].assign(v);
 }
 
 void Message::Set(const string& f, const string& v)
@@ -179,13 +182,6 @@ const Message::Container& Message::GetContainer() const
 	return m_Container;
 }
 
-bool Message::HasItemsChanged() const
-{
-	Lock autoLock(this);
-
-	return m_ItemsHaveChanged;
-}
-
 string Message::GetAsSimpleFormat() const
 {
 	Lock autoLock(this);
@@ -216,7 +212,8 @@ string Message::GetAsSimpleFormat() const
 	if (payload.length() > 0)
 	{
 		retVal += "\n";
-		retVal += ConvertToUtf8(payload);
+		string s = ConvertToUtf8(payload);
+		retVal.append(s);
 	}
 
 	return retVal;

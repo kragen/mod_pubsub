@@ -118,6 +118,9 @@
 				RelativePath="ListenerBridge.cpp">
 			</File>
 			<File
+				RelativePath="LoggerM.cpp">
+			</File>
+			<File
 				RelativePath="MessageM.cpp">
 			</File>
 			<File
@@ -170,6 +173,9 @@
 				RelativePath="ListenerBridge.h">
 			</File>
 			<File
+				RelativePath="LoggerM.h">
+			</File>
+			<File
 				RelativePath="MessageM.h">
 			</File>
 			<File
@@ -190,10 +196,16 @@
 			<File
 				RelativePath="StringToChar.h">
 			</File>
+			<File
+				RelativePath="resource.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;r">
+			<File
+				RelativePath="LibKNDotNet.rc">
+			</File>
 		</Filter>
 		<File
 			RelativePath="ReadMe.txt">

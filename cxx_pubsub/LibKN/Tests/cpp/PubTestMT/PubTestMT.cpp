@@ -10,7 +10,7 @@
 
 volatile bool g_Quit = false;
 CWhenZero<int> g_NumThreads = 0;
-Connector g_Connector;
+Connector* g_Connector;
 CCriticalSection g_Screen;
 CInterlockedScalar<int> g_NumRequests = 0;
 CInterlockedScalar<int> g_NumEvents = 0;
@@ -134,7 +134,7 @@ void WorkerThread(void* arg)
 	{
 //		sprintf(payload, "hello %d %d", n, i);
 		m.Set("kn_payload", payload);
-		bool b = g_Connector.Publish(m, &mReqH);
+		bool b = g_Connector->Publish(m, &mReqH);
 //		Sleep(rand() % 10);
 	}
 
@@ -157,12 +157,15 @@ int main(int argc, char* argv[])
 	}
 
 	printf("Starting...\n");
+
+	g_Connector = new Connector();
+
 	g_NumEvents = atoi(argv[NumEvents]);
 
 	ITransport::Parameters p;
 	p.m_ServerUrl = argv[Server];
 
-	if (g_Connector.Open(p))
+	if (g_Connector->Open(p))
 	{
 		int nThreads = atoi(argv[NumThreads]);
 
@@ -189,7 +192,7 @@ int main(int argc, char* argv[])
 
 		printf("\nTime is %d milliseconds\n", duration);
 
-		g_Connector.Close();
+		g_Connector->Close();
 	}
 	else
 	{
@@ -197,6 +200,9 @@ int main(int argc, char* argv[])
 	}
 
 	printf("End of program.\n");
+
+	delete g_Connector;
+	g_Connector = 0;
 
 	return 0;
 }

@@ -2,9 +2,24 @@
 //
 
 #include "stdafx.h"
+#include "Globals.h"	//TestUtil.
+#include "TestUtil.h"	//TestUtil.
+#include <stdio.h>
+#include <vector>
+using std::vector;
+using std::cout;
 
 int main(int argc, char* argv[])
 {
+	// Process the arguments						//TestUtil.
+	string error = TU_INIT_TESTSUITE(argc, argv);	//TestUtil.
+	if(error.size() != 0)							//TestUtil.
+	{												//TestUtil.
+		cout << error;								//TestUtil.
+		exit(1);									//TestUtil.
+	}												//TestUtil.
+
+
 	// Get the top level suite from the registry
 	CPPUNIT_NS::Test* suite = CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest();
 	

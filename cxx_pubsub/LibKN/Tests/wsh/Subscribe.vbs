@@ -38,6 +38,7 @@ set params = WScript.CreateObject("LibKNCom.Parameters")
 
 'params.ServerUrl = "http://localhost:8000/kn"
 params.ServerUrl = argv(0)
+params.ShowUI = false
 
 DIM b
 b = conn.Open(params)
@@ -55,14 +56,13 @@ IF b THEN
     
     IF len(rid) = 0 THEN
         WScript.Echo "Failed to subscribe, exiting."
-        conn.Close
-        WScript.Quit
+    ELSE
+        WHILE 1
+            WScript.Sleep 10
+        WEND
     END IF
     
-    WHILE 1
-        WScript.Sleep 10
-    WEND
-    
+    WScript.Sleep 1 
     conn.Close
     WScript.Echo "Done"
 else

@@ -59,14 +59,13 @@ IF b THEN
     
     IF len(rid) = 0 THEN
         WScript.Echo "Failed to subscribe, exiting."
-        conn.Close
-        WScript.Quit
+    ELSE
+        WHILE 1
+            WScript.Sleep 10
+        WEND
     END IF
     
-    WHILE 1
-        WScript.Sleep 10
-    WEND
-    
+    WScript.Sleep 1
     conn.Close
     WScript.Echo "Done"
 else

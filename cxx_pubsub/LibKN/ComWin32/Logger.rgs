@@ -1,0 +1,26 @@
+HKCR
+{
+	LibKNCom.Logger.1 = s 'Logger Class'
+	{
+		CLSID = s '{3A915A50-9601-494D-B81B-D4C79A317E79}'
+	}
+	LibKNCom.Logger = s 'Logger Class'
+	{
+		CLSID = s '{3A915A50-9601-494D-B81B-D4C79A317E79}'
+		CurVer = s 'LibKNCom.Logger.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {3A915A50-9601-494D-B81B-D4C79A317E79} = s 'Logger Class'
+		{
+			ProgID = s 'LibKNCom.Logger.1'
+			VersionIndependentProgID = s 'LibKNCom.Logger'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{7065681D-3001-4F97-82D7-190855D936C1}'
+		}
+	}
+}

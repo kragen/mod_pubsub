@@ -1,0 +1,294 @@
+VERSION 5.00
+Object = "{6556ED95-9838-11D1-80AE-00C04FAD5EFB}#1.0#0"; "mscelistview.dll"
+Begin VB.Form Form1 
+   Appearance      =   0  'Flat
+   BackColor       =   &H80000005&
+   Caption         =   "MsgViewer"
+   ClientHeight    =   3615
+   ClientLeft      =   60
+   ClientTop       =   840
+   ClientWidth     =   3480
+   ForeColor       =   &H80000008&
+   ScaleHeight     =   3615
+   ScaleWidth      =   3480
+   ShowOK          =   -1  'True
+   Begin MSCELISTVIEWLibCtl.ListViewCtrl ListViewCtrl1 
+      Height          =   2295
+      Left            =   120
+      TabIndex        =   6
+      Top             =   1200
+      Width           =   3255
+      _cx             =   5741
+      _cy             =   4048
+      FontBold        =   0   'False
+      FontItalic      =   0   'False
+      FontName        =   "Arial"
+      FontSize        =   8
+      FontStrikethrough=   0   'False
+      FontUnderline   =   0   'False
+      HideColumnHeaders=   0   'False
+      HideSelection   =   -1  'True
+      LabelEdit       =   0
+      LabelWrap       =   0   'False
+      MultiSelect     =   0   'False
+      Sorted          =   0   'False
+      SortKey         =   0
+      SortOrder       =   0
+      View            =   3
+      Enabled         =   -1  'True
+   End
+   Begin VBCE.CommandButton UnsubBtn 
+      Height          =   255
+      Left            =   960
+      TabIndex        =   5
+      Top             =   840
+      Width           =   735
+      _cx             =   1296
+      _cy             =   450
+      BackColor       =   12632256
+      Caption         =   "Unsub"
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Style           =   0
+   End
+   Begin VBCE.TextBox TopicTxt 
+      Height          =   255
+      Left            =   840
+      TabIndex        =   1
+      Top             =   480
+      Width           =   2415
+      _cx             =   4260
+      _cy             =   450
+      BackColor       =   -2147483643
+      BorderStyle     =   1
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      ForeColor       =   -2147483640
+      Text            =   "/what/chat"
+      Alignment       =   0
+      HideSelection   =   -1  'True
+      Locked          =   0   'False
+      MaxLength       =   0
+      MultiLine       =   0   'False
+      PasswordChar    =   ""
+      ScrollBars      =   0
+   End
+   Begin VBCE.Label Label2 
+      Height          =   255
+      Left            =   120
+      TabIndex        =   4
+      Top             =   480
+      Width           =   615
+      _cx             =   1085
+      _cy             =   450
+      AutoSize        =   0   'False
+      BackColor       =   -2147483643
+      BackStyle       =   1
+      BorderStyle     =   0
+      Caption         =   "Topic"
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      ForeColor       =   -2147483640
+      Alignment       =   0
+      UseMnemonic     =   -1  'True
+      WordWrap        =   0   'False
+   End
+   Begin VBCE.TextBox ServerTxt 
+      Height          =   255
+      Left            =   840
+      TabIndex        =   0
+      Top             =   120
+      Width           =   2415
+      _cx             =   4260
+      _cy             =   450
+      BackColor       =   -2147483643
+      BorderStyle     =   1
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      ForeColor       =   -2147483640
+      Text            =   "http://sales.knownow.com/kn"
+      Alignment       =   0
+      HideSelection   =   -1  'True
+      Locked          =   0   'False
+      MaxLength       =   0
+      MultiLine       =   0   'False
+      PasswordChar    =   ""
+      ScrollBars      =   0
+   End
+   Begin VBCE.Label Label1 
+      Height          =   255
+      Left            =   120
+      TabIndex        =   3
+      Top             =   120
+      Width           =   615
+      _cx             =   1085
+      _cy             =   450
+      AutoSize        =   0   'False
+      BackColor       =   -2147483643
+      BackStyle       =   1
+      BorderStyle     =   0
+      Caption         =   "Server"
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      ForeColor       =   -2147483640
+      Alignment       =   0
+      UseMnemonic     =   -1  'True
+      WordWrap        =   0   'False
+   End
+   Begin VBCE.CommandButton SubBtn 
+      Height          =   255
+      Left            =   120
+      TabIndex        =   2
+      Top             =   840
+      Width           =   735
+      _cx             =   1296
+      _cy             =   450
+      BackColor       =   12632256
+      Caption         =   "Sub"
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Style           =   0
+   End
+End
+Attribute VB_Name = "Form1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+
+Dim g_Rid As String
+Dim MyConnector As Connector
+
+Private Sub Form_Load()
+    g_Rid = Empty
+    Set MyConnector = Nothing
+    CreateServer
+    ClearGrid
+    UpdateUI
+End Sub
+
+Private Sub Form_OKClick()
+    App.End
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    If g_Rid <> Empty Then
+        UnsubBtn_Click
+    End If
+    DestroyServer
+End Sub
+
+Private Sub SubBtn_Click()
+    ClearGrid
+    Dim p As Parameters
+    Set p = CreateObject("LibKNCom.Parameters")
+    p.ServerUrl = ServerTxt.Text
+    
+    If Not MyConnector.Open(p) Then
+        MsgBox "Cannot connect to the server"
+        Exit Sub
+    End If
+    
+    Dim n As Object
+    Set n = Nothing
+    
+    g_Rid = MyConnector.Subscribe(TopicTxt.Text, n, n, n)
+    UpdateUI
+End Sub
+
+Private Sub UnsubBtn_Click()
+    Dim n As Object
+    Set n = Nothing
+    MyConnector.Unsubscribe g_Rid, n
+    MyConnector.Close
+    g_Rid = Empty
+    UpdateUI
+End Sub
+
+Private Sub UpdateUI()
+    Dim ridEmpty As Boolean
+    If g_Rid = Empty Then
+        ridEmpty = True
+    Else
+        ridEmpty = False
+    End If
+    
+    SubBtn.Enabled = ridEmpty
+    UnsubBtn.Enabled = Not ridEmpty
+End Sub
+
+Private Sub CreateServer()
+    Set MyConnector = CreateObjectWithEvents("LibKNCom.Connector", "MyConnector_")
+End Sub
+
+Private Sub DestroyServer()
+    Set MyConnector = Nothing
+End Sub
+
+Private Sub ClearGrid()
+    Dim ch As ColumnHeader
+    ListViewCtrl1.ColumnHeaders.Clear
+    Set ch = ListViewCtrl1.ColumnHeaders.Add(, , "Field")
+    Set ch = ListViewCtrl1.ColumnHeaders.Add(, , "Value")
+    ch.Width = 4000
+    ListViewCtrl1.ListItems.Clear
+End Sub
+
+Public Sub DumpMessage(ByVal m As String, ByVal msg As LIBKNCOMLib.IMessage)
+    ClearGrid
+    Dim msgEvt As MessageEntry
+    Dim li As ListItem
+    For Each msgEvt In msg
+        Set li = ListViewCtrl1.ListItems.Add(, , msgEvt.Field)
+        li.SubItems(1) = msgEvt.Value
+    Next
+End Sub

@@ -131,12 +131,6 @@ public:
 	const Container& GetContainer() const;
 
 	/**
-	 * \return True if any of the fields/values have changed since the last time GetAsHttpParam() was called.
-	 * This provides a caching optimization.
-	 */
-	bool HasItemsChanged() const;
-
-	/**
 	 * \return True if all of the field/value pairs of this message is equal to the other message.
 	 */
 	bool operator==(const Message& rhs);

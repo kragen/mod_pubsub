@@ -161,13 +161,20 @@ END_CONNECTION_POINT_MAP()
 // IConnector
 public:
 	STDMETHOD(Subscribe)(/*[in]*/ BSTR topic, /*[in]*/ IComListener* listener, IMessage* options, /*[in]*/ IComRequestStatusHandler* sh, BSTR* pVal);
-	STDMETHOD(Publish)(/*[in]*/ IMessage* m, /*[in]*/ IComRequestStatusHandler* sh);
+	STDMETHOD(Publish)(/*[in]*/ IMessage* m, /*[in]*/ IComRequestStatusHandler* sh, VARIANT_BOOL* pVal);
 	STDMETHOD(EnsureConnected)(/*[out, retval]*/ VARIANT_BOOL* pVal);
 	STDMETHOD(Close)(/*[out, retval]*/ VARIANT_BOOL* pVal);
 	STDMETHOD(GetParameters)(/*[out, retval]*/ IParameters** p);
 	STDMETHOD(Open)(/*[in]*/ IParameters* p, VARIANT_BOOL* pVal);
 	STDMETHOD(IsConnected)(/*[out, retval]*/ VARIANT_BOOL* pVal);
 	STDMETHOD(Unsubscribe)(/*[in]*/ BSTR rid, /*[in]*/ IComRequestStatusHandler* sh, /*[out, retval]*/ VARIANT_BOOL* pVal);
+	STDMETHOD(get_Queueing)(/*[out, retval]*/ VARIANT_BOOL* pVal);
+	STDMETHOD(put_Queueing)(/*[in]*/ VARIANT_BOOL newVal);
+	STDMETHOD(SaveQueue)(/*[in]*/ BSTR filename, /*[out, retval]*/ VARIANT_BOOL* pVal);
+	STDMETHOD(LoadQueue)(/*[in]*/ BSTR filename, /*[out, retval]*/ VARIANT_BOOL* pVal);
+	STDMETHOD(Clear)(/*[out, retval]*/ VARIANT_BOOL* pVal);
+	STDMETHOD(Flush)(/*[out, retval]*/ VARIANT_BOOL* pVal);
+	STDMETHOD(HasItems)(/*[out, retval]*/ VARIANT_BOOL* pVal);
 
 public:
 	void OnStatusFromHandler(RequestStatusHandlerAdapter* sha, const Message& msg);

@@ -109,7 +109,7 @@ Private Sub Form_Load()
     Set MyConnector = CreateObjectWithEvents("LibKNCom.Connector", "MyConnector_")
     Dim p As Parameters
     Set p = CreateObject("LibKNCom.Parameters")
-    p.ServerUrl = "http://127.0.0.1:8000/kn"
+    p.ServerUrl = "http://sales.knownow.com/kn"
     If MyConnector.Open(p) Then
         Subscribe
     Else

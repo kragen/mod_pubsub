@@ -5,9 +5,6 @@
 // This file is a part of Windows Template Library.
 // The code and information is provided "as-is" without
 // warranty of any kind, either expressed or implied.
-//
-// This file was modified to make it compatible with Windows CE
-// Please report any bugs to Konstantin Koshelev(kkn@reget.com)
 
 #ifndef __ATLGDI_H__
 #define __ATLGDI_H__
@@ -34,18 +31,16 @@
 #undef SelectBitmap
 #endif //_INC_WINDOWSX
 
-#ifdef _WIN32_WCE
-#undef DrawIcon //#define DrawIcon(hdc,x,y,hicon) DrawIconEx(hdc,x,y,hicon,0,0,0,NULL, DI_NORMAL)
-#define _ATL_NO_MSIMG
-#define _ATL_NO_OPENGL
-#endif
-
 // required libraries
 #ifndef _ATL_NO_MSIMG
+#if !defined(_WIN32_WCE)
 #pragma comment(lib, "msimg32.lib")
+#endif
 #endif //!_ATL_NO_MSIMG
 #ifndef _ATL_NO_OPENGL
+#if !defined(_WIN32_WCE)
 #pragma comment(lib, "opengl32.lib")
+#endif
 #endif //!_ATL_NO_OPENGL
 
 
@@ -156,7 +151,8 @@ public:
 		ATLASSERT(m_hPen != NULL);
 		return (::GetObject(m_hPen, sizeof(LOGPEN), &LogPen) == sizeof(LOGPEN));
 	}
-#ifndef _WIN32_WCE
+
+#if !defined(_WIN32_WCE)
 	int GetExtLogPen(EXTLOGPEN* pLogPen) const
 	{
 		ATLASSERT(m_hPen != NULL);
@@ -369,7 +365,7 @@ public:
 		memset(&logFont, 0, sizeof(LOGFONT));
 		logFont.lfCharSet = DEFAULT_CHARSET;
 		logFont.lfHeight = nPointSize;
-		wcsncpy(logFont.lfFaceName, lpszFaceName, sizeof(logFont.lfFaceName)/sizeof(TCHAR));
+		lstrcpyn(logFont.lfFaceName, lpszFaceName, sizeof(logFont.lfFaceName)/sizeof(TCHAR));
 		return CreatePointFontIndirect(&logFont, hDC);
 	}
 	HFONT CreatePointFontIndirect(const LOGFONT* lpLogFont, HDC hDC = NULL)
@@ -378,18 +374,13 @@ public:
 
 		// convert nPointSize to logical units based on hDC
 		LOGFONT logFont = *lpLogFont;
-#ifdef _WIN32_WCE
-		logFont.lfHeight = (long) -((logFont.lfHeight/10.0 * (double)GetDeviceCaps(hDC1, LOGPIXELSY) / 72.0)+.5);
-#else
 		POINT pt;
-
 		pt.y = ::GetDeviceCaps(hDC1, LOGPIXELSY) * logFont.lfHeight;
 		pt.y /= 720;    // 72 points/inch, 10 decipoints/point
 		::DPtoLP(hDC1, &pt, 1);
 		POINT ptOrg = { 0, 0 };
 		::DPtoLP(hDC1, &ptOrg, 1);
 		logFont.lfHeight = -abs(pt.y - ptOrg.y);
-#endif
 
 		if(hDC == NULL)
 			::ReleaseDC(NULL, hDC1);
@@ -479,7 +470,7 @@ public:
 		m_hBitmap = ::LoadBitmap(NULL, MAKEINTRESOURCE(nIDBitmap));
 		return m_hBitmap;
 	}
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 	HBITMAP LoadMappedBitmap(UINT nIDBitmap, UINT nFlags = 0, LPCOLORMAP lpColorMap = NULL, int nMapSize = 0)
 	{
 		ATLASSERT(m_hBitmap == NULL);
@@ -794,7 +785,7 @@ public:
 		m_hRgn = ::PathToRegion(hDC);
 		return m_hRgn;
 	}
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 	HRGN CreateFromData(const XFORM* lpXForm, int nCount, const RGNDATA* pRgnData)
 	{
 		ATLASSERT(m_hRgn == NULL);
@@ -1048,7 +1039,7 @@ public:
 	HPEN SelectPen(HPEN hPen)
 	{
 		ATLASSERT(m_hDC != NULL);
-		ATLASSERT(hPen == NULL || ::GetObjectType(hPen) == OBJ_PEN);
+		ATLASSERT(hPen == NULL || ::GetObjectType(hPen) == OBJ_PEN || ::GetObjectType(hPen) == OBJ_EXTPEN);
 		return (HPEN)::SelectObject(m_hDC, hPen);
 	}
 	HBRUSH SelectBrush(HBRUSH hBrush)
@@ -1611,24 +1602,18 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::InvertRect(m_hDC, lpRect);
 	}
+#if !defined(_WIN32_WCE)
 	BOOL DrawIcon(int x, int y, HICON hIcon)
 	{
 		ATLASSERT(m_hDC != NULL);
-#ifndef _WIN32_WCE
 		return ::DrawIcon(m_hDC, x, y, hIcon);
-#else
-		return ::DrawIconEx(m_hDC, x, y, hIcon,0,0,0,NULL, DI_NORMAL);
-#endif
 	}
 	BOOL DrawIcon(POINT point, HICON hIcon)
 	{
 		ATLASSERT(m_hDC != NULL);
-#ifndef _WIN32_WCE
 		return ::DrawIcon(m_hDC, point.x, point.y, hIcon);
-#else
-		return ::DrawIconEx(m_hDC, point.x, point.y, hIcon,0,0,0,NULL, DI_NORMAL);
-#endif
 	}
+#endif
 	BOOL DrawIconEx(int x, int y, HICON hIcon, int cxWidth, int cyWidth, UINT uStepIfAniCur = 0, HBRUSH hbrFlickerFreeDraw = NULL, UINT uFlags = DI_NORMAL)
 	{
 		ATLASSERT(m_hDC != NULL);
@@ -1654,7 +1639,7 @@ public:
 		ATLASSERT(m_hDC != NULL);
 		return ::DrawState(m_hDC, hBrush, NULL, (LPARAM)lpszText, (WPARAM)nTextLen, pt.x, pt.y, size.cx, size.cy, nFlags | (bPrefixText ? DST_PREFIXTEXT : DST_TEXT));
 	}
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 	BOOL DrawState(POINT pt, SIZE size, DRAWSTATEPROC lpDrawProc, LPARAM lData, UINT nFlags, HBRUSH hBrush = NULL)
 	{
 		ATLASSERT(m_hDC != NULL);
@@ -1797,6 +1782,7 @@ public:
 		return ::SetPixelV(m_hDC, point.x, point.y, crColor);
 	}
 
+#if !defined(_WIN32_WCE)
 #ifndef _ATL_NO_MSIMG
 	BOOL AlphaBlend(int x, int y, int nWidth, int nHeight, HDC hSrcDC, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight, BLENDFUNCTION bf)
 	{
@@ -1814,6 +1800,7 @@ public:
 		return ::GradientFill(m_hDC, pVertices, nVertices, pMeshElements, nMeshElements, dwMode);
 	}
 #endif //!_ATL_NO_MSIMG
+#endif
 
 // Extra bitmap functions
 	// Helper function for painting a disabled toolbar or menu bitmap
@@ -1926,7 +1913,6 @@ public:
 	}
 
 // Text Functions
-#ifndef _WIN32_WCE
 	BOOL TextOut(int x, int y, LPCTSTR lpszString, int nCount = -1)
 	{
 		ATLASSERT(m_hDC != NULL);
@@ -1934,7 +1920,6 @@ public:
 			nCount = lstrlen(lpszString);
 		return ::TextOut(m_hDC, x, y, lpszString, nCount);
 	}
-#endif
 	BOOL ExtTextOut(int x, int y, UINT nOptions, LPCRECT lpRect, LPCTSTR lpszString, UINT nCount = -1, LPINT lpDxWidths = NULL)
 	{
 		ATLASSERT(m_hDC != NULL);
@@ -2094,19 +2079,20 @@ public:
 		return ::GetAspectRatioFilterEx(m_hDC, lpSize);
 	}
 
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 	BOOL GetCharABCWidths(UINT nFirstChar, UINT nLastChar, LPABC lpabc) const
 	{
 		ATLASSERT(m_hDC != NULL);
 		return ::GetCharABCWidths(m_hDC, nFirstChar, nLastChar, lpabc);
 	}
 #endif
+
 	DWORD GetFontData(DWORD dwTable, DWORD dwOffset, LPVOID lpData, DWORD cbData) const
 	{
 		ATLASSERT(m_hDC != NULL);
 		return ::GetFontData(m_hDC, dwTable, dwOffset, lpData, cbData);
 	}
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 	int GetKerningPairs(int nPairs, LPKERNINGPAIR lpkrnpair) const
 	{
 		ATLASSERT(m_hDC != NULL);
@@ -2163,13 +2149,14 @@ public:
 		return StartDoc(&di);
 	}
 
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 	int StartDoc(LPDOCINFO lpDocInfo)
 	{
 		ATLASSERT(m_hDC != NULL);
 		return ::StartDoc(m_hDC, lpDocInfo);
 	}
 #endif
+	
 	int StartPage()
 	{
 		ATLASSERT(m_hDC != NULL);
@@ -2196,7 +2183,6 @@ public:
 		return ::EndDoc(m_hDC);
 	}
 
-#ifndef _WIN32_WCE
 // MetaFile Functions
 	BOOL PlayMetaFile(HMETAFILE hMF)
 	{
@@ -2206,9 +2192,12 @@ public:
 			// playing metafile in metafile, just use core windows API
 			return ::PlayMetaFile(m_hDC, hMF);
 		}
-
+#if !defined(_WIN32_WCE)
 		// for special playback, lParam == pDC
 		return ::EnumMetaFile(m_hDC, hMF, EnumMetaFileProc, (LPARAM)this);
+#else
+		return FALSE;
+#endif
 	}
 	BOOL PlayMetaFile(HENHMETAFILE hEnhMetaFile, LPCRECT lpBounds)
 	{
@@ -2221,6 +2210,7 @@ public:
 		return ::GdiComment(m_hDC, nDataSize, pCommentData);
 	}
 
+#if !defined(_WIN32_WCE)
 	// Special handling for metafile playback
 	static int CALLBACK EnumMetaFileProc(HDC hDC, HANDLETABLE* pHandleTable, METARECORD* pMetaRec, int nHandles, LPARAM lParam)
 	{
@@ -2308,7 +2298,7 @@ public:
 
 		return 1;
 	}
-#endif //_WIN32_WCE
+#endif
 
 // Path Functions
 	BOOL AbortPath()
@@ -2503,6 +2493,7 @@ public:
 	}
 
 // OpenGL support
+#if !defined(_WIN32_WCE)
 #ifndef _ATL_NO_OPENGL
 	int ChoosePixelFormat(CONST PIXELFORMATDESCRIPTOR* ppfd)
 	{
@@ -2581,6 +2572,7 @@ public:
 		return ::wglSwapLayerBuffers(m_hDC, uPlanes);
 	}
 #endif //!_ATL_NO_OPENGL
+#endif
 
 // New for Windows 2000 only
 #if (_WIN32_WINNT >= 0x0500)
@@ -2719,11 +2711,11 @@ public:
 	}
 };
 
+#if !defined(_WIN32_WCE)
 
 /////////////////////////////////////////////////////////////////////////////
 // Enhanced metafile support
 
-#ifndef _WIN32_WCE
 class CEnhMetaFileInfo
 {
 public:
@@ -2911,7 +2903,8 @@ public:
 		return hEMF;
 	}
 };
-#endif //_WIN32_WCE
+
+#endif 
 
 }; //namespace WTL
 

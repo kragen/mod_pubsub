@@ -42,8 +42,5 @@ using namespace System;
 
 namespace LibKNDotNet
 {
-	public __gc class Class1
-	{
-		// TODO: Add your methods for this class here.
-	};
+	// TODO: Add your methods for this class here.
 }

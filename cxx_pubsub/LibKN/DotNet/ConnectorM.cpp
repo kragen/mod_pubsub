@@ -92,6 +92,43 @@ bool Connector::EnsureConnected()
 	return m_ConnectorImpl->EnsureConnected();
 }
 
+bool Connector::get_Queueing()
+{
+	return m_ConnectorImpl->GetQueueing();
+}
+
+void Connector::set_Queueing(bool on)
+{
+	return m_ConnectorImpl->SetQueueing(on);
+}
+
+bool Connector::SaveQueue(String* filename)
+{
+	StringToWChar* _filename = new StringToWChar(filename);
+	return m_ConnectorImpl->SaveQueue(_filename->GetChar());
+}
+
+bool Connector::LoadQueue(String* filename)
+{
+	StringToWChar* _filename = new StringToWChar(filename);
+	return m_ConnectorImpl->LoadQueue(_filename->GetChar());
+}
+
+bool Connector::Flush()
+{
+	return m_ConnectorImpl->Flush();
+}
+
+bool Connector::Clear()
+{
+	return m_ConnectorImpl->Clear();
+}
+
+bool Connector::HasItems()
+{
+	return m_ConnectorImpl->HasItems();
+}
+
 bool Connector::Publish(Message* msg, IRequestStatusHandler* sh)
 {
 	Lock autoLock(m_CS);

@@ -65,7 +65,7 @@ void Message::Copy(Message* rhs)
 	*m_MessageImpl = *(rhs->m_MessageImpl);
 }
 
-void Message::Copy(const ::Message& rhs)
+void Message::CopyImpl(const ::Message& rhs)
 {
 	Lock autoLock(m_CS);
 	*m_MessageImpl = rhs;
@@ -129,23 +129,28 @@ bool Message::InitFromSimple(String* str)
 	return retVal;
 }
 
+::Message* Message::GetImpl()
+{
+	return m_MessageImpl;
+}
+
 IEnumerator* Message::GetEnumerator()
 {
 	return new MessageEnumerator(this);
 }
 
-Message::MessageEnumerator::MessageEnumerator(Message* m) :
+MessageEnumerator::MessageEnumerator(Message* m) :
 	m_Message(m),
 	m_Iter(0)
 {
 }
 
-Object* Message::MessageEnumerator::get_Current()
+Object* MessageEnumerator::get_Current()
 {
 	if (m_Iter == 0)
 		throw new InvalidOperationException();
 
-	if ((*m_Iter) == m_Message->m_MessageImpl->GetContainer().end())
+	if ((*m_Iter) == m_Message->GetImpl()->GetContainer().end())
 		throw new InvalidOperationException();
 
 	MessageEntry* me = new MessageEntry();
@@ -155,7 +160,7 @@ Object* Message::MessageEnumerator::get_Current()
 	return me;
 }
 
-void Message::MessageEnumerator::Reset()
+void MessageEnumerator::Reset()
 {
 	if (m_Iter)
 	{
@@ -164,28 +169,23 @@ void Message::MessageEnumerator::Reset()
 	}
 }
 
-bool Message::MessageEnumerator::MoveNext()
+bool MessageEnumerator::MoveNext()
 {
-	if (m_Message->m_MessageImpl->GetContainer().empty())
+	if (m_Message->GetImpl()->GetContainer().empty())
 		return false;
 
 	if (m_Iter == 0)
 	{
 		m_Iter = new ::Message::Container::const_iterator();
-		*m_Iter = m_Message->m_MessageImpl->GetContainer().begin();
+		*m_Iter = m_Message->GetImpl()->GetContainer().begin();
 		return true;
 	}
 
 	(*m_Iter)++;
 
-	bool retVal = (*m_Iter) != m_Message->m_MessageImpl->GetContainer().end();
+	bool retVal = (*m_Iter) != m_Message->GetImpl()->GetContainer().end();
 
 	return retVal;
-}
-
-::Message* Message::GetImpl()
-{
-	return m_MessageImpl;
 }
 
 }

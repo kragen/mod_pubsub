@@ -5,9 +5,6 @@
 // This file is a part of Windows Template Library.
 // The code and information is provided "as-is" without
 // warranty of any kind, either expressed or implied.
-//
-// This file was modified to make it compatible with Windows CE
-// Please report any bugs to Konstantin Koshelev(kkn@reget.com)
 
 #ifndef __ATLDLGS_H__
 #define __ATLDLGS_H__
@@ -119,11 +116,7 @@ public:
 		m_ofn.lpstrDefExt = lpszDefExt;
 		m_ofn.lpstrFileTitle = (LPTSTR)m_szFileTitle;
 		m_ofn.nMaxFileTitle = _MAX_FNAME;
-#ifndef _WIN32_WCE
 		m_ofn.Flags |= dwFlags | OFN_EXPLORER | OFN_ENABLEHOOK | OFN_ENABLESIZING;
-#else
-		m_ofn.Flags |= dwFlags | OFN_EXPLORER | OFN_ENABLEHOOK;
-#endif
 		m_ofn.lpstrFilter = lpszFilter;
 		m_ofn.hInstance = _Module.GetResourceInstance();
 		m_ofn.lpfnHook = (LPOFNHOOKPROC)T::StartDialogProc;
@@ -131,11 +124,7 @@ public:
 
 		// setup initial file name
 		if(lpszFileName != NULL)
-#ifndef _WIN32_WCE
 			lstrcpyn(m_szFileName, lpszFileName, _MAX_PATH);
-#else
-			lstrcpy(m_szFileName, lpszFileName);
-#endif
 	}
 
 	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow())
@@ -361,13 +350,8 @@ public:
 
 		m_bi.hwndOwner = hWndParent;
 		m_bi.pidlRoot = NULL;
-#ifndef _WIN32_WCE
 		m_bi.pszDisplayName = m_szFolderDisplayName;
 		m_bi.lpszTitle = lpstrTitle;
-#else
-		m_bi.pszDisplayName = (LPSTR)m_szFolderDisplayName;
-		m_bi.lpszTitle = (LPSTR)lpstrTitle;
-#endif
 		m_bi.ulFlags = uFlags;
 		m_bi.lpfn = BrowseCallbackProc;
 		m_bi.lParam = (LPARAM)this;
@@ -548,7 +532,6 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 // CFontDialogImpl - font selection dialog
 
-#ifndef _WIN32_WCE
 template <class T>
 class ATL_NO_VTABLE CFontDialogImpl : public CCommonDialogImplBase
 {
@@ -826,11 +809,9 @@ public:
 };
 
 #endif // _RICHEDIT_
-#endif // _WIN32_WCE
 
 /////////////////////////////////////////////////////////////////////////////
 // CColorDialogImpl - color selection
-#ifndef _WIN32_WCE
 
 static const UINT _nMsgCOLOROK = ::RegisterWindowMessage(COLOROKSTRING);
 const UINT _nMsgSETRGB = ::RegisterWindowMessage(SETRGBSTRING);
@@ -936,12 +917,9 @@ public:
 	DECLARE_EMPTY_MSG_MAP()
 };
 
-#endif //_WIN32_WCE
 
 /////////////////////////////////////////////////////////////////////////////
 // CPrintDialogImpl - used for Print... and PrintSetup...
-
-#ifndef _WIN32_WCE
 
 // global helper
 static HDC _AtlCreateDC(HGLOBAL hDevNames, HGLOBAL hDevMode)
@@ -1395,12 +1373,8 @@ public:
 
 #endif //(WINVER >= 0x0500)
 
-#endif //_WIN32_WCE
-
 /////////////////////////////////////////////////////////////////////////////
 // CPageSetupDialogImpl - Page Setup dialog
-
-#ifndef _WIN32_WCE
 
 template <class T>
 class ATL_NO_VTABLE CPageSetupDialogImpl : public CCommonDialogImplBase
@@ -1549,12 +1523,9 @@ public:
 	}
 };
 
-#endif //_WIN32_WCE
 
 /////////////////////////////////////////////////////////////////////////////
 // CFindReplaceDialogImpl - Find/FindReplace modeless dialogs
-
-#ifndef _WIN32_WCE
 
 template <class T>
 class ATL_NO_VTABLE CFindReplaceDialogImpl : public CCommonDialogImplBase
@@ -1683,7 +1654,6 @@ public:
 	DECLARE_EMPTY_MSG_MAP()
 };
 
-#endif _WIN32_WCE
 
 /////////////////////////////////////////////////////////////////////////////
 // CPropertySheetWindow - client side for a property sheet
@@ -1884,10 +1854,6 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 // CPropertySheetImpl - implements a property sheet
 
-#ifdef _WIN32_WCE_PSPC
-UINT _declspec(selectany) WM_ATLPROPERTYSHEETNOTIFY = 0;
-#endif
-
 #if (_MSC_VER >= 1200)
 typedef HPROPSHEETPAGE	_HPROPSHEETPAGE_TYPE;
 #else
@@ -1908,11 +1874,7 @@ public:
 	{
 		memset(&m_psh, 0, sizeof(PROPSHEETHEADER));
 		m_psh.dwSize = sizeof(PROPSHEETHEADER);
-#ifndef _WIN32_WCE_PSPC
 		m_psh.dwFlags = PSH_USECALLBACK;
-#else
-		m_psh.dwFlags = PSH_USECALLBACK | PSH_MAXIMIZE;
-#endif
 		m_psh.hInstance = _Module.GetResourceInstance();
 		m_psh.phpage = NULL;	// will be set later
 		m_psh.nPages = 0;	// will be set later
@@ -1931,7 +1893,7 @@ public:
 		}
 	}
 
-	static int CALLBACK PropSheetCallback(HWND hWnd, UINT uMsg, LPARAM lParam)
+	static int CALLBACK PropSheetCallback(HWND hWnd, UINT uMsg, LPARAM)
 	{
 		if(uMsg == PSCB_INITIALIZED)
 		{
@@ -1942,73 +1904,12 @@ public:
 			// remove page handles array
 			pT->_CleanUpPages();
 		}
-#ifdef _WIN32_WCE_PSPC
-	    else if(uMsg == PSCB_GETVERSION)
-		{
-			return COMCTL32_VERSION;
-		}
 
-		if(!WM_ATLPROPERTYSHEETNOTIFY) WM_ATLPROPERTYSHEETNOTIFY = RegisterWindowMessage(_T("WM_ATLPROPERTYSHEETNOTIFY"));
-		return ::SendMessage(hWnd, WM_ATLPROPERTYSHEETNOTIFY, uMsg, lParam);
-#else
-		lParam;
-		return 0;
-#endif
-	}
-
-#ifdef _WIN32_WCE_PSPC
-
-	LRESULT OnAtlPropertySheetNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
-	{
-		if(wParam == PSCB_INITIALIZED)
-		{
-			// init dialog
-			CWindow wnd = GetTabControl();
-			wnd.ModifyStyle(0, TCS_BOTTOM, 0);
-			
-			SHINITDLGINFO	shidi;
-			memset(&shidi, 0, sizeof(SHINITDLGINFO));
-			shidi.dwMask = SHIDIM_FLAGS;
-			shidi.dwFlags = SHIDIF_DONEBUTTON | SHIDIF_SIZEDLGFULLSCREEN; 
-			shidi.hDlg = m_hWnd;
-			if (!SHInitDialog(&shidi))
-			{
-				DWORD dwError = GetLastError();
-				ATLTRACE(_T("Warning: Making Fullscreen dialog failed during dialog init. Error # %d\n"),dwError);
-			} 
-
-			if(m_hWndCB==NULL)
-			{
-				SHMENUBARINFO	cbi = { 0 };
-				cbi.cbSize		= sizeof( SHMENUBARINFO );
-				cbi.hwndParent	= m_hWnd;
-				cbi.dwFlags		= SHCMBF_EMPTYBAR;
-				SHCreateMenuBar( &cbi );
-				m_hWndCB = cbi.hwndMB;
-			}
-		}
 		return 0;
 	}
-
-	BOOL IsFirstInstance()
-	{
-		HWND hWnd = FindWindow(_T("Dialog"), m_psh.pszCaption);
-		if(hWnd)
-		{
-			BOOL b = ::SetForegroundWindow((HWND)(((DWORD)hWnd) | 0x01));
-			if(!b) ATLTRACE(_T("Failed to set window foreground !!!\n"));
-
-		}
-		return !hWnd;
-	}
-#endif
 
 	HWND Create(HWND hWndParent = NULL)
 	{
-#ifdef _WIN32_WCE_PSPC
-		T* pT = static_cast<T*>(this);
-		if(!pT->IsFirstInstance()) return NULL;
-#endif
 		ATLASSERT(m_hWnd == NULL);
 
 		m_psh.dwFlags |= PSH_MODELESS;
@@ -2017,9 +1918,7 @@ public:
 		m_psh.phpage = (HPROPSHEETPAGE*)m_arrPages.GetData();
 		m_psh.nPages = m_arrPages.GetSize();
 
-#ifndef _WIN32_WCE_PSPC
 		T* pT = static_cast<T*>(this);
-#endif
 		_Module.AddCreateWndData(&m_thunk.cd, pT);
 
 		HWND hWnd = (HWND)::PropertySheet(&m_psh);
@@ -2032,10 +1931,6 @@ public:
 
 	INT_PTR DoModal(HWND hWndParent = ::GetActiveWindow())
 	{
-#ifdef _WIN32_WCE_PSPC
-		T* pT = static_cast<T*>(this);
-		if(!pT->IsFirstInstance()) return NULL;
-#endif
 		ATLASSERT(m_hWnd == NULL);
 
 		m_psh.dwFlags &= ~PSH_MODELESS;
@@ -2044,9 +1939,7 @@ public:
 		m_psh.phpage = (HPROPSHEETPAGE*)m_arrPages.GetData();
 		m_psh.nPages = m_arrPages.GetSize();
 
-#ifndef _WIN32_WCE_PSPC
 		T* pT = static_cast<T*>(this);
-#endif
 		_Module.AddCreateWndData(&m_thunk.cd, pT);
 
 		INT_PTR nRet = ::PropertySheet(&m_psh);
@@ -2247,9 +2140,6 @@ public:
 // Message map and handlers handlers
 	typedef CPropertySheetImpl< T, TBase >	thisClass;
 	BEGIN_MSG_MAP(thisClass)
-#ifdef _WIN32_WCE_PSPC
-		MESSAGE_HANDLER(WM_ATLPROPERTYSHEETNOTIFY, OnAtlPropertySheetNotify)
-#endif
 		MESSAGE_HANDLER(WM_COMMAND, OnCommand)
 	END_MSG_MAP()
 
@@ -2284,11 +2174,7 @@ class CPropertyPageWindow : public CWindow
 {
 public:
 // Constructors
-#ifndef _WIN32_WCE_PSPC
 	CPropertyPageWindow(HWND hWnd = NULL) : CWindow(hWnd) { }
-#else
-	CPropertyPageWindow(HWND hWnd = NULL) : CWindow(hWnd) { m_bShowDoneButton=FALSE; }
-#endif
 
 	CPropertyPageWindow& operator=(HWND hWnd)
 	{
@@ -2438,8 +2324,7 @@ public:
 
 	LRESULT OnNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
-		// Produce false alarm?
-		//ATLASSERT(::IsWindow(m_hWnd));
+		ATLASSERT(::IsWindow(m_hWnd));
 		NMHDR* pNMHDR = (NMHDR*)lParam;
 
 		// don't handle messages not from the page/sheet itself
@@ -2480,7 +2365,7 @@ public:
 		case PSN_HELP:
 			pT->OnHelp();
 			break;
-#if (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
+#if (_WIN32_IE >= 0x0400)
 		case PSN_GETOBJECT:
 			if(!pT->OnGetObject((LPNMOBJECTNOTIFY)lParam))
 				bHandled = FALSE;
@@ -2548,7 +2433,7 @@ public:
 	void OnHelp()
 	{
 	}
-#if (_WIN32_IE >= 0x0400) && !defined(_WIN32_WCE)
+#if (_WIN32_IE >= 0x0400)
 	BOOL OnGetObject(LPNMOBJECTNOTIFY /*lpObjectNotify*/)
 	{
 		return FALSE;	// not processed

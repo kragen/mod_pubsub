@@ -1,7 +1,7 @@
 /*
  * $Log: Publish.js,v $
- * Revision 1.1  2003/03/08 04:38:10  ifindkarma
- * Bug fixes and reorganization, plus some additions.  Note: package needs testing.
+ * Revision 1.2  2003/08/15 23:46:14  ifindkarma
+ * Added changes from August 2003.
  *
  * 
  * 2     3/03/03 9:55p Thui

@@ -36,6 +36,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "stdafx.h"
 #include <LibKN\Tunnel.h>
+#include <LibKN\Logger.h>
 
 Tunnel::Tunnel(HINTERNET tunnelHandle, const Message& status)
 {
@@ -81,7 +82,7 @@ int Tunnel::ReadData(mb_buf_ptr* buf_ptr)
 
 	if (m_Available == 0)
 	{
-		Lock autoLock(this);
+//		Lock autoLock(this);
 
 		// This will block until there is data avalable or the connection is closed
 		if (!InternetQueryDataAvailable(m_TunnelHandle, &dwSize, 0, 0))
@@ -97,6 +98,7 @@ int Tunnel::ReadData(mb_buf_ptr* buf_ptr)
 		}
 
 		{
+			Lock autoLock(this);
 			m_Available = dwSize;
 		}
 

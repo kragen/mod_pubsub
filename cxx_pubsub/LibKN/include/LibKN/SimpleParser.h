@@ -37,7 +37,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if !defined(LIBKN_SIMPLEPARSER_H)
 #define LIBKN_SIMPLEPARSER_H
 
-#include <LibKN\defs.h>
+#include <LibKN\Defs.h>
 #include <LibKN\Tunnel.h>
 #include <LibKN\Message.h>
 
@@ -92,11 +92,6 @@ private:
 
 	// a place to hold the event
 	string event_str;
-
-	// the allocated size of the conversion buffer
-	int w_buf_size;
-	// a buffer for character conversion (between utf8 and unicode)
-	wchar_t* w_buf;
 
 	// pointer to the server object that events will be posted to
 	Connector* m_Connector;

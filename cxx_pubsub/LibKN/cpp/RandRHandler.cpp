@@ -36,6 +36,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "stdafx.h"
 #include <LibKN\RandRHandler.h>
+#include <LibKN\Logger.h>
 #include <stdlib.h>
 #include <limits.h>
 

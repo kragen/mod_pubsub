@@ -48,9 +48,14 @@ extern string ConvertToNarrow(const string& str);
 /** This function converts string sizes */
 extern string ConvertToNarrow(const wstring& str);
 
+/** This function converts a narrow string to the default system string size */
 extern tstring ConvertToTString(const string& str);
+/** This function converts a wide string to the default system string size */
 extern tstring ConvertToTString(const wstring& str);
 
+/** This function converts a wide string to UTF8 */
 extern string ConvertToUtf8(const wstring& str);
+/** This function converts an UTF8 to wide string */
+extern wstring ConvertFromUtf8(const string& str);
 
 #endif

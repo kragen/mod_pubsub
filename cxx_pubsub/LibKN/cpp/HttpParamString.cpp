@@ -36,26 +36,15 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "stdafx.h"
 #include <LibKN\HttpParamString.h>
+#include <LibKN\StrUtil.h>
+#include <LibKN\Logger.h>
 
-BaseEncodingString::BaseEncodingString() :
-	m_EncodeBuf(0)
+BaseEncodingString::BaseEncodingString() 
 {
-	Clear();
 }
 
 BaseEncodingString::~BaseEncodingString()
 {
-	if (m_EncodeBuf)
-		delete[] m_EncodeBuf;
-}
-
-void BaseEncodingString::Clear()
-{
-	if (m_EncodeBuf)
-		delete[] m_EncodeBuf;
-
-	m_BufLen = 512;
-	m_EncodeBuf = new char[m_BufLen];
 }
 
 bool BaseEncodingString::AddParamImpl(const wstring& name, const wstring& value, const string& fvSep, const string& evtSep)
@@ -87,31 +76,7 @@ bool BaseEncodingString::AddParamImpl(const wstring& name, const wstring& value,
 
 const string BaseEncodingString::utf8_encode(const wstring& str_to_encode)
 {
-	string ret_str("");
-	int str_len;
-	if (!(str_len = WideCharToMultiByte(CP_UTF8, 0, str_to_encode.c_str(), str_to_encode.length(), m_EncodeBuf, m_BufLen, NULL, NULL)))
-	{
-		//check if the buffer was too short
-		if (ERROR_INSUFFICIENT_BUFFER == GetLastError())
-		{
-			//get the required lenght
-			int temp_len = WideCharToMultiByte(CP_UTF8, 0, str_to_encode.c_str(), str_to_encode.length(), NULL, 0, NULL, NULL);
-			if (temp_len == 0)
-				return ret_str;
-
-			delete[] m_EncodeBuf;
-
-			m_EncodeBuf = new char[temp_len];
-			m_BufLen = temp_len;
-
-			if (!(str_len = WideCharToMultiByte(CP_UTF8, 0, str_to_encode.c_str(), str_to_encode.length(), m_EncodeBuf, m_BufLen, NULL, NULL)))
-				return ret_str;
-		}
-		else
-			return ret_str;
-	}
-
-	return ret_str.assign(m_EncodeBuf, str_len);
+	return ConvertToUtf8(str_to_encode);
 }
 
 bool is_safe(unsigned char aCharacter)

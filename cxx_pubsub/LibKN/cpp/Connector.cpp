@@ -37,51 +37,126 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stdafx.h"
 #include <LibKN\Connector.h>
 #include <LibKN\StrUtil.h>
+#include <LibKN\Logger.h>
 #include <stdio.h>
 
 Connector::Connector() :
 	m_Journal(this),
 	m_Transport(this)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::Connector()"));
 }
 
 Connector::~Connector()
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::~Connector()"));
 	m_Listeners.clear();
 	m_ConnectionStatusHandlers.clear();
 }
 
 bool Connector::IsConnected()
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::IsConnected()"));
 	bool b = m_Transport.IsConnected();
 	return b; // && m_Journal.IsConnected();
 }
 
 bool Connector::Open(const ITransport::Parameters& p)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::Open"));
 	bool b = m_Transport.Open(p);
+	
+	if (b)
+		b = EnsureConnected();
+
 	return b;
 }
 
 const ITransport::Parameters& Connector::GetParameters() const
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::GetParameters()"));
 	return m_Transport.GetParameters();
 }
 
 bool Connector::Close()
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::Close()"));
 	m_Journal.ExpectClosing();
+	m_Journal.CloseTunnel();
 	return m_Transport.Close();
 }
 
 bool Connector::EnsureConnected()
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::EnsureConnected()"));
 	return m_Transport.EnsureConnected();
 }
 
+
+bool Connector::GetQueueing()
+{
+	AutoMethod(g_cmpCppConnector, _T("Connector::GetQueueing()"));
+	return m_OfflineQueue.GetQueueing();
+}
+
+void Connector::SetQueueing(bool on)
+{
+	AutoMethod(g_cmpCppConnector, _T("Connector::SetQueueing()"));
+	m_OfflineQueue.SetQueueing(on);
+}
+
+bool Connector::SaveQueue(const wstring& filename)
+{
+	AutoMethod(g_cmpCppConnector, _T("Connector::SaveQueue()"));
+	return m_OfflineQueue.SaveQueue(filename);
+}
+
+bool Connector::LoadQueue(const wstring& filename)
+{
+	AutoMethod(g_cmpCppConnector, _T("Connector::LoadQueue()"));
+	return m_OfflineQueue.LoadQueue(filename);
+}
+
+bool Connector::Clear()
+{
+	AutoMethod(g_cmpCppConnector, _T("Connector::Clear()"));
+	return m_OfflineQueue.Clear();
+}
+
+bool Connector::Flush()
+{
+	AutoMethod(g_cmpCppConnector, _T("Connector::Flush()"));
+	Lock autoLock(this);
+
+	if (!m_OfflineQueue.m_Queue.empty())
+	{
+		Message m;
+		m.Set(L"FlushQueue", L"Start");
+	
+		OnConnectionStatusImpl(m);
+	
+		bool b = m_OfflineQueue.FlushImp(this);
+	
+		m.Empty();
+		m.Set(L"FlushQueue", L"End");
+		m.Set(L"FlushStatus", b ? L"Done" : L"Fail");
+	
+		OnConnectionStatusImpl(m);
+	}
+
+	return true;
+}
+
+bool Connector::HasItems()
+{
+	AutoMethod(g_cmpCppConnector, _T("Connector::HasItems()"));
+	return m_OfflineQueue.HasItems();
+}
+
+
 bool Connector::Publish(const Message& msg, IRequestStatusHandler* sh)
 {
-	Lock autoLock(this);
+	AutoMethod(g_cmpCppConnector, _T("Connector::Publish()"));
 
 	bool b = m_Journal.EnsureConnected();
 
@@ -89,22 +164,50 @@ bool Connector::Publish(const Message& msg, IRequestStatusHandler* sh)
 
 	if (b && IsConnected())
 	{
-		FlushQueue();
+		Flush();
 		sent = Post(msg, sh);
 	}
 
 	if (!sent)
 	{
-		m_OfflineQueue.Add(msg.GetAsHttpParam());
+		Lock autoLock(this);
+
+		bool authFailed = false;
+		wstring status;
+
+		if (m_LastConnectionStatus.Get("status_code", status))
+		{
+			if (status == L"403" || status == L"401")
+			{
+				authFailed = true;
+			}
+		}
+
+		if (!authFailed)
+		{
+			m_OfflineQueue.Add(msg.GetAsHttpParam());
+		}
 	}
 
 	if (!sent)
 	{
 		if (sh)
 		{
-			Message m;
-			m.Set("status", "500 Internal Server Error: publish failed.");
-			m.Set("status_code", "500");
+			Lock autoLock(this);
+			Message m = m_LastConnectionStatus;
+
+			wstring status;
+
+			if (m_LastConnectionStatus.Get("status_code", status))
+			{
+				if (status == L"200")
+				{
+					char buffer[32];
+					sprintf(buffer, "%d", HTTP_STATUS_SERVER_ERROR);
+					m.Set("status_code", buffer);
+				}
+			}
+
 			sh->OnStatus(m);
 		}
 	}
@@ -114,20 +217,22 @@ bool Connector::Publish(const Message& msg, IRequestStatusHandler* sh)
 
 wstring Connector::Subscribe(const wstring& topic, IListener* listener, const Message& options, IRequestStatusHandler* sh)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::Subscribe()"));
 	Lock autoLock(this);
 
 	if (!m_Journal.EnsureConnected())
 	{
 		if (sh)
 		{
-			Message m;
-			m.Set("status_code", "500");
-			m.Set("status", "500 Internal Server Error: Subscribe failed");
+			Message m = m_LastConnectionStatus;
 			sh->OnStatus(m);
 		}
 
 		return L"";
 	}
+
+	if (IsConnected())
+		Flush();
 
 	Message msg(options);
 	wstring rid = GetRouteId(topic, msg);
@@ -141,10 +246,25 @@ wstring Connector::Subscribe(const wstring& topic, IListener* listener, const Me
 bool Connector::SubscribeRouteId(Message& msg, const wstring& rid, const wstring& topic, 
 	IListener* listener, IRequestStatusHandler* sh)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::SubscribeRouteId()"));
 	{
 		Lock autoLock(this);
 		m_Listeners[rid] = listener;
 	}
+
+	if (!m_Journal.EnsureConnected())
+	{
+		if (sh)
+		{
+			Message m = m_LastConnectionStatus;
+			sh->OnStatus(m);
+		}
+
+		return false;
+	}
+
+	if (IsConnected())
+		Flush();
 
 	wstring temp = Route(msg, rid, topic, m_Journal.GetJournalPath(), listener, sh);
 
@@ -162,6 +282,8 @@ bool Connector::SubscribeRouteId(Message& msg, const wstring& rid, const wstring
 
 wstring Connector::GetRouteIdImpl(const wstring& topic, Message& msg) const
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::GetRouteIdImpl()"));
+
 	// String to hold the kn_id for the route
 	wstring sub_id;
 
@@ -210,6 +332,8 @@ wstring Connector::GetRouteIdImpl(const wstring& topic, Message& msg) const
 
 wstring Connector::GetRouteId(const wstring& topic, Message& msg) const
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::GetRouteId()"));
+
 	bool uniqueRid = false;
 	wstring rid;
 	 
@@ -230,6 +354,8 @@ wstring Connector::GetRouteId(const wstring& topic, Message& msg) const
 
 pair<wstring, wstring> Connector::ParseRouteId(const wstring& _rid)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::ParseRouteId()"));
+
 	wstring rid = _rid;
 
 	pair<wstring, wstring> ret_val;
@@ -277,6 +403,8 @@ void Seed()
 
 wstring Connector::GetSubscriptionId() const
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::GetSubscriptionId()"));
+
 	Seed();
 
 	//generate an id for the subscription
@@ -290,12 +418,16 @@ wstring Connector::GetSubscriptionId() const
 
 bool Connector::Post(const Message& msg, IRequestStatusHandler* sh)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::Post()"));
+
 	return m_Transport.Send(msg, sh);
 }
 
 wstring Connector::Route(Message& msg, const wstring& rid, const wstring& from, const wstring& to, 
 	IListener* listener, IRequestStatusHandler* sh)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::Route()"));
+
 	msg.Set(L"do_method", L"route");
 	msg.Set(L"kn_from", from);
 	msg.Set(L"kn_to", to);
@@ -306,9 +438,7 @@ wstring Connector::Route(Message& msg, const wstring& rid, const wstring& from, 
 	{
 		if (sh)
 		{
-			Message m;
-			m.Set("status", "500 Internal Server Error: Subscribe/Route failed.");
-			m.Set("status_code", "500");
+			Message m = m_LastConnectionStatus;
 			sh->OnStatus(m);
 		}
 
@@ -320,6 +450,8 @@ wstring Connector::Route(Message& msg, const wstring& rid, const wstring& from, 
 
 wstring Connector::Route(const wstring& from, const wstring& to, IListener* listener, IRequestStatusHandler* sh)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::Route()"));
+
 	wstring rid;
 	Message msg;
 	rid = GetRouteId(from, msg);
@@ -329,6 +461,11 @@ wstring Connector::Route(const wstring& from, const wstring& to, IListener* list
 
 bool Connector::Unsubscribe(const wstring& rid, IRequestStatusHandler* sh)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::Unsubscribe()"));
+
+	if (IsConnected())
+		Flush();
+
 	{
 		Lock autoLock(this);
 
@@ -364,9 +501,7 @@ bool Connector::Unsubscribe(const wstring& rid, IRequestStatusHandler* sh)
 	{
 		if (sh)
 		{
-			Message m;
-			m.Set("status", "500 Internal Server Error: Unsubscribe failed.");
-			m.Set("status_code", "500");
+			Message m = m_LastConnectionStatus;
 			sh->OnStatus(m);
 		}
 	}
@@ -388,15 +523,19 @@ Transport& Connector::GetTransport()
 
 void Connector::AddConnectionStatusHandler(IConnectionStatusHandler* sh)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::AddConnectionStatusHandler()"));
+
 	if (sh == 0)
 		return;
-	
+
 	Lock autoLock(this);
 	m_ConnectionStatusHandlers.push_back(sh);
 }
 
 void Connector::RemoveConnectionStatusHandler(IConnectionStatusHandler* sh)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::RemoveConnectionStatusHandler()"));
+
 	if (sh == 0)
 		return;
 
@@ -411,6 +550,8 @@ void Connector::RemoveConnectionStatusHandler(IConnectionStatusHandler* sh)
 
 void Connector::OnFireEvent(const Message& msg)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::OnFireEvent()"));
+
 	Lock autoLock(this);
 
 	if (m_Listeners.empty())
@@ -434,6 +575,7 @@ void Connector::OnFireEvent(const Message& msg)
 
 void Connector::OnConnectionStatusImpl(const Message& msg)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::OnConnectionStatusImpl()"));
 	Lock autoLock(this);
 
 	if (m_ConnectionStatusHandlers.empty())
@@ -450,29 +592,12 @@ void Connector::OnConnectionStatusImpl(const Message& msg)
 	}
 }
 
-void Connector::FlushQueue()
-{
-	Lock autoLock(this);
-
-	if (!m_OfflineQueue.m_Queue.empty())
-	{
-		Message m;
-		m.Set(L"FlushQueue", L"Start");
-	
-		OnConnectionStatusImpl(m);
-	
-		bool b = m_OfflineQueue.Flush(this);
-	
-		m.Empty();
-		m.Set(L"FlushQueue", L"End");
-		m.Set(L"FlushStatus", b ? L"Done" : L"Fail");
-	
-		OnConnectionStatusImpl(m);
-	}
-}
-
 void Connector::OnConnectionStatus(const Message& msg)
 {
+	AutoMethod(g_cmpCppConnector, _T("Connector::OnConnectionStatus()"));
+
+	m_LastConnectionStatus = msg;
+
 	OnConnectionStatusImpl(msg);
 
 	wstring v;
@@ -480,7 +605,7 @@ void Connector::OnConnectionStatus(const Message& msg)
 	{
 		// Reconnected
 		//
-		FlushQueue();
+		Flush();
 	}
 }
 

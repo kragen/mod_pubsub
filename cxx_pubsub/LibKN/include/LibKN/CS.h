@@ -46,7 +46,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * To lock the resource, they can call Enter().
  * To release the resource, call Leave().
  */
-class CCriticalSection
+class CCriticalSection : public ILockable
 {
 public:
 	typedef LockImpl<CCriticalSection> Lock;
@@ -77,5 +77,20 @@ private:
 	CRITICAL_SECTION m_CS;
 };
 
+/**
+ * This class is a wrapper for the Win32 MUTEX object.
+ */
+class CMutex : public ILockable
+{
+public:
+	CMutex(const TCHAR* name, BOOL initialOwner = FALSE);
+	~CMutex();
+
+	void Enter() const;
+	void Leave() const;
+
+private:
+	HANDLE m_Mutex;
+};
 
 #endif

@@ -61,7 +61,10 @@ STDMETHODIMP CParameters::get_ServerUrl(BSTR* pVal)
 
 STDMETHODIMP CParameters::put_ServerUrl(BSTR newVal)
 {
-	m_Impl.m_ServerUrl = ConvertToTString(newVal);
+	if (newVal == 0)
+		m_Impl.m_ServerUrl.erase();
+	else
+		m_Impl.m_ServerUrl = ConvertToTString(newVal);
 	return S_OK;
 }
 
@@ -73,7 +76,10 @@ STDMETHODIMP CParameters::get_Username(BSTR* pVal)
 
 STDMETHODIMP CParameters::put_Username(BSTR newVal)
 {
-	m_Impl.m_Username = ConvertToTString(newVal);
+	if (newVal == 0)
+		m_Impl.m_Username.erase();
+	else
+		m_Impl.m_Username = ConvertToTString(newVal);
 	return S_OK;
 }
 
@@ -85,7 +91,10 @@ STDMETHODIMP CParameters::get_Password(BSTR* pVal)
 
 STDMETHODIMP CParameters::put_Password(BSTR newVal)
 {
-	m_Impl.m_Password = ConvertToTString(newVal);
+	if (newVal == 0)
+		m_Impl.m_Password.erase();
+	else
+		m_Impl.m_Password = ConvertToTString(newVal);
 	return S_OK;
 }
 
@@ -109,7 +118,10 @@ STDMETHODIMP CParameters::get_ProxyServer(BSTR* pVal)
 
 STDMETHODIMP CParameters::put_ProxyServer(BSTR newVal)
 {
-	m_Impl.m_ProxyServer = ConvertToTString(newVal);
+	if (newVal == 0)
+		m_Impl.m_ProxyServer.erase();
+	else
+		m_Impl.m_ProxyServer = ConvertToTString(newVal);
 	return S_OK;
 }
 
@@ -121,7 +133,10 @@ STDMETHODIMP CParameters::get_ProxyUsername(BSTR* pVal)
 
 STDMETHODIMP CParameters::put_ProxyUsername(BSTR newVal)
 {
-	m_Impl.m_ProxyUsername = ConvertToTString(newVal);
+	if (newVal == 0)
+		m_Impl.m_ProxyUsername.erase();
+	else
+		m_Impl.m_ProxyUsername = ConvertToTString(newVal);
 	return S_OK;
 }
 
@@ -133,7 +148,10 @@ STDMETHODIMP CParameters::get_ProxyPassword(BSTR* pVal)
 
 STDMETHODIMP CParameters::put_ProxyPassword(BSTR newVal)
 {
-	m_Impl.m_ProxyPassword = ConvertToTString(newVal);
+	if (newVal == 0)
+		m_Impl.m_ProxyPassword.erase();
+	else
+		m_Impl.m_ProxyPassword = ConvertToTString(newVal);
 	return S_OK;
 }
 
@@ -145,7 +163,10 @@ STDMETHODIMP CParameters::get_ProxyExceptionList(BSTR* pVal)
 
 STDMETHODIMP CParameters::put_ProxyExceptionList(BSTR newVal)
 {
-	m_Impl.m_ProxyExceptionList = ConvertToTString(newVal);
+	if (newVal == 0)
+		m_Impl.m_ProxyExceptionList.erase();
+	else
+		m_Impl.m_ProxyExceptionList = ConvertToTString(newVal);
 	return S_OK;
 }
 
@@ -157,7 +178,10 @@ STDMETHODIMP CParameters::get_CustomHeader(BSTR* pVal)
 
 STDMETHODIMP CParameters::put_CustomHeader(BSTR newVal)
 {
-	m_Impl.m_CustomHeader = ConvertToTString(newVal);
+	if (newVal == 0)
+		m_Impl.m_CustomHeader.erase();
+	else
+		m_Impl.m_CustomHeader = ConvertToTString(newVal);
 	return S_OK;
 }
 
@@ -173,13 +197,7 @@ STDMETHODIMP CParameters::put_ShowUI(VARIANT_BOOL newVal)
 	return S_OK;
 }
 
-static tstring ConvertString(BSTR b)
-{
-	tstring retVal;
-	wstring w = b;
-	retVal = ConvertToTString(w);
-	return retVal;
-}
+tstring ConvertString(BSTR b);
 
 ITransport::Parameters ConvertParameter(IParameters* p)
 {
@@ -227,8 +245,18 @@ void ConvertParameter(const ITransport::Parameters& p, IParameters** pVal)
 	if (pVal == 0)
 		return;
 
-	CComBSTR b;
+	CComObject<CParameters>* obj = 0;
 	HRESULT hr = S_OK;
+
+	if (*pVal == 0)
+	{
+		hr = CComObject<CParameters>::CreateInstance(&obj);
+
+		if (SUCCEEDED(hr))
+			hr = obj->QueryInterface(pVal);
+	}
+
+	CComBSTR b;
 	
 	b = p.m_ServerUrl.c_str();
 	hr = (*pVal)->put_ServerUrl(b);

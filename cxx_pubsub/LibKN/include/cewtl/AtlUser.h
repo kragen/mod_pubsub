@@ -5,9 +5,6 @@
 // This file is a part of Windows Template Library.
 // The code and information is provided "as-is" without
 // warranty of any kind, either expressed or implied.
-//
-// This file was modified to make it compatible with Windows CE
-// Please report any bugs to Konstantin Koshelev(kkn@reget.com)
 
 #ifndef __ATLUSER_H__
 #define __ATLUSER_H__
@@ -20,12 +17,6 @@
 
 #ifndef __ATLBASE_H__
 	#error atluser.h requires atlbase.h to be included first
-#endif
-
-
-#ifdef _WIN32_WCE
-#undef TrackPopupMenu //#define TrackPopupMenu(hm,u,x,y,r,hw,p) TrackPopupMenuEx((hm),(u),(x),(y),(hw),0)
-inline BOOL IsMenu(HMENU hMenu){ return hMenu!=NULL; }
 #endif
 
 
@@ -138,23 +129,23 @@ public:
 		ATLASSERT(::IsMenu(m_hMenu));
 		return ::DeleteMenu(m_hMenu, nPosition, nFlags);
 	}
+
+#if !defined(_WIN32_WCE)
 	BOOL TrackPopupMenu(UINT nFlags, int x, int y, HWND hWnd, LPCRECT lpRect = NULL)
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
-#ifndef _WIN32_WCE
 		return ::TrackPopupMenu(m_hMenu, nFlags, x, y, 0, hWnd, lpRect);
-#else
-		lpRect;
-		return ::TrackPopupMenuEx(m_hMenu, nFlags, x, y, hWnd, 0);
-#endif
 	}
+#endif
+
 	BOOL TrackPopupMenuEx(UINT uFlags, int x, int y, HWND hWnd, LPTPMPARAMS lptpm = NULL)
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
 		return ::TrackPopupMenuEx(m_hMenu, uFlags, x, y, hWnd, lptpm);
 	}
 
-#if (WINVER >= 0x0500) && !defined(_WIN32_WCE)
+#if !defined(_WIN32_WCE)
+#if (WINVER >= 0x0500)
 	BOOL GetMenuInfo(LPMENUINFO lpMenuInfo) const
 	{
 		ATLASSERT(::IsMenu(m_hMenu));
@@ -166,6 +157,7 @@ public:
 		return ::SetMenuInfo(m_hMenu, lpMenuInfo);
 	}
 #endif //(WINVER >= 0x0500)
+#endif
 
 // Menu Item Operations
 	BOOL AppendMenu(UINT nFlags, UINT_PTR nIDNewItem = 0, LPCTSTR lpszNewItem = NULL)

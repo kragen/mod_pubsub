@@ -1,0 +1,28 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibKNCom", "LibKNCom.vcproj", "{66C11FCE-20B9-467A-8023-8D30F7D0EF5B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release MinDependency = Release MinDependency
+		Release MinSize = Release MinSize
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{66C11FCE-20B9-467A-8023-8D30F7D0EF5B}.Debug.ActiveCfg = Debug|Win32
+		{66C11FCE-20B9-467A-8023-8D30F7D0EF5B}.Debug.Build.0 = Debug|Win32
+		{66C11FCE-20B9-467A-8023-8D30F7D0EF5B}.Release MinDependency.ActiveCfg = Release MinDependency|Win32
+		{66C11FCE-20B9-467A-8023-8D30F7D0EF5B}.Release MinDependency.Build.0 = Release MinDependency|Win32
+		{66C11FCE-20B9-467A-8023-8D30F7D0EF5B}.Release MinSize.ActiveCfg = Release MinSize|Win32
+		{66C11FCE-20B9-467A-8023-8D30F7D0EF5B}.Release MinSize.Build.0 = Release MinSize|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner Solution Properties) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner) = postSolution
+	EndGlobalSection
+EndGlobal

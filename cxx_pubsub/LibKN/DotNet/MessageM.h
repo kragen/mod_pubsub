@@ -58,7 +58,7 @@ namespace LibKNDotNet
 		~Message();
 
 		void Copy(Message* rhs);
-		void Copy(const ::Message& rhs);
+		void CopyImpl(const ::Message& rhs);
 		bool IsEqual(Message* rhs);
 
 		void Empty();
@@ -73,26 +73,26 @@ namespace LibKNDotNet
 
 		IEnumerator* GetEnumerator();
 
-		__gc class MessageEnumerator : public IEnumerator
-		{
-		public:
-			MessageEnumerator(Message* m);
-	
-			Object* get_Current();
-			void Reset();
-			bool MoveNext();
-	
-		private:
-			Message* m_Message;
-			::Message::Container::const_iterator* m_Iter;
-		};
-
 		::Message* GetImpl();
 
 	private:
 		::Message* m_MessageImpl;
 		CCriticalSection* m_CS;
 		typedef LockImpl<CCriticalSection> Lock;
+	};
+
+	__gc class MessageEnumerator : public IEnumerator
+	{
+	public:
+		MessageEnumerator(Message* m);
+
+		Object* get_Current();
+		void Reset();
+		bool MoveNext();
+
+	private:
+		Message* m_Message;
+		::Message::Container::const_iterator* m_Iter;
 	};
 }
 

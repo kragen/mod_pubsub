@@ -5,12 +5,6 @@
 // This file is a part of Windows Template Library.
 // The code and information is provided "as-is" without
 // warranty of any kind, either expressed or implied.
-//
-// This file was modified to make it compatible with Windows CE
-// Please report any bugs to Konstantin Koshelev(kkn@reget.com)
-//
-// Herbert Fann: Added AtlInitCommonControls() from WTL 7.0
-//
 
 #ifndef __ATLAPP_H__
 #define __ATLAPP_H__
@@ -36,7 +30,7 @@
 #endif
 
 #include <commctrl.h>
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 #pragma comment(lib, "comctl32.lib")
 #endif
 
@@ -156,21 +150,14 @@ inline bool AtlIsOldWindows()
 	return (!bRet || !((ovi.dwMajorVersion >= 5) || (ovi.dwMajorVersion == 4 && ovi.dwMinorVersion >= 90)));
 }
 
-#ifndef _WIN32_WCE
 // default GUI font helper
 inline HFONT AtlGetDefaultGuiFont()
 {
+#if !defined(_WIN32_WCE)
 	return (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
-}
+#else
+	return (HFONT)::GetStockObject(SYSTEM_FONT);
 #endif
-
-// Common Controls initialization helper
-inline BOOL AtlInitCommonControls(DWORD dwFlags)
-{
-	INITCOMMONCONTROLSEX iccx = { sizeof(INITCOMMONCONTROLSEX), dwFlags };
-	BOOL bRet = ::InitCommonControlsEx(&iccx);
-	ATLASSERT(bRet);
-	return bRet;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -306,7 +293,7 @@ public:
 		switch(pMsg->message)
 		{
 		case WM_MOUSEMOVE:
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 		case WM_NCMOUSEMOVE:
 #endif
 		case WM_PAINT:
@@ -455,10 +442,10 @@ public:
 			ATLASSERT(pModule != NULL);
 			ATLASSERT(pModule->m_pSettingChangeNotify != NULL);
 			for(int i = 1; i < pModule->m_pSettingChangeNotify->GetSize(); i++)
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 				::SendMessageTimeout((*pModule->m_pSettingChangeNotify)[i], uMsg, wParam, lParam, SMTO_ABORTIFHUNG, 1500, NULL);
 #else
-				::PostMessage((*pModule->m_pSettingChangeNotify)[i], uMsg, wParam, lParam);
+				::SendMessage((*pModule->m_pSettingChangeNotify)[i], uMsg, wParam, lParam);
 #endif
 			return TRUE;
 		}
@@ -657,14 +644,13 @@ public:
 		if(keyAppID.Open(HKEY_CLASSES_ROOT, _T("AppID"), KEY_READ) == ERROR_SUCCESS)
 		{
 			TCHAR szModule1[_MAX_PATH];
-			TCHAR szModule2[_MAX_PATH];
 			TCHAR* pszFileName;
 			::GetModuleFileName(GetModuleInstance(), szModule1, _MAX_PATH);
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
+			TCHAR szModule2[_MAX_PATH];
 			::GetFullPathName(szModule1, _MAX_PATH, szModule2, &pszFileName);
 #else
-			pszFileName = szModule1;
-			szModule2;
+			_tcscpy(pszFileName, szModule1);
 #endif
 			CRegKey keyAppIDEXE;
 			if(keyAppIDEXE.Create(keyAppID, pszFileName, REG_NONE, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE) == ERROR_SUCCESS)
@@ -681,14 +667,13 @@ public:
 		if(keyAppID.Open(HKEY_CLASSES_ROOT, _T("AppID"), KEY_READ) == ERROR_SUCCESS)
 		{
 			TCHAR szModule1[_MAX_PATH];
-			TCHAR szModule2[_MAX_PATH];
 			TCHAR* pszFileName;
 			::GetModuleFileName(GetModuleInstance(), szModule1, _MAX_PATH);
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
+			TCHAR szModule2[_MAX_PATH];
 			::GetFullPathName(szModule1, _MAX_PATH, szModule2, &pszFileName);
 #else
-			pszFileName = szModule1;
-			szModule2;
+			_tcscpy(pszFileName, szModule1);
 #endif
 			keyAppID.RecurseDeleteKey(pszFileName);
 			keyAppID.RecurseDeleteKey(pAppId);
@@ -775,7 +760,7 @@ static LRESULT Atl3ForwardNotifications(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 	{
 	case WM_COMMAND:
 	case WM_NOTIFY:
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 	case WM_PARENTNOTIFY:
 #endif
 	case WM_DRAWITEM:

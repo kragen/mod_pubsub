@@ -1025,6 +1025,113 @@ DEP_CPP_JOURN=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\cpp\Logger.cpp
+
+!IF  "$(CFG)" == "LibKNCpp - Win32 (WCE MIPS) Release"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE MIPS) Debug"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE SH3) Release"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE SH3) Debug"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE ARM) Release"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE ARM) Debug"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Release"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Debug"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Release"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Debug"
+
+DEP_CPP_LOGGE=\
+	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Logger.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\cpp\Message.cpp
 
 !IF  "$(CFG)" == "LibKNCpp - Win32 (WCE MIPS) Release"
@@ -2122,6 +2229,10 @@ SOURCE=..\include\LibKN\Journal.h
 # Begin Source File
 
 SOURCE=..\include\LibKN\Lock.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\LibKN\Logger.h
 # End Source File
 # Begin Source File
 

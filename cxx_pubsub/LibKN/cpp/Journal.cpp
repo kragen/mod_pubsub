@@ -40,11 +40,62 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <LibKN\SimpleParser.h>
 #include <LibKN\Message.h>
 #include <LibKn\StrUtil.h>
+#include <LibKN\Logger.h>
 
 extern void Seed();
 
+
+class JournalCollection : public CCriticalSection
+{
+public:
+	JournalCollection();
+	~JournalCollection();
+
+	void Add(Journal* j);
+	void Remove(Journal* j);
+	bool Has(Journal* j);
+
+private:
+	typedef LockImpl<JournalCollection> Lock;
+	typedef map<Journal*, Journal*> Collection;
+
+	Collection m_Journals;
+};
+
+JournalCollection g_JournalCollection;
+
+JournalCollection::JournalCollection()
+{
+}
+
+JournalCollection::~JournalCollection()
+{
+	m_Journals.clear();
+}
+
+void JournalCollection::Add(Journal* j)
+{
+	Lock autoLock(this);
+	m_Journals[j] = j;
+}
+
+void JournalCollection::Remove(Journal* j)
+{
+	Lock autoLock(this);
+	m_Journals.erase(j);
+}
+
+bool JournalCollection::Has(Journal* j)
+{
+	Lock autoLock(this);
+	Collection::iterator it = m_Journals.find(j);
+	return it != m_Journals.end();
+}
+
 Journal::Journal(Connector* conn)
 {
+	AutoMethod(g_cmpCppConnector, _T("Journal::Journal()"));
+
 	Seed();
 	m_Connector = conn;
 
@@ -56,22 +107,27 @@ Journal::Journal(Connector* conn)
 	m_Tunnel = 0;
 	m_JournalBase = L"/who/wms/";
 	m_hReadThread = 0;
-	m_ThreadDeathEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
+
+	g_JournalCollection.Add(this);
 }
 
 Journal::~Journal()
 {
+	AutoMethod(g_cmpCppConnector, _T("Journal::~Journal()"));
+
+	g_JournalCollection.Remove(this);
+
 	if (m_Tunnel)
 	{
 //		delete m_Tunnel;
 		m_Tunnel = 0;
 	}
-
-	CloseHandle(m_ThreadDeathEvent);
 }
 
 bool Journal::EnsureConnected()
 {
+	AutoMethod(g_cmpCppConnector, _T("Journal::EnsureConnected()"));
+
 	if (IsConnected())
 		return true;
 	else
@@ -95,6 +151,8 @@ bool Journal::IsConnected()
 
 void Journal::SetJournalPathImpl()
 {
+	AutoMethod(g_cmpCppConnector, _T("Journal::SetJournalPathImpl()"));
+
 	Lock autoLock(this);
 
 	if (m_JournalPath.length() == 0)
@@ -115,7 +173,7 @@ void Journal::SetJournalPathImpl()
 			wstring target = L"/kn_journal";
 
 			// if it ends with "/kn_journal" then use it as is
-			if (m_JournalPath.length() > target.length() && 
+			if (m_JournalPath.length() > target.length() &&
 				m_JournalPath.compare(m_JournalPath.length() - target.length(), target.length(), target) == 0)
 			{
 				return;
@@ -138,8 +196,49 @@ void Journal::SetJournalPathImpl()
 	return;
 }
 
+bool Journal::StartTunnelImp()
+{
+	AutoMethod(g_cmpCppConnector, _T("Journal::StartTunnelImp()"));
+
+	if (m_Transport == 0)
+		return false;
+
+	m_Tunnel = m_Transport->OpenTunnel(m_TunnelParams);
+
+	if (m_Tunnel == 0)
+		return false;
+
+	wstring v;
+	Message status = m_Tunnel->GetStatus();
+	bool bTunnelFailed = !m_Tunnel->Success(); // || !status.Get("journal", v);
+
+	if (bTunnelFailed)
+	{
+		char buffer[32];
+		sprintf(buffer, "%d", HTTP_STATUS_SERVER_ERROR);
+		status.Set("status_code", buffer);
+	}
+
+	m_Connector->OnConnectionStatus(status);
+	m_Connector->GetRandR().ConnectStatus(status);
+
+	if (bTunnelFailed)
+	{
+		m_Tunnel->Close();
+		// Set the error
+		//
+		delete m_Tunnel;
+		m_Tunnel = 0;
+		return false;
+	}
+
+	return true;
+}
+
 bool Journal::StartTunnel()
 {
+	AutoMethod(g_cmpCppConnector, _T("Journal::StartTunnel()"));
+
 	Lock autoLock(this);
 
 	// make sure that the tunnel is not already open
@@ -169,27 +268,9 @@ bool Journal::StartTunnel()
 	m_TunnelParams.Set(L"kn_from", m_JournalPath.c_str());
 	m_TunnelParams.Set("kn_response_format", "simple");
 
-	if (m_Transport == 0)
+	if (!StartTunnelImp())
 		return false;
 
-	m_Tunnel = m_Transport->OpenTunnel(m_TunnelParams);
-
-	if (m_Tunnel == 0)
-		return false;
-
-	m_Connector->OnConnectionStatus(m_Tunnel->GetStatus());
-	m_Connector->GetRandR().ConnectStatus(m_Tunnel->GetStatus());
-
-	if (!m_Tunnel->Success())
-	{
-		m_Tunnel->Close();
-		// Set the error
-		//
-		return false;
-	}
-
-	ResetEvent(m_ThreadDeathEvent);
-	
 	m_ExpectClosing = false;
 
 	DWORD threadId = 0;
@@ -200,10 +281,6 @@ bool Journal::StartTunnel()
 	if (m_hReadThread == 0)
 	{
 		m_Tunnel->Close();
-		SetEvent(m_ThreadDeathEvent);
-
-		//!TH
-		// set_error
 		return false;
 	}
 
@@ -218,70 +295,56 @@ void Journal::ExpectClosing()
 
 bool Journal::RestartTunnel()
 {
+	AutoMethod(g_cmpCppConnector, _T("Journal::RestartTunnel()"));
+
 	Lock autoLock(this);
 
 	// make sure there is an existing journal and tunnel to restart
 	if (m_TunnelParams.IsEmpty() || m_Tunnel == NULL)
 		return StartTunnel();
 
+	// Reconnect logic
+	//
+	m_TunnelParams.Set("do_max_age", "0");
+
 	// if the tunnel has been closed then just pass it back so that the reader thread knows to quit
 	if (m_Tunnel->IsClosed())
 		return true;
 
 	// if the tunnel is open(?) then close it
-	if (m_Tunnel->Success()) 
-	{
+	if (m_Tunnel->Success())
 		m_Tunnel->Close();
-	}
 
 	//delete the tunnel, we will make a new one below
 	delete m_Tunnel;
 
-	//Lock autoLock(this);
-
-	if (m_Transport == 0)
-		return false;
-
-	m_Tunnel = m_Transport->OpenTunnel(m_TunnelParams);
-
-	if (m_Tunnel == 0)
-		return false;
-
-	m_Connector->OnConnectionStatus(m_Tunnel->GetStatus());
-	m_Connector->GetRandR().ConnectStatus(m_Tunnel->GetStatus());
-
-	if (!m_Tunnel->Success())
-	{
-		m_Tunnel->Close();
-		// Set the error
-		//
-		return false;
-	}
-
-	return true;
+	return StartTunnelImp();
 }
 
 bool Journal::CloseTunnel()
 {
+	AutoMethod(g_cmpCppConnector, _T("Journal::CloseTunnel()"));
+
 	Lock autoLock(this);
 
 	// close the tunnel
-	if (m_Tunnel) 
+	if (m_Tunnel)
 		m_Tunnel->Close();
 
 	// make sure the reader thread stops
-	DWORD ret = WaitForSingleObject(m_ThreadDeathEvent, 60000);
+	DWORD ret = WAIT_OBJECT_0;
 
-	if (m_hReadThread) 
+	if (m_hReadThread)
 	{
 		CloseHandle(m_hReadThread);
 		m_hReadThread = 0;
 	}
 
 	//check that the reader thread died
-	if (ret == WAIT_OBJECT_0) 
+	if (ret == WAIT_OBJECT_0)
 	{
 		delete m_Tunnel;
+		m_Tunnel = 0;
 		return true;
 	}
 
@@ -301,8 +364,8 @@ int ReadFromJournal(Tunnel* t, mb_buf_ptr* buf_ptr, bool& isException)
 	{
 		nRead = t->ReadData(buf_ptr);
 	}
-	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? 
-		EXCEPTION_EXECUTE_HANDLER : 
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ?
+		EXCEPTION_EXECUTE_HANDLER :
 		EXCEPTION_CONTINUE_SEARCH)
 	{
 		nRead = -2;
@@ -324,15 +387,48 @@ void Journal::SafeConnectionStatus(Tunnel* t, Connector* c)
 	{
 		c->OnConnectionStatus(t->GetStatus());
 	}
-	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? 
-		EXCEPTION_EXECUTE_HANDLER : 
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ?
+		EXCEPTION_EXECUTE_HANDLER :
 		EXCEPTION_CONTINUE_SEARCH)
 	{
 	}
 }
 
+int SafeRestartTunnel(Journal* journal)
+{
+	int retVal = -1;
+
+	__try
+	{
+		if (IsBadReadPtr(journal, sizeof Journal))
+		{
+			retVal = -1;
+			goto ExitFunc;
+		}
+
+		//try and reconnect
+		if (journal->RestartTunnel())
+		{
+			retVal = 1;	//continue to read
+		}
+		else
+			retVal = 0;
+	}
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ?
+		EXCEPTION_EXECUTE_HANDLER :
+		EXCEPTION_CONTINUE_SEARCH)
+	{
+		retVal = -1;
+	}
+
+ExitFunc:
+	return retVal;
+}
+
 DWORD WINAPI Journal::ReadSimpleTunnelThread(void* args)
 {
+	AutoMethod(g_cmpCppTunnel, _T("Journal::ReadSimpleTunnelThread()"));
+
 	Journal* journal = static_cast<Journal*>(args);
 	if (journal == 0)
 		return 0;
@@ -344,7 +440,7 @@ DWORD WINAPI Journal::ReadSimpleTunnelThread(void* args)
 	unsigned char read_buffer[buffer_size];	// buffer for the data
 
 	int nRead = 0;
-	int fib[] = 
+	int fib[] =
 	{
 		1, 1, 2, 3, 5, 8, 13, 21
 	};
@@ -362,40 +458,77 @@ read:
 		buf_ptr.m_Max = buffer_size;
 		buf_ptr.m_Len = 0;
 
+		if (!g_JournalCollection.Has(journal))
+			goto LeaveThread;
+
 		// Read the data from the tunnel.
 		bool isException = false;
 		nRead = ReadFromJournal(journal->m_Tunnel, &buf_ptr, isException);
 
-		if (isException)
+		if (isException || journal->m_ExpectClosing)
+		{
+			TheLogger.Log(g_cmpCppTunnel, Logger::Mask::TunnelInfo, _T("ReadFromJournal : isException || journal->m_ExpectClosing"));
 			goto LeaveThread;
+		}
 
 		if (nRead <= 0)
 		{
 			if (!IsBadReadPtr(journal, sizeof Journal))
 				SafeConnectionStatus(journal->m_Tunnel, journal->m_Connector);
+
+			TheLogger.Log(g_cmpCppTunnel, Logger::Mask::TunnelInfo, _T("nRead <= 0"));
 			break;
 		}
 		else
 		{
+			{
+				TCHAR buf[80];
+				_stprintf(buf, _T("buf_ptr (%d) = "), buf_ptr.m_Len);
+				tstring temp = buf;
+				temp += ConvertToTString(string((const char*)buf_ptr.m_Ptr, buf_ptr.m_Len));
+				TheLogger.Log(g_cmpCppConnector, Logger::Mask::TunnelInfo, temp);
+			}
+
 			//parse the converted buffer
 			while (buf_ptr.m_Len > 0)
+			{
 				buf_ptr = ep.parse(buf_ptr);
+			}
 		}
 	} while (true);
 
 	fibIndex = 0;
 
+	if (!g_JournalCollection.Has(journal))
+		goto LeaveThread;
+	
 	//Check to see if this was an intended close
 	if (nRead == -1 && journal->m_Tunnel != 0)
 	{
-
 		//we did not intend for the connection to close
 		//keep trying until closed
-		while (!journal->m_ExpectClosing)
+		while (g_JournalCollection.Has(journal) && !journal->m_ExpectClosing)
 		{
-			//try and reconnect
-			if (journal->RestartTunnel())
-				goto read;	//continue to read 
+			int rv = SafeRestartTunnel(journal);
+
+			switch (rv)
+			{
+				case 1:
+				{
+					TheLogger.Log(g_cmpCppTunnel, Logger::Mask::TunnelInfo, _T("Successfully restarted the tunnel"));
+					goto read;
+				}
+				case -1:
+				{
+					// Exception of some sort, leave thread
+					goto LeaveThread;
+				}
+				default:
+				{
+					// Continue trying
+					break;
+				}
+			}
 
 			Message m;
 			char buffer[32];
@@ -403,10 +536,20 @@ read:
 			sprintf(buffer, "%d", fib[fibIndex]);
 			m.Set("delay", buffer);
 
+			if (!g_JournalCollection.Has(journal))
+				goto LeaveThread;
+
+			if (IsBadReadPtr(journal, sizeof Journal))
+				goto LeaveThread;
+
+			if (IsBadReadPtr(journal->m_Connector, sizeof Connector))
+				goto LeaveThread;
+
 			if (journal->m_Connector)
 				journal->m_Connector->OnConnectionStatus(m);
 
-			//give it a second before trying again
+			// give it some time before trying again
+			//
 			Sleep(fib[fibIndex] * 1000);
 
 			fibIndex = min(fibIndex + 1, fibSize - 1);
@@ -415,7 +558,7 @@ read:
 
 LeaveThread:
 	//Once we get here we are leaving the thread
-	SetEvent(journal->m_ThreadDeathEvent);
+	TheLogger.Log(g_cmpCppTunnel, Logger::Mask::TunnelInfo, _T("Leaving the tunnel thread"));
 
 	return 1;
 }

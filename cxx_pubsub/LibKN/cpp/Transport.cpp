@@ -36,9 +36,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "stdafx.h"
 #include <LibKN\Transport.h>
+#include <LibKN\Connector.h>
 #include <LibKN\Tunnel.h>
 #include <LibKN\SimpleParser.h>
 #include <LibKN\IRequestStatusHandler.h>
+#include <LibKN\Logger.h>
+#include <LibKN\StrUtil.h>
+
+const char* START_TUNNEL_FIELD = "_start_tunnel";
 
 ITransport::Parameters::Parameters()
 {
@@ -47,10 +52,10 @@ ITransport::Parameters::Parameters()
 	m_ParentHwnd = 0;
 
 #if !defined(_WIN32_WCE)
-	unsigned char buffer[1024];
+	TCHAR buffer[1024];
 
 	HKEY ieSettings = 0;
-	if (RegOpenKey(HKEY_CURRENT_USER, _T("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"), &ieSettings) == 
+	if (RegOpenKey(HKEY_CURRENT_USER, _T("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"), &ieSettings) ==
 		ERROR_SUCCESS)
 	{
 		DWORD type;
@@ -69,23 +74,23 @@ ITransport::Parameters::Parameters()
 
 		type = REG_SZ;
 		bufSize = 1024;
-		ZeroMemory(buffer, bufSize);
-		if (RegQueryValueEx(ieSettings, _T("ProxyServer"), 0, &type, buffer, &bufSize) == ERROR_SUCCESS)
+		ZeroMemory(buffer, sizeof buffer);
+		if (RegQueryValueEx(ieSettings, _T("ProxyServer"), 0, &type, (BYTE*)buffer, &bufSize) == ERROR_SUCCESS)
 		{
 			if (type == REG_SZ)
 			{
-				m_ProxyServer = (char*)buffer;
+				m_ProxyServer = (TCHAR*)buffer;
 			}
 		}
 
 		type = REG_SZ;
 		bufSize = 1024;
-		ZeroMemory(buffer, bufSize);
-		if (RegQueryValueEx(ieSettings, _T("ProxyOverride"), 0, &type, buffer, &bufSize) == ERROR_SUCCESS)
+		ZeroMemory(buffer, sizeof buffer);
+		if (RegQueryValueEx(ieSettings, _T("ProxyOverride"), 0, &type, (BYTE*)buffer, &bufSize) == ERROR_SUCCESS)
 		{
 			if (type == REG_SZ)
 			{
-				m_ProxyExceptionList = (char*)buffer;
+				m_ProxyExceptionList = (TCHAR*)buffer;
 			}
 		}
 
@@ -141,12 +146,14 @@ bool Transport::Close()
 
 bool Transport::Connect()
 {
+	AutoMethod(g_cmpCppConnector, _T("Transport::Connect()"));
+
 	Lock autoLock(this);
 
 	if (m_Parameters.m_ServerUrl.length() == 0)
 		return false;
 
-	URL_COMPONENTS url_comp = 
+	URL_COMPONENTS url_comp =
 	{	
 		sizeof(URL_COMPONENTS),		//dwStructSize
 		NULL,						//lpszScheme
@@ -174,7 +181,7 @@ bool Transport::Connect()
 		m_Https = false;
 	else if(url_comp.nScheme == INTERNET_SCHEME_HTTPS)
 		m_Https = true;
-	else 
+	else
 	{
 		return false;
 	}
@@ -182,18 +189,18 @@ bool Transport::Connect()
 	m_Server.assign(url_comp.lpszHostName, url_comp.dwHostNameLength);
 	m_ServerPath.assign(url_comp.lpszUrlPath, url_comp.dwUrlPathLength);
 
-	if (!m_Connect) 
+	if (!m_Connect)
 	{
 		//connect to the internet
-		m_Connect = InternetOpen(_T("libkn"), 
-			GetParameters().m_UseProxy ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG, 
-			GetParameters().m_UseProxy ? GetParameters().m_ProxyServer.c_str() : 0, 
-			(GetParameters().m_UseProxy && GetParameters().m_ProxyExceptionList.length() > 0) ? 
-				GetParameters().m_ProxyExceptionList.c_str() : 
-	            0, 
+		m_Connect = InternetOpen(_T("libkn"),
+			GetParameters().m_UseProxy ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG,
+			GetParameters().m_UseProxy ? GetParameters().m_ProxyServer.c_str() : 0,
+			(GetParameters().m_UseProxy && GetParameters().m_ProxyExceptionList.length() > 0) ?
+				GetParameters().m_ProxyExceptionList.c_str() :
+	            0,
 			0);
 
-		if (m_Connect == NULL) 
+		if (m_Connect == NULL)
 		{
 			return false;
 		}
@@ -202,10 +209,10 @@ bool Transport::Connect()
 	if (!m_Session)
 	{
 		//connect to the server
-		m_Session = InternetConnect(m_Connect, m_Server.c_str(), url_comp.nPort, 
+		m_Session = InternetConnect(m_Connect, m_Server.c_str(), url_comp.nPort,
 			GetParameters().m_Username.c_str(), 0, INTERNET_SERVICE_HTTP, 0, 0);
 
-		if (m_Session == 0) 
+		if (m_Session == 0)
 		{
 			InternetCloseHandle(m_Connect);
 			m_Connect = 0;
@@ -213,21 +220,21 @@ bool Transport::Connect()
 		}
 
 		//set the username and password for the proxy if we are using one
-		if (GetParameters().m_UseProxy) 
+		if (GetParameters().m_UseProxy)
 		{
-			InternetSetOption(m_Session, INTERNET_OPTION_PROXY_USERNAME, 
-				(void*)GetParameters().m_ProxyUsername.c_str(), 
+			InternetSetOption(m_Session, INTERNET_OPTION_PROXY_USERNAME,
+				(void*)GetParameters().m_ProxyUsername.c_str(),
 				GetParameters().m_ProxyUsername.length() + sizeof(TCHAR));
-			InternetSetOption(m_Session, INTERNET_OPTION_PROXY_PASSWORD, 
-				(void*)GetParameters().m_ProxyPassword.c_str(), 
+			InternetSetOption(m_Session, INTERNET_OPTION_PROXY_PASSWORD,
+				(void*)GetParameters().m_ProxyPassword.c_str(),
 				GetParameters().m_ProxyPassword.length() + sizeof(TCHAR));
 		}
 	}
 
 	//workaround blank password problem
 	//
-	InternetSetOption(m_Session, INTERNET_OPTION_PASSWORD, 
-		(void*)GetParameters().m_Password.c_str(), 
+	InternetSetOption(m_Session, INTERNET_OPTION_PASSWORD,
+		(void*)GetParameters().m_Password.c_str(),
 		GetParameters().m_Password.length() + sizeof(TCHAR));
 
 	return IsConnected();
@@ -235,15 +242,16 @@ bool Transport::Connect()
 
 bool Transport::Disconnect()
 {
+	AutoMethod(g_cmpCppConnector, _T("Transport::Disconnect()"));
 	Lock autoLock(this);
 
-	if (m_Session) 
+	if (m_Session)
 	{
 		InternetCloseHandle(m_Session);
 		m_Session = NULL;
 	}
 
-	if (m_Connect) 
+	if (m_Connect)
 	{
 		InternetCloseHandle(m_Connect);
 		m_Connect = NULL;
@@ -254,6 +262,7 @@ bool Transport::Disconnect()
 
 bool Transport::EnsureConnected()
 {
+	AutoMethod(g_cmpCppConnector, _T("Transport::EnsureConnected()"));
 	Lock autoLock(this);
 
 	if (!IsConnected())
@@ -306,14 +315,16 @@ HWND GetHwndFromParam(const ITransport::Parameters& p)
 
 bool Transport::HandleAuth(HINTERNET http_request, bool& triedAuth)
 {
+	AutoMethod(g_cmpCppConnector, _T("Transport::HandleAuth()"));
+
 	bool toTryAgain = true;
 
 	if (!triedAuth)
 	{
 		BOOL temp;
-		temp = InternetSetOption(http_request, INTERNET_OPTION_USERNAME, 
+		temp = InternetSetOption(http_request, INTERNET_OPTION_USERNAME,
 			(void*)GetParameters().m_Username.c_str(), GetParameters().m_Username.length() + 1);
-		temp = InternetSetOption(http_request, INTERNET_OPTION_PASSWORD, 
+		temp = InternetSetOption(http_request, INTERNET_OPTION_PASSWORD,
 			(void*)GetParameters().m_Password.c_str(), GetParameters().m_Password.length() + 1);
 
 		triedAuth = true;
@@ -350,14 +361,16 @@ bool Transport::HandleAuth(HINTERNET http_request, bool& triedAuth)
 
 bool Transport::HandleProxyAuth(HINTERNET http_request, bool& triedProxyStuff)
 {
+	AutoMethod(g_cmpCppConnector, _T("Transport::HandleProxyAuth()"));
+
 	bool toTryAgain = true;
 
 	if (!triedProxyStuff)
 	{
 		BOOL temp;
-		temp = InternetSetOption(http_request, INTERNET_OPTION_PROXY_USERNAME, 
+		temp = InternetSetOption(http_request, INTERNET_OPTION_PROXY_USERNAME,
 			(void*)GetParameters().m_ProxyUsername.c_str(), GetParameters().m_ProxyUsername.length() + 1);
-		temp = InternetSetOption(http_request, INTERNET_OPTION_PROXY_PASSWORD, 
+		temp = InternetSetOption(http_request, INTERNET_OPTION_PROXY_PASSWORD,
 			(void*)GetParameters().m_ProxyPassword.c_str(), GetParameters().m_ProxyPassword.length() + 1);
 
 		triedProxyStuff = true;
@@ -394,6 +407,8 @@ bool Transport::HandleProxyAuth(HINTERNET http_request, bool& triedProxyStuff)
 
 bool Transport::HandleSecurity(HINTERNET http_request)
 {
+	AutoMethod(g_cmpCppConnector, _T("Transport::HandleSecurity()"));
+
 	bool toTryAgain = false;
 	
 	DWORD retVal = InternetErrorDlg(GetHwndFromParam(GetParameters()), http_request, GetLastError(),
@@ -413,9 +428,9 @@ void GetExtendedError(tstring& error_string, Message& status_map)
 	LPTSTR errinfo = new TCHAR[size];
 	ZeroMemory(errinfo, size * sizeof(TCHAR));
 
-	if (!InternetGetLastResponseInfo(&extended_error, &errinfo[0], &size)) 
+	if (!InternetGetLastResponseInfo(&extended_error, &errinfo[0], &size))
 	{
-		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) 
+		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 		{
 			delete[] errinfo;
 			errinfo = new TCHAR[size];
@@ -449,13 +464,13 @@ void GetSystemError(DWORD error, tstring& error_string, Message& status_map)
 	//put the error number in the status obj
 	status_map.Set(_T("local_error"), number);
 
-	if (ret != 0) 
+	if (ret != 0)
 	{
 		// Set the error
 		error_string.append(lpMsgBuf);
 		status_map.Set(_T("kn_payload"), lpMsgBuf);
 	}
-	else 
+	else
 	{
 		error_string.append(_T("System error number: "));
 		error_string.append(&number[0]);
@@ -464,6 +479,8 @@ void GetSystemError(DWORD error, tstring& error_string, Message& status_map)
 
 void Transport::HandleError(DWORD error, Message& status_map)
 {
+	AutoMethod(g_cmpCppConnector, _T("Transport::HandleError()"));
+
 	TCHAR buffer[80];
 
 	_stprintf(buffer, _T("%d"), error);
@@ -473,9 +490,9 @@ void Transport::HandleError(DWORD error, Message& status_map)
 	tstring error_string;
 	error_string = _T("Unable to send request to server.\n");
 
-	if (error == ERROR_INTERNET_EXTENDED_ERROR) 
+	if (error == ERROR_INTERNET_EXTENDED_ERROR)
 		GetExtendedError(error_string, status_map);
-	else 
+	else
 		GetSystemError(error, error_string, status_map);
 
 	status_map.Set(_T("ErrorString"), error_string);
@@ -495,13 +512,13 @@ bool Transport::CheckStatus(HINTERNET http_request, Message& status_map)
 	tstring status_string;
 	bool retval = false;
 
-	if (http_request) 
+	if (http_request)
 	{
 		DWORD status = 0;
 		DWORD size = sizeof(DWORD);
 		DWORD header = 0;
 
-		if (HttpQueryInfo(http_request, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, &status, &size, &header)) 
+		if (HttpQueryInfo(http_request, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, &status, &size, &header))
 		{
 			size = 255;
 			LPTSTR errinfo = new TCHAR[size];
@@ -517,21 +534,21 @@ bool Transport::CheckStatus(HINTERNET http_request, Message& status_map)
 			error_string += _T(" ");
 
 			//get the status message
-			if (!HttpQueryInfo(http_request, HTTP_QUERY_STATUS_TEXT, (LPVOID) errinfo, &size, &header)) 
+			if (!HttpQueryInfo(http_request, HTTP_QUERY_STATUS_TEXT, (LPVOID) errinfo, &size, &header))
 			{
 				DWORD err = GetLastError();
-				if (err == ERROR_INSUFFICIENT_BUFFER) 
+				if (err == ERROR_INSUFFICIENT_BUFFER)
 				{
 					delete[] errinfo;
 					errinfo = new TCHAR[size];
-					if (HttpQueryInfo(http_request, HTTP_QUERY_STATUS_TEXT, &errinfo, &size, &header)) 
+					if (HttpQueryInfo(http_request, HTTP_QUERY_STATUS_TEXT, &errinfo, &size, &header))
 					{
 						status_string.append(errinfo);
 						error_string.append(errinfo);
 					}
 				}
 			}
-			else 
+			else
 			{
 				status_string.append(errinfo);
 				error_string.append(errinfo);
@@ -545,17 +562,17 @@ bool Transport::CheckStatus(HINTERNET http_request, Message& status_map)
 			status_map.Set(_T("status"), status_string.c_str());
 			delete[] errinfo;
 
-            if (status < 300) 
+            if (status < 300)
 			{
                 if (false)
 				{
                     //check the content type header
                     size = 1023;
                     char content[1024];
-                    if (HttpQueryInfo(http_request, HTTP_QUERY_CONTENT_TYPE, &content[0], &size, &header)) 
+                    if (HttpQueryInfo(http_request, HTTP_QUERY_CONTENT_TYPE, &content[0], &size, &header))
 					{
                         //check the content type
-                        if (0 != strncmp("text/plain", &content[0], strlen("text/plain"))) 
+                        if (0 != strncmp("text/plain", &content[0], strlen("text/plain")))
 						{
 							status_map.Set(_T("ErrorString"), _T("Response is not from server, check ServerURL."));
                             retval = false;
@@ -573,7 +590,7 @@ bool Transport::CheckStatus(HINTERNET http_request, Message& status_map)
 		else
 			retval = false;
 	}
-	else 
+	else
 	{
 		HandleError(GetLastError(), status_map);
 		retval = false;
@@ -585,10 +602,10 @@ bool Transport::CheckStatus(HINTERNET http_request, Message& status_map)
 
 DWORD Transport::GetINetFlags()
 {
-	DWORD flags = INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_NO_UI | 
-		INTERNET_FLAG_KEEP_CONNECTION;
+	DWORD flags = INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_PRAGMA_NOCACHE | INTERNET_FLAG_NO_UI;
+		// | INTERNET_FLAG_KEEP_CONNECTION;
 
-	if (m_Https) 
+	if (m_Https)
 	{
 		flags |= INTERNET_FLAG_SECURE;
 	}
@@ -605,11 +622,11 @@ void Transport::SetupHttpRequest(HINTERNET http_request)
 {
 	// Set the username and password for the proxy if we are using one
 	//
-	if (GetParameters().m_UseProxy) 
+	if (GetParameters().m_UseProxy)
 	{
-		BOOL temp = InternetSetOption(http_request, INTERNET_OPTION_PROXY_USERNAME, 
+		BOOL temp = InternetSetOption(http_request, INTERNET_OPTION_PROXY_USERNAME,
 			(void*)GetParameters().m_ProxyUsername.c_str(), GetParameters().m_ProxyUsername.length() + 1);
-		temp = InternetSetOption(http_request, INTERNET_OPTION_PROXY_PASSWORD, 
+		temp = InternetSetOption(http_request, INTERNET_OPTION_PROXY_PASSWORD,
 			(void*)GetParameters().m_ProxyPassword.c_str(), GetParameters().m_ProxyPassword.length() + 1);
 
 		DWORD to = 30 * 1000;
@@ -644,12 +661,33 @@ void Transport::SetupHttpRequest(HINTERNET http_request)
 
 HINTERNET Transport::Send(const string& data, Message& status_map)
 {
+	AutoMethod(g_cmpCppConnector, _T("Transport::Send()"));
+	
+	{
+		tstring temp;
+		temp = _T("Data = ");
+		temp += ConvertToTString(data);
+		TheLogger.Log(g_cmpCppConnector, Logger::Mask::MethodEntryExit, temp);
+	}
+
 	Lock autoLock(this);
+
+	bool isStartingTunnel = false;
+	wstring v;
+
+	if (status_map.Get(START_TUNNEL_FIELD, v))
+	{
+		status_map.Remove(START_TUNNEL_FIELD);
+		isStartingTunnel = true;
+	}
 
 	if (!EnsureConnected())
 		return 0;
 
 	DWORD flags = GetINetFlags();
+
+	if (isStartingTunnel)
+		flags |= INTERNET_FLAG_KEEP_CONNECTION;
 
 	int overallTry = 0;
 	HINTERNET http_request = 0;
@@ -659,9 +697,9 @@ HINTERNET Transport::Send(const string& data, Message& status_map)
 	bool triedProxyStuff = false;
 	bool triedAuth = false;
 
-	const int MaxAttempts = 10;
+	const int MaxAttempts = 4;
 
-tryAgain:
+//tryAgain:
 	http_request = 0;
 	success = FALSE;
 	attempts = 0;
@@ -673,26 +711,38 @@ tryAgain:
 
 	// build a request
 	//
-	http_request = HttpOpenRequest(m_Session, _T("POST"), m_ServerPath.c_str(), NULL, _T("libkn"), 
+#if 0
+	http_request = HttpOpenRequest(m_Session, _T("POST"), m_ServerPath.c_str(), NULL, _T("libkn"),
 		NULL, flags, 0);
 
-	if (http_request == 0) 
+	if (http_request == 0)
 	{
 		goto exit;
 	}
 
 	SetupHttpRequest(http_request);
 
-
 	status_map.Empty();
+#endif
 
 	while (!success && attempts < MaxAttempts)
 	{
+		http_request = HttpOpenRequest(m_Session, _T("POST"), m_ServerPath.c_str(), NULL, _T("libkn"),
+			NULL, flags, 0);
+
+		if (http_request == 0)
+		{
+			goto exit;
+		}
+
+		SetupHttpRequest(http_request);
+
+		status_map.Empty();
 		// send the request, using the parameters as the optional data (http payload)
-		// 
+		//
 		success = HttpSendRequest(http_request, NULL, 0, (void*)data.c_str(), data.length());
 
-		if (success) 
+		if (success)
 		{
 			// check to make sure we got back a valid status
 			//
@@ -700,7 +750,7 @@ tryAgain:
 			DWORD size = sizeof(DWORD);
 			DWORD header = 0;
 
-			if (HttpQueryInfo(http_request, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &status, &size, &header)) 
+			if (HttpQueryInfo(http_request, HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER, &status, &size, &header))
 			{
 				if (status == HTTP_STATUS_DENIED)
 				{
@@ -721,44 +771,31 @@ tryAgain:
 				}
 			}
 
-			if (!CheckStatus(http_request, status_map)) 
+			if (!CheckStatus(http_request, status_map))
 			{
 				InternetCloseHandle(http_request);
 				http_request = 0;
 				goto exit;
 			}	
 		}
-		else 
+		else
 		{
 			DWORD error = GetLastError();
 
-			if (error == ERROR_HTTP_INVALID_SERVER_RESPONSE || error == ERROR_INTERNET_CANNOT_CONNECT)
-			{
-				attempts++;
-
-				if (attempts < MaxAttempts)
+			if (error == ERROR_HTTP_INVALID_SERVER_RESPONSE)
+				if (++attempts < MaxAttempts)
 					continue;
-				else
-				{
-					if (error == ERROR_INTERNET_CANNOT_CONNECT)
-					{
-						InternetCloseHandle(http_request);
-						overallTry++;
-						goto tryAgain;
-					}
-				}
-			}
+
+			if ((error == ERROR_INTERNET_CANNOT_CONNECT ||
+				error == ERROR_INTERNET_CONNECTION_ABORTED ||
+				error == ERROR_INTERNET_CONNECTION_RESET) && !isStartingTunnel)
+				if (++attempts < MaxAttempts)
+					continue;
 
 			if (ERROR_INTERNET_SEC_CERT_DATE_INVALID <= error && error <= ERROR_INTERNET_SEC_CERT_REV_FAILED)
-			{
 				if (HandleSecurity(http_request))
-				{
-					attempts++;
-
-					if (attempts < MaxAttempts)
+					if (++attempts < MaxAttempts)
 						continue;
-				}
-			}
 
 			// Error condition
 			//
@@ -814,24 +851,33 @@ bool Transport::Send(const Message& msg, IRequestStatusHandler* sh)
 
 Tunnel* Transport::OpenTunnel(const Message& msg)
 {
-	Lock autoLock(this);
+	AutoMethod(g_cmpCppConnector, _T("Transport::OpenTunnel()"));
 
 	Message status_map;
 	Tunnel* tunnel = 0;
 
+	status_map.Set(START_TUNNEL_FIELD, "1");
 	HINTERNET hRes = Send(msg.GetAsHttpParam(), status_map);
-	if (hRes)
+
+//	if (hRes)
 	{
 		if (GetTunnelStatus(hRes, status_map))
+		{
 			tunnel = new Tunnel(hRes, status_map);
+		}
+		else
+		{
+			Lock autoLock(this);
+			if (m_Connector)
+				m_Connector->OnConnectionStatus(status_map);
+		}
 	}
+
 	return tunnel;
 }
 
 bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 {
-	Lock autoLock(this);
-
 	if (!hTunnel)
 		return false;
 
@@ -847,7 +893,7 @@ bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 	string err_string;
 
 	// This loop handles reading the data.
-	while (!found) 
+	while (!found)
 	{
 		//put the pointer and length into a mb_buf_ptr
 		buf_ptr.m_Ptr = &read_buffer[0];
@@ -855,10 +901,10 @@ bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 		buf_ptr.m_Len = 0;
 
 		// Read the data from the tunnel.
-		if (available == 0) 
+		if (available == 0)
 		{
 			// This will block until there is data avalable or the connection is closed
-			if (!InternetQueryDataAvailable(hTunnel, &dwSize, 0, 0)) 
+			if (!InternetQueryDataAvailable(hTunnel, &dwSize, 0, 0))
 			{
 				//check for close
 				return false;
@@ -882,11 +928,11 @@ bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 			else
 				total_read += read;
 
-			if (*buffer >= '0' && *buffer <= '9') 
+			if (*buffer >= '0' && *buffer <= '9')
 			{
 				len_string += *buffer;
 			}
-			else if (*buffer == '\n') 
+			else if (*buffer == '\n')
 			{
 				len = atoi(len_string.c_str());
 				found = true;
@@ -902,7 +948,7 @@ bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 	DWORD total_read = 0;
 
 	//get the rest of the event
-	while (!found) 
+	while (!found)
 	{
 		// put the pointer and length into a mb_buf_ptr
 		buf_ptr.m_Ptr = &read_buffer[0];
@@ -910,10 +956,10 @@ bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 		buf_ptr.m_Len = 0;
 
 		// Read the data from the tunnel.
-		if (available == 0) 
+		if (available == 0)
 		{
 			// This will block until there is data avalable or the connection is closed
-			if (!InternetQueryDataAvailable(hTunnel, &dwSize, 0, 0)) 
+			if (!InternetQueryDataAvailable(hTunnel, &dwSize, 0, 0))
 			{
 				//check for close
 				return false;
@@ -941,13 +987,24 @@ bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 			found = true;
 	}
 
-	if (found) 
+	{
+		tstring temp = _T("Event = ");
+		temp += ConvertToTString(event);
+		TheLogger.Log(g_cmpCppConnector, Logger::Mask::TunnelInfo, temp);
+	}
+
+	if (found)
 	{
 		SimpleParser sp(0);
 		sp.make_map_from_simple(event, status_map);
-		return true;
+		char buffer[30];
+		sprintf(buffer, "%d", INTERNET_STATE_CONNECTED);
+		status_map.Set("state", buffer);
 	}
 
-	return false;
+	if (err_string.length() > 0)
+		status_map.Set("error_string", err_string);
+
+	return found;
 }
 

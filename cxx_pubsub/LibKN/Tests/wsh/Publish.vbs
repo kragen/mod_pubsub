@@ -1,8 +1,11 @@
 '
 ' $Log: Publish.vbs,v $
-' Revision 1.1  2003/03/08 04:38:10  ifindkarma
-' Bug fixes and reorganization, plus some additions.  Note: package needs testing.
+' Revision 1.2  2003/08/15 23:46:14  ifindkarma
+' Added changes from August 2003.
 '
+' 
+' 2     4/02/03 10:53a Thui
+' Added check for publish failure
 ' 
 ' 1     3/03/03 9:54p Thui
 '
@@ -78,7 +81,12 @@ IF b THEN
     ' DumpMessage "m", m
     set n = nothing
     
-    conn.Publish m, n
+    b = conn.Publish(m, n)
+    
+    IF not b THEN
+        WScript.Echo "Publish failed"
+    END IF
+    
     WScript.Sleep 1
     conn.Close
     

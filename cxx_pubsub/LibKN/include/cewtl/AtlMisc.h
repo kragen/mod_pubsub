@@ -5,9 +5,6 @@
 // This file is a part of Windows Template Library.
 // The code and information is provided "as-is" without
 // warranty of any kind, either expressed or implied.
-//
-// This file was modified to make it compatible with Windows CE
-// Please report any bugs to Konstantin Koshelev(kkn@reget.com)
 
 #ifndef __ATLMISC_H__
 #define __ATLMISC_H__
@@ -224,7 +221,9 @@ public:
 	CRect operator-(LPCRECT lpRect) const;
 	CRect operator&(const RECT& rect2) const;
 	CRect operator|(const RECT& rect2) const;
+#if !defined(_WIN32_WCE)
 	CRect MulDiv(int nMultiplier, int nDivisor) const;
+#endif
 };
 
 
@@ -488,21 +487,16 @@ inline void CRect::DeflateRect(int l, int t, int r, int b)
 	bottom -= b;
 }
 
+#if !defined(_WIN32_WCE)
 inline CRect CRect::MulDiv(int nMultiplier, int nDivisor) const
 {
 	return CRect(
-#ifndef _WIN32_WCE
 		::MulDiv(left, nMultiplier, nDivisor),
 		::MulDiv(top, nMultiplier, nDivisor),
 		::MulDiv(right, nMultiplier, nDivisor),
 		::MulDiv(bottom, nMultiplier, nDivisor));
-#else
-		WCE_ATL_FCTN(MulDiv)(left, nMultiplier, nDivisor),
-		WCE_ATL_FCTN(MulDiv)(top, nMultiplier, nDivisor),
-		WCE_ATL_FCTN(MulDiv)(right, nMultiplier, nDivisor),
-		WCE_ATL_FCTN(MulDiv)(bottom, nMultiplier, nDivisor));
-#endif
 }
+#endif
 
 #endif //!_WTL_NO_WTYPES
 
@@ -684,10 +678,10 @@ public:
 	{
 		if(lpsz == NULL)
 			return FALSE;
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 		return !::IsBadStringPtrW(lpsz, nLength);
 #else
-		return !::IsBadReadPtr(lpsz, nLength*sizeof(WCHAR));
+		return !::IsBadReadPtr(lpsz, nLength * sizeof(WCHAR));
 #endif
 	}
 
@@ -695,10 +689,10 @@ public:
 	{
 		if(lpsz == NULL)
 			return FALSE;
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 		return !::IsBadStringPtrA(lpsz, nLength);
 #else
-		return !::IsBadReadPtr(lpsz, nLength);
+		return !::IsBadReadPtr(lpsz, nLength * sizeof(CHAR));
 #endif
 	}
 
@@ -713,9 +707,7 @@ protected:
 	void AssignCopy(int nSrcLen, LPCTSTR lpszSrcData);
 	BOOL ConcatCopy(int nSrc1Len, LPCTSTR lpszSrc1Data, int nSrc2Len, LPCTSTR lpszSrc2Data);
 	void ConcatInPlace(int nSrcLen, LPCTSTR lpszSrcData);
-public:
 	void FormatV(LPCTSTR lpszFormat, va_list argList);
-protected:
 	void CopyBeforeWrite();
 	BOOL AllocBeforeWrite(int nLen);
 	void Release();
@@ -917,10 +909,13 @@ protected:
 		return NULL;
 	}
 
-#ifdef _WIN32_WCE
-	static LCID GetThreadLocale(void){ return LOCALE_SYSTEM_DEFAULT; }
+#if defined(_WIN32_WCE)
+	static LCID GetThreadLocale()
+	{
+		return LOCALE_USER_DEFAULT;
+	}
 #endif
-
+	
 	static int _cstrisdigit(TCHAR ch)
 	{
 		WORD type;
@@ -958,6 +953,7 @@ protected:
 		ATLASSERT(nRet != 0);
 		return nRet - 2;  // Convert to strcmp convention.  This really is documented.
 	}
+
 };
 
 // Compare helpers
@@ -1236,12 +1232,7 @@ inline CString::CString(LPCTSTR lpsz)
 inline CString::CString(LPCSTR lpsz)
 {
 	Init();
-#ifndef _WIN32_WCE
 	int nSrcLen = lpsz != NULL ? lstrlenA(lpsz) : 0;
-#else
-	int nSrcLen = 0;
-	if(lpsz != NULL) while(lpsz[++nSrcLen]!=0);
-#endif
 	if (nSrcLen != 0)
 	{
 		if(AllocBuffer(nSrcLen))
@@ -1318,12 +1309,7 @@ inline const CString& CString::operator=(LPCTSTR lpsz)
 #ifdef _UNICODE
 inline const CString& CString::operator=(LPCSTR lpsz)
 {
-#ifndef _WIN32_WCE
 	int nSrcLen = lpsz != NULL ? lstrlenA(lpsz) : 0;
-#else
-	int nSrcLen = 0;
-	if(lpsz != NULL) while(lpsz[++nSrcLen]!=0);
-#endif
 	if(AllocBeforeWrite(nSrcLen))
 	{
 		_mbstowcsz(m_pchData, lpsz, nSrcLen + 1);
@@ -1868,12 +1854,7 @@ inline void CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			}
 			else
 			{
-#ifndef _WIN32_WCE
 				nItemLen = lstrlenA(pstrNextArg);
-#else
-				nItemLen = 0;
-				if(pstrNextArg != NULL) while(pstrNextArg[++nItemLen]!=0);
-#endif
 				nItemLen = max(1, nItemLen);
 			}
 #endif
@@ -1890,12 +1871,7 @@ inline void CString::FormatV(LPCTSTR lpszFormat, va_list argList)
 			}
 			else
 			{
-#ifndef _WIN32_WCE
 				nItemLen = lstrlenA(pstrNextArg);
-#else
-				nItemLen = 0;
-				if(pstrNextArg != NULL) while(pstrNextArg[++nItemLen]!=0);
-#endif
 				nItemLen = max(1, nItemLen);
 			}
 			break;
@@ -2690,14 +2666,12 @@ public:
 };
 
 
+#if defined(_WIN32_WCE)
+#	define _MAX_FNAME _MAX_PATH
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 // CFindFile - file search helper class
-
-#ifdef _WIN32_WCE
-  #pragma warning(push)
-  #pragma warning(disable: 4018) //arning C4018: '>=' : signed/unsigned mismatch
-  #define _MAX_FNAME  256
-#endif
 
 class CFindFile
 {
@@ -2765,7 +2739,6 @@ public:
 		}
 		return bRet;
 	}
-#ifndef _WIN32_WCE
 	BOOL GetFileTitle(LPTSTR lpstrFileTitle, int cchLength) const
 	{
 		ATLASSERT(m_hFind != NULL);
@@ -2774,12 +2747,15 @@ public:
 		if(!GetFileName(szBuff, MAX_PATH))
 			return FALSE;
 		TCHAR szNameBuff[_MAX_FNAME];
+#if !defined(_WIN32_WCE)
 		_tsplitpath(szBuff, NULL, NULL, szNameBuff, NULL);
+#else
+		_tcscpy(szNameBuff, szBuff);
+#endif
 		if(lstrlen(szNameBuff) >= cchLength)
 			return FALSE;
 		return (lstrcpy(lpstrFileTitle, szNameBuff) != NULL);
 	}
-#endif
 	BOOL GetFileURL(LPTSTR lpstrFileURL, int cchLength) const
 	{
 		ATLASSERT(m_hFind != NULL);
@@ -2823,19 +2799,20 @@ public:
 		strResult += GetFileName();
 		return strResult;
 	}
-#ifndef _WIN32_WCE
 	CString GetFileTitle() const
 	{
 		ATLASSERT(m_hFind != NULL);
 
 		CString strFullName = GetFileName();
 		CString strResult;
-
+#if !defined(_WIN32_WCE)
 		_tsplitpath(strFullName, NULL, NULL, strResult.GetBuffer(MAX_PATH), NULL);
+#else
+		strResult = strFullName;
+#endif
 		strResult.ReleaseBuffer();
 		return strResult;
 	}
-#endif
 	CString GetFileURL() const
 	{
 		ATLASSERT(m_hFind != NULL);
@@ -2963,10 +2940,11 @@ public:
 		if(m_hFind == INVALID_HANDLE_VALUE)
 			return FALSE;
 
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 		LPCTSTR pstr = _tfullpath(m_lpszRoot, pstrName, MAX_PATH);
 #else
-		LPCTSTR pstr = _tcscat(m_lpszRoot, pstrName);
+		LPCTSTR pstr = pstrName;
+
 #endif
 
 		// passed name isn't a valid path but was found by the API
@@ -3080,17 +3058,32 @@ inline HICON AtlLoadIcon(_U_STRINGorID icon)
 	return ::LoadIcon(_Module.GetResourceInstance(), icon.m_lpstr);
 }
 
-#ifndef _WIN32_WCE
 inline HICON AtlLoadSysIcon(LPCTSTR lpIconName)
 {
+#if !defined(_WIN32_WCE)
 	ATLASSERT(lpIconName == IDI_APPLICATION ||
 		lpIconName == IDI_ASTERISK ||
 		lpIconName == IDI_EXCLAMATION ||
 		lpIconName == IDI_HAND ||
 		lpIconName == IDI_QUESTION ||
 		lpIconName == IDI_WINLOGO);
+#endif
 	return ::LoadIcon(NULL, lpIconName);
 }
+
+#if defined(_WIN32_WCE)
+#define LR_MONOCHROME       0x0001
+#define LR_COLOR            0x0002
+#define LR_COPYRETURNORG    0x0004
+#define LR_COPYDELETEORG    0x0008
+#define LR_LOADFROMFILE     0x0010
+#define LR_LOADTRANSPARENT  0x0020
+#define LR_DEFAULTSIZE      0x0040
+#define LR_VGACOLOR         0x0080
+#define LR_LOADMAP3DCOLORS  0x1000
+#define LR_CREATEDIBSECTION 0x2000
+#define LR_COPYFROMRESOURCE 0x4000
+#define LR_SHARED           0x8000
 #endif
 
 inline HBITMAP AtlLoadBitmapImage(_U_STRINGorID bitmap, UINT fuLoad = LR_DEFAULTCOLOR)
@@ -3098,23 +3091,18 @@ inline HBITMAP AtlLoadBitmapImage(_U_STRINGorID bitmap, UINT fuLoad = LR_DEFAULT
 	return (HBITMAP)::LoadImage(_Module.GetResourceInstance(), bitmap.m_lpstr, IMAGE_BITMAP, 0, 0, fuLoad);
 }
 
-#ifdef _WIN32_WCE
-#define LR_DEFAULTSIZE		0x0000
-#define LR_LOADFROMFILE     0x0010
-#endif
-
-inline HCURSOR AtlLoadCursorImage(_U_STRINGorID cursor, UINT fuLoad = 0, int cxDesired = 0, int cyDesired = 0)
+inline HCURSOR AtlLoadCursorImage(_U_STRINGorID cursor, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
 	return (HCURSOR)::LoadImage(_Module.GetResourceInstance(), cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
 }
 
-inline HICON AtlLoadIconImage(_U_STRINGorID icon, UINT fuLoad = 0, int cxDesired = 0, int cyDesired = 0)
+inline HICON AtlLoadIconImage(_U_STRINGorID icon, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
 	return (HICON)::LoadImage(_Module.GetResourceInstance(), icon.m_lpstr, IMAGE_ICON, cxDesired, cyDesired, fuLoad);
 }
 
 #ifdef OEMRESOURCE
-inline HBITMAP AtlLoadSysBitmapImage(WORD wBitmapID, UINT fuLoad = 0)
+inline HBITMAP AtlLoadSysBitmapImage(WORD wBitmapID, UINT fuLoad = LR_DEFAULTCOLOR)
 {
 	ATLASSERT(wBitmapID >= 32734 && wBitmapID <= 32767);
 	ATLASSERT((fuLoad & LR_LOADFROMFILE) == 0);	// this one doesn't load from a file
@@ -3122,7 +3110,7 @@ inline HBITMAP AtlLoadSysBitmapImage(WORD wBitmapID, UINT fuLoad = 0)
 }
 #endif //OEMRESOURCE
 
-inline HCURSOR AtlLoadSysCursorImage(_U_STRINGorID cursor, UINT fuLoad = 0, int cxDesired = 0, int cyDesired = 0)
+inline HCURSOR AtlLoadSysCursorImage(_U_STRINGorID cursor, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
 #ifdef _DEBUG
 	WORD wID = (WORD)cursor.m_lpstr;
@@ -3132,7 +3120,7 @@ inline HCURSOR AtlLoadSysCursorImage(_U_STRINGorID cursor, UINT fuLoad = 0, int 
 	return (HCURSOR)::LoadImage(NULL, cursor.m_lpstr, IMAGE_CURSOR, cxDesired, cyDesired, fuLoad);
 }
 
-inline HICON AtlLoadSysIconImage(_U_STRINGorID icon, UINT fuLoad = 0, int cxDesired = 0, int cyDesired = 0)
+inline HICON AtlLoadSysIconImage(_U_STRINGorID icon, UINT fuLoad = LR_DEFAULTCOLOR | LR_DEFAULTSIZE, int cxDesired = 0, int cyDesired = 0)
 {
 #ifdef _DEBUG
 	WORD wID = (WORD)icon.m_lpstr;
@@ -3202,10 +3190,8 @@ inline HBRUSH AtlGetStockBrush(int nBrush)
 
 inline HFONT AtlGetStockFont(int nFont)
 {
-#ifndef _WIN32_WCE
+#if !defined(_WIN32_WCE)
 	ATLASSERT((nFont >= OEM_FIXED_FONT && nFont <= SYSTEM_FIXED_FONT) || nFont == DEFAULT_GUI_FONT);
-#else
-	ATLASSERT(nFont == SYSTEM_FONT);
 #endif
 	return (HFONT)::GetStockObject(nFont);
 }
@@ -3219,6 +3205,16 @@ inline HPALETTE AtlGetStockPalette(int nPalette)
 
 /////////////////////////////////////////////////////////////////////////////
 // Global function for compacting a path by replacing parts with ellipsis
+
+#if defined(_WIN32_WCE)
+inline LPTSTR _tcscpyn(LPTSTR dest, LPCTSTR src, int iMaxLength)
+{
+	for (int i = 0; i < iMaxLength; i++)
+		dest[i] = src[i];
+
+	return dest;
+}
+#endif
 
 // helper for multi-byte character sets
 inline bool _IsDBCSTrailByte(LPCTSTR lpstr, int nChar)
@@ -3236,7 +3232,6 @@ inline bool _IsDBCSTrailByte(LPCTSTR lpstr, int nChar)
 #endif //_UNICODE
 }
 
-#ifndef _WIN32_WCE
 inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 {
 	ATLASSERT(lpstrOut != NULL);
@@ -3247,8 +3242,8 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 	const int cchEndEllipsis = 3;
 	const int cchMidEllipsis = 4;
 
-	if(lstrlen(lpstrIn) + 1 < cchLen)
-		return (lstrcpy(lpstrOut, lpstrIn) != NULL);
+	if(_tcslen(lpstrIn) + 1 < cchLen)
+		return (_tcscpy(lpstrOut, lpstrIn) != NULL);
 
 	// check if the separator is a slash or a backslash
 	TCHAR chSlash = _T('\\');
@@ -3266,19 +3261,19 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 				&& pPath[1] && pPath[1] != _T('\\') && pPath[1] != _T('/'))
 			lpstrFileName = pPath + 1;
 	}
-	int cchFileName = lstrlen(lpstrFileName);
+	int cchFileName = _tcslen(lpstrFileName);
 
 	// handle just the filename without a path
 	if(lpstrFileName == lpstrIn && cchLen > cchEndEllipsis)
 	{
-		bool bRet = (lstrcpyn(lpstrOut, lpstrIn, cchLen - cchEndEllipsis) != NULL);
+		bool bRet = (_tcscpyn(lpstrOut, lpstrIn, cchLen - cchEndEllipsis) != NULL);
 		if(bRet)
 		{
 #ifndef _UNICODE
 			if(_IsDBCSTrailByte(lpstrIn, cchLen - cchEndEllipsis))
 				lpstrOut[cchLen - cchEndEllipsis - 1] = 0;
 #endif //_UNICODE
-			bRet = (lstrcat(lpstrOut, szEllipsis) != NULL);
+			bRet = (_tcscat(lpstrOut, szEllipsis) != NULL);
 		}
 		return bRet;
 	}
@@ -3303,23 +3298,23 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 		cchToCopy--;
 #endif //_UNICODE
 
-	bool bRet = (lstrcpyn(lpstrOut, lpstrIn, cchToCopy) != NULL);
+	bool bRet = (_tcscpyn(lpstrOut, lpstrIn, cchToCopy) != NULL);
 	if(!bRet)
 		return false;
 
 	// add ellipsis
-	bRet = (lstrcat(lpstrOut, szEllipsis) != NULL);
+	bRet = (_tcscat(lpstrOut, szEllipsis) != NULL);
 	if(!bRet)
 		return false;
 	TCHAR szSlash[2] = { chSlash, 0 };
-	bRet = (lstrcat(lpstrOut, szSlash) != NULL);
+	bRet = (_tcscat(lpstrOut, szSlash) != NULL);
 	if(!bRet)
 		return false;
 
 	// add filename (and ellipsis, if needed)
 	if(cchLen > (cchMidEllipsis + cchFileName))
 	{
-		bRet = (lstrcat(lpstrOut, lpstrFileName) != NULL);
+		bRet = (_tcscat(lpstrOut, lpstrFileName) != NULL);
 	}
 	else
 	{
@@ -3328,18 +3323,13 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 		if(cchToCopy > 0 && _IsDBCSTrailByte(lpstrFileName, cchToCopy))
 			cchToCopy--;
 #endif //_UNICODE
-		bRet = (lstrcpyn(&lpstrOut[cchMidEllipsis], lpstrFileName, cchToCopy) != NULL);
+		bRet = (_tcscpyn(&lpstrOut[cchMidEllipsis], lpstrFileName, cchToCopy) != NULL);
 		if(bRet)
-			bRet = (lstrcat(lpstrOut, szEllipsis) != NULL);
+			bRet = (_tcscat(lpstrOut, szEllipsis) != NULL);
 	}
 
 	return bRet;
 }
-#endif //_WIN32_WCE
-
-#ifdef _WIN32_WCE
-  #pragma warning(pop)
-#endif
 
 }; //namespace WTL
 

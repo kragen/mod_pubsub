@@ -1,7 +1,7 @@
 <VisualStudioProject>
     <CSHARP>
         <Build>
-            <Settings ReferencePath = "C:\BrokenPath1\lib\;C:\BrokenPath2\lib\;C:\BrokenPath3\lib\" >
+            <Settings ReferencePath = "H:\knownowsource\ERMSDev\tijuana_P00\P18\MicroServers\Windows\lib\;E:\knownowsource\ERMSDev\tijuana_P00\P18\MicroServers\Windows\lib\;C:\knownowsource\ERMSDev\tijuana_P00\P18\MicroServers\Windows\lib\" >
                 <Config
                     Name = "Debug"
                     EnableASPDebugging = "false"

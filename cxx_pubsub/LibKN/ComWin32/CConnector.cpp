@@ -54,6 +54,89 @@ CConnector::CConnector() :
 {
 }
 
+static void FireConnectionStatusMsgImpl(ConnectionStatusMsgParam* csmp)
+{
+	if (csmp == 0)
+		return;
+
+	__try
+	{
+		CComObject<CMessage>* obj = 0;
+		HRESULT hr = CComObject<CMessage>::CreateInstance(&obj);
+		obj->Copy(csmp->GetMsg());
+
+		obj->AddRef();
+
+		if (csmp->GetConnector())
+			csmp->GetConnector()->Fire_OnConnectionStatus(obj);
+
+		obj->Release();
+		delete csmp;
+	}
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? 
+		EXCEPTION_EXECUTE_HANDLER : 
+		EXCEPTION_CONTINUE_SEARCH)
+	{
+	}
+}
+
+static void FireStatusMsgImpl(RequestHandlerMsgParam* hmp)
+{
+	if (hmp == 0)
+		return;
+
+	__try
+	{
+		CComObject<CMessage>* obj = 0;
+		HRESULT hr = CComObject<CMessage>::CreateInstance(&obj);
+		obj->Copy(hmp->GetMsg());
+
+		obj->AddRef();
+
+		if (hmp->GetHandler() && hmp->GetHandler()->GetComHandler())
+			hmp->GetHandler()->GetComHandler()->OnStatus(obj);
+		if (hmp->GetConnector())
+			hmp->GetConnector()->Fire_OnStatus(obj);
+
+		obj->Release();
+		delete hmp;
+	}
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? 
+		EXCEPTION_EXECUTE_HANDLER : 
+		EXCEPTION_CONTINUE_SEARCH)
+	{
+	}
+}
+
+static void FireUpdateMsgImpl(ListenerHandlerMsgParam* lmp)
+{
+	if (lmp == 0)
+		return;
+
+	__try
+	{
+		CComObject<CMessage>* obj = 0;
+		HRESULT hr = CComObject<CMessage>::CreateInstance(&obj);
+		obj->Copy(lmp->GetMsg());
+
+		obj->AddRef();
+
+		if (lmp->GetHandler() && lmp->GetHandler()->GetComHandler())
+			lmp->GetHandler()->GetComHandler()->OnUpdate(obj);
+		if (lmp->GetConnector())
+			lmp->GetConnector()->Fire_OnUpdate(obj);
+
+		obj->Release();
+		delete lmp;
+	}
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? 
+		EXCEPTION_EXECUTE_HANDLER : 
+		EXCEPTION_CONTINUE_SEARCH)
+	{
+	}
+
+}
+
 LRESULT WINAPI CConnector::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
@@ -65,67 +148,21 @@ LRESULT WINAPI CConnector::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 				case OnStatusMsg:
 				{
 					RequestHandlerMsgParam* hmp = reinterpret_cast<RequestHandlerMsgParam*>(lp);
-		
-					if (hmp == 0)
-						return 0;
-		
-					CComObject<CMessage>* obj = 0;
-					HRESULT hr = CComObject<CMessage>::CreateInstance(&obj);
-					obj->Copy(hmp->GetMsg());
-		
-					obj->AddRef();
-		
-					if (hmp->GetHandler() && hmp->GetHandler()->GetComHandler())
-						hmp->GetHandler()->GetComHandler()->OnStatus(obj);
-					if (hmp->GetConnector())
-						hmp->GetConnector()->Fire_OnStatus(obj);
-
-					obj->Release();
-					delete hmp;
-
+					FireStatusMsgImpl(hmp);
 					break;
 				}
 
 				case OnUpdateMsg:
 				{
 					ListenerHandlerMsgParam* lmp = reinterpret_cast<ListenerHandlerMsgParam*>(lp);
-					if (lmp == 0)
-						return 0;
-
-					CComObject<CMessage>* obj = 0;
-					HRESULT hr = CComObject<CMessage>::CreateInstance(&obj);
-					obj->Copy(lmp->GetMsg());
-		
-					obj->AddRef();
-		
-					if (lmp->GetHandler() && lmp->GetHandler()->GetComHandler())
-						lmp->GetHandler()->GetComHandler()->OnUpdate(obj);
-					if (lmp->GetConnector())
-						lmp->GetConnector()->Fire_OnUpdate(obj);
-
-					obj->Release();
-					delete lmp;
+					FireUpdateMsgImpl(lmp);
 					break; 
 				}
-
 
 				case OnConnectionStatusMsg:
 				{
 					ConnectionStatusMsgParam* csmp = reinterpret_cast<ConnectionStatusMsgParam*>(lp);
-					if (csmp == 0)
-						return 0;
-
-					CComObject<CMessage>* obj = 0;
-					HRESULT hr = CComObject<CMessage>::CreateInstance(&obj);
-					obj->Copy(csmp->GetMsg());
-		
-					obj->AddRef();
-		
-					if (csmp->GetConnector())
-						csmp->GetConnector()->Fire_OnConnectionStatus(obj);
-
-					obj->Release();
-					delete csmp;
+					FireConnectionStatusMsgImpl(csmp);
 					break; 
 				}
 
@@ -171,6 +208,8 @@ void CConnector::OnUpdateFromHandler(ListenerHandlerAdapter* sha, const Message&
 
 void CConnector::OnConnectionStatus(const Message& msg)
 {
+	MessageBeep(MB_ICONEXCLAMATION);
+
 	if (IsWindow(m_Hwnd))
 	{
 		ConnectionStatusMsgParam* csmp = new ConnectionStatusMsgParam(this, new Message(msg), 0);
@@ -301,7 +340,7 @@ STDMETHODIMP CConnector::EnsureConnected(VARIANT_BOOL* pVal)
 	return S_OK;
 }
 
-STDMETHODIMP CConnector::Publish(IMessage* m, IComRequestStatusHandler* sh)
+STDMETHODIMP CConnector::Publish(IMessage* m, IComRequestStatusHandler* sh, VARIANT_BOOL* pVal)
 {
 	if (m == 0)
 		return S_OK;
@@ -316,7 +355,12 @@ STDMETHODIMP CConnector::Publish(IMessage* m, IComRequestStatusHandler* sh)
 
 	Message* mImpl = reinterpret_cast<Message*>(l);
 
-	m_Connector.Publish(*mImpl, new RequestStatusHandlerAdapter(this, sh));
+	bool b = m_Connector.Publish(*mImpl, new RequestStatusHandlerAdapter(this, sh));
+
+	if (pVal)
+	{
+		*pVal = b ? VARIANT_TRUE : VARIANT_FALSE;
+	}
 
 	return S_OK;
 }
@@ -392,3 +436,68 @@ STDMETHODIMP CConnector::Unsubscribe(BSTR rid, IComRequestStatusHandler* sh, VAR
 
 	return S_OK;
 }
+
+STDMETHODIMP CConnector::get_Queueing(VARIANT_BOOL* pVal)
+{
+	if (pVal == 0)
+		return E_INVALIDARG;
+
+	*pVal = m_Connector.GetQueueing() ? VARIANT_TRUE : VARIANT_FALSE;
+
+	return S_OK;
+}
+
+STDMETHODIMP CConnector::put_Queueing(VARIANT_BOOL newVal)
+{
+	m_Connector.SetQueueing(newVal == VARIANT_TRUE ? true : false);
+	return S_OK;
+}
+
+STDMETHODIMP CConnector::LoadQueue(BSTR filename, VARIANT_BOOL* pVal)
+{
+	if (pVal == 0)
+		return E_INVALIDARG;
+
+	*pVal = m_Connector.LoadQueue(filename) ? VARIANT_TRUE : VARIANT_FALSE;
+
+	return S_OK;
+}
+
+STDMETHODIMP CConnector::SaveQueue(BSTR filename, VARIANT_BOOL* pVal)
+{
+	if (pVal == 0)
+		return E_INVALIDARG;
+
+	*pVal = m_Connector.SaveQueue(filename) ? VARIANT_TRUE : VARIANT_FALSE;
+
+	return S_OK;
+}
+
+STDMETHODIMP CConnector::Flush(VARIANT_BOOL* pVal)
+{
+	if (pVal == 0)
+		return E_INVALIDARG;
+
+	*pVal = m_Connector.Flush() ? VARIANT_TRUE : VARIANT_FALSE;
+
+	return S_OK;
+}
+
+STDMETHODIMP CConnector::Clear(VARIANT_BOOL* pVal)
+{
+	if (pVal == 0)
+		return E_INVALIDARG;
+
+	*pVal = m_Connector.Clear() ? VARIANT_TRUE : VARIANT_FALSE;
+	return S_OK;
+}
+
+STDMETHODIMP CConnector::HasItems(VARIANT_BOOL* pVal)
+{
+	if (pVal == 0)
+		return E_INVALIDARG;
+
+	*pVal = m_Connector.HasItems() ? VARIANT_TRUE : VARIANT_FALSE;
+	return S_OK;
+}
+

@@ -36,6 +36,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "stdafx.h"
 #include "RequestStatusHandler.h"
+#include "StringToChar.h"
 
 namespace LibKNDotNet
 {
@@ -60,14 +61,27 @@ void IRequestStatusHandler::OnStatus(Message* msg)
 	{
 		if (v->Length == 0)
 			OnError(msg);
-		else
+
+		int status_code = 0;
+		StringToWChar* _v = new StringToWChar(v);
+		
+		if (swscanf(_v->GetChar(), L"%d", &status_code) != 1)
+			status_code = 0;
+
+
+		if (status_code == 0)
 		{
-			wchar_t wc = v->Chars[0];
-			if (wc == L'0' || wc == L'1' || wc == L'2')
+			OnSuccess(msg);
+		}
+		else if (HTTP_STATUS_FIRST <= status_code && status_code <= HTTP_STATUS_LAST)
+		{
+			if (status_code < 300)
 				OnSuccess(msg);
 			else
 				OnError(msg);
 		}
+		else
+			OnError(msg);
 	}
 }
 

@@ -36,6 +36,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "stdafx.h"
 #include <LibKN\CS.h>
+#include <LibKN\Logger.h>
 
 CCriticalSection::CCriticalSection()
 {
@@ -59,4 +60,47 @@ void CCriticalSection::Leave() const
 	LeaveCriticalSection(const_cast<CRITICAL_SECTION*>(&m_CS));
 }
 
+
+CMutex::CMutex(const TCHAR* name, BOOL initialOwner) : 
+	m_Mutex(0)
+{
+#if !defined(_WIN32_WCE)
+	m_Mutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, name);
+#endif
+
+	if (m_Mutex == 0)
+	{
+		// Failed to open, let's try create
+		//
+		m_Mutex = CreateMutex(0, initialOwner, name);
+
+		if (m_Mutex == 0 || m_Mutex == INVALID_HANDLE_VALUE)
+		{
+			m_Mutex = 0;
+		}
+	}
+}
+
+CMutex::~CMutex()
+{
+	if (m_Mutex)
+	{
+		CloseHandle(m_Mutex);
+		m_Mutex = 0;
+	}
+}
+
+void CMutex::Enter() const
+{
+	if (m_Mutex)
+	{
+		WaitForSingleObject(m_Mutex, INFINITE);
+	}
+}
+
+void CMutex::Leave() const
+{
+	if (m_Mutex)
+		ReleaseMutex(m_Mutex);
+}
 

@@ -23,8 +23,8 @@ CFG=Functional - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
+# PROP Scc_ProjName "Functional"
+# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 
@@ -91,6 +91,22 @@ SOURCE=.\ConnectorT.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ConnectorT2.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConnectorT3.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConnectorT4.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConnectorT5.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ConvertT.cpp
 # End Source File
 # Begin Source File
@@ -99,7 +115,19 @@ SOURCE=.\Functional.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\LoggerT.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MessageT.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MessageT2.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\QueueT.cpp
 # End Source File
 # Begin Source File
 
@@ -108,7 +136,15 @@ SOURCE=.\StdAfx.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TestUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TransportT.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Utf8Test.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -116,7 +152,15 @@ SOURCE=.\TransportT.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\Globals.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TestUtil.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

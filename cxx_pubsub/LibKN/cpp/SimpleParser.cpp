@@ -37,24 +37,20 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stdafx.h"
 #include <LibKN\SimpleParser.h>
 #include <LibKN\Connector.h>
+#include <LibKN\StrUtil.h>
+#include <LibKN\Logger.h>
 #include <stdlib.h>
 #include <stdio.h>
 
+
 SimpleParser::SimpleParser(Connector* connector) : 
 	m_Connector(connector),
-	len_found(false),
-	w_buf_size(0),
-	w_buf(0)
+	len_found(false)
 {
-	//a buffer to hold the converted wide char
-	w_buf_size = 512;
-	w_buf = new wchar_t[w_buf_size];
 }
 
 SimpleParser::~SimpleParser()
 {
-	if (w_buf)
-		delete[] w_buf;
 }
 
 /** @param buf_ptr the raw data from the simple tunnel connection
@@ -115,7 +111,7 @@ mb_buf_ptr SimpleParser::parse_event(mb_buf_ptr buf_ptr)
 	}
 
 	//just keep moving bytes into the event buffer until it reaches len number of bytes
-	int num_bytes_to_copy = (buf_ptr.m_Len > len - event_str.length()) ? len - event_str.length() : buf_ptr.m_Len;
+	unsigned int num_bytes_to_copy = (buf_ptr.m_Len > len - event_str.length()) ? len - event_str.length() : buf_ptr.m_Len;
 	event_str.append((char*)buf_ptr.m_Ptr, num_bytes_to_copy);
 
 	if (event_str.length() == len)
@@ -202,8 +198,7 @@ bool SimpleParser::make_map_from_simple(const string& simple, Message& msg)
 
 wstring SimpleParser::decode_simple_header_string(string& str_to_decode)
 {
-	wstring ret_str;
-	ret_str = L"";
+	wstring ret_str = L"";
 
 	//find encoded characters
 	string number;
@@ -212,6 +207,23 @@ wstring SimpleParser::decode_simple_header_string(string& str_to_decode)
 	int byte = 0;
 	unsigned char new_char;
 
+
+	/*
+	 * Find all %xx and convert them back to their characters.
+	 */
+	str_pos = 0;
+	while ((str_pos = str_to_decode.find("%", str_pos)) != string::npos)
+	{
+		string temp = str_to_decode.substr(str_pos, 3);
+		if (sscanf(temp.c_str(), "%%%x", &byte))
+		{
+			new_char = byte;
+			str_to_decode.replace(str_pos, 3, 1, new_char);
+		}
+		++str_pos;
+	}
+
+	str_pos = 0;
 	while (string::npos != (str_pos = str_to_decode.find("=", str_pos)))
 	{
 
@@ -225,52 +237,11 @@ wstring SimpleParser::decode_simple_header_string(string& str_to_decode)
 		++str_pos;
 	}
 
-	//convert to wide string 
-	int w_buf_len;
-	if (!(w_buf_len = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)str_to_decode.c_str(), str_to_decode.length(), &w_buf[0], w_buf_size)))
-	{
-		if (ERROR_INSUFFICIENT_BUFFER == GetLastError ())
-		{
-			int new_w_buf_size = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)str_to_decode.c_str(), str_to_decode.length(), NULL, 0);
-			delete[] w_buf;
-			w_buf = new wchar_t[new_w_buf_size];
-			w_buf_size = new_w_buf_size;
-
-			if (!(w_buf_len = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)str_to_decode.c_str(), str_to_decode.length(), &w_buf[0], w_buf_size)))
-				return ret_str;
-		}
-		else
-			return ret_str;
-	}
-
-	ret_str.assign(w_buf, w_buf_len);
-
+	ret_str = ConvertFromUtf8(str_to_decode);
 	return ret_str;
 }
 
 wstring SimpleParser::decode_simple_payload_string(string& str_to_decode)
 {
-	wstring ret_str;
-
-	//convert to wide string 
-	int w_buf_len;
-	if (!(w_buf_len = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)str_to_decode.c_str(), str_to_decode.length(), &w_buf[0], w_buf_size)))
-	{
-		if (ERROR_INSUFFICIENT_BUFFER == GetLastError ())
-		{
-			int new_w_buf_size = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)str_to_decode.c_str(), str_to_decode.length(), NULL, 0);
-			delete[] w_buf;
-			w_buf = new wchar_t[new_w_buf_size];
-			w_buf_size = new_w_buf_size;
-
-			if (!(w_buf_len = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)str_to_decode.c_str(), str_to_decode.length(), &w_buf[0], w_buf_size)))
-				return ret_str;
-		}
-		else
-			return ret_str;
-	}
-
-	ret_str.assign(w_buf, w_buf_len);
-
-	return ret_str;
+	return ConvertFromUtf8(str_to_decode);
 }

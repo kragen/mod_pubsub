@@ -51,6 +51,10 @@ public:
 
 	/**
 	 * This method gets called whenever an event is posted to the topic.
+	 * Note that this callback is called from a separate thread than
+	 * the Connector's.
+	 * It is the application's responsibility to ensure anything done in
+	 * the OnUpdate() method is thread-safe.
 	 */
 	virtual void OnUpdate(const Message& msg) = 0;
 };

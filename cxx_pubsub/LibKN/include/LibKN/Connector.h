@@ -51,9 +51,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /**
  * The Connector class is the main class to communicate with the server.
  */
-class Connector : public CCriticalSection, public ITransport
+class Connector : public CCriticalSection, public ITransport, public IOfflineQueue
 {
 friend class Journal;
+friend class Transport;
 friend class SimpleParser;
 friend class OfflineQueue;
 
@@ -65,6 +66,9 @@ public:
 	 */
 	Connector();
 	~Connector();
+
+	// ITransport
+	//
 
 	/**
 	 * \return True if the Connector is connected. False otherwise.
@@ -89,12 +93,57 @@ public:
 	bool Close();
 
 	/**
-	 * This method ensures the connector is successfully connected to the server. It must be called
-	 * after calling Open() at least once.
+	 * This method ensures the connector is successfully connected to the server. 
 	 * \return True if successfully connected.
 	 */
 	bool EnsureConnected();
 
+
+	// IOfflineQueue
+	//
+
+	/**
+	 * \return True if this connection has queueing turned on or auto. False otherwise.
+	 * The default is off.
+	 */
+	bool GetQueueing();
+
+	/**
+	 * Turns the queueing on or off.
+	 */
+	void SetQueueing(bool on);
+	
+	/**
+	 * Saves the current outgoing queue into a file. The file can then
+	 * be reloaded with LoadQueue.
+	 * \return True if the operation was successful. False otherwise.
+	 */
+	bool SaveQueue(const wstring& filename);
+	
+	/**
+	 * Loads the outgoing queue from a file. The queue will be sent when
+	 * either Flush, or Subscribe, or Publish, or Unsubscribe is called.
+	 * \return True if the operation was successful. False otherwise.
+	 */
+	bool LoadQueue(const wstring& filename);
+	
+	/**
+	 * Flushes the queue.
+	 * \return True if the operation was successful. False otherwise.
+	 */
+	bool Flush();
+	
+	/**
+	 * Clears the queue.
+	 * \return True if the operation was successful. False otherwise.
+	 */
+	bool Clear();
+
+	/**
+	 * \return True if there are items in the queue. False otherwise.
+	 */
+	bool HasItems();
+	
 	/**
 	 * Publishes the message to the server.
 	 * \return True if it was successfully sent.
@@ -158,14 +207,13 @@ private:
 	bool Post(const Message& msg, IRequestStatusHandler* sh);
 	wstring GetRouteIdImpl(const wstring& topic, Message& msg) const;
 
-	void FlushQueue();
-
 	Transport m_Transport;
 	RandRHandler m_RandR;
 	Journal m_Journal;
 	Listeners m_Listeners;
 	ConnectionStatusHandlers m_ConnectionStatusHandlers;
 	OfflineQueue m_OfflineQueue;
+	Message m_LastConnectionStatus;
 
 private:
 	// Cannot copy

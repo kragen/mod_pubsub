@@ -37,6 +37,15 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if !defined(LIBKN_LOCK_H)
 #define LIBKN_LOCK_H
 
+class ILockable
+{
+public:
+	~ILockable() {}
+	virtual void Enter() const = 0;
+	virtual void Leave() const = 0;
+};
+
+
 /**
  * This is a resource grabber class that automatically locks the 
  * resource on construction and releases the resource on destruction.

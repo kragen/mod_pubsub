@@ -71,6 +71,8 @@ int main(int argc, char* argv[])
 	p.m_ServerUrl = argv[Server];
 	p.m_ShowUI = true;
 
+//	c.SetQueueing(true);
+
 	if (c.Open(p))
 	{
 		printf("Opened connection\n");
@@ -106,6 +108,11 @@ int main(int argc, char* argv[])
 			duration = 1;
 
 		printf("\nTime is %d milliseconds\n", duration);
+
+		if (c.HasItems())
+		{
+			printf("There's something in the queue\n");
+		}
 
 		c.Close();
 	}

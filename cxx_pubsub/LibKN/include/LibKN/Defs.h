@@ -40,7 +40,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #   if !defined(LIBKN_INTERNAL_BUILD)
 #		define LIBKN_PREFIX 	"LIBKN"
 #		if !defined(_WIN32_WCE)
-#			if (_MSC_VER >= 1300)
+#			if (_MSC_VER >= 1310)
+#				define LIBKN_VERSION	"10_71_"
+#			elif (_MSC_VER >= 1300)
 #				define LIBKN_VERSION	"10_7"
 #			else
 #				define LIBKN_VERSION	"10"
@@ -58,7 +60,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #			if (WIN32_PLATFORM_PSPC > 300)
 #				define LIBCE_PREFIX "Ce"
 #			else
-#				define LIBCE_PREFIX "Ce"
+#				define LIBCE_PREFIX "Ce2k"
 #			endif 
 
 #			if defined(_WIN32_WCE_EMULATION) || defined(_X86_)

@@ -38,37 +38,32 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LIBKN_OFFLINEQ_H
 
 #include <LibKN\Defs.h>
+#include <LibKN\IOfflineQueue.h>
 
-class OfflineQueue
+class OfflineQueue : public IOfflineQueue
 {
 typedef queue<string> Container;
 friend class Connector;
 
 public:
-	enum Type
-	{
-		Off = 0,
-		On,
-		Auto,
-	};
-
 	OfflineQueue();
 	~OfflineQueue();
 
-	bool IsQueueing();
-	Type GetType();
-	void SetType(Type t);
+	bool GetQueueing();
+	void SetQueueing(bool on);
 
-	bool SaveQueue(const tstring& filename);
-	bool LoadQueue(const tstring& filename);
-	bool Flush(Connector* c);
+	bool SaveQueue(const wstring& filename);
+	bool LoadQueue(const wstring& filename);
+	bool Flush();
 	bool Clear();
+	bool HasItems();
 
 private:
 	void Add(const string& data);
+	bool FlushImp(Connector* c);
 
 private:
-	Type m_Type;
+	bool m_On;
 	Container m_Queue;
 
 private:

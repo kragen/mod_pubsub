@@ -1,8 +1,8 @@
-// Windows Template Library - WTL version 7.0
-// Copyright (C) 1997-2002 Microsoft Corporation
+// WTL Version 3.1
+// Copyright (C) 1997-2000 Microsoft Corporation
 // All rights reserved.
 //
-// This file is a part of the Windows Template Library.
+// This file is a part of Windows Template Library.
 // The code and information is provided "as-is" without
 // warranty of any kind, either expressed or implied.
 

@@ -1,7 +1,7 @@
 Type=Exe
 PlatformGUID={DE9660AC-85D3-4C63-A6AF-46A3B3B83737}
-DeviceGUID={5F2AD043-32BE-4874-B5B1-B16758EC1B1D}
-RemotePath=\Windows\Start Menu\Project1.vb
+DeviceGUID={6CEF7361-4355-11D2-975C-00A0240918F0}
+RemotePath=\Windows\Start Menu\Chat.vb
 UpdateType=1
 ForceRuntime=0
 ForceComponent=0
@@ -10,6 +10,7 @@ Form=Form1.ebf
 Module=EventHandlers; EventHandlers.bas
 IconForm="Form1"
 Startup="Form1"
+HelpFile=""
 ExeName32="Chat.vb"
 Command32=""
 Name="Chat"

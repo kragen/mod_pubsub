@@ -1,0 +1,155 @@
+VERSION 5.00
+Begin VB.Form Form1 
+   Appearance      =   0  'Flat
+   BackColor       =   &H80000005&
+   Caption         =   "Form1"
+   ClientHeight    =   3615
+   ClientLeft      =   60
+   ClientTop       =   840
+   ClientWidth     =   3480
+   ForeColor       =   &H80000008&
+   ScaleHeight     =   3615
+   ScaleWidth      =   3480
+   ShowOK          =   -1  'True
+   Begin VBCE.TextBox Text1 
+      Height          =   2055
+      Left            =   120
+      TabIndex        =   2
+      Top             =   600
+      Width           =   3255
+      _cx             =   5741
+      _cy             =   3625
+      BackColor       =   -2147483643
+      BorderStyle     =   1
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      ForeColor       =   -2147483640
+      Text            =   ""
+      Alignment       =   0
+      HideSelection   =   -1  'True
+      Locked          =   0   'False
+      MaxLength       =   0
+      MultiLine       =   -1  'True
+      PasswordChar    =   ""
+      ScrollBars      =   3
+   End
+   Begin VBCE.CommandButton SendBtn 
+      Height          =   375
+      Left            =   2640
+      TabIndex        =   1
+      Top             =   120
+      Width           =   735
+      _cx             =   1296
+      _cy             =   661
+      BackColor       =   12632256
+      Caption         =   "&Send!"
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Style           =   0
+   End
+   Begin VBCE.TextBox MsgText 
+      Height          =   375
+      Left            =   120
+      TabIndex        =   0
+      Top             =   120
+      Width           =   2535
+      _cx             =   4471
+      _cy             =   661
+      BackColor       =   -2147483643
+      BorderStyle     =   1
+      Enabled         =   -1  'True
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Tahoma"
+         Size            =   8.25
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      ForeColor       =   -2147483640
+      Text            =   ""
+      Alignment       =   0
+      HideSelection   =   -1  'True
+      Locked          =   0   'False
+      MaxLength       =   0
+      MultiLine       =   0   'False
+      PasswordChar    =   ""
+      ScrollBars      =   0
+   End
+End
+Attribute VB_Name = "Form1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+
+Dim MyConnector As Connector
+
+Const Topic = "/what/chat"
+
+Private Sub Form_Load()
+    Set MyConnector = CreateObjectWithEvents("LibKNCom.Connector", "MyConnector_")
+    Dim p As Parameters
+    Set p = CreateObject("LibKNCom.Parameters")
+    p.ServerUrl = "http://sales.knownow.com/kn"
+    If MyConnector.Open(p) Then
+        Subscribe
+    Else
+        MsgBox "Cannot connect to server"
+    End If
+    Form1.SIPVisible = True
+End Sub
+
+Private Sub Form_OKClick()
+    App.End
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    Set MyConnector = Nothing
+End Sub
+
+Private Sub Subscribe()
+    ' SubBtn.Enabled = False
+    Dim n As Object
+    Set n = Nothing
+    
+    MyConnector.Subscribe Topic, n, n, n
+End Sub
+
+Private Sub SendBtn_Click()
+    If MyConnector Is Nothing Then
+        Exit Sub
+    End If
+    Dim m As Message
+    Dim n As Message
+    Set n = Nothing
+    Set m = CreateObject("LibKNCom.Message")
+    m.Set "do_method", "notify"
+    m.Set "kn_response_format", "simple"
+    m.Set "displayname", "evb"
+    m.Set "kn_to", Topic
+    m.Set "kn_payload", MsgText.Text
+    
+    MyConnector.Publish m, n
+    MsgText.Text = ""
+    MsgText.SetFocus
+End Sub
+

@@ -45,7 +45,7 @@ enum TArgs
 {
 	ProgramPath = 0,
 	XmlFile,
-	Server,
+	Router,
 	Expected,
 };
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	if (argc != Expected)
 	{
 		printf("Expecteding %d args, got %d instead\n", Expected, argc);
-		printf("Usage: %s xmlfile server\n", argv[0]);
+		printf("Usage: %s xmlfile router\n", argv[0]);
 		return -1;
 	}
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
 	//Transport& t = g_Conn.GetTransport();
 	ITransport::Parameters p;
-	p.m_ServerUrl = argv[Server];
+	p.m_ServerUrl = argv[Router];
 	bool b = g_Conn.Open(p);
 
 	int att = 0;

@@ -5,12 +5,6 @@
 // This file is a part of Windows Template Library.
 // The code and information is provided "as-is" without
 // warranty of any kind, either expressed or implied.
-//
-// This file was modified to make it compatible with Windows CE
-// Please report any bugs to Konstantin Koshelev(kkn@reget.com)
-//
-// Oct 2002: Herbert Fann: Added DDX_COMBO_INDEX() macro from Less Wright
-// See article Using DDX and DDV with WTL in CodeProject.com
 
 #ifndef __ATLDDX_H__
 #define __ATLDDX_H__
@@ -55,18 +49,6 @@ namespace WTL
 			if(!DDX_Text(nID, var, sizeof(var), bSaveAndValidate, TRUE, len)) \
 				return FALSE; \
 		}
-
-//LESSW: customizations contained here-------------------------
-
-
-#define DDX_COMBO_INDEX(nID, var) \
-		if(nCtlID == (UINT)-1 || nCtlID == nID) \
-		{ \
-		if(!DDX_Combo_Index(nID, var, TRUE, bSaveAndValidate)) \
-					return FALSE; \
-		}
-
-//end customizations-------------------------------------------
 
 #define DDX_INT(nID, var) \
 		if(nCtlID == (UINT)-1 || nCtlID == nID) \
@@ -201,7 +183,7 @@ public:
 		}
 		else
 		{
-			ATLASSERT(!bValidate || lstrlen(lpstrText) <= (UINT)nLength);
+			ATLASSERT(!bValidate || lstrlen(lpstrText) <= nLength);
 			bSuccess = pT->SetDlgItemText(nID, lpstrText);
 		}
 
@@ -212,7 +194,7 @@ public:
 		else if(bSave && bValidate)	// validation
 		{
 			ATLASSERT(nLength > 0);
-			if(lstrlen(lpstrText) > (UINT)nLength)
+			if(lstrlen(lpstrText) > nLength)
 			{
 				_XData data;
 				data.nDataType = ddxDataText;
@@ -339,62 +321,6 @@ public:
 		return bSuccess;
 	}
 #endif //__ATLSTR_H__
-
-//LESSW: modified to correctly set combobox index rather than int converted to text-------
-
-
-template <class Type>
-BOOL DDX_Combo_Index(UINT nID, Type& nVal, BOOL bSigned, BOOL bSave, BOOL bValidate = FALSE, Type nMin = 0, Type nMax = 0)
-{
-	T* pT = static_cast<T*>(this);
-	BOOL bSuccess = TRUE;
-	
-	if(bSave)
-	{
-		//nVal = (Type)pT->GetDlgItemInt(nID, &bSuccess, bSigned);
-		nVal = ::SendMessage(
-								(HWND) (Type)pT->GetDlgItem(nID),              // handle to destination window 
-								CB_GETCURSEL,             // message to send
-								(WPARAM) 0,          // item index
-								(LPARAM) 0          // not used; must be zero
-							);
-		bSuccess = (nVal == CB_ERR ? false : true);	
-	}
-	else
-	{
-		ATLASSERT(!bValidate || nVal >= nMin && nVal <= nMax);
-		int iRet = 	::SendMessage( 
-									(HWND) (Type)pT->GetDlgItem(nID),              // handle to destination window 
-									CB_SETCURSEL,             // message to send
-									(WPARAM) nVal,          // item index
-									(LPARAM) 0          // not used; must be zero
-								);
-		
-		bSuccess = (iRet == CB_ERR ? false : true);
-	}
-	
-	if(!bSuccess)
-	{
-		pT->OnDataExchangeError(nID, bSave);
-	}
-	else if(bSave && bValidate)	// validation
-	{
-		ATLASSERT(nMin != nMax);
-		if(nVal < nMin || nVal > nMax)
-		{
-			_XData data;
-			data.nDataType = ddxDataInt;
-			data.intData.nVal = (long)nVal;
-			data.intData.nMin = (long)nMin;
-			data.intData.nMax = (long)nMax;
-			pT->OnDataValidateError(nID, bSave, data);
-			bSuccess = FALSE;
-		}
-	}
-	return bSuccess;
-}
-
-//-----------------------------------------------
 
 // Numeric exchange
 	template <class Type>
@@ -565,7 +491,7 @@ BOOL DDX_Combo_Index(UINT nID, Type& nVal, BOOL bSigned, BOOL bSave, BOOL bValid
 		{
 			if(nValue < 0 || nValue > 2)
 			{
-				ATLTRACE2(atlTraceUI, 0, _T("ATL: Warning - dialog data checkbox value (%d) out of range.\n"), nValue);
+				ATLTRACE2(atlTraceUI, 0, "ATL: Warning - dialog data checkbox value (%d) out of range.\n", nValue);
 				nValue = 0;  // default to off
 			}
 			::SendMessage(hWndCtrl, BM_SETCHECK, nValue, 0L);
@@ -609,7 +535,7 @@ BOOL DDX_Combo_Index(UINT nID, Type& nVal, BOOL bSigned, BOOL bSave, BOOL bValid
 			}
 			else
 			{
-				ATLTRACE2(atlTraceUI, 0, _T("ATL: Warning - skipping non-radio button in group.\n"));
+				ATLTRACE2(atlTraceUI, 0, "ATL: Warning - skipping non-radio button in group.\n");
 			}
 			hWndCtrl = ::GetWindow(hWndCtrl, GW_HWNDNEXT);
 		}

@@ -51,7 +51,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CMessage.h"
 #include "CConnector.h"
 #include "CParameters.h"
-
+#include "CLogger.h"
+#include <LibKN\StrUtil.h>
 
 CComModule _Module;
 
@@ -60,6 +61,7 @@ OBJECT_ENTRY(CLSID_MessageEntry, CMessageEntry)
 OBJECT_ENTRY(CLSID_Message, CMessage)
 OBJECT_ENTRY(CLSID_Connector, CConnector)
 OBJECT_ENTRY(CLSID_Parameters, CParameters)
+OBJECT_ENTRY(CLSID_Logger, CLogger)
 END_OBJECT_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -122,6 +124,14 @@ STDAPI DllUnregisterServer(void)
 #else
     return _Module.UnregisterServer(TRUE);
 #endif
+}
+
+tstring ConvertString(BSTR b)
+{
+	tstring retVal;
+	wstring w = b;
+	retVal = ConvertToTString(w);
+	return retVal;
 }
 
 

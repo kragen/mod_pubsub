@@ -37,10 +37,17 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stdafx.h"
 #include <LibKN\OfflineQ.h>
 #include <LibKN\Connector.h>
+#include <LibKN\StrUtil.h>
+#include <LibKN\Logger.h>
+
+IOfflineQueue::~IOfflineQueue()
+{
+}
+
 
 OfflineQueue::OfflineQueue()
 {
-	m_Type = Auto;
+	m_On = false;
 }
 
 OfflineQueue::~OfflineQueue()
@@ -48,24 +55,24 @@ OfflineQueue::~OfflineQueue()
 	Clear();
 }
 
-bool OfflineQueue::IsQueueing()
+bool OfflineQueue::GetQueueing()
 {
-	return GetType() != Off;
+	return m_On;
 }
 
-OfflineQueue::Type OfflineQueue::GetType()
+void OfflineQueue::SetQueueing(bool on)
 {
-	return m_Type;
+	m_On = on;
 }
-
-void OfflineQueue::SetType(OfflineQueue::Type t)
+	
+bool OfflineQueue::SaveQueue(const wstring& filename)
 {
-	m_Type = t;
-}
+	if (filename.empty())
+		return false;
 
-bool OfflineQueue::SaveQueue(const tstring& filename)
-{
-	HANDLE file = CreateFile(filename.c_str(), GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	tstring tfn = ConvertToTString(filename);
+
+	HANDLE file = CreateFile(tfn.c_str(), GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (file != INVALID_HANDLE_VALUE)
 	{
@@ -113,11 +120,15 @@ bool OfflineQueue::SaveQueue(const tstring& filename)
 	return true;
 }
 
-bool OfflineQueue::LoadQueue(const tstring& filename)
+bool OfflineQueue::LoadQueue(const wstring& filename)
 {
+	if (filename.empty())
+		return false;
+
 	Clear();
 
-	HANDLE file = CreateFile(filename.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, NULL, NULL);
+	tstring tfn = ConvertToTString(filename);
+	HANDLE file = CreateFile(tfn.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, NULL, NULL);
 
 	if (file != INVALID_HANDLE_VALUE)
 	{
@@ -164,7 +175,17 @@ bool OfflineQueue::LoadQueue(const tstring& filename)
 	return true;
 }
 
-bool OfflineQueue::Flush(Connector* c)
+bool OfflineQueue::Flush()
+{
+	return false;
+}
+
+bool OfflineQueue::HasItems()
+{
+	return !m_Queue.empty();
+}
+
+bool OfflineQueue::FlushImp(Connector* c)
 {
 	while (!m_Queue.empty())
 	{
@@ -202,10 +223,8 @@ bool OfflineQueue::Clear()
 
 void OfflineQueue::Add(const string& data)
 {
-	if (IsQueueing())
-	{
+	if (GetQueueing())
 		m_Queue.push(data);
-	}
 }
 
 

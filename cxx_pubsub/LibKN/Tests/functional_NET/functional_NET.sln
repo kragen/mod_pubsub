@@ -1,0 +1,27 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "vb", "vb\vb.vbproj", "{677DF15C-B179-433B-BF72-FB112B0D0C08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharp", "csharp\csharp.csproj", "{56B843ED-4ECF-48BC-847B-12A8E10352B8}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{677DF15C-B179-433B-BF72-FB112B0D0C08}.Debug.ActiveCfg = Debug|.NET
+		{677DF15C-B179-433B-BF72-FB112B0D0C08}.Debug.Build.0 = Debug|.NET
+		{677DF15C-B179-433B-BF72-FB112B0D0C08}.Release.ActiveCfg = Release|.NET
+		{677DF15C-B179-433B-BF72-FB112B0D0C08}.Release.Build.0 = Release|.NET
+		{56B843ED-4ECF-48BC-847B-12A8E10352B8}.Debug.ActiveCfg = Debug|.NET
+		{56B843ED-4ECF-48BC-847B-12A8E10352B8}.Debug.Build.0 = Debug|.NET
+		{56B843ED-4ECF-48BC-847B-12A8E10352B8}.Release.ActiveCfg = Release|.NET
+		{56B843ED-4ECF-48BC-847B-12A8E10352B8}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
