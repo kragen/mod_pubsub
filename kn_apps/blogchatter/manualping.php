@@ -23,12 +23,24 @@ Your blog's URL:  <INPUT TYPE="text" NAME="blogurl" SIZE=50><BR>
 </HTML>
 EOFORM;
 
+include('../../php_pubsub/pubsublib.php');
+
+$url_string = 'http://127.0.0.1/kn';
+
+if (isset($kn_server))
+{
+    $url_string = $kn_server;
+}
 
 // The function
 function doPublish()
 {
-    $host = "www.mod-pubsub.org";
-    $path = "/kn/what/apps/blogchatter/pings";
+    global $url_string;
+    $url = parse_url($url_string);
+    $host = $url['host'];
+    $port = $url['port'];
+    if (! $port) $port = 80; 
+    $path = $url['path'] . "/what/apps/blogchatter/pings";
 
     $blogname = $_POST['blogname'];
     $blogurl = $_POST['blogurl'];
@@ -39,7 +51,7 @@ function doPublish()
     $header .= "POST " . $path . " HTTP/1.0\r\n";
     $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
     $header .= 'Content-Length: ' . strlen($req) . "\r\n\r\n";
-    $fp = fsockopen ($host, 9000, $errno, $errstr, 30);
+    $fp = fsockopen ($host, $port, $errno, $errstr, 30);
     
     if (!$fp) {
         // ERROR
