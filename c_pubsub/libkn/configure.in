@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to make a configure script.
 
-AC_REVISION($Revision: 1.1 $)
+AC_REVISION($Revision: 1.2 $)
 #
 # autoconf build configuration for libkn
 # Wilfredo Sanchez
@@ -23,41 +23,30 @@ dnl Options:
 AC_ARG_ENABLE(debug, 
 [  --enable-debug 		enable debug build], debug=yes, debug=no)
 
-__openssldir=/usr/local/ssl
-
-LIBCRYPT="__no__"
-LIBSSL="__no__"
+openssldir=/usr/local/ssl
+  LIBCRYPT=""
+    LIBSSL=""
 
 AC_ARG_WITH(ssl,
 [  --with-ssl[=DIR]		Use OpenSSL to support HTTPS urls.  DIR
 				defaults to /usr/local/ssl],
 [
-	if test "$withval" != "no"; then
-		if test "$withval" != "yes"; then
-			__openssldir=$withval
-		fi
-	else
-		__openssldir="__NO__"
-	fi
+    if test "${withval}" != "no"; then
+        if test "${withval}" != "yes"; then
+             openssldir="${withval}"
+        fi
+    else
+        openssldir=""
+    fi
 ])
 
-if test -d "$__openssldir" ; then
-	LIBS="-L$__openssldir/lib -L$__openssldir -lssl -lcrypto"
-	CPPFLAGS="-I$__openssldir/include"
-	AC_MSG_RESULT(Using OpenSSL in $__openssldir)
-	LIBCRYPT="$__openssldir/lib/libcrypto.a"
-	LIBSSL="$__openssldir/lib/libssl.a"
+if test -d "${openssldir}" ; then
+    AC_MSG_RESULT(Using OpenSSL in ${openssldir})
+        LIBS="${LIBS} -L${openssldir}/lib -L${openssldir} -lssl -lcrypto"
+    CPPFLAGS="${CPPFLAGS} -I${openssldir}/include"
+    if [ -f "${openssldir}/lib/libcrypto.a" ]; then LIBCRYPT="${openssldir}/lib/libcrypto.a"; fi
+    if [ -f "${openssldir}/lib/libssl.a"    ]; then   LIBSSL="${openssldir}/lib/libssl.a"   ; fi
 fi
-
-
-dnl force use of sun compiler if we're on solaris
-case "${host}"  in
-    *-*-solaris*)
-	if test "x$CC" = "x"; then
-		CC=cc
-	fi
-    ;;
-esac
 
 dnl Checks for programs:
 
@@ -69,7 +58,7 @@ dnl AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
 
-#AC_CHECK_PROGS(INSTALL, install, \$(top_srcdir)/buildconf/install-sh)
+dnl AC_CHECK_PROGS(INSTALL, install, \$(top_srcdir)/buildconf/install-sh)
 INSTALL='$(top_srcdir)/buildconf/install-sh'
 AC_SUBST(INSTALL)
 AC_CHECK_PROGS(PERL,           perl,           :)
@@ -95,9 +84,9 @@ dnl Checks for libraries:
 AC_CHECK_LIB(socket, socket         )
 AC_CHECK_LIB(nsl,    gethostbyname  )
 
-if test "$__openssldir" != "__NO__"; then
-	AC_CHECK_LIB(crypto, SSLeay         )
-	AC_CHECK_LIB(ssl,    SSL_get_version)
+if test "x${openssldir}" != "x"; then
+    AC_CHECK_LIB(crypto, SSLeay         )
+    AC_CHECK_LIB(ssl,    SSL_get_version)
 fi
 
 # On NeXT/Darwin systems, libMallocDebug is useful for debugging malloc bugs.
@@ -109,8 +98,8 @@ dnl Checks for header files:
 
 AC_CHECK_HEADERS(getopt.h)
 
-if test "$__openssl" != "__NO__"; then
-	AC_CHECK_HEADERS(openssl/ssl.h)
+if test "x${openssldir}" != "x"; then
+    AC_CHECK_HEADERS(openssl/ssl.h)
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics:
@@ -175,21 +164,22 @@ C_WARN_FLAGS="-Wall -Werror"
       CFLAGS=""
 	CXXFLAGS=""
 
-# Not gcc; select based on OS
+# Not gcc; select options based on OS
+# (On the assumption that the system compiler is in use.)
 if test "${ac_cv_prog_gcc}" = "no"; then
     case "${host}"  in
-        *-*-solaris*)
+      *-*-solaris*)
         if test "${debug}" = "yes"; then
-            C_OPT_FLAGS="-xO1"
-      		C_DEBUG_FLAGS="-DDEBUG -g"
+              C_OPT_FLAGS="-xO1"
+           C_DEBUG_FLAGS="-DDEBUG -g"
         else
-            C_OPT_FLAGS="-fast"
-      		C_DEBUG_FLAGS=""
+              C_OPT_FLAGS="-fast"
+           C_DEBUG_FLAGS=""
         fi
         C_WARN_FLAGS="-erroff=%none"
             CC_FLAGS="-KPIC -mt"
         ;;
-        *)
+      *)
         # Unknown compiler
           C_OPT_FLAGS=""
          C_WARN_FLAGS=""
