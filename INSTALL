@@ -88,8 +88,18 @@ You can do this by adding lines like the following to httpd.conf.
     Alias /kn /var/www/mod_pubsub/cgi-bin/pubsub.cgi
 
 
-6.  You need to create a subdirectory called mod_pubsub/kn_events and
-make it writable by the user that will be running the event router code,
+6.  Run the Makefile in this directory, for example
+
+   make HTTPD_USER=www-data
+
+This does two things:
+
+6A. Compresses the JavaScript PubSub library, creating pubsub.js :
+
+   bash kn_tools/js_compress.sh < kn_apps/kn_lib/pubsub_raw.js > kn_apps/kn_lib/pubsub.js
+
+6B. Creates a subdirectory called mod_pubsub/kn_events and make it
+writable by the user that will be running the event router code,
 typically "nobody", "httpd", or "www-data".  We recommend that you do
 this by changing the ownership of this directory to that user; as root:
 
@@ -97,10 +107,11 @@ this by changing the ownership of this directory to that user; as root:
    mkdir kn_events
    chown httpd kn_events
 
-If you don't do this, none of the apps will work, the test suite will
-fail, your server error log will rapidly fill with "Uncaught
-exception" messages, and apps run with debugging turned on will
-display "500 Internal Server Error" messages.
+If you don't create a kn_events directory with the proper permissions,
+none of the apps will work, the test suite will fail, your server
+error log will rapidly fill with "Uncaught exception" messages, and
+apps run with debugging turned on will display "500 Internal Server
+Error" messages.
 
 
 7. Now try testing your mod_pubsub server:
