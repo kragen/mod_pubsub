@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-
+<!-- Copyright 2003 Joyce Park -->
 <html>
 <head>
 <title>mod_pubsub homepage</title>
@@ -33,9 +33,11 @@
     <iframe frameborder="0" src="http://www.mod-pubsub.org/kn_apps/statwatch/connect_count_dom.html" width="180" height="25" marginwidth="0" marginheight="0" scrolling "off"></iframe>
   </div>
 
-    <p class="indent50">This counter shows the number of clients connected to the mod-pubsub.org server right now.  It's the very simplest introduction to working with mod-pubsub.</p>
+    <p class="indent50">This counter shows the number of clients connected to the mod-pubsub.org server right now.  It's the very simplest example we have of how to subscribe to mod-pubsub data in the browser.</p>
 
-    <p class="indent50">Each mod-pubsub server keeps track of how many connections have been opened and closed, and whenever that number changes it POSTs an update to the /kn_statistics/liveconns topic.  We use a small JavaScript library, kn_lib, to help us get that data as a JavaScript object via the kn_subscribe() function, which is then dropped into the IFRAME by means of the innerHTML method.</p>
+    <p class="indent50">The mod-pubsub server is generating and publishing this particular piece of data automatically, so you don't have to worry about publishing yet.  Each mod-pubsub server keeps track of how many connections have been opened and closed, and whenever that number changes it POSTs an update to the /kn_statistics/liveconns topic.</p>
+
+    <p class="indent50">We use a small JavaScript library, called kn_lib, to help us get that data as a JavaScript object via the kn_subscribe() function, and then we drop the data into a very simple DHTML page (in this case, inside an IFRAME for convenience) by means of the innerHTML method.  See for yourself how simple the code is by viewing source <a href="/kn_apps/statwatch/connect_count_dom.html">on this page</a>.</p>
 
     <p class="indent50">Why does the box say "Updates on change" when it first appears?  Due to the design of our system, we can only get data that arrives at the server <em>after</em> our JavaScript library establishes a connection.  There is no good way to ask for a dump of pre-existing data.  Therefore, we can't give you an initial count as soon as the widget is initialized -- only when a new connection is made, or an old one breaks off.</p>
 
