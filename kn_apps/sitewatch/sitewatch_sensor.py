@@ -4,7 +4,7 @@
 	sitewatch_sensor.py -- A sensor for whether a site is up or not.
 
 	Example of usage:
-		./sitewatch_sensor.py http://192.168.0.2/kn/
+		./sitewatch_sensor.py http://192.168.0.2/kn
 
         Version 1.0 -- February 8, 2003.  Initial implementation.
         Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
@@ -50,7 +50,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: sitewatch_sensor.py,v 1.1 2003/02/09 05:50:33 ifindkarma Exp $
+## $Id: sitewatch_sensor.py,v 1.2 2003/02/09 05:57:42 ifindkarma Exp $
 
 
 import os, sys, time, socket, inspect, errno, urllib, urlparse
