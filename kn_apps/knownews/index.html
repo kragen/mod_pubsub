@@ -1,34 +1,72 @@
 <html>
-<head><title>NewsCast</title></head>
+<head>
+<title>NewsCast</title>
+</head>
 <style>
 	A.topics { color:white }
 	.topics { color:white }
 </style>
 
 <style>
-	.nickname { font-size : 8pt; font-weight : bold;  }
-    .comment { font-size : 8pt}
-    .title { font-weight : bold;  font-size : 10pt;}
-    .description { font-size : 10pt; }
+	.nickname { font-size : 10pt; font-weight : bold; color:darkgreen  }
+	.comment { font-size : 10pt}
+	.title { font-weight : bold;  font-size : 12pt;}
+	.description { font-size : 10pt; }
+	.date { font-weight : bold;  font-size : 10pt; color :darkgreen}
+	.author { font-weight : bold;  font-size : 10pt; color :#707070}
 </style>
 
 <!-- The KnowNow Library -->
+
+<script language="JavaScript">
+<!--
+
+function SymError()
+{
+  return true;
+}
+
+window.onerror = SymError;
+
+//-->
+</script>
+
 <script src="/kn/?do_method=lib"></script>
 <script>
 <!--
-var topic = (kn_argv.kn_topic ?
-             kn_argv.kn_topic :
-             ("/topiczero.com/news/" ));
-
+var topic;
 var isRefreshNeeded=false;
 
 var items=new Array();
 var comments=new Array();
-
 var unrecognized=0;
+
+topic="/topiczero.com/news/";
+if (kn_argv && kn_argv.kn_topic)
+	topic = kn_argv.kn_topic ;
+
+var g_months=new Array();
+
+function init_months()
+{
+	g_months = new Array();
+	g_months[0] = "Jan";
+	g_months[1] = "Feb";
+	g_months[2] = "Mar";
+	g_months[3] = "Apr";
+	g_months[4] = "May";
+	g_months[5] = "Jun";
+	g_months[6] = "Jul";
+	g_months[7] = "Aug";
+	g_months[8] = "Sep";
+	g_months[9] = "Oct";
+	g_months[10] = "Nov";
+	g_months[11] = "Dec";
+}
 
 function doLoad()
 {
+    init_months();
     kn_subscribe(topic,this,{do_max_age : 60*60*9 });
 }
 
@@ -61,6 +99,9 @@ function addItem(event)
 {
     var index;
 
+	if (!event.kn_time_t)
+		event.kn_time_t=new Date()/1000;
+
     index = findEvent(event);
 
     if (index < 0)
@@ -85,6 +126,13 @@ function addComment(event)
     isRefreshNeeded=true;
 }
 
+function formatDate(d)
+{
+	return g_months[d.getMonth()] + " " + d.getDate() + ", " + d.getYear() + "  " 
+		+ (d.getHours() < 10?"0":"") + d.getHours() + ":" 
+		+ (d.getMinutes() < 10?"0":"") + d.getMinutes() + ":" 
+		+ (d.getSeconds() < 10?"0":"") + d.getSeconds(); 
+}
 function refresh()
 {
     var html="";
@@ -101,8 +149,13 @@ function refresh()
         item = items[i];
         if (item.link && item.title)
         {
+		var date = new Date(item.kn_time_t*1000);
+
             html += "<a target='knownews_content' href='"+item.link+"'>";
             html += "<span class='title'>"+item.title+"</span></a><br />";
+		html += "<span class='author'>"+item.author+"</span> - ";
+		html += "<span class='date'>"+formatDate(date)+"</span> ";
+		html += "<br />";
             html += "<span class='description'>"+item.description+"</span>";
             html += "<p />";
         }
@@ -133,8 +186,8 @@ function refresh()
 
 <body onLoad='doLoad()' leftmargin='0' topmargin='0'>
 <basefont face='arial' />
-<table class='topics' width='100%' bgcolor='#6040a0'>
-<tr><td><font size='+2' color='white'><b>NewsCast</b></font> <font size='-1'>(viewing <script>document.write(topic);</script>)</font></td>
+<table class='topics' width='100%' bgcolor='#6040a0' cellpadding='4'>
+<tr ><td><font size='+2' color='white'><b>NewsCast</b></font> <font size='-1'>(viewing <script>document.write(topic);</script>)</font></td>
 <td align='right'>
 <script>document.write("<a class='topics' target='knownews_add' href='add.html?"+topic+"'>")</script>
 [Add news item]</a>
@@ -154,12 +207,12 @@ function refresh()
 </td>
 </tr>
 </table>
-<br />
 
-<table width='100%'>
-<tr valign='top'>
-<td width='75%'>
-<div id='news'></div>
+
+<table width='100%' cellpadding='12' >
+<tr valign='top' >
+<td width='75%' >
+<div id='news' ></div>
 </td>
 <td>
 <b>Comments</b><hr size='1' />
