@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.3 2003/02/09 05:57:42 ifindkarma Exp $
+ $Id: index.html,v 1.4 2003/06/23 23:23:55 ifindkarma Exp $
 
 -->
 
@@ -50,8 +50,11 @@
 
 <script type="text/javascript"><!--
 // kill the kn_form.js watchdog timer
-clearInterval(kn__formWatchdogHandle);
-kn__formWatchdogHandle = null;
+if (self.kn__formWatchdogHandle)
+{
+    clearInterval(kn__formWatchdogHandle);
+    kn__formWatchdogHandle = null;
+}
 
 // Apply a CSS style to a form element ("node"). Works in the
 // Netscape6 DOM and the MSIE DOM. The name of the stylesheet
