@@ -10,7 +10,7 @@
     or in the past; tell event loop how long until the next
     scheduled task.
 
-    $Id: scheduler.py,v 1.2 2003/03/12 02:37:23 ifindkarma Exp $
+    $Id: scheduler.py,v 1.3 2003/05/31 04:05:29 ifindkarma Exp $
     Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
     Known Issues: see the FIXME's in this file.
@@ -54,7 +54,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: scheduler.py,v 1.2 2003/03/12 02:37:23 ifindkarma Exp $
+## $Id: scheduler.py,v 1.3 2003/05/31 04:05:29 ifindkarma Exp $
 
 
 import time
@@ -65,7 +65,7 @@ import asyncore
     not the polling "standard" asyncore.
 """
 
-# FIXME: we need to be able to cancel timers we've scheduled previously
+# FIXME: We need to be able to cancel timers we've scheduled previously.
 
 class Scheduler:
     class Task:
@@ -90,10 +90,9 @@ class Scheduler:
                 try:
                     i()
                 except:
-                    # FIXME: we could really use an error handler of
-                    # some sort...  but even this is better than
-                    # crashing the event loop.
-                    pass
+                    # FIXME: We could really use an error handler...
+                    # but even this is better than crashing the event loop.
+                    self.handle_error(i)
             else:
                 self.schedule.append(i)
     def timeout(self):
@@ -107,9 +106,23 @@ class Scheduler:
             return 0
         else:
             return diff
+    def handle_error (self, i):
+        (file,fun,line), t, v, tbinfo = asyncore.compact_traceback()
+        # Sometimes a user repr method will crash.
+        try:
+            i_repr = repr(i)
+        except:
+            i_repr = '<__repr__(i) failed for object at %0x>' % id(i)
+        print (
+            'uncaptured python exception in scheduled item %s (%s:%s %s)' % (
+                i_repr,
+                t,
+                v,
+                tbinfo
+                )
+            )
 
-# construct a singleton scheduler corresponding to the singleton
-# asyncore event loop
+# Construct a singleton scheduler corresponding to the singleton asyncore event loop.
 scheduler = Scheduler()
 
 def schedule_processing(*args, **kw):
@@ -124,7 +137,7 @@ def run(*args, **kw):
 def main(argv):
     return
     # FIXME: Add a demo sample usage.
-    # For now, see sitewatch_sensor.py for a sample usage.
+    # For now, see mod_pubsub/kn_apps/sitewatch/sitewatch_sensor.py for a sample usage.
 
 if __name__ == "__main__": main(sys.argv)
 
