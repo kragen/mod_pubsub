@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_STRING_H_
-#define _KN_KN_STRING_H_ "$Id: kn_String.h,v 1.3 2003/03/19 05:36:47 ifindkarma Exp $"
+#define _KN_KN_STRING_H_ "$Id: kn_String.h,v 1.4 2003/03/22 06:40:26 ifindkarma Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -306,7 +306,7 @@ kn_Error kn_StringAppendString (kn_MutableStringRef aString, kn_StringRef anAppe
 
 /*!
  * @function   kn_StringAppendCString
- * @discussion kn_StringAppendString appends a nul-termniated C
+ * @discussion kn_StringAppendCString appends a nul-termniated C
  *             string to the end of a string.
  * @param aString  The string to modify.
  * @param anAppend The C string to append to the end of aString.
