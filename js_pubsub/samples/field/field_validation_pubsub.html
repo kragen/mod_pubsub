@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: field_validation_pubsub.html,v 1.1 2003/08/01 22:08:17 ifindkarma Exp $
+ $Id: field_validation_pubsub.html,v 1.2 2003/08/07 20:49:30 ifindkarma Exp $
 
 -->
 
@@ -44,12 +44,11 @@
 
 <head>
 <title>PubSub Field Validation Sample</title>
-</head>
-
-<link type="text/css" rel="stylesheet" href="field_style.css" />
 
 <script type="text/javascript" src="../../js/kn_config.js"></script>
 <script type="text/javascript" src="../../js/kn_browser.js"></script>
+
+<link type="text/css" rel="stylesheet" href="field_style.css" />
 
 <script type="text/javascript">
   kn_include("kn_form");
@@ -87,8 +86,7 @@ function fillData(e) {
         document.getElementById("error").innerText = "";
 
     } else {
-        document.getElementById("error").innerText = "No record of this custome
-r.";
+        document.getElementById("error").innerText = "No record of this customer.";
         document.forms[0].number.value="";
         document.forms[0].number.focus();
         document.getElementById("custadd").value = "";
@@ -101,10 +99,12 @@ r.";
 
 <script>
 function goCode() {
-    top.frames[0].frames[1].location = "field_validation_code_theirs.html";
-    top.frames[0].frames[2].location = "field_validation_code_ours.html";
+    top.frames[1].location = "field_validation_code_theirs.html";
+    top.frames[2].location = "field_validation_code_ours.html";
 }
 </script>
+
+</head>
 
 <body marginheight="0" marginwidth="0" topmargin="0" leftmargin="0">
 

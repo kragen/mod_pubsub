@@ -1,3 +1,5 @@
+/*
+
 // Copyright 2001-2003 KnowNow, Inc.
  
 // @KNOWNOW_LICENSE_START@
@@ -32,14 +34,16 @@
 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: field_style.css,v 1.1 2003/08/01 22:08:17 ifindkarma Exp $
+// $Id: field_style.css,v 1.2 2003/08/07 20:49:30 ifindkarma Exp $
+
+*/
 
 body {
         font-family: Myriad, "Trebuchet MS", Futura, Arial, Sans-serif;
         font-size: 11px;
         vertical-align: middle;
         text-align: center;
-        background-color: 3366cc;
+        background-color: #3366cc;
 }
 
 DIV {
@@ -123,7 +127,7 @@ DIV {
         visibility: hidden;
         left: 100;
         width: 300px;
-        background-color: ffff99;
+        background-color: #ffff99;
 }
 
 .green {
@@ -163,7 +167,7 @@ DIV {
         width: 200px;
         text-align: center;
         padding: 10px;
-        background-color: cccccc;
+        background-color: #cccccc;
 }
 
 #auction {
@@ -217,4 +221,3 @@ DIV {
         padding: 10px;
 }
 
-// End of field_style.css

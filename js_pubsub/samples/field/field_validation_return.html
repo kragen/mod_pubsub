@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: field_validation_return.html,v 1.1 2003/08/01 22:08:17 ifindkarma Exp $
+ $Id: field_validation_return.html,v 1.2 2003/08/07 20:49:30 ifindkarma Exp $
 
 -->
 
@@ -44,7 +44,9 @@
 
 <head>
 <title>PubSub Field Validation Sample</title>
-</head>
+
+<script type="text/javascript" src="../../js/kn_config.js"></script>
+<script type="text/javascript" src="../../js/kn_browser.js"></script>
 
 <link type="text/css" rel="stylesheet" href="field_style.css" />
 
@@ -73,13 +75,15 @@ function fillForm(){
     document.forms[0].num.value = num;
     document.forms[0].add.value = theOne.address;
   } else {
-    document.getElementById("valForm").outerHTML = "<b>QUERY RESULTS:</b><br /><br />No record of user<br /><br /><a href=\"field_validation_old.html\">New Search</a>"
+    document.getElementById("valForm").outerHTML = "<b>QUERY RESULTS:</b><br /><br />No record of user<br /><br /><a href=\"field_validation_before.html\">New Search</a>"
   }
 
 }
 
 // -->
 </script>
+
+</head>
 
 <body marginheight="0" marginwidth="0" topmargin="0" leftmargin="0">
 
