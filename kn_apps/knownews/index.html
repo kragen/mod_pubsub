@@ -14,6 +14,7 @@
 	.description { font-size : 10pt; }
 	.date { font-weight : bold;  font-size : 10pt; color :darkgreen}
 	.author { font-weight : bold;  font-size : 10pt; color :#707070}
+      .spam { color:lightgrey }
 </style>
 
 <!-- The KnowNow Library -->
@@ -40,6 +41,7 @@ var isRefreshNeeded=false;
 var items=new Array();
 var comments=new Array();
 var unrecognized=0;
+var htmlPatterns = new RegExp("<(img|applet|object|script)([^>]*)>","gi");
 
 topic="/topiczero.com/news/";
 if (kn_argv && kn_argv.kn_topic)
@@ -122,6 +124,13 @@ function findEvent(event)
     return -1;
 }
 
+function cleanHtml(html)
+{
+	if (html)
+		html = html.replace(htmlPatterns,"<span class='spam'>&lt;$1 $2&gt;</span>");
+	return html;
+}
+
 function addItem(event)
 {
     var index;
@@ -129,6 +138,7 @@ function addItem(event)
 	if (!event.kn_time_t)
 		event.kn_time_t=new Date()/1000;
 
+    event.description = cleanHtml(event.description);
     index = findEvent(event);
 
     if (index < 0)
@@ -148,6 +158,8 @@ function addComment(event)
 
 	if (!event.nickname)
 		event.nickname = "anonymous";
+
+	event.comment = cleanHtml(event.comment);
 	comments[comments.length] = event;
 
     isRefreshNeeded=true;
