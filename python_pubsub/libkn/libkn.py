@@ -18,14 +18,15 @@
     * Cleanup.
     * Write test cases.
 
-    $Id: libkn.py,v 1.2 2003/04/29 06:44:17 ifindkarma Exp $
+    $Id: libkn.py,v 1.3 2003/07/02 00:10:06 ifindkarma Exp $
     
     Contact Information:
        http://mod-pubsub.sf.net/
        mod-pubsub-developer@lists.sourceforge.net          
 """
 
-## Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+## Copyright 2001-2003 KnowNow, Inc.  All Rights Reserved.
+## Copyright 2001-2003 Phil Harris.  All Rights Reserved.
 
 ## @KNOWNOW_LICENSE_START@
 
@@ -60,7 +61,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: libkn.py,v 1.2 2003/04/29 06:44:17 ifindkarma Exp $
+## $Id: libkn.py,v 1.3 2003/07/02 00:10:06 ifindkarma Exp $
 
 
 # Modified for this distribution:
