@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.46 2003/06/18 01:56:38 ifindkarma Exp $
+# $Id: pubsub.py,v 1.47 2003/06/18 02:04:32 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -647,10 +647,9 @@ class Tunnel(Route):
 
         # Tunnel's heartbeat mechanism.
         class TunnelTickler:
-            def __init__(self, route, conn, scheduler):
+            def __init__(self, route, conn):
                 self.route = route
                 self.conn = conn
-                self.scheduler = scheduler
                 self()
             def __call__(self):
                 if self.conn.closed:
@@ -661,8 +660,8 @@ class Tunnel(Route):
                         # See heartbeat() in SimpleTunnel and JavaScriptTunnel.
                         self.conn.send(self.route.heartbeat())
                         # Send a heartbeat every 30 seconds.
-                        self.scheduler.schedule_processing(self, time.time() + 30,
-                                                           'tickle tunnel')
+                        scheduler.schedule_processing(self, time.time() + 30,
+                                                      'tickle tunnel')
                     except:
                         self.conn.log_err("tickling problem on %s:" %
                                           self.conn + cgitb.html())
@@ -673,7 +672,7 @@ class Tunnel(Route):
             return 0
         if not self.header_sent:
             self.conn.send(self.headerfrom(event))
-            TunnelTickler(self, self.conn, self.conn.server.scheduler)
+            TunnelTickler(self, self.conn)
             self.header_sent = 1
         self.conn.report_status("tunnel sending event %s" % event['kn_id'])
         self.conn.tickle_renderer = 1
@@ -696,7 +695,7 @@ class Tunnel(Route):
         # FIXME: Tunnels don't self-destruct till 100s after socket disconnection.
         # FIXME: Journals stop working as soon as the last tunnel disconnects.
         # FIXME: Attempts to re-connect to a nonworking journal works.
-        self.conn.server.scheduler.schedule_processing(
+        scheduler.schedule_processing(
             lambda self=self: self.become_stale(),
             time.time() + 100, 'stalify old tunnel')
 
@@ -827,11 +826,10 @@ class ServerSaver:
         2. Write event pool file.
     """
 
-    def __init__(self, root, filename, interval, scheduler):
+    def __init__(self, root, filename, interval):
         self.root = root
         self.filename = filename
         self.interval = interval
-        self.scheduler = scheduler
         self.reschedule()
 
     def __call__(self):
@@ -840,7 +838,7 @@ class ServerSaver:
         self.reschedule()
 
     def reschedule(self):
-        self.scheduler.schedule_processing(self, time.time() + self.interval)
+        scheduler.schedule_processing(self, time.time() + self.interval)
 
 class Server:
     """
@@ -849,18 +847,18 @@ class Server:
         2. Track overall server state.
     """
     
-    def __init__(self, portnum, logfile, errlog, scheduler, docroot, pubsubroot, verbose, poolfile, ignorePrologue):
+    def __init__(self, portnum, logfile, errlog, docroot, pubsubroot,
+                 verbose, poolfile, ignorePrologue):
         self.logfile = logfile
         global logger
         logger = Logger(errlog)
-        self.scheduler = scheduler
         self.alive = 1
         self.docroot = docroot
         self.pubsubroot = pubsubroot
         self.verbose = verbose
         self.ignorePrologue = ignorePrologue
         self.root_topic = read_event_pool(poolfile)
-        ServerSaver(self.root_topic, poolfile, 1, self.scheduler)
+        ServerSaver(self.root_topic, poolfile, 1)
         self.portnum = portnum
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -992,7 +990,7 @@ def tunnel(conn, uri, httpreq, query):
                             'watching %s' % topic.getname()))
     # And DON'T finish sending.  Not until much later.  But there might be expiry:
     if query.has_key('kn_expires'):
-        conn.server.scheduler.schedule_processing(TunnelCloser(route),
+        scheduler.schedule_processing(TunnelCloser(route),
             absolute_expiry(query['kn_expires'][0]), 'tunnel closer')
         # FIXME: Should be also deleting the tunnel here.
 
@@ -1749,8 +1747,8 @@ def main(argv):
             exitWithError("Specified port number: %s is not a "
                           "valid number, exiting...\n" % portNumStr)
 
-        server = Server(portNum, logfile, errlog, scheduler,
-                        docroot, topicroot, verbose, filename, ignorePrologue)
+        server = Server(portNum, logfile, errlog, docroot, topicroot,
+                        verbose, filename, ignorePrologue)
 
         if verbose:
             if ignorePrologue:
