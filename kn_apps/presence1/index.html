@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.4 2003/04/30 01:35:10 ifindkarma Exp $
+ $Id: index.html,v 1.5 2003/05/04 00:43:27 ifindkarma Exp $
 
 -->
 
@@ -129,12 +129,15 @@ function presenceOnMessage(event)
 
     var name = event.displayname || event.userid || "(unknown)";
 
+    var eventDate = new Date(parseFloat(event.kn_time_t) * 1000);
+
     presenceLog.value =
-        $_("[%{0}] %{1}  (%{2})\n",
+        $_("[%{0}] %{1}  (%{2}:%{3}:%{4})\n",
            name,
            event.kn_payload,
         // new Date().toTimeString()) +
-           new Date(parseFloat(event.kn_time_t) * 1000).toTimeString()) +
+        //   new Date(parseFloat(event.kn_time_t) * 1000).toTimeString()) +
+           eventDate.getHours(), eventDate.getMinutes(), eventDate.getSeconds()) +
         presenceLog.value;
 
 }
@@ -263,7 +266,7 @@ function presenceShowStatus()
 
         if (presenceList.value != msg)
         {
-        
+
             presenceList.value = msg;
 
         }
@@ -370,7 +373,7 @@ function PresenceSessionMonitor(route)
     this.onSuccess = PresenceSessionMonitor_onSuccess;
     this.onError = PresenceSessionMonitor_onError;
     this.cleanUp = PresenceSessionMonitor_cleanUp;
-    this.date = new Date(parseFloat(route.kn_time_t) * 1000);
+    this.date = new Date(parseFloat(route.kn_time_t) * 1000).toLocaleString();
 
     // properties
 
@@ -829,7 +832,7 @@ function presenceOnLoad()
     presenceLog.value =
         $_("\r\n=Startup= Client initialized for %{0} at %{1}.\n",
            presenceClientId,
-           now.toString());
+           now.toLocaleString());
          // (now.toUTCString ?
          //  now.toUTCString() :
          //  now.toGMTString()));
