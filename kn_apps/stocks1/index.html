@@ -1,0 +1,525 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!-- Uses the sensor mod_pubsub/kn_sense/nasdaq.plx -->
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/03/22 04:06:22 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title name="title">pubsub stock portfolio with ticker</TITLE>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="/kn?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script type="text/javascript" src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script type="text/javascript" src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="/kn?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- The JavaScript Document Helper Library -->
+<script type="text/javascript" src="../kn_lib/document.js"></script>
+
+<!-- localizations -->
+<script type="text/javascript" src="index_en.js"></script>
+<script type="text/javascript" src="index_ja.js"></script>
+
+</head>
+
+<script><!--
+
+// Apply a CSS style to a form element ("node"). Works in the
+// Netscape6 DOM and the MSIE DOM. The name of the stylesheet
+// property in CSS syntax ("property") is automatically converted
+// to the MSIE syntax when necessary. The value ("value") should
+// be in CSS syntax.
+
+function setStyle(node, property, value)
+{
+    var ieproperty = "";
+    for (var i = 0; i < property.length; i ++)
+    {
+        if (property.charAt(i) == "-" && i < property.length)
+            ieproperty += property.charAt(++ i).toUpperCase();
+        else
+            ieproperty += property.charAt(i);
+    }
+    if (node.style)
+    {
+        if (node.style[ieproperty] != null)
+            node.style[ieproperty] = value;
+        else
+            node.style = property + ': ' + value;
+    }
+}
+
+var topic = "/what/nasdaq";
+var portfolioTopic = (
+		      kn_argv.kn_topic ?
+		      kn_argv.kn_topic :
+		      ("/who/" + kn_escape(kn_userid) + "/apps/StockPortfolio")
+		      );
+var rows = kn_argv.rows ? parseInt(kn_argv.rows) : 9;
+
+// Types of data we're interested in.
+var parts =
+{
+    bid: $("Bid"),
+    ask: $("Ask"),
+    vol: $("Volume"),
+    last: $("Last"),
+    close: $("Close")
+};
+var portfolio = {};
+
+var doc = null;
+var docReady = false;
+
+var tickerDoc = null;
+var tickerReady = false;
+
+// Add a row.
+function overflow()
+{
+  rows ++;
+  //drawDoc();
+}
+
+// Handle incoming stock data.
+function handleEvent(event)
+{
+  var symbol = event.symbol;
+  var sym = portfolio[symbol];
+  if(sym)
+    {
+      sym.data[event.type] = event.kn_payload;
+      updateSymbol(symbol);
+    }
+}
+
+// Adds a ticker symbol to the portfolio.
+function addSymbol(symbol, display, optionalRemoteTriggered) 
+{
+    var sym = { rids: {}, data: {}, count: 1 };
+    symbol = symbol.toLowerCase();
+    display.symbol.value = symbol.toUpperCase();
+    if (symbol)
+    {
+        if (display.hidden.value != symbol)
+        {
+	  if (display.hidden.value)
+	    removeSymbol(display.hidden.value, display);
+	  display.hidden.value = symbol;
+	  if (! portfolio[symbol] ) 
+	    {
+	      if (! optionalRemoteTriggered)
+		kn.publish(
+			   portfolioTopic,
+		{
+		kn_payload: symbol,
+			      kn_id: symbol,
+			      kn_expires: "infinity"
+			      });
+	      for( var part in parts )
+		{
+		  sym.data[part] = "";
+		  sym.rids[part] = kn.subscribe(topic +"/"+symbol+"/" + part,
+						handleEvent,
+						({do_max_age : "infinity"}));
+		}
+	      portfolio[symbol] = sym;
+	      drawTicker();
+	    }
+	  else
+	    {
+	      portfolio[symbol].count ++;
+	    }
+        }
+        // If this symbol was added by a local user, automatically switch
+        // focus to the first unused ticker symbol input field.
+        if (! optionalRemoteTriggered)
+	  {
+            for (var index = 0; index < frames[0].document.forms.length; index ++)
+	      {
+                var form = frames[0].document.forms[index];
+                if (form.hidden && form.hidden.value == "")
+		  {
+                    form.elements[0].focus();
+                    break;
+		  }
+	      }
+	    if (index == frames[0].document.forms.length)
+	      overflow();
+	  }
+    }
+    updateSymbol(symbol);
+}
+
+// This function updates the display to reflect the new data for a symbol.
+function updateSymbol(symbol, optionalPart)
+{
+    var sym = portfolio[symbol];
+    if (symbol && sym && tickerReady)
+      {
+	if (frames[1].document.forms[0].elements[symbol])
+	  {
+	    frames[1].document.forms[0].elements[symbol].value = sym.data.last;
+	  }
+      }
+    if (symbol && sym && docReady)
+    {
+        for (var index = 0; index < frames[0].document.forms.length; index ++)
+    	{
+            var form = frames[0].document.forms[index];
+            if (form.hidden && form.hidden.value == symbol)
+            {
+			
+		// START UPDATE HIGHLIGHTING (optional), Part 1
+				
+                // If this is invoked from the un-highlighting setTimeout,
+                // revert the input to regular black text.
+                if (optionalPart)
+                {
+                    form.elements[optionalPart].timer = null;
+                    setStyle(form.elements[optionalPart], "color", "black");
+                }
+
+		// END UPDATE HIGHLIGHTING (optional), Part 1
+
+                for (var part in parts)
+                {
+                    if (form.elements[part].value != sym.data[part])
+                    {
+                        form.elements[part].value = sym.data[part];
+						
+                        // START UPDATE HIGHLIGHTING (optional), Part 2
+				
+                        // Set a two-second timer to switch colors and
+                        // font weight when after a new update.
+                        if (form.elements[part].timer)
+                            frames[0].clearTimeout(form.elements[part].timer);
+                        form.elements[part].timer =
+                            frames[0].setTimeout(
+						 'parent.updateSymbol(parent.kn_unescape("' +
+						 kn_escape(symbol) +
+						 '"), "' +
+						 part +
+						 '")',
+						 2000);
+                        setStyle(form.elements[part], "color", "blue");
+						
+                        // END UPDATE HIGHLIGHTING (optional), Part 2
+						
+                    }
+                }
+            }
+        }
+    }
+}
+
+function removeSymbol(symbol, display, optionalRemoteTriggered)
+{
+    if (display.hidden.value) display.hidden.value = "";
+    symbol = symbol.toLowerCase();
+    var sym = portfolio[symbol];
+    if (symbol && sym && ! -- sym.count) 
+    {
+       	for( var part in parts )
+        {
+            if (sym.rids[part]) kn.unsubscribe(sym.rids[part]);
+       	}
+        if (! optionalRemoteTriggered)
+        {
+            kn.publish(
+                portfolioTopic,
+            {
+              kn_payload: "",
+                              kn_id: symbol,
+                              kn_expires: "+5"
+                              });
+        }
+        delete portfolio[symbol];
+	drawTicker();
+    }
+}
+
+// Updates the local portfolio view based on remote changes to the portfolio.
+function onSymbol(event)
+{
+    var symbol = event.kn_id;
+    if (event.kn_payload)
+    {
+        if (portfolio[symbol]) return;
+        for (var index = 0; index < frames[0].document.forms.length; index ++)
+        {
+            var form = frames[0].document.forms[index];
+            if (form.hidden && ! form.hidden.value)
+            {
+                addSymbol(symbol, form, true);
+                break;
+            }
+        }
+	if (index == frames[0].document.forms.length)
+	  overflow();
+    }
+    else
+    {
+        if (! portfolio[symbol]) return;
+        for (var index = 0; index < frames[0].document.forms.length; index ++)
+        {
+            var form = frames[0].document.forms[index];
+            if (form.hidden.value == symbol)
+            {
+                removeSymbol(symbol, form, true);
+                form.reset();
+            }
+        }
+    }
+}
+
+function doUnload(win)
+{
+  win.parent.docReady = false;
+}
+
+function doLoad(win)
+{
+  with (win)
+    {
+      for (var index = 0; index < win.document.forms.length; index ++)
+	{
+	  var form = win.document.forms[index];
+	  
+	  // Reset all form inputs so that browser value caching doesn't
+	  // confuse the application.
+	  form.reset();
+	  
+	  // Chnage the borders for input elements and buttons using CSS. We
+	  // can't do this in the static stylesheet because Netscape 4 can't
+	  // handle stylesheet border attributes for form elements.
+	  setStyle(form.elements.symbol, "border", "1px solid #777777");
+	  setStyle(form.elements.add, "border", "1px solid black");
+	  setStyle(form.elements.remove, "border", "1px solid black");
+	}
+      if (! win.parent.docReady) win.document.forms[0].elements[0].focus();
+    }
+  win.parent.docReady = true;
+}
+
+function drawDoc()
+{
+  var html = [];
+  html[html.length] =
+    '<style><' + '!-' + '-\n' +
+    'input.output { border: 0px; color: black; }\n' +
+    'input, th, td { ' +
+    $('font-family: arial, helvetica, sans-serif; font-size: 12px;') +
+    '}\n' +
+    'h1 { ' +
+    $('font-family: arial, helvetica, sans-serif; font-size: 18px;') +
+    '}\n' +
+    'p.small { text-align: center; ' +
+    $('font-family: arial, helvetica, sans-serif; font-size: 10px;') +
+    '}\n' +
+    '-' + '-><' + '/style>' +
+    '<' + '/head>';
+  html[html.length] =
+    '<body onload="parent.doLoad(window)" onunload="parent.doUnload(window)"' +
+    ' text="black" bgcolor="white" link="navy" alink="blue" vlink="navy">';
+  html[html.length] =
+    '<h1 align="center">' +
+    kn_htmlEscape($_("%{0}'s Stock Portfolio",
+		     kn_displayname)) +
+    '<' + '/h1>';
+  html[html.length] =
+    '<table border=0 cellpadding=0 cellspacing="3px" align=center width="75%">' +
+    '<tr>' +
+    '<th align=left>' +
+    $("Ticker Symbol") +
+    '<' + '/th>';
+  for (var part in parts)
+    html[html.length] =
+      '<th align=left>' +
+      kn_htmlEscape(parts[part]) +
+      '<' + '/th>';
+  html[html.length] =
+    '<' + '/tr>' +
+    '<tr>' +
+    '<td colspan="6"><hr size="1px"><' + '/td>' +
+    '<' + '/tr>';
+
+  // Write out some rows to hold our stock portfolio.
+  for (var i = 0; i < rows; i ++)
+    {
+      html[html.length] =
+	'<tr>'+
+	'<form onsubmit="parent.addSymbol(symbol.value, this); return false" >' +
+	'<td>' +
+	'<nobr>' +
+	'<input type=text value="" name="symbol" size="7">' +
+	'<input type=hidden name="hidden" value="">'+
+	'&nbsp;' +
+	'<input type=submit name=add value="' +
+	$("Add") +
+	'">'+
+	'&nbsp;' +
+	'<input type=reset name=remove value="' +
+	$("Remove") +
+	'" onclick="parent.removeSymbol(symbol.value, this.form); return true">'+
+	'&nbsp;' +
+	'<' + '/nobr>' +
+	'<' + '/td>';
+      for (var part in parts)
+	html[html.length] =
+	  '<td>' +
+	  '<input name=' + part + ' value="" size="12" class=output readonly>' +
+	  '<' + '/td>';
+      html[html.length] =
+	'<' + '/form>'+
+	'<' + '/tr>';
+    }
+  html[html.length] =
+    '<' + '/table>' +
+    '<br>' +
+    '<p class="small">' +
+    $_("This page uses delayed data from %{0}.",
+       '<a target="_blank"' +
+       ' href="http://www.nasdaq.com">' +
+       $("nasdaq.com") +
+       '<' + '/a>') +
+    ' ' +
+    $("Prices are in US dollars.") +
+    '<' + '/p>' +
+    '<' + '/body>';
+  doc.open();
+  doc.write(html.join(""));
+  doc.close();
+}
+
+function tickerLoad()
+{
+  tickerReady = true;
+}
+
+function tickerUnload()
+{
+  tickerReady = false;
+}
+
+function drawTicker()
+{
+  var html = [];
+  html[html.length] =
+    '<style><' + '!-' + '-\n' +
+    'body, input { border: 0px; color: black; background: #eeeeee; ' +
+    $('font-family: arial, helvetica, sans-serif; font-size: 10px;') +
+    '}\n' +
+    '-' + '-><' + '/style>' +
+    '<' + '/head>';
+  html[html.length] =
+    '<body' +
+    ' bgcolor="#eeeeee" text="black" link="blue" alink="red" vlink="purple"' +
+    ' topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0"' +
+    ' marginwidth="0" marginheight="0"' +
+    ' scroll="no" ' +
+    'onload="parent.tickerLoad()" onunload="parent.tickerUnload()">';
+  html[html.length] = '<form action="javascript://">';
+  html[html.length] = '<marquee>';
+  html[html.length] = '<nobr>';
+  for (var symbol in portfolio)
+    {
+      html[html.length] = '&nbsp;';
+      html[html.length] = kn_htmlEscape(symbol.toUpperCase());
+      html[html.length] = ':<input readonly name="' +
+	kn_htmlEscape(symbol) +
+	'" size="8" value="' +
+	kn_htmlEscape(portfolio[symbol].data.last) +
+	'">';
+      html[html.length] = '&nbsp;';
+    }
+  html[html.length] = '<' + '/nobr>';
+  html[html.length] = '<' + '/marquee>';
+  html[html.length] = '<' + '/form>';
+  html[html.length] = '<' + '/body>';
+  tickerDoc.open();
+  tickerDoc.write(html.join(""));
+  tickerDoc.close();
+}
+
+function doFrameset()
+{
+  doc = new KNDocument(frames[0]);
+  tickerDoc = new KNDocument(frames[1]);
+  drawDoc();
+  drawTicker();
+  ((parent == kn.ownerWindow) ? parent : window).
+    setTimeout(
+	       'document.title = kn_unescape("' +
+	       kn_escape($("Stock Portfolio")) +
+	       '")',
+	       1);
+  kn.subscribe(
+	       portfolioTopic,
+	       onSymbol,
+	       ({ kn_expires: "infinity", do_max_age: "infinity" })
+	       );
+}
+
+document.write(
+	       '<frameset rows="*,16" onload="doFrameset()" border="0">' +
+	       '<frame frameborder="no"' +
+	       ' src="' + kn_htmlEscape(kn_blank) + '" />' +
+	       '<frame scrolling="no" noresize frameborder="no"' +
+	       ' src="' + kn_htmlEscape(kn_blank) + '" />' +
+	       '<' + '/frameset>'
+	       );
+
+// -->
+</script>
+</html>
