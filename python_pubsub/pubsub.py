@@ -47,7 +47,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.23 2003/05/10 05:22:38 ifindkarma Exp $
+# $Id: pubsub.py,v 1.24 2003/05/14 05:20:53 troutgirl Exp $
 
 
 """
@@ -202,7 +202,7 @@ class Event:
         if self.contents.has_key('kn_expires'):
             self.kn_expires = absolute_expiry(self.contents['kn_expires'])
         else:
-            self.kn_expires = None
+            self.kn_expires = absolute_expiry('+30')
         if not self.contents.has_key('kn_payload'):
             self.contents['kn_payload'] = ''
     def is_expired(self):
