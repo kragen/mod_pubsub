@@ -47,7 +47,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.25 2003/05/14 23:44:15 troutgirl Exp $
+# $Id: pubsub.py,v 1.26 2003/05/16 06:12:22 ifindkarma Exp $
 
 
 """
@@ -749,7 +749,7 @@ def do_help(conn):
 
 def do_blank(conn):
     conn.report_status('sending blank')
-    conn.send(http_header('200 OK', 'text/html; charset=utf-8') +
+    conn.send(http_header('200 OK', 'text/html; charset=utf-8', http_time(time.time() + 86400)) +
               "<html><head><title>This Space Intentionally Left Blank</title>\n" +
               html_prologue_string(conn) +
               '<script type="text/javascript">\n' +
@@ -873,20 +873,20 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
     elif do_method == 'batch':
         do_batch(conn, query)
     elif do_method == 'lib':
-        header = http_header('200 OK', 'text/javascript')
+        header = http_header('200 OK', 'text/javascript', http_time(time.time() + 86400))
         data = (js_prologue_string(conn) +
                 conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1])
         conn.send(header + data)
         conn.finish_sending()
     elif do_method == 'libform':
-        conn.send(http_header('200 OK', 'text/javascript') +
+        conn.send(http_header('200 OK', 'text/javascript', http_time(time.time() + 86400)) +
                   js_prologue_string(conn) +
                   conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
                   "\n" +
                   conn.pathread(knroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
         conn.finish_sending()
     elif do_method == 'lib2form':
-        conn.send(http_header('200 OK', 'text/javascript') +
+        conn.send(http_header('200 OK', 'text/javascript', http_time(time.time() + 86400)) +
                   js_prologue_string(conn) +
                   conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
                   "\n" +
@@ -894,7 +894,7 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
                   conn.pathread(knroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
         conn.finish_sending()
     elif do_method == 'whoami':
-        conn.send(http_header('200 OK', 'text/javascript') +
+        conn.send(http_header('200 OK', 'text/javascript', http_time(time.time() + 86400)) +
                   js_prologue_string(conn))
         conn.finish_sending()
     elif do_method == 'noop':
@@ -1073,8 +1073,14 @@ class Connection(asyncore.dispatcher_with_send):
     def shouldIgnorePrologue(self):
         return self.server.ignorePrologue
 
-def http_header(statusline, contenttype):
-    return "HTTP/1.0 %s\r\nContent-Type: %s\r\n\r\n" % (statusline, contenttype)
+def http_time(when):
+    return time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(when))
+
+def http_header(statusline, contenttype, expires = None):
+    if expires is None:
+        return "HTTP/1.0 %s\r\nContent-Type: %s\r\n\r\n" % (statusline, contenttype)
+    else:
+        return "HTTP/1.0 %s\r\nContent-Type: %s\r\nExpires: %s\r\n\r\n" % (statusline, contenttype, expires)
 
 # How to use HttpClient?
 # Well, we need it for two things: outbound routes and content-transform routes.
