@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: consumer.html,v 1.1 2003/03/12 03:19:32 ifindkarma Exp $
+ $Id: consumer.html,v 1.2 2003/03/12 03:31:53 ifindkarma Exp $
 
 -->
 
@@ -157,7 +157,7 @@ function myAlert(string)
 {
     if (alertWin && kn_isReady(alertWin)) alertWin.close();
     alertWin = window.open('javascript:void document.write("' +
-                        '<title>Notice - KnowNow Power</title>' +
+                        '<title>notice - pubsub power</title>' +
                         '<body text=\\"white\\" bgcolor=\\"black\\" leftmargin=\\"0\\" topmargin=\\"0\\" marginwidth=\\"0\\" marginheight=\\"0\\">' +
                         '<h1 align=\\"center\\"><tt>' +
                         kn_htmlEscape(string) +
@@ -177,7 +177,7 @@ function myMail(email, string)
     var tmp = topic + '/email/' +
         Math.random().toString().substr(2,8);
     kn.subscribe(tmp,
-                 "http://localhost:8000/cgi-bin/form2smtp.cgi/" +
+                 "http://oyster.knownow.com:8000/cgi-bin/form2smtp.cgi/" +
                  kn_escape(email),
                  ({ kn_expires: "+600", do_max_n: "1" }),
                  ({ onError: (function (e) {
