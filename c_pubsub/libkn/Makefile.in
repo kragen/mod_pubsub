@@ -1,0 +1,161 @@
+# @configure_input@
+
+##
+# Shared makefile glue
+##
+
+top_srcdir = @top_srcdir@
+
+include $(top_srcdir)/buildconf/common.mk
+
+##
+# Files
+##
+
+C_PUBLIC_SOURCES  = kn_base.c kn_Error.c kn_Object.c			\
+		    kn_String.c kn_String_WebEncoding.c	kn_String_URI.c	\
+		    kn_Dictionary.c kn_Event.c kn_Server.c kn_Route.c
+C_OPT_SOURCES     =
+C_PRIVATE_SOURCES = 
+C_HEADERS         = $(addprefix kn/,$(addsuffix .h,$(basename $(C_PUBLIC_SOURCES) ))) $(NAME).h
+C_OPT_HEADERS     = $(addprefix kn/,$(addsuffix .h,$(basename $(C_OPT_SOURCES)    )))
+C_HEADERS_PRIVATE =                 $(addsuffix .h,$(basename $(C_PRIVATE_SOURCES))) kn/kn_Object_private.h kn/kn_Server_private.h kn/$(NAME).h kn_config.h
+
+##
+# Output
+##
+
+PRODUCTS = $(NAME).h $(LIBKN) $(PROGRAMS) docs/index.html
+TESTS    = kn_test
+
+PROGRAMS = kn_publish kn_subscribe #kn_cut
+
+##
+# Targets
+##
+
+.PHONY: all library debug docs test install clean distclean test-c
+
+all: $(PRODUCTS)
+
+debug:
+	$(_v) $(MAKE) $(MAKEFLAGS) $(PRODUCTS) $(TESTS) DEBUG="YES"
+
+clean:
+	$(_v) $(MAKE) -C docs $(MAKEFLAGS) clean
+	@echo "Cleaning $(NAME)..."
+	$(_v) rm -f $(OBJS) $(PRODUCTS) $(TESTS) libkn* confdefs.h *~ \#* .\#*
+	$(_v) rm -rf build kn
+
+distclean: clean
+	@echo "Acme(tm) cleaning $(NAME)..."
+	$(_v) $(MAKE) -C docs $(MAKEFLAGS) distclean
+	$(_v) rm -f configure config.* kn_config.h* Makefile buildconf/common.mk prng_cmds
+
+library: $(LIBKN)
+
+install: $(C_HEADERS) $(C_OPT_HEADERS) $(PRODUCTS) test LICENSE RELEASE_NOTES.html
+	@echo "Installing $(NAME)... (DSTROOT=$(DSTROOT))"
+	$(INSTALL_DIRECTORY) $(DSTROOT)$(bindir)
+	$(INSTALL_DIRECTORY) $(DSTROOT)$(libdir)
+	$(INSTALL_DIRECTORY) $(DSTROOT)$(includedir)/kn
+	$(INSTALL_DIRECTORY) $(DSTROOT)$(sysconfdir)
+	$(INSTALL_LIBRARY) -c $(LIBKN) $(DSTROOT)$(libdir)
+	if test "$(LIBCRYPT)" != "__no__"; then		\
+		$(INSTALL_LIBRARY) -c $(LIBCRYPT) $(DSTROOT)$(libdir); \
+	fi
+	if test "$(LIBSSL)" != "__no__"; then	\
+		$(INSTALL_LIBRARY) -c $(LIBSSL) $(DSTROOT)$(libdir);	\
+	fi
+	for program in $(PROGRAMS); do						\
+	  $(INSTALL_PROGRAM) -c "$${program}" $(DSTROOT)$(bindir);		\
+	done
+	for header in $(C_HEADERS) $(C_OPT_HEADERS); do				\
+	  $(INSTALL_LIBRARY) -c "$${header}" $(DSTROOT)$(includedir)/kn;	\
+	done
+	$(INSTALL_DIRECTORY) $(DSTROOT)$(docsdir)
+	$(INSTALL_DATA) -c LICENSE $(DSTROOT)$(prefix)
+	$(INSTALL_DATA) -c RELEASE_NOTES.html $(DSTROOT)$(prefix)
+	$(PERL) fixprogs prng_cmds &&						\
+	  $(INSTALL_DATA) -c prng_cmds.out $(DSTROOT)$(sysconfdir)/prng_cmds
+	$(_v) $(MAKE) -C docs $(MAKEFLAGS) install
+
+PKG_DSTROOT     = .
+TARBALL_DSTROOT = $(shell pwd)/dst
+TARBALL_NAME    = lib$(NAME)-$(VERSION)
+
+tarball: $(C_HEADERS) $(C_OPT_HEADERS) $(PRODUCTS)
+	@echo "Packaging $(NAME)..."
+	$(MAKE) install DSTROOT="$(TARBALL_DSTROOT)"
+	(cd "$(TARBALL_DSTROOT)" && tar --owner=root --group=root -cv -f - .) > "$(PKG_DSTROOT)/$(TARBALL_NAME).tar"
+	rm -rf "$(TARBALL_DSTROOT)"
+	rm -f "$(PKG_DSTROOT)/$(TARBALL_NAME).tar.Z"
+	compress "$(PKG_DSTROOT)/$(TARBALL_NAME).tar"
+
+test: debug $(TESTS)
+	$(_v) for test in $(TESTS); do $(RUN_ENVIRONMENT) ./$$test $(TEST_URI) $(TEST_USER) $(TEST_PASS); done
+
+$(OBJS): $(C_HEADERS) $(C_OPT_HEADERS) $(C_HEADERS_PRIVATE)
+
+kn_String_WebEncoding.o: apr_base64.c apr_base64.h
+kn_Server.o: kn_Server_http.c kn_Server_publish.c kn_Server_subscribe.c kn_Server_callback.c entropy.c strlcpy.c
+
+$(LIBKN_STATIC): $(OBJS)
+	ar cruv $@ $^
+	$(RANLIB) $@
+
+$(LIBKN_DYNAMIC): $(OBJS)
+	$(CC) $^ $(LDFLAGS_SHLIB) -o $@
+
+%: %.c $(LIBKN)
+	$(CC) $< $(LIBKN) $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) -o $@
+
+docs: docs/index.html
+
+docs/index.html: $(C_HEADERS)
+	$(_v) $(MAKE) -C docs $(MAKEFLAGS)
+
+kn/%.h: %.h
+	$(_v) mkdir -p kn
+	$(_v) $(LN_S) ../$< $@
+
+$(NAME).h: Makefile
+	$(_v) rm -f $@ && touch $@
+	$(_v) echo "/**" 						         >> $@
+	$(_v) echo " * PubSub Client Library" 			         >> $@
+	$(_v) echo " **/" 						         >> $@
+	$(_v) echo ""                       				         >> $@
+	$(_v) echo "#ifndef _KN_KN_H_"      				         >> $@
+	$(_v) echo "#define _KN_KN_H_"      				         >> $@
+	$(_v) echo ""                       				         >> $@
+	$(_v) echo "#define KN_LIBRARY_VERSION \"$(VERSION)\""                   >> $@
+	$(_v) echo ""                       				         >> $@
+	$(_v) for header in $(filter-out kn.h,$(C_HEADERS)); do echo "#include \"$$header\"" >> $@; done
+	$(_v) echo ""                       				         >> $@
+	$(_v) echo "#endif /* _KN_KN_H_ */" 				         >> $@
+
+##
+# Autoconf
+##
+
+CONFIGURE_INPUT  = $(top_srcdir)/buildconf/common.mk.in Makefile.in docs/Makefile.in kn_config.h.in
+CONFIGURE_OUTPUT = $(top_srcdir)/buildconf/common.mk    Makefile    docs/Makefile    kn_config.h
+
+$(srcdir)/configure: configure.in
+	$(_v) cd $(srcdir) && autoconf
+
+$(srcdir)/kn_config.h.in: config.stamp.in
+config.stamp.in: configure.in buildconf/acconfig.h
+	$(_v) cd $(srcdir) && autoheader -l $(srcdir)/buildconf
+	$(_v) date > $@
+
+$(CONFIGURE_OUTPUT): config.stamp
+config.stamp: config.status $(CONFIGURE_INPUT)
+	$(_v) ./config.status
+	$(_v) date > $@
+
+config.status: configure
+	$(_v) ./config.status --recheck
+
+# Bug in GNU make on Solaris?
+w:

@@ -1,0 +1,207 @@
+<!--
+ Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+ -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>PubSub C Client Reference Guide</title>
+<link type="text/css" rel="stylesheet" href="doc_style.css" />
+</head>
+
+<body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
+
+<h1>PubSub C Client Reference Guide</h1>
+
+<hr>
+
+<p>This document covers the following topics: 
+
+<ul>
+
+  <li> <a href="#Installing">Installing a PubSub C Client</a></li>
+  <li> <a href="#Using">Using a PubSub C Client</a></li>
+  <li> <a href="#Publish">Publishing an Event to a Topic</a></li>
+  <li> <a href="#Subscribe">Subscribing to a Topic</a></li>
+  <li> <a href="api.html">PubSub C Client API</a></li>
+</ul>
+
+<hr>
+
+
+ <p>
+  The PubSub C Client enables communications between a PubSub
+  Notification Server and a client written in C.
+ </p>
+
+
+<h2><a name="Installing"></a>Installing a PubSub C Client</h2>
+
+<blockquote>
+ <p>
+  To install the C Client, extract the contents of the archive
+  file:
+ </p>
+
+ <pre>
+  zcat libkn-1.x.x.tar.Z | ( cd / && tar xvf - )
+ </pre>
+</blockquote>
+
+<h2><a name="Using">Using a PubSub C Client</a></h2>
+
+<blockquote>
+ <p>
+  A client program uses the C Client by linking in the C Client
+  library (libkn) and the OpenSSL libraries as shown here:
+ </p>
+
+ <pre>
+ cc -I/usr/local/kn/libkn/include -L/usr/local/kn/libkn/lib myclient.c -o myclient -lkn -lssl -lcrypto -lnsl -lsocket
+ </pre>
+</blockquote>
+
+
+
+<h2>Using the PubSub C Client API</h2>
+
+<blockquote>
+ <p>
+  The <a href="api.html">PubSub C Client API</a> provides a set of C data types termed <b>objects</b>
+  which are operated on by specific functions.  Some objects
+  exist to contain data (eg. strings and dictionaries), while others
+  provide specific functionality (eg. events, routes, and servers).
+ </p>
+
+</blockquote>
+
+<h2><a name="Publish">Publishing an Event to a Topic</a></h2>
+
+<blockquote>
+
+ <p>
+  The following example publishes an event with a payload of
+  <code>"Hello, World"</code> to the topic <code>"/what/chat"</code>
+  on the server at the URI <code>"http://localhost/kn"</code>.
+ </p>
+
+<!--<font size="-1">-->
+<pre>#include &lt;kn/kn.h&gt;
+
+int main (int argc, char* const argv[])
+{
+  kn_ServerRef aServer =
+    kn_ServerCreateWithURI(KNSTR("http://localhost/kn"));
+  kn_MutableEventRef anEvent = kn_EventCreateMutable();
+  
+  kn_EventSetValue(anEvent,
+                kn_EVENT_PAYLOAD_HEADER_NAME,
+                KNSTR("Hello, World!"));
+
+if (kn_ServerPublishEventToTopic(aServer, anEvent,
+                    KNSTR("/what/chat"),
+                    NULL, NULL, kn_TRUE))
+     exit(1);
+   kn_Release(anEvent);
+   kn_Release(aServer);
+}</pre>
+</font>
+
+</blockquote>
+
+<h2><a name="Subscribe">Subscribing to a Topic</a></h2>
+
+<blockquote>
+ <p>
+  The following example subscribes to the topic
+  <code>"/what/chat"</code> on the server at the URI
+  <code>"http://localhost/kn"</code> and prints the payload of the
+  first event received.
+ </p>
+
+<!--<font size="-1">-->
+<pre>#include &lt;stdio.h&gt;
+#include &lt;kn/kn.h&gt;
+
+static void print_event (kn_EventRef anEvent, void* aUserData)
+{
+  kn_StringRef aPayload =
+    kn_EventGetValue(anEvent, kn_EVENT_PAYLOAD_HEADER_NAME);
+
+  /*
+   * We don't use printf("%s", kn_StringGetBytes(aPayload)) because
+   * data received from the server may embed nul characters, which
+   * would be truncated by printf().
+   */
+  kn_StringWriteToStream(aPayload, stdout);
+  fflush(stdout);
+}
+
+int main (int argc, char* const argv[])
+{
+  kn_ServerRef aServer =
+    kn_ServerCreateWithURI(KNSTR("http://localhost/kn"));
+
+  kn_RouteRef aRoute =
+    kn_RouteCreateFromTopicToFunctionViaServer(KNSTR("/what/chat"),
+                                               print_event,
+                                               aServer, NULL,
+                                               NULL, NULL,
+                                               kn_TRUE);
+
+  if (!aRoute) exit(1);
+
+  kn_ServerProcessNextEvent(aServer);
+  kn_RouteDelete(aRoute, NULL, NULL, kn_TRUE);
+
+  kn_Release(aRoute );
+  kn_Release(aServer);
+}</pre>
+</font>
+
+</blockquote>
+
+<hr>
+
+<p><font size="-2">
+ All brand names and product names used in this document are trade
+ names, service marks, trademarks or registered trademarks of their
+ respective owners.
+</font></p>
+
+</body>
+</html>

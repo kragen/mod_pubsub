@@ -1,0 +1,15 @@
+*.exe
+*.stackdump
+config.*
+configure
+confdefs.h
+dst
+kn
+kn.h
+kn_test
+kn_config.h*
+kn_publish
+kn_subscribe
+Makefile
+prng_cmds
+prng_cmds.out

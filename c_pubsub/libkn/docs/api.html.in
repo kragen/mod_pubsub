@@ -1,0 +1,102 @@
+<!--
+ Copyright (c) 2001-2002 KnowNow, Inc. All rights reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+ -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>libkn API reference</title>
+<link type="text/css" rel="stylesheet" href="doc_style.css" />
+</head>
+
+<body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
+
+<h1>libkn API reference</h1>
+
+<p>libkn is the PubSub client library.  It implements some basic data
+types which contain information which is passed to and received from a
+PubSub server, as well as routines to subscribe to, manipulate, and
+publish that information.</p>
+
+<p>The most critical data type in this library is the @kn_Event@ type,
+which represents a PubSub event.  The typical PubSub application is
+event driven: it subscribes to and responds to events received from
+PubSub server(s), and it sends events back to the server to notify
+others of activity on the client.</p>
+
+<p>Other types, such as @kn_String@ and @kn_Dictionary@, are
+convenient containers for information found in events or to be
+inserted into events.</p>
+
+<p>Overview documentation:</p>
+
+<ul>
+ <li> <a href="objects.html">About libkn objects</a>
+</ul>
+
+<p>libkn API:</p>
+
+<ul>
+ <li> @kn_base@               - Base functionality
+ <li> @kn_Error@              - Error codes
+ <li> @kn_Object@             - Base object type
+ <li> @kn_String@             - String data type
+ <li> @kn_String_URI@         - URI manipulation for strings
+ <li> @kn_String_WebEncoding@ - String encodings for web applications
+ <li> @kn_Dictionary@         - Dictionary (associative array) data type
+ <li> @kn_Server@             - PubSub server data type
+ <li> @kn_Event@              - PubSub event data type
+ <li> @kn_Route@              - PubSub route data type
+</ul>
+
+<p>Example code:</p>
+
+<ul>
+ <li> <a href="ex_publish.html"  >Publish an event    </a>
+ <li> <a href="ex_subscribe.html">Subscribe to a topic</a>
+</ul>
+
+<hr>
+
+<p><font size="-2">
+ All brand names and product names used in this document are trade
+ names, service marks, trademarks or registered trademarks of their
+ respective owners.
+</font></p>
+
+</body>
+</html>

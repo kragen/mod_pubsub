@@ -1,0 +1,216 @@
+<!--
+ Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+ -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>libkn objects</title>
+<link type="text/css" rel="stylesheet" href="doc_style.css" />
+</head>
+
+<body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
+
+<h1>libkn objects</h1>
+
+<p>libkn attempts to provide an API which is as object-oriented as can
+be accomplished in the C language.  libkn objects are pointers to
+opaque C structures.  The library provides functions which operate on
+these objects, much like method calls available in object-oriented
+programming languages.</p>
+
+<p>The fundamental data type in the library is @kn_Object@.  Any
+instance of any object type in the library can be treated as
+kn_Object.  That is, the functions which operate on kn_Objects can
+also operate on any other object type provided by the library.  libkn
+objects, therefore, all inherit from kn_Object.  However, clients of
+libkn cannot create their own subclasses of kn_Object or any other
+libkn object.</p>
+
+<h2>Managing memory</h2>
+
+<p>A libkn object contains persistent memory which should be
+deallocated when the object is no longer in use.  You do not need to
+use (nor can you use) <code>malloc()</code> and <code>free()</code> to
+manage objects; they manage their own internal memory.  However, you
+are responsible for <b>releasing</b> any object to which you have a
+<b>retained reference</b>.</p>
+
+<p>All objects returned by a "create" or a "copy" function will be
+returned to you with a retained reference.  You can declare you
+disinterest in an object by calling <code>kn_Release()</code> on that
+object.  When the retain count for the object reaches zero, it is
+deallocated from memory.  Therefore, never use an object
+(eg. call a function on it) unless you know that the object has a
+positive retain count and thus is still valid.  Attempting to use
+an object which has been deallocated will usually crash your program.
+For example, the following code creates a string,
+uses it, and then releases it:</p>
+
+<blockquote>
+<pre>static void PrintObject (kn_ObjectRef anObject, FILE* aStream)
+{
+  kn_StringRef aDescription = kn_CopyDescription(anObject);
+  kn_StringWriteToStream(aDescription, aStream);
+  kn_Release(aDescription);
+}</pre>
+</blockquote>
+
+<p><code>kn_CopyDescription()</code> returns a (newly allocated <a
+href="#copy"><sup>1</sup></a>) copy of the string description of an
+object.  After the string is written, it is released as it is no longer needed.</p>
+
+<p>Some functions (eg. a "Get" function) return a reference to an
+object which the caller is not responsible for releasing.  The object remains valid until the container which is
+retaining the reference for you is deallocated.  For example,
+@kn_Dictionary@ objects contain key/value pairs.  All keys and values
+are retained by the dictionary when they are added to it, and are
+released by the dictionary when they are removed from it, or when the
+dictionary itself is deallocated.  The function
+<code>kn_DictionaryGetValue()</code> returns a reference to an
+object in the dictionary.  The returned object remains valid
+unless you remove it from the dictionary or cause the dictionary to be
+deallocated (by releasing it).  For example:</p>
+
+<blockquote>
+<pre>static void PrintBobo (kn_DictionaryRef aDictionary, FILE* aStream)
+{
+  kn_StringRef aKey  = kn_StringCreateWithCString("bobo");
+  kn_StringRef aBobo = kn_DictionaryGetValue(aDictionary, aKey);
+  kn_Release(aKey);
+  if (aBobo) kn_StringWriteToStream(aBobo, aStream);
+}</pre>
+</blockquote>
+
+<p>In the above example, the string object
+<code>aKey</code> is created, which later will need to be released.  The
+(string) object with the key "bobo" is fetched from the dictionary and printed.
+<code>aBobo</code> is not released in this routine because it was never retained.
+<strong>You must never release an object you did not
+retain.</strong> The implications of doing so are similar to calling
+<code>free()</code> on memory you did not <code>malloc()</code>; you
+will likely cause your program to (eventually) crash.  Often, the
+crash will happen some time later, when some other code tries to use
+the object, making it difficult to troubleshoot the bug.</p>
+
+<p>The above example works because it is not doing
+anything to deallocate the dictionary which contains the string being used.
+(The dictionary was passed from another routine, so
+deallocating it would not be advisable.)  However, you might want to
+hold onto <code>aBobo</code> for a long time, during which the
+dictionary might be deallocated.  To prevent the deallocation of
+<code>aBobo</code>, retain it by using
+<code>kn_Retain()</code>.  <code>kn_Retain()</code> increments the
+retain count of an object, which means that when someone else releases
+the object, they are no longer responsible for the object, but it will
+not be deallocated.  Instead, you are guaranteed (unless there is a
+bug elsewhere as noted above) that the object will not be deallocated
+until you call <code>kn_Release()</code> on it.  For example:
+
+<blockquote>
+<pre>static kn_StringRef gBobo = NULL;
+
+static void initWithBoboFromDictionary (kn_DictionaryRef aDictionary)
+{
+  kn_StringRef aKey  = kn_StringCreateWithCString("bobo");
+  kn_StringRef aBobo = kn_DictionaryGetValue(aDictionary, aKey);
+  kn_Release(aKey);
+  gBobo = kn_Retain(aBobo);
+}
+
+static void cleanup ()
+{
+  kn_Release(gBobo);
+  gBobo = NULL;
+}
+
+main()
+{
+  kn_DictionaryRef aDictionary = ...create a dictionary...;
+
+  initWithBoboFromDictionary(aDictionary);
+  kn_Release(aDictionary);
+
+  ...do something with gBobo...
+
+  cleanup();
+  exit(0);
+}</pre>
+</blockquote>
+
+<p>In the above example, you've obtained a dictionary which contains some
+interesting data which you want to keep in a global variable.  There is
+an initializer routine which extracts that value from the dictionary.
+It also retains the value, because it remains after the
+function returns.  After calling the initializer, the
+dictionary is released.  Note that if you had not retained the
+string stored in <code>gBobo</code>, it would have been deallocated
+along with <code>aDictionary</code>; any subsequent attempt to use it would fail.
+There is also a cleanup
+routine which releases the <code>gBobo</code> reference when you are
+done using it.</p>
+
+<h2>Immutable and mutable objects</h2>
+
+<p>Some objects (for example @kn_String@) come in immutable and
+mutable forms.  Immutable objects may not be changed once they are
+created; functions which modify an object will only accept a mutable
+object argument.  Any function which operates on an immutable object,
+however, will also operate on a mutable object.  Such functions are
+specified not to modify the object, regardless of whether or not it is
+mutable.  If you wish to modify an immutable object, you must make a
+mutable copy and modify that copy instead.  Do not attempt to bypass
+type safety by casting an immutable object into a mutable object;
+unpredictable results may occur.</p>
+
+<hr>
+
+<p><a name="copy"><sup>1</sup></a> When a copy function is
+given an immutable object, it may opt to simply retain it and return the
+same object rather than copying it, which is a far cheaper operation.
+The caller remains responsible for releasing the "copied" object.</p>
+
+<hr>
+
+<p><font size="-2">
+ All brand names and product names used in this document are trade
+ names, service marks, trademarks or registered trademarks of their
+ respective owners.
+</font></p>
+
+</body>
+</html>

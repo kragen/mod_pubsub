@@ -1,0 +1,32 @@
+To Do List
+----------
+
+Bugs:
+
+- Need to handle HTTP redirects (and other status codes, for that matter).
+
+Features:
+
+- SSL certificate validation.
+
+- Allow users to plug in their own random stream?
+  (/dev/u?random is already checked...)
+
+- Local callback URI.  (As opposed to persistent connection + journal
+  topic callback URI.)
+
+- Do we need a kn_Array?  Not really, but it has a high handiness
+  factor.
+
+- Tools should read/write POST field data format instead of (or in
+  addition to) simple tunnel format.
+
+- More tools: kn_ping
+
+Performance:
+
+- kn_Dictionary stores keys in a list and does a linear search for
+  them, which, though quick to implement, is decidedly unclever.  This
+  should be a hash table.
+
+- Non-blocking API still blocks in several places.

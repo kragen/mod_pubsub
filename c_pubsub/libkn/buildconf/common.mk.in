@@ -1,0 +1,108 @@
+##
+# Project settings
+##
+
+NAME    = kn
+VERSION = @VERSION@
+
+##
+# Make
+##
+
+srcdir = @srcdir@
+
+@SET_MAKE@
+
+VPATH = $(srcdir)
+
+ifeq "$(VERBOSE)" "YES"
+_v = 
+else
+_v = @
+endif
+
+##
+# Commands
+##
+
+INSTALL           = @INSTALL@
+INSTALL_DIRECTORY = $(INSTALL) -d -m 755
+INSTALL_DATA      = $(INSTALL) -p -m 444
+INSTALL_SCRIPT    = $(INSTALL) -p -m 555
+INSTALL_PROGRAM   = $(INSTALL) -p -m 555 $(STRIP_CMD_FLAGS)
+INSTALL_LIBRARY   = $(INSTALL) -p -m 555 $(STRIP_LIB_FLAGS)
+
+STRIP_CMD_FLAGS = -s
+STRIP_LIB_FLAGS = 
+
+LN_S = @LN_S@
+
+PERL           = @PERL@
+HEADERDOC2HTML = @HEADERDOC2HTML@
+
+##
+# Paths
+##
+
+DSTROOT = 
+
+prefix_suffix  = /kn/libkn
+prefix         = @prefix@$(prefix_suffix)
+exec_prefix    = @exec_prefix@
+bindir         = @bindir@
+sbindir        = @sbindir@
+libexecdir     = @libexecdir@
+libdir         = @libdir@
+includedir     = @includedir@
+datadir        = @datadir@
+docsdir        = $(prefix)/docs
+mandir         = @mandir@
+localstatedir  = @localstatedir@
+sharedstatedir = @localstatedir@
+sysconfdir     = @sysconfdir@
+
+##
+# Compilation
+##
+
+CC     = @CC@
+CPP    = @CPP@
+CXX    = @CXX@
+CXXCPP = @CXXCPP@
+
+AC_CPPFLAGS      = @CPPFLAGS@ @DEFS@
+AC_CFLAGS        = @CFLAGS@
+AC_CXXFLAGS      = @CXXFLAGS@
+AC_LDFLAGS       = @LDFLAGS@
+AC_LDFLAGS_SHLIB = @LDFLAGS_SHLIB@
+AC_LIBS          = @LIBS@
+
+C_OPT_FLAGS      = @C_OPT_FLAGS@
+C_DEBUG_FLAGS    = @C_DEBUG_FLAGS@
+CPP_DEBUG_FLAGS  = @CPP_DEBUG_FLAGS@
+C_WARN_FLAGS     = @C_WARN_FLAGS@
+CC_FLAGS         = @CC_FLAGS@
+
+LD_LIBFLAGS     = $(AC_LIBS)
+
+CFLAGS          = $(AC_CFLAGS)        $(C_OPT_FLAGS) $(C_DEBUG_FLAGS) $(C_WARN_FLAGS) $(CC_FLAGS)
+CPPFLAGS        = $(AC_CPPFLAGS)      $(CPP_DEBUG_FLAGS) -I. -I$(srcdir) -I$(top_srcdir) -D_REENTRANT -DETCDIR="\"$(sysconfdir)\""
+LDFLAGS         = $(AC_LDFLAGS)       $(LD_LIBFLAGS)
+LDFLAGS_SHLIB   = $(AC_LDFLAGS_SHLIB) $(LD_LIBFLAGS)
+RUN_ENVIRONMENT = @RUN_ENVIRONMENT@
+
+lib_ext   = @lib_ext@
+shlib_ext = @shlib_ext@
+
+RANLIB = @RANLIB@
+
+OBJS = $(addsuffix .o,$(basename $(C_PUBLIC_SOURCES) $(C_OPT_SOURCES) $(C_PRIVATE_SOURCES)))
+
+LIBKN_DYNAMIC       = lib$(NAME)$(shlib_ext)
+LIBKN_STATIC        = lib$(NAME)$(lib_ext)
+LIBKN_DEBUG_DYNAMIC = lib$(NAME)_debug$(shlib_ext)
+LIBKN_DEBUG_STATIC  = lib$(NAME)_debug$(lib_ext)
+
+LIBKN = @LIBKN@
+LIBCRYPT	= @LIBCRYPT@
+LIBSSL	= @LIBSSL@

@@ -1,0 +1,65 @@
+libkn is the PubSub C client library.
+
+Known working platforms:
+
+ Solaris 2.8 (sparc)
+
+Unknown but once rumored to be functional platforms:
+
+ Apple Darwin / Mac OS X
+ FreeBSD 4.2
+ NetBSD 1.5
+ Red Hat Linux 6.1
+ Solaris 2.7
+
+libkn should be easily portable to any POSIX operating system with the
+GNU toolchain.
+
+GNU make, gcc, and autoconf are required to build libkn.
+
+To build libkn using Sun compiler on Solaris:
+
+    ./setup
+    ./configure
+    make
+
+To build libkn using GNU compiler:
+    ./setup 
+    CC=gcc ./configure
+    gmake
+
+SSL support will be built if OpenSSL 0.9.6 can be found; by default 'configure'
+will search /usr/lib and /usr/local/ssl/lib.  Use
+
+	./configure --with-ssl=/path/to/ssl 
+
+if OpenSSL can be found elsewhere.  Use
+
+	./configure --with-ssl=no
+
+to remove SSL support entirely.
+
+To test libkn after building:
+
+   gmake test TEST_URI=<kn_uri>
+
+where <kn_uri> is the URI to a running PubSub Server (it will
+default to http://localhost:8000/kn if unspecified).
+
+To install libkn after building:
+
+    gmake install DSTROOT=<destination>
+
+where <destination> is '/' or some package root.
+
+HTML-format documenation for the libkn C API is installed in
+/usr/local/share/kn/docs.
+
+libkn includes two commands, kn_publish and kn_subscribe, which allow
+you to publish to and subscribe to topics on a PubSub Server on
+the command line or within shell scripts.  If run with a '-h'
+argument, they will print usage information.
+
+libkn includes an Objective-C API (KnowNow.framework) which wraps the
+C API using the Foundation framework in Mac OS X.  This API is
+experimental and is therefore unsupported.

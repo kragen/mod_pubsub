@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+cd `dirname $0`
+
+if [ ! -x configure ]; then
+    echo "Generating configure..."
+    autoconf
+fi
+
+if [ ! -f kn_config.h.in ]; then
+    echo "Generating kn_config.h.in..."
+    autoheader -l buildconf
+fi

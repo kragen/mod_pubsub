@@ -1,0 +1,66 @@
+# entropy gathering commands
+
+# Format is: "program-name args" path rate
+
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+#
+# $Id: prng_cmds.out,v 1.1 2002/12/21 03:38:44 bsittler Exp $
+
+"ls -alni /var/log" ls 0.02
+#"ls -alni /var/adm"			ls	0.02
+"ls -alni /var/mail" ls 0.02
+#"ls -alni /var/adm/syslog"		ls	0.02
+#"ls -alni /var/spool/mail"		ls	0.02
+#"ls -alni /proc"			ls	0.02
+"ls -alni /tmp" ls 0.02
+"ls -alni /var/tmp" ls 0.02
+#"ls -alni /usr/tmp"			ls	0.02
+"ls -alTi /var/log" undef 0.02
+#"ls -alTi /var/adm"			ls	0.02
+"ls -alTi /var/mail" undef 0.02
+#"ls -alTi /var/adm/syslog"		ls	0.02
+#"ls -alTi /var/spool/mail"		ls	0.02
+#"ls -alTi /proc"			ls	0.02
+"ls -alTi /tmp" undef 0.02
+"ls -alTi /var/tmp" undef 0.02
+#"ls -alTi /usr/tmp"			ls	0.02
+
+"netstat -an" netstat 0.05
+#"netstat -in"				netstat	0.05
+#"netstat -rn"				netstat	0.02
+#"netstat -pn"				netstat	0.02
+"netstat -s" netstat 0.02
+
+"arp -a -n" arp 0.02
+
+"ifconfig -a" ifconfig 0.02
+
+"ps laxww" ps 0.03
+"ps -al" ps 0.03
+#"ps -efl"				ps	0.03
+
+"" undef 
+
+#"who -i"				who	0.01
+
+"last" last 0.01
+
+#"lastlog"					0.01
+
+"df -l" df 0.01
+"df -il" df 0.01
+
+#"vmstat"					0.01
+"uptime" uptime 0.01
+
+#"ipcs -a"					0.01
+
+#"tail -200 /var/log/messages"		tail	0.01
+"tail -200 /var/log/syslog" undef 0.01
+#"tail -200 /var/adm/messages"		tail	0.01
+#"tail -200 /var/adm/syslog"		tail	0.01
+#"tail -200 /var/adm/syslog/syslog.log"	tail	0.01
+"tail -200 /var/log/mail.log" undef 0.01
+#"tail -200 /var/adm/maillog"		tail	0.01
+#"tail -200 /var/adm/syslog/mail.log"	tail	0.01

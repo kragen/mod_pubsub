@@ -1,0 +1,70 @@
+# @configure_input@
+
+##
+# Shared makefile glue
+##
+
+top_srcdir = @top_srcdir@
+
+include $(top_srcdir)/buildconf/common.mk
+
+##
+# Files
+##
+
+HEADERS := $(shell find .. -name '*.h')
+
+DOCS = index.html api.html objects.html ex_publish.html ex_subscribe.html
+
+##
+# Targets
+##
+
+.PHONY: all docs clean distclean install w
+
+all: docs
+
+clean:
+	@echo "Cleaning docs..."
+	$(_v) rm -f *~ \#* .\#* $(DOCS) headerdocs
+	$(_v) find * -type d -prune ! -name images ! -name CVS -print0 | xargs -0 rm -rf
+
+distclean: clean
+	@echo "Acme(tm) cleaning docs..."
+	$(_v) rm -f Makefile
+
+docs: $(DOCS) headerdocs
+
+install: docs
+	@echo "Installing docs..."
+	$(INSTALL_DIRECTORY) $(DSTROOT)$(docsdir)
+	for doc in $(DOCS); do					\
+	  $(INSTALL_DATA) -c "$${doc}" $(DSTROOT)$(docsdir);	\
+	done
+	for doc in `find * -type d -prune ! -name CVS`; do										\
+	    find "$${doc}" -name CVS -prune -o -type d -exec sh -c '$(INSTALL_DIRECTORY) '\''$(DSTROOT)$(docsdir)/{}'\' ';';		\
+	    find "$${doc}" -name CVS -prune -o -type f -exec sh -c '$(INSTALL_DATA) -c '\''{}'\'' '\''$(DSTROOT)$(docsdir)/{}'\' ';';	\
+	done
+
+headerdocs: $(HEADERS)
+	$(_v) $(HEADERDOC2HTML) -o . .. > /dev/null
+	$(_v) for doc in `find * -type d -prune ! -name images ! -name CVS`; do								\
+	        for file in `find "$$doc" -type f`; do											\
+	          back=`echo "$$file" | sed -e 's|[^/]||g' -e 's|/|../|g'`;								\
+	          perl -i~ -pe 's|(\n?</head>)|<link type="text/css" rel="stylesheet" href="'$$back'doc_style.css">$$1|i' "$$file";	\
+	          $(RM) "$$file~";													\
+	        done;															\
+	      done
+	$(_v) touch $@
+
+%.html: %.html.in headerdocs
+	@echo "Generating $@..."
+	$(_v) cp $< $@
+	$(_v) for doc in `find * -type d -prune ! -name CVS`; do			\
+	        perl -i~ -pe 's|\@('$$doc')\@|<a href="$$1/index.html">$$1</a>|g' $@;	\
+	      done
+	$(_v) perl -i~ -pe 's|\@kn_(\S*)\@|$$1|g' $@
+	$(_v) rm $@~
+
+# Bug in GNU make on Solaris?
+w:
