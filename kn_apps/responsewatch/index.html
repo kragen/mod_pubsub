@@ -37,7 +37,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.2 2003/02/08 05:02:19 ifindkarma Exp $
+ $Id: index.html,v 1.3 2003/05/21 23:11:44 bsittler Exp $
 
 -->
 
@@ -362,6 +362,139 @@ this.kn_sendCallback = function(evt, win)
     header += '<' + '/th>';
     header += '<td>';
     header += '&' + 'nbsp;';
+// heartbeat callback sent during idle periods
+this.kn_heartbeatCallback = function(interval, win)
+{ 
+    var evt = new Object;
+    evt.elements = new Array;
+    evt.elements[0] = new Object;
+    evt.elements[0].name = "interval";
+    evt.elements[0].value = interval.toString();
+    var color = "#00cc33";
+    var type = "Heartbeat"; // i.e. missing the kn_route_location header
+    var now = new Date();
+    var fontface = 'verdana,arial,sans-serif,helvetica';
+    var checkpoint = void null;
+    var html = '';
+    for (var j in evt.elements)
+    {
+        var element = evt.elements[j];
+        var name =
+            (element.name != null) ?
+            element.name :
+            utf8dec(element.nameU);
+        var value =
+            (element.value != null) ?
+            element.value :
+            utf8dec(element.valueU);
+        if (name == "kn_route_location")
+        {
+            if (value == sid)
+            {
+                color = "#ff9900";
+                type = "Status";
+            }
+            else
+            {
+                var color = "#3366cc";
+                var type = "Normal";
+            }
+        }
+        else if (name == "kn_route_checkpoint")
+        {
+            checkpoint = value;
+        }
+        var vname = visibleEnc(name);
+        var vvalue = visibleEnc(value);
+        html += '<tr>';
+        html += '<td>';
+        html += '&' + 'nbsp;';
+        html += '<' + '/td>';
+        html += '<th align="right" valign="top">';
+        html += '<font color="white" face="' + fontface + '">';
+        html += vname;
+        html += '<' + '/font>';
+        html += '<' + '/th>';
+        html += '<td>';
+        html += '&' + 'nbsp;';
+        html += '<' + '/td>';
+        html += '<td bgcolor="white">';
+        html += '&' + 'nbsp;';
+        html += '<' + '/td>';
+        html += '<td bgcolor="white" valign="top">';
+        html += '<font color="black" face="' + fontface + '">';
+        html += vvalue;
+        html += '<' + '/font>';
+        html += '<' + '/td>';
+        html += '<td>';
+        html += '&' + 'nbsp;';
+        html += '<' + '/td>';
+        html += '<' + '/tr>';
+    }
+    html += '<tr>';
+    html += '<td>';
+    html += '&' + 'nbsp;';
+    html += '<' + '/td>';
+    html += '<th align="right" colspan="4">';
+    html += '<font color="white" face="' + fontface + '" size="-1">';
+    html += now;
+    html += '<' + '/font>';
+    html += '<' + '/th>';
+    html += '<td>';
+    html += '&' + 'nbsp;';
+    html += '<' + '/td>';
+    html += '<' + '/tr>';
+    // insert the table header
+    var header = '<table bgcolor="' + color + '" border="0" cellspacing="0">'
+    header += '<tr>';
+    header += '<td>';
+    header += '&' + 'nbsp;';
+    header += '<' + '/td>';
+    header += '<th align="left" colspan="4">';
+    header += '<font color="white" face="' + fontface + '" size="+1">';
+    header += type + ' event received after ' + (now - start) / 1000 + ' seconds.' ;
+    header += '<' + '/font>';
+    header += '<' + '/th>';
+    header += '<td>';
+    header += '&' + 'nbsp;';
+    header += '<' + '/td>';
+    header += '<' + '/tr>';
+    html = header + html;
+    // append a footer
+    html += '<' + '/table>\n'; 
+    win.document.write(html);
+    html = '<font size="-5">';
+    if (checkpoint != null)
+    {
+        var url = topic;
+        if (topic.indexOf("?") == -1)
+            url += "?";
+        else if (topic.indexOf("&") == -1)
+            url += ";";
+        else
+            url += "&";
+        url += 'do_since_checkpoint=' +
+            urlEnc(checkpoint);
+        html +=
+            '<button onclick="location=parent.urlDec(\'' +
+            urlEnc(url) +
+            '\')">' +
+            '<a href="' +
+            htmlEnc(url) +
+            '">';
+        html += 'Recover';
+        html += '<' + '/a>' +
+            '<' + '/button>';
+    }
+    else
+    {
+        html += '<br />';
+    }
+    html += '<' + '/font>';
+    html += '\n';
+    win.document.write(html);
+};
+
     header += '<' + '/td>';
     header += '<' + '/tr>';
     html = header + html;
