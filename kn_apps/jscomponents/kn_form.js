@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000-2002 KnowNow, Inc. All rights reserved.
+ * Copyright (c) 2000-2003 KnowNow, Inc. All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: kn_form.js,v 1.1 2002/11/07 07:08:30 troutgirl Exp $
+ * $Id: kn_form.js,v 1.2 2003/03/08 02:41:14 ifindkarma Exp $
  */
 
 // kn_form.js
