@@ -92,7 +92,8 @@
 	{
 	    var opts = "screenX=100,screenY=100,left=100,top=100,width=350," + 
 								"height=300,resizeable=no,scrollbars=yes,toolbars=no";
-			var win = self.open("http://www.mod-pubsub.org/kn_apps/blogchatter/","BlogChatterWin",opts);
+			var win = 
+self.open("http://www.mod-pubsub.org/kn_apps/blogchatter/updates.html","BlogChatterWin",opts);
 	}
 	
 	// tab code courtesy of Matt Haughey @ MetaFilter
@@ -127,7 +128,8 @@
 <a name="what"></a>
 <h2>What Is This?</h2>
 
-<p><strong>BlogChatter</strong> is a window into weblog activity <em>right now, at this moment</em>. Pings to Blogchatter are instantly displayed, and only persisted in memory for a half-hour at most. It is a real-time event stream of weblog updates, similar to the data provided by <a href="http://www.weblogs.com">weblogs.com</a>, without polling or a static data format.</p></p>
+<p><strong>BlogChatter</strong> is a window into weblog activity <em>right 
+now, at this moment</em>. It is a real-time event stream of weblog updates, similar to the data provided by <a href="http://www.weblogs.com">weblogs.com</a>, without polling or a static data format. Pings to BlogChatter are displayed instantly the moment they are received, and only persisted in memory for no longer than 30 seconds.</p>
 
 <p>The box to the right is an example application which uses the BlogChatter feed. It displays the incoming weblog updates the moment they are received.</p>
 
@@ -137,10 +139,17 @@
 
 <p>Sure! We're looking for a few good bloggers to start pinging us when they post to their weblogs, so we can get some data moving through it. The interface is a URL that accepts a <a href="#">weblogs.com-compatible XML-RPC ping</a>. If you're using <a href="#">Movable Type</a> as your weblog tool, you already have the ability to send this ping. This ping is transformed into an event and published to a topic at mod-pubsub.org.</p>
 
+<p>Better yet, if you're sending updates to <a 
+href="http://blo.gs">blo.gs</a> with your weblog software, your pings are 
+<em>automatically</em> being forwarded to BlogChatter. So we might already 
+be 
+receiving your data.</p>
+
 <p>This is a <i>beta</i> web service, primarily for testing. The plan is to allow people to ping the server indefinitely and see what happens. In the best case, we'll start building apps that do interesting things with the real-time data and perhaps someday recreate it as a standalone service for stuff like real-time blogrolls.</p>
 
 <a name="how"></a>
 <h2>How To Ping</h2>
+<h3>Pinging from Movable Type</h3>
 
 <p>To ping the interface from Movable Type, follow these steps:</p>
 
@@ -156,6 +165,23 @@
 
 <p>Now save your changes. The next time you post to your weblog, the ping notification should happen automatically.</p>
 
+
+<h3>Pinging From blo.gs Compatible Tools</h3>
+
+<p>You must enable pinging to blo.gs in your weblog installation. To 
+do this in Movable Type, follow these steps:</p>
+
+<ol>
+        <li>log in to MT and click <em>Manage Blog</em> for the blog you want to send publish</li>
+        <li>choose <em>Blog Config</em></li>
+        <li>go to <em>Preferences</em></li>
+        <li>scroll down to the section labeled "Publicity/Remote Interfaces/TrackBack</li>
+        <li>Check the checkbox labled "blo.gs"</li>
+</ol>
+
+<p>Now save your changes. The next time you post to your weblog, the ping 
+sent to blo.gs will be forwarded to BlogChatter automatically.</p>
+
 <h3>I don't use Movable Type, can I still ping from Blogger / Radio / Greymatter?</h3>
 
 <p>Sure, but we haven't had time to explore the capabilities of those tools, so if you have tips on how to configure them to ping BlogChatter, please share them.</p>
@@ -165,11 +191,14 @@
 
 <p>We have a number of browser-based tools for watching incoming pings. Currently, all tools initialize by showing the last 10 pings made in the last half-hour, then adds new pings to list as they arrive.</p>
 
-<p>You can <a href="http://www.mod-pubsub.org/kn_apps/blogchatter/">see the incoming pings in real-time here</a>.</p>
+<p>You can <a href="http://www.mod-pubsub.org/kn_apps/blogchatter/updates.html">see the incoming pings in real-time 
+here</a>.</p>
 
 <p>There is a <a href="#" onclick="pop(); return false;">pop-up window here</a>.</p>
 
-<p>And this is a <a href="javascript:void(win=self.open('http://www.mod-pubsub.org/kn_apps/blogchatter/','BlogChatterWin','screenX=100,screenY=100,left=100,top=100,width=350,height=300,resizeable=no,scrollbars=yes,toolbars=no'));">BlogChatter</a> bookmarklet. Drag it to your browser's shortcuts toolbar.</p>
+<p>And this is a <a 
+href="javascript:void(win=self.open('http://www.mod-pubsub.org/kn_apps/blogchatter/updates.html','BlogChatterWin','screenX=100,screenY=100,left=100,top=100,width=350,height=300,resizeable=no,scrollbars=yes,toolbars=no'));">BlogChatter</a> 
+bookmarklet. Drag it to your browser's shortcuts toolbar.</p>
 
 <p>Here are various sidebars for your browser:</p>
 
