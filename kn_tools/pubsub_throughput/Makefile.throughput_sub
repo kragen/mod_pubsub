@@ -32,7 +32,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: Makefile.throughput_sub,v 1.1 2003/04/29 07:31:51 ifindkarma Exp $
+# $Id: Makefile.throughput_sub,v 1.2 2003/04/30 21:33:25 bsittler Exp $
 
 .SILENT:
 
@@ -57,21 +57,21 @@ STRIP=/usr/ccs/bin/strip
 
 
 all: throughput_sub
-        rm -f *.o
+	 rm -f *.o
 
 
 throughput_sub: throughput_sub.o throughput_sub_main.o
-        $(COMPILER) -L$(LIB_PATH) -o throughput_sub throughput_sub.o throughput_sub_main.o $(LIBS)
+	 $(COMPILER) -L$(LIB_PATH) -o throughput_sub throughput_sub.o throughput_sub_main.o $(LIBS)
 
 throughput_sub.o: throughput_sub.c
-        echo compiling throughput_sub.c ...
-        $(COMPILER) -I$(INCLUDE_PATH) -L$(LIB_PATH) -c -o throughput_sub.o throughput_sub.c
+	 echo compiling throughput_sub.c ...
+	 $(COMPILER) -I$(INCLUDE_PATH) -L$(LIB_PATH) -c -o throughput_sub.o throughput_sub.c
 
 throughput_sub_main.o: throughput_sub_main.c
-        echo compiling throughput_main.c ...
-        $(COMPILER) -I$(INCLUDE_PATH) -L$(LIB_PATH) -c -o throughput_sub_main.o throughput_sub_main.c 
-        
+	 echo compiling throughput_main.c ...
+	 $(COMPILER) -I$(INCLUDE_PATH) -L$(LIB_PATH) -c -o throughput_sub_main.o throughput_sub_main.c 
+	 
 
 clean:
-        rm -f throughput_sub *.o
+	 rm -f throughput_sub *.o
 
