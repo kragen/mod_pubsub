@@ -75,6 +75,20 @@ Web Browser notifications.
 </blockquote>
 
 <h3 class="faq">
+&nbsp; Exactly how do
+<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>'s
+connections stay open?</h3>
+
+<blockquote>
+mod_pubsub's clients do not poll the server every so often.
+Rather, like <a href="http://www.jabber.org/" target="_blank">Jabber</a>,
+a PubSub Server holds open the connection socket to its clients.
+The main difference between mod_pubsub and Jabber is that we use
+standard HTTP as our wire format, whereas Jabber uses its own
+XML-based protocol.
+</blockquote>
+
+<h3 class="faq">
 &nbsp; How about other Web Servers, or if I have no Web Server?</h3>
 
 <blockquote>
