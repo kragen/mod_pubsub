@@ -50,7 +50,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: sitewatch_sensor.py,v 1.2 2003/02/09 05:57:42 ifindkarma Exp $
+## $Id: sitewatch_sensor.py,v 1.3 2003/02/17 03:25:59 ifindkarma Exp $
 
 
 import os, sys, time, socket, inspect, errno, urllib, urlparse
@@ -65,33 +65,6 @@ import asyncgeturl, scheduler, wakeup   # Part of python_pubsub distribution.
 
 
 
-class AsyncGetURL(asynchttp.AsyncHTTPConnection):
-    def __init__(self, url, onResponse = None):
-        # print "AsyncGetURL.__init__" + str((url, onResponse))
-        self.onResponse = onResponse
-        parts = urlparse.urlparse(url)
-        hostport = urllib.splitport(parts[1])
-        request = parts[2]
-        if parts[3]:
-            request += ";" + parts[3]
-        if parts[4]:
-            request += "?" + parts[4]
-        # print '%-10s : %s : %s : %s' % (self.server_url, parts, hostport, request)
-        asynchttp.AsyncHTTPConnection.__init__(self, hostport[0], int(hostport[1] or "80"))
-        self._url = request
-    def handle_response(self):
-        self.close()
-        if not self.onResponse is None:
-            self.onResponse(self)
-    def handle_connect(self):
-        # print "AsyncGetURL.handle_connect"
-        asynchttp.AsyncHTTPConnection.handle_connect(self)
-        self.putrequest("GET", self._url)
-        self.endheaders()
-        self.getresponse()
-                                                                                
-
-
 class Heartbeat:
     def __init__(self, sch, server_url, topic, name):
         self.sch = sch
@@ -103,7 +76,7 @@ class Heartbeat:
     def __call__(self):
         # print "Running Heartbeat."
         request = self.server_url + self.topic + '?do_method=notify&kn_id=sitewatch_heartbeat&speed=%d&statement=%s%%0aChecked:+%s'%(self.speed,urllib.quote(self.name),urllib.quote(self.checked))
-        http = AsyncGetURL(request)
+        http = asyncgeturl.AsyncGetURL(request)
         # post.set_debuglevel(2)
         http.connect()
         # Run every second.
@@ -130,7 +103,7 @@ class Monitor:
                 self.hbeat.set_speed(100)
             self.sch.schedule_processing(self, time.time() + 10, "monitor")
         else:
-            http = AsyncGetURL(self.url, self)
+            http = asyncgeturl.AsyncGetURL(self.url, self)
             http.connect()
 
 
