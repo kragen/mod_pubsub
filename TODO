@@ -1,7 +1,7 @@
 -------------------------------------
 High-level items on the "to do" list.
 -------------------------------------
-$Id: TODO,v 1.14 2003/05/31 04:37:25 ifindkarma Exp $
+$Id: TODO,v 1.15 2003/06/14 03:27:41 ifindkarma Exp $
 
  1. Fix kn_apps/kn_lib/cookie_auth.js so that it properly escapes userids.
 
@@ -30,8 +30,9 @@ $Id: TODO,v 1.14 2003/05/31 04:37:25 ifindkarma Exp $
     K. CGI support in pubsub.py
     L. SSL support
 
- 4. PubSub/ModPubSub.pm and pubsub_test.cgi still expect
-    other things to live near PubSub/ModPubSub.pm in URL-space. Fix this.
+ 4. cgi-bin/PubSub/ModPubSub.pm and cgi-bin/pubsub_test.cgi still expect
+    other things to live near cgi-bin/PubSub/ModPubSub.pm in URL-space.
+    Fix this.
 
  5. Create an installer for cxx_pubsub/LibKN so Windows developers have
     a pre-compiled build they can use easily.
@@ -44,8 +45,8 @@ $Id: TODO,v 1.14 2003/05/31 04:37:25 ifindkarma Exp $
  7. Build c_pubsub/libkn on cygwin.
 
  8. Make Tunnel.pm event-driven.
-    Also, PubSub/ModPubSub.pm should be less lazy about detecting closed
-    sessions.  Bring active presence detection to it.
+    Also, PubSub/ModPubSub.pm should be less lazy about detecting
+    closed sessions.  Bring active presence detection to it.
     Unify the Perl PubSub Server and Client libraries, and
     submit the PubSub perl package to CPAN.
 
