@@ -1,8 +1,7 @@
 -------------------------------------
 High-level items on the "to do" list.
 -------------------------------------
-
-$Id: TODO,v 1.7 2003/03/22 11:28:32 ifindkarma Exp $
+$Id: TODO,v 1.8 2003/03/22 11:51:15 ifindkarma Exp $
 
  1. Create a mod_pubsub self-contained Apache module that
     subsumes the best practices of pubsub.cgi and pubsub.py .
@@ -23,8 +22,15 @@ $Id: TODO,v 1.7 2003/03/22 11:28:32 ifindkarma Exp $
     closed sessions.  Bring active presence detection to mod_pubsub.
     Perhaps do this by writing an external cleanup.py program.
 
- 5. Clean up python_pubsub so it doesn't need to ship with
-    all those other .py files.  (Ka-Ping Yee?  We wish...)
+5A. Create an installer for cxx_pubsub/LibKN so Windows developers have
+    a pre-compiled build they can use easily.
+
+5B. Compile pubsub.py into a pubsub.exe that Windows folks can run easily.
+    Then we'll have a "Windows PubSub Server".  (Alternatively, figure out
+    how to use Jython to compile pubsub.py and pubsublib.py into Java
+    bytecodes so we can run them within a JVM.)
+
+5C. Build c_pubsub/libkn on cygwin.
 
  6. Create a java_pubsub client library.  Greg suggests creating a clean
     Java API usable in any type of Java client (app server based or not)
@@ -65,3 +71,6 @@ $Id: TODO,v 1.7 2003/03/22 11:28:32 ifindkarma Exp $
 17. Start a Wiki for this project.
     (?As part of the REST Wiki?
     http://internet.conveyor.com/RESTwiki/moin.cgi/ )
+
+18. doxygen comments.  Heck, more documentation all around!
+    Flesh out mod_pubsub/kn_docs/design_notes/...
