@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.55 2003/07/23 18:13:35 ifindkarma Exp $
+# $Id: pubsub.py,v 1.56 2003/09/15 21:30:44 troutgirl Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -905,7 +905,7 @@ class Server:
         self.verbose = verbose
         self.ignorePrologue = ignorePrologue
         self.root_topic = read_event_pool(poolfile)
-        ServerSaver(self, poolfile, 1)
+        ServerSaver(self, poolfile, 10)
         self.portnum = portnum
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
