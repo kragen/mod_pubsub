@@ -39,179 +39,141 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: apache_logfile.sh,v 1.1 2003/03/05 23:47:35 ifindkarma Exp $
+# $Id: apache_logfile.sh,v 1.2 2003/03/07 18:34:49 wsanchez Exp $
 #
-#
-# 
 # This sensor monitors an Apache log file (common or combined) and
 # generates events as log entries are written to it. 
 # 
 # A simple way to monitor the events: 
-#  weblog http://myrouter/kn 
+#  apache_logfile http://myrouter/kn 
 #  kn_subscribe -f http://myrouter/kn/what/apps/weblog/`hostname`/access 
 #
-#
-#
-# ----- Original Message:
-# From: Fred Sanchez
-# To: Adam Rifkin
-# Sent: 5/11/01 11:56 PM
-# Subject: I'm da man
-# 
-# OK, this is freaking cool.  Log into any machine with
-# the libkn library (in c_pubsub) installed and run this: 
-#
-#     kn_subscribe -f http://pong:8000/kn /what/apps/weblog/pong
-#
-# Then go to the Apache web server on pong (http://pong/)
-# and watch the spew come out from the subscribe command above. 
-# 
-# I just finished a sensor written in... wait for it... the Bourne
-# shell.  It tails the Apache log file, parses it, and sends it via
-# the kn_publish command which is installed by libkn. 
-# 
-# Add -S after -f to the subscribe command above to see the full
-# events in simple format, which includes all information about
-# the request (user, user agent, referer, status, etc.). 
-# 
-#	-Fred 
+# This script doesn't yet handle error logs.
 ## 
 
-## 
-# Defaults 
-## 
+##
+# Defaults
+##
 
-PATH=${HOME}/bin:/bin:/usr/bin:/usr/local/bin:/usr/local/apache/bin 
+PATH=${HOME}/bin:/bin:/usr/bin:/usr/local/bin:/usr/local/apache/bin;
 
-# Find httpd 
-httpd=`apxs -q TARGET` 
+# Find httpd
+httpd=`apxs -q TARGET`;
 
-# Get httpd settings 
-eval `${httpd} -V | grep '="' | sed -e 's/ -D //'` 
+# Get httpd settings
+eval `${httpd} -V | grep '="' | sed -e 's/ -D //'`;
 
-if echo "${DEFAULT_XFERLOG}" | grep '^/'; then 
-    access_log="${DEFAULT_XFERLOG}" 
-else 
-    access_log="${HTTPD_ROOT}/${DEFAULT_XFERLOG}" 
-fi 
+if echo "${DEFAULT_XFERLOG}" | grep '^/'; then
+    access_log="${DEFAULT_XFERLOG}";
+else
+    access_log="${HTTPD_ROOT}/${DEFAULT_XFERLOG}"
+fi;
 
-if echo "${DEFAULT_ERRORLOG}" | grep '^/'; then 
-    error_log="${DEFAULT_ERRORLOG}" 
-else 
-    error_log="${HTTPD_ROOT}/${DEFAULT_ERRORLOG}" 
-fi 
+if echo "${DEFAULT_ERRORLOG}" | grep '^/'; then
+    error_log="${DEFAULT_ERRORLOG}";
+else
+    error_log="${HTTPD_ROOT}/${DEFAULT_ERRORLOG}";
+fi;
 
-## 
-# Command line 
-## 
+##
+# Command line
+##
 
-  kn_uri="" 
-kn_topic="/what/apps/weblog/`hostname`/access" 
-   debug="" 
+  kn_uri="";
+kn_topic="/what/apps/weblog/`hostname`/access";
+   debug="";
 
-usage () 
-{ 
-    echo "Usage: `basename ${0}` uri [topic]" 
-    echo "      uri:   PubSub Server URI" 
-    echo "      topic: Topic on server to publish to [${kn_topic}]" 
-    exit 1 
-} 
+usage ()
+{
+    echo "Usage: `basename ${0}` uri [topic]";
+    echo "      uri:   PubSub Server URI";
+    echo "      topic: Topic on server to publish to [${kn_topic}]";
+    exit 1;
+}
 
-if args=`getopt d $*`; then :; else usage; fi 
-set -- ${args} 
-for option in "$@"; do 
-  case "${option}" in 
-    -d) 
-        debug="-d" 
-        shift; break 
-        ;; 
-    --) 
-        shift; break 
-        ;; 
-  esac 
-done 
+if args=`getopt d $*`; then :; else usage; fi;
+set -- ${args};
+for option in "$@"; do
+    case "${option}" in
+      -d)
+        debug="-d";
+        shift; break;
+        ;;
+      --)
+        shift; break;
+        ;;
+    esac;
+done;
 
-if [ "${1}" = "--" ]; then shift; fi 
+if [ "${1}" = "--" ]; then shift; fi;
 
-if [ $# -gt 0 ]; then kn_uri="${1}"; shift; else usage; fi 
-if [ $# -gt 0 ]; then kn_topic="${1}"; shift; fi 
+if [ $# -gt 0 ]; then   kn_uri="${1}"; shift; else usage; fi;
+if [ $# -gt 0 ]; then kn_topic="${1}"; shift; fi;
 
-## 
-# Routines 
-## 
+##
+# Routines
+##
 
-access_logger () 
-{ 
-    tail -1f "${access_log}" | ( 
-        while true; do 
-            # Parse input 
-     
-            read line 
-            IFS=' '; set - ${line} 
-     
-             client_host="${1}"           ; if [ $# -gt 0 ]; then shift
-1; fi 
-                     huh="${1}"           ; if [ $# -gt 0 ]; then shift
-1; fi 
-             client_user="${1}"           ; if [ $# -gt 0 ]; then shift
-1; fi 
-                    date="${1} ${2}"      ; if [ $# -gt 0 ]; then shift
-2; fi 
-                 request="${1} ${2} ${3}" ; if [ $# -gt 0 ]; then shift
-3; fi 
-                  status="${1}"           ; if [ $# -gt 0 ]; then shift
-1; fi 
-                   bytes="${1}"           ; if [ $# -gt 0 ]; then shift
-1; fi 
-                 referer="${1}"           ; if [ $# -gt 0 ]; then shift
-1; fi 
-            client_agent="${1}"           ; if [ $# -gt 0 ]; then shift
-1; fi 
-     
-            # Get rid of quotes 
-     
-            IFS='"' 
-            set - ${request} ; request="${1}" 
-            set - ${referer} ; referer="${1}" 
-     
-            # Parse request 
-     
-            IFS=' ' 
-            set - ${request} 
-     
-            if [ "${request}" = "-" ]; then 
-                  method="" 
-                     uri="" 
-                protocol="" 
-            else 
-                  method="${1}" ; if [ $# -gt 0 ]; then shift 1; fi 
-                     uri="${1}" ; if [ $# -gt 0 ]; then shift 1; fi 
-                protocol="${1}" ; if [ $# -gt 0 ]; then shift 1; fi 
-            fi 
+access_logger ()
+{
+    tail -1f "${access_log}" | (
+        while true; do
+            # Parse input
 
-            echo "${request}" | kn_publish -P ${debug}  \ 
-                -H "host"         "${client_host}"      \ 
-                -H "huh"          "${huh}"              \ 
-                -H "user"         "${client_user}"      \ 
-                -H "date"         "${date}"             \ 
-                -H "request"      "${request}"          \ 
-                -H "method"       "${method}"           \ 
-                -H "uri"          "${uri}"              \ 
-                -H "protocol"     "${protocol}"         \ 
-                -H "status"       "${status}"           \ 
-                -H "bytes"        "${bytes}"            \ 
-                -H "referer"      "${referer}"          \ 
-                -H "agent"        "${client_agent}"     \ 
-                -- "${kn_uri}" "${kn_topic}" - 
+            read line;
+            IFS=' '; set - ${line}l
+    
+             client_host="${1}"           ; if [ $# -gt 0 ]; then shift 1; fi
+                     huh="${1}"           ; if [ $# -gt 0 ]; then shift 1; fi
+             client_user="${1}"           ; if [ $# -gt 0 ]; then shift 1; fi
+                    date="${1} ${2}"      ; if [ $# -gt 0 ]; then shift 2; fi
+                 request="${1} ${2} ${3}" ; if [ $# -gt 0 ]; then shift 3; fi
+                  status="${1}"           ; if [ $# -gt 0 ]; then shift 1; fi
+                   bytes="${1}"           ; if [ $# -gt 0 ]; then shift 1; fi
+                 referer="${1}"           ; if [ $# -gt 0 ]; then shift 1; fi
+            client_agent="${1}"           ; if [ $# -gt 0 ]; then shift 1; fi
 
-        done 
-    ) 
-} 
+            # Get rid of quotes
 
-## 
-# Do The Right Thing 
-## 
+            IFS='"';
+            set - ${request} ; request="${1}";
+            set - ${referer} ; referer="${1}";
 
-access_logger 
+            # Parse request
 
-# End of apache_logfile.sh
+            IFS=' ';
+            set - ${request};
+
+            if [ "${request}" = "-" ]; then
+                  method="";
+                     uri="";
+                protocol="";
+            else
+                  method="${1}" ; if [ $# -gt 0 ]; then shift 1; fi;
+                     uri="${1}" ; if [ $# -gt 0 ]; then shift 1; fi;
+                protocol="${1}" ; if [ $# -gt 0 ]; then shift 1; fi;
+            fi;
+
+            echo "${request}" | kn_publish -P ${debug}  \
+                -H "host"         "${client_host}"      \
+                -H "huh"          "${huh}"              \
+                -H "user"         "${client_user}"      \
+                -H "date"         "${date}"             \
+                -H "request"      "${request}"          \
+                -H "method"       "${method}"           \
+                -H "uri"          "${uri}"              \
+                -H "protocol"     "${protocol}"         \
+                -H "status"       "${status}"           \
+                -H "bytes"        "${bytes}"            \
+                -H "referer"      "${referer}"          \
+                -H "agent"        "${client_agent}"     \
+                -- "${kn_uri}" "${kn_topic}" -;
+        done;
+    )
+}
+
+##
+# Do The Right Thing
+##
+
+access_logger;
