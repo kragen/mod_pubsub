@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.16 2003/04/29 06:44:17 ifindkarma Exp $
+# $Id: pubsub.py,v 1.17 2003/04/30 00:03:06 ifindkarma Exp $
 
 
 """
@@ -336,6 +336,7 @@ class RoutesTopic(NoPostingTopic):
         NoPostingTopic.__init__(self, name, parent)
         self.route_level = route_level
         self.kn_routes = None
+        self.parent = parent
     def get_subtopic(self, name):
         if name == 'kn_routes':
             if self.kn_routes is None:
@@ -344,7 +345,7 @@ class RoutesTopic(NoPostingTopic):
         raise PermissionDenied, "Only kn_routes subtopics are allowed inside a kn_routes topic"
     def post(self, event):
         if NoPostingTopic.post(self, event):
-            if self.route_level > 0: parent.up_propagate(event)
+            if self.route_level > 0: self.parent.up_propagate(event)
     def up_propagate(self, event, from_depth = 1):
 
         """Given an event from a particular introspection depth,
