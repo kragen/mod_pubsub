@@ -36,7 +36,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.4 2003/02/15 02:42:41 ifindkarma Exp $
+# $Id: pubsub.py,v 1.5 2003/02/26 02:42:47 ifindkarma Exp $
 
 # This server uses a protocol compatible with the other PubSub
 # servers, and serves as a fine reference tutorial for learning
@@ -179,9 +179,13 @@ class Event:
             self.contents['kn_id'] = uuid()
         if not self.contents.has_key('kn_time_t'):
             self.contents['kn_time_t'] = time.time()
+        self.kn_expires = None
         if self.contents.has_key('kn_expires'):
             self.contents['kn_expires'] = absolute_expiry(str(self['kn_expires']))
-            self.kn_expires = float(self['kn_expires'])
+            try:
+                self.kn_expires = float(self['kn_expires'])
+            except:
+                pass
         else:
             self.kn_expires = None
         if not self.contents.has_key('kn_payload'):
@@ -627,6 +631,7 @@ def route_get_topic(conn, uri, query):
 
 def absolute_expiry(str):
     if str[0] == '+': return time.time() + float(str[1:])
+    elif str=="infinity": return None
     else: return float(str)
 
 def status_event(query, status, payload='', htmlpayload=None):
