@@ -1,4 +1,4 @@
-$Id: MOVED,v 1.1 2003/05/10 03:25:52 ifindkarma Exp $
+$Id: MOVED,v 1.2 2003/05/10 03:33:25 ifindkarma Exp $
 
 For the JavaScript PubSub Client Library, see
 
@@ -19,6 +19,7 @@ For documentation, see
    mod_pubsub/kn_docs/developer_guide.html
    mod_pubsub/kn_docs/pubsub_protocol.html
    mod_pubsub/kn_docs/javascript_reference.html
+   mod_pubsub/kn_apps/javascript/
 
 For questions and comments, see
 
