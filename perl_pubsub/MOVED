@@ -1,4 +1,4 @@
-$Id: MOVED,v 1.1 2003/03/21 04:42:50 ifindkarma Exp $
+$Id: MOVED,v 1.2 2003/04/30 22:52:21 ifindkarma Exp $
 
 For the Perl PubSub Client Library, see
 
@@ -8,7 +8,17 @@ For the Perl PubSub Server, see
 
    mod_pubsub/cgi-bin/pubsub.cgi
 
+For a sample chat application that uses the Perl Client Library, see
+
+   mod_pubsub/kn_tools/chat.plx
+
+For other sample "sensor" applications that use the Perl Client Library, see
+
+   mod_pubsub/kn_sense/
+
 For questions and comments, see
 
    mod-pubsub-developer@lists.sourceforge.net
    http://mod-pubsub.sf.net/
+
+Thanks!
