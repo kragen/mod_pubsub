@@ -9,13 +9,14 @@ C, COM/ActiveX/.NET, Java, and Ruby.
 This distribution includes the PubSub Server as a Perl Apache module
 (using mod_perl), a reference standalone Python PubSub Server that
 uses the same PubSub Protocol, a push_manager that helps with
-additional connection pooling, and many sample apps.  (Perl and Python
-work, push_manager needs a lot of work, and the apps are all in
-varying states of usability and needing work.)
+additional connection pooling, and many sample apps.
+
+(The Perl and Python Servers work, push_manager needs a lot of work,
+and the apps are all in varying states of usability and needing work.)
 
 Please have peruse the file INSTALL for installation instructions
-for the current Apache-based Perl PubSub Server and standalone Python
-PubSub Server.
+for the current Apache-based Perl PubSub Server and standalone
+Python PubSub Server.
 
 Plans are in the TODO file.
 
@@ -34,13 +35,16 @@ while promoting free use of this set of code, tools, and documentation.
 Enjoy!
 
   -- Adam Rifkin
-     $Id: README,v 1.9 2003/04/05 06:00:35 ifindkarma Exp $
+     $Id: README,v 1.10 2003/05/31 04:42:29 ifindkarma Exp $
 
 
 
 -------
 Credits
 -------
+
+We thank Joyce Park and Robert Leftwich for their recent changes and
+additions to the code in this distribution.  Furthermore...
 
 A hearty thank-you goes out to all KnowNow employees and contractors
 who wrote the code and documentation that has been included in this
