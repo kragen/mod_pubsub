@@ -25,14 +25,13 @@
     But it mostly works (TM).
 
     This app demonstrates well why the threaded PubSub Python Client
-    Library kn_python is hard to use (non-blocking IO is better).
-    kn_python is available at http://cvs.developer.knownow.com/ .
+    Library libkn/libkn.py is hard to use (non-blocking IO is better).
 
     I hate semaphores and thread interlocks, and you'd need them if
     you tried to fix this code by batching event propagation rather
     than sending events piecemeal.  Therefore:
 
-    FIXME: Modify bridge.py to use pubsublib.py instead of kn_python.
+    FIXME: Modify bridge.py to use pubsublib.py instead of libkn.py .
 
     FIXME: Also you'd want a bridge like this to be adaptive; that is,
     to send events one at a time during times of low event arrival
@@ -78,9 +77,9 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: bridge.py,v 1.1 2003/03/06 00:25:30 ifindkarma Exp $
+## $Id: bridge.py,v 1.2 2003/03/22 11:38:55 ifindkarma Exp $
 
-from pyKnowNow import kn
+from libkn import kn
 import time
 import types
 
@@ -199,4 +198,3 @@ if __name__ == '__main__':
             print '%s -> %d'%(s.serverDict['host'],s.serverDict['count'])
 
 # End of bridge.py
-
