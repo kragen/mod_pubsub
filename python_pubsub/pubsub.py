@@ -1,20 +1,27 @@
 #!/usr/bin/python
 
 """
-    pubsub.py -- standalone PubSub Python Server
-    compatible with mod_pubsub & cgi-bin/pubsub.cgi
+    pubsub.py -- standalone Python PubSub Server
+    compatible with mod_pubsub & mod_pubsub/cgi-bin/pubsub.cgi
 
     This is a PubSub Server that runs standalone from the command line.
     It is our goal to have the functionality of pubsub.py match that
     of cgi-bin/pubsub.cgi so we have two reference implementations.
 
+    For documentation of the protocol, please see
+
+       mod_pubsub/kn_docs/pubsub_protocol.html
+       
     Contact Information:
        http://mod-pubsub.sf.net/
        mod-pubsub-developer@lists.sourceforge.net
 """
 
-# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
-#
+# Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
+# Copyright (c) 2003 Joyce Park.  All Rights Reserved.
+# Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
+# $Id: pubsub.py,v 1.28 2003/05/22 02:36:28 ifindkarma Exp $
+
 # @KNOWNOW_LICENSE_START@
 #
 # Redistribution and use in source and binary forms, with or without
@@ -46,8 +53,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # @KNOWNOW_LICENSE_END@
-#
-# $Id: pubsub.py,v 1.27 2003/05/17 04:45:34 ifindkarma Exp $
 
 
 """
@@ -510,6 +515,12 @@ class SimpleTunnel(Tunnel):
         str = self.ev_encode(dict)
         return "%d\n%s\n" % (len(str), str)
 
+class FlashTunnel(SimpleTunnel):
+    def encode(self, dict):
+        """The terminating null byte forces Flash to
+        invoke the onData handler."""
+        return SimpleTunnel.encode(self, dict) + chr(0)
+    
 class JavaScriptTunnel(Tunnel):
     def headerfrom(self, event):
         return (http_header(event['status'], 'text/html; charset=utf-8') +
@@ -673,12 +684,16 @@ def tunnel(conn, uri, httpreq, query):
         def __call__(self): self.route.close(); self.route.become_stale()
     if query.has_key('kn_response_format') and query['kn_response_format'][0] == 'simple':
         route = SimpleTunnel(conn)
-    else: # FIXME: handle unknown response format
+    elif query.has_key('kn_response_format') and query['kn_response_format'][0] == 'flash':
+        route = FlashTunnel(conn)
+    elif query.has_key('kn_response_format') and query['kn_response_format'][0] != 'js':
+        raise "Unsupported response format"
+    else: # js is the default kn_response_format.
         route = JavaScriptTunnel(conn, watching=1)
     topic = route_get_topic(conn, uri, query)
     topic.create_route(route)
     conn.report_status('tunnel from %s' % topic.getname())
-    route.post(status_event(query, '200 Watching topic', "watching %s" % topic.getname()))
+    route.post(status_event(query, '200 Watching topic', 'watching %s' % topic.getname()))
     # And we DON'T finish sending.  Not until much later.  But there might be expiry:
     if query.has_key('kn_expires'):
         conn.server.scheduler.schedule_processing(TunnelCloser(route), absolute_expiry(query['kn_expires'][0]),
@@ -701,7 +716,11 @@ def create_status_route(conn, query):
     else:
         if query.has_key('kn_response_format') and query['kn_response_format'][0] == 'simple':
             return SimpleTunnel(conn)
-        else:
+        elif query.has_key('kn_response_format') and query['kn_response_format'][0] == 'flash':
+            return FlashTunnel(conn)
+        elif query.has_key('kn_response_format') and query['kn_response_format'][0] != 'js':
+            raise "Unsupported response format"
+        else: # js is the default kn_response_format.
             return JavaScriptTunnel(conn, watching=0)
 
 def dump_exc():
