@@ -1,0 +1,59 @@
+$Id: stateful_reconnection.txt,v 1.1 2003/03/22 03:24:12 ifindkarma Exp $
+
+Stateful reconnection to a mod_pubsub or KnowNow server is controlled
+by the kn_journal_reconnect_scheme header which is (optionally)
+advertised by the server in a tunnel route's status event.
+
+kn_journal_reconnect_scheme is optional header in the tunnel route's
+status event used for stateful reconnection. Here's how to use it:
+
+ kn_journal_reconnect_scheme=kn_event_hash
+
+       The tunnel status event may also contain a
+       kn_journal_reconnect_timeout header indicating how many
+       seconds a stateful reconnect is theoretically possible
+       [default: 60 seconds.] This is the "reconnect grace
+       period".
+
+       Each event sent down the tunnel will contain a
+       kn_event_hash header containing a server-computed hash
+       of all non-hop-by-hop headers in the event
+       (i.e. everything other than kn_routed_from and header
+       with a kn_route_ prefix.) Keep a cache of recently
+       delivered events indexed by "<kn_route_location value>
+       <kn_event_hash value>". Each time an event is read from
+       the tunnel, look it up in the cache [provided it has a
+       kn_event_hash header; a missing kn_route_location is
+       equivalent to an empty string here.] If the event is
+       already in the cache, ignore it; otherwise add a cache
+       entry for it and deliver it to the app as you normally
+       would. Cache entries are stale and may be discarded
+       after remaining in the cache for the reconnect grace
+       period.
+
+       Upon disconnection, try to reconnect with do_max_age set
+       to the stored reconnect grace period. If this returns a
+       non-200 status event, no stateful reconnect is possible
+       and you MUST signal an error to the app or user.
+
+       This is currently the preferred reconnect scheme.
+
+<no kn_journal_reconnect_scheme specified> ,
+ kn_journal_reconnect_scheme=kn_route_checkpoint , or
+ kn_journal_reconnect_scheme=<anything else>
+
+       Default to no saved checkpoint, but any event with a
+       kn_route_checkpoint header sets the stored
+       checkpoint.
+
+       If you haven't seen a kn_route_checkpoint header yet, no
+       stateful reconnect is possible and an error SHOULD be
+       signalled to the app or user.
+
+       To reconnect once you have seen a kn_route_checkpoint
+       header, re-open your tunnel with do_since_checkpoint set
+       to the stored kn_route_checkpoint value. If this returns
+       a non-200 status event, no stateful reconnect is
+       possible and you MUST signal an error to the app or
+       user.
+

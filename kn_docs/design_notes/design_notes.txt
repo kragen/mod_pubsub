@@ -1,0 +1,118 @@
+$Id: design_notes.txt,v 1.1 2003/03/22 03:24:12 ifindkarma Exp $
+
+Server
+
+A PubSub server accepts event notifications, and routes the resulting
+messages to interested subscribers. PubSub servers are usually visible
+at one or more HTTP or HTTP/S URLs, e.g. http://127.0.0.1:8000/kn or
+http://oyster.knownow.com/mod_pubsub/cgi-bin/pubsub.cgi. Reverse-proxying,
+virtual hosting, URL-rewriting, clustering, and shared event stores
+often lead to a particular server accepting requests from multiple
+URLs.
+
+Cache
+
+Each PubSub server has a cache of messages categorized by topic,
+and allows clients to notify the cache of updates using PubSub
+commands. As a side-effect, some cache updates cause an update
+notification to be propagated along cached routes. Some PubSub servers
+have private caches, while others share their caches with other
+servers. There is no guarantee of consistency for updates to message
+caches.
+
+A PubSub server also allows queries to be run against the cache.
+
+Topic
+
+Each message is cached in the context of a particular namespace, or
+"topic". A topic is specified by a URI. Topic URIs contain two parts:
+a server URL [which may optionally be omitted], and a topic name. The
+server URL is typically an HTTP or HTTP/S URL, as explained above. A
+topic URI with no server URL (e.g. "/what/chat" or "/who/bob") is
+called "non-absolute", and is not directly usable as an HTTP or HTTP/S
+URL; a topic URI with a server URL
+(e.g. "http://127.0.0.1/kn/what/chat" or
+"http://oyster.knownow.com/mod_pubsub/cgi-bin/pubsub.cgi/who/bob") is
+called "absolute", and may be used directly as an HTTP URL.
+
+The topic name consists of a leading "/", followed by a list of zero
+or more name segments in hierarchical pathname style, with "/"
+separating levels of the hierarchy, for example "/what/chat",
+"/what/chat/kn_routes", "/what/chat/kn_routes/kn_subtopics",
+"/knownow.com/kn_subtopics", "/who/anonymous/s/437583/kn_journal",
+"/tempuri.org/soap_chat", or
+"/knownow.com/who/scott/apps/yew/buddies". Use of an extra trailing
+"/" is discouraged.
+
+Topic name segments are non-empty sequences of lower-case ASCII
+identifier characters (letters "a"..."z", digits "0"-"9", "." and "_")
+and non-ASCII characters. Topic name segments should not start or end
+with ".". Topic name segments starting with "kn_" generally have
+special uses and should only be used as specified by the PubSub
+protocol; special segment names common in current use include
+"kn_routes", "kn_subtopics", and "kn_journal". The last segment of a
+topic name determines the topic type. Note that not all PubSub servers
+currently enforce all of these topic naming restrictions.
+
+By convention, topic names with one or more "." characters in the
+first segment (e.g. "/knownow.com/who/adam" or
+"/tempuri.org/soapDemo") are used for organization-owned topic space;
+use of such a topic name should be coordinated with the owner of that
+part of the Domain Name System (DNS). Note that all such names are
+assumed to be absolute, so the trailing "." from DNS should be
+omitted.
+
+Although topic URIs sometimes look like URLs, they need not
+refer to any specific location on the Web.
+
+Message
+
+Messages contain an opaque payload (often treated as if it were a
+value associated with a special header named "kn_payload") and a set
+of free-form name-value pair headers. Header names starting with "kn_"
+generally have special uses and should only be used as specified by
+the PubSub protocol.
+
+Some regular header names have meanings established by
+convention. Examples include "userid" (machine-readable name for the
+user responsible for generating the message,) "displayname"
+(human-readable name for the user responsible for generating the
+message,) "content-type" (MIME-style type specification for the
+message payload,) "who" (user or users this message pertains to,)
+"where" (locations this message pertains to,) "when" (times and/or
+dates this message pertains to,) "what" (objects this message pertains
+to,) "html_payload" (HTML view of this message's plain-text payload,)
+"reply-to" (topic URI a response message should be delivered to,)
+"reply-uri" ("kn_uri" and "kn_route_location" a response message
+should include,) and "subject" (general subject of this message.)
+Header names may include hierarchical prefices in the same format as
+topic names, e.g. "/knownow.com/apps/chat/ringtone_style".
+
+Refer to the PubSub protocol documentation for the current list of
+assigned special headers. The most commonly used are "kn_id" (unique
+ID for this message; value restricted using the same rules as a topic
+name segment,) "kn_time_t" (message creation time, expressed as a
+floating-point time in seconds since the beginning of January 1st,
+1970 (GMT),) "kn_expires" (desired expiration time, either as an
+absolute time in the same format as "kn_time_t", or as "+" followed by
+a non-negative floating-point offset from the "kn_time_t" value,)
+"kn_uri" (URI for this message, often derived by appending "/" and the
+"kn_id" value to the absolute URI of the topic this message was
+originally created in; not necessarily unique.)
+
+Any particular PubSub server is free to keep messages in its cache for
+any length of time; clients may suggest lifetimes using the special
+header named "kn_expires", but a PubSub server generally makes no
+guarantees about the lifetimes of cache entries.
+
+Events
+
+Messages in regular topics (i.e. those whose final topic name segments
+do not have a "kn_" prefix) are called "events". The meaning of their headers 
+
+Routes are similar to notifications, but 
+
+do_method=route with a kn_to matching /^javascript:.*/ or an omitted
+kn_to requests a tunnel route. Tunnel routes deliver events over the
+requesting connection until the connection closes.
+
