@@ -3,7 +3,7 @@
 
 <!--
 
- Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
  @KNOWNOW_LICENSE_START@
  
@@ -37,14 +37,14 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.2 2003/02/08 05:02:17 ifindkarma Exp $
+ $Id: index.html,v 1.3 2003/05/08 01:12:48 ifindkarma Exp $
 
 -->
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-<title>JavaScript Hacks, Tricks and Debugging</title>
+<title>JavaScript Options, Tricks and Debugging</title>
 
 <!-- The PubSub JavaScript prologue, setting credentials -->
 <script src="/kn?do_method=whoami"></script>
@@ -64,14 +64,14 @@ JavaScript Library with the prologue directly from the mod_pubsub instance. -->
 
 </head>
 <body>
-<h1>JavaScript Hacks, Tricks and Debugging</h1>
+<h1>JavaScript Options, Tricks and Debugging</h1>
 <pre>
 
 The PubSub JavaScript Library (a.k.a. do_method=lib or pubsub.js)
 has a few tricks up its sleeve to aid in debugging and software
 development. For the purposes of this discussion, we'll pretend your
-mod_pubsub instance is in http://localhost/kn/ -- if it's somewhere
-else, change the URLs accordingly.
+mod_pubsub instance is in http://localhost/mod_pubsub/ -- if it's
+somewhere else, change the URLs accordingly.
 
 
 
@@ -101,15 +101,15 @@ using the kn_displayname URL parameter. For example, to chat as the user
 named "John Doe" with the ID "jdoe":
 
 <a target="_top"
-href="../chat1/?kn_userid=jdoe;kn_displayname=John%20Doe">http://localhost/kn/kn_apps/chat1/?kn_userid=jdoe;kn_displayname=John%20Doe</a>
+href="../chat1/?kn_userid=jdoe;kn_displayname=John%20Doe">http://localhost/mod_pubsub/kn_apps/chat1/?kn_userid=jdoe;kn_displayname=John%20Doe</a>
 
- NOTE that the space between "John" and "Doe" was written as
- "%20". In general, characters other than letters or numbers need to
- be translated into bytes, and then written in hexadecimal -- preceded
- by "%" -- when they appear in URL parameters. There's even a special
- PubSub JavaScript Library function to do this for you, called
- kn_escape(). For instance, kn_escape("John Doe") returns the string
- "John%20Doe" (the kn_unescape() function translates the other way.)
+NOTE that the space between "John" and "Doe" was written as
+"%20". In general, characters other than letters or numbers need to
+be translated into bytes, and then written in hexadecimal -- preceded
+by "%" -- when they appear in URL parameters. There's even a special
+PubSub JavaScript Library function to do this for you, called
+kn_escape(). For instance, kn_escape("John Doe") returns the string
+"John%20Doe" (the kn_unescape() function translates the other way.)
 
 Of course, a mod_pubsub instance may reject events published under an
 assumed user ID and/or display name, or it may silently change the user
@@ -156,13 +156,13 @@ from time to time, it should use the kn_argv.kn_topic variable:
 A specific topic may be chosen using the kn_topic URL parameter:
 
 <a target="_top"
-href="../chat1/?kn_topic=/what/elvis">http://localhost/kn/kn_apps/chat1/?kn_topic=/what/elvis</a>
+href="../chat1/?kn_topic=/what/elvis">http://localhost/mod_pubsub/kn_apps/chat1/?kn_topic=/what/elvis</a>
 
 If the topic name doesn't start with "kn_", the "kn_topic=" may be
 omitted:
 
 <a target="_top"
-href="../chat1/?/what/elvis/alive">http://localhost/kn/kn_apps/chat1/?/what/elvis/alive</a>
+href="../chat1/?/what/elvis/alive">http://localhost/mod_pubsub/kn_apps/chat1/?/what/elvis/alive</a>
 
 
 
@@ -218,7 +218,7 @@ do_max_age URL parameter:
 To adjust the number of old events, use the "do_max_age" URL parameter:
 
 <a target="_top"
-href="../Chat.esp?do_max_age=86400">http://localhost/kn/kn_apps/Chat.esp?do_max_age=86400</a>
+href="../chat2/?do_max_age=86400">http://localhost/mod_pubsub/kn_apps/chat2/?do_max_age=86400</a>
 
 This would replay all events from the previous 24 hours.
 
@@ -231,23 +231,23 @@ This would replay all events from the previous 24 hours.
                            ===============
 
 Debugging flags for the PubSub JavaScript Library can be set using the
-kn_debug URL parameter, or by calling the debug() JavaScript function
+kn_debug URL parameter, or by calling the kn_debug() JavaScript function
 with a list of debugging flags:
 
-  <a href="javascript:void debug('posts')">debug("posts")</a>
+  <a href="javascript:void kn_debug('posts')">kn_debug("posts")</a>
 
 or:
 
 <a target="_top"
-href="../chat1/?kn_debug=posts">http://localhost/kn/kn_apps/chat1/?kn_debug=posts</a>
+href="../chat1/?kn_debug=posts">http://localhost/mod_pubsub/kn_apps/chat1/?kn_debug=posts</a>
 
 When no debugging flags are given, debugging is disabled *AND ALL
 JAVASCRIPT ERROR MESSAGES ARE SUPPRESSED!* To find the text of the
 last suppressed JavaScript error, check the kn.lastError JavaScript
 variable.
 
-When debugging is enabled, the normally-hidden PubSub tunnel and posting
-frames become visible in the bottom of the PubSub application
+When debugging is enabled, the normally-hidden PubSub tunnel and
+posting frames become visible in the bottom of the PubSub application
 window. These contain the connections over which the web browser
 receives and sends events, respectively, and are colored red and yellow
 during normal operation (the tunnel frame may be missing in some
@@ -263,33 +263,32 @@ routes - pop up an annoying alert box every time a subscription is cancelled
 More than one flag can be turned on at the same time:
 
 <a target="_top"
-href="../chat1/?kn_debug=posts,routes">http://localhost/kn/kn_apps/chat1/?kn_debug=posts,routes</a>
+href="../chat1/?kn_debug=posts,routes">http://localhost/mod_pubsub/kn_apps/chat1/?kn_debug=posts,routes</a>
 
 
 
 
 
-                                =====
-                                HACKS
-                                =====
+                                =======
+                                OPTIONS
+                                =======
 
 Sometimes the most correct solution to a problem is not the most
 efficient, or is convenient in some way. To ignore correctness and
 bypass some inefficient or inconvenient PubSub JavaScript Library
-features, several hacks can be enabled using the kn_hacks URL parameter,
-or by calling the hacks() JavaScript function with a list of hacks:
+features, several options can be enabled using the kn_options URL parameter,
+or by calling the kn_options() JavaScript function with a list of options:
 
-  <a
-href="javascript:void hacks('single,noforward')">hacks("single,noforward");</a>
+<a href="javascript:void kn_options('single,noforward')">kn_options("single,noforward");</a>
 
 or:
 
 <a target="_top"
-href="../Chat.esp?kn_debug=single,noforward">http://localhost/kn/kn_apps/Chat.esp?kn_debug=single,noforward</a>
+href="../chat2/?kn_debug=single,noforward">http://localhost/mod_pubsub/kn_apps/chat2/?kn_debug=single,noforward</a>
 
-The hacks supported so far are:
+The options supported so far are:
 
-all - turn on all hacks
+all - turn on all options
 fastdoc - use document.open() for KNDocument
 single - don't batch multiple requests
 noforward - don't forward status events to the tunnel frame
@@ -297,7 +296,7 @@ escape - use JavaScript escape() instead of kn_escape()
 unescape - use JavaScript unescape() instead of kn_unescape()
 noswap - don't swap tunnel and post frames periodically
 
-All of these hacks have compatibility problems, bad side-effects, or
+All of these options have compatibility problems, bad side-effects, or
 actually break something. Use them at your own risk...
 
 
@@ -316,7 +315,7 @@ iw, kn_inspectAsHTML, and kn_inspectAsText. These are documented in the
 PubSub JavaScript Library Reference:
 
 <a target="_top"
-href="../../kn_docs/javascript_reference.html">http://localhost/kn/kn_docs/javascript_reference.html</a>
+href="../../kn_docs/javascript_reference.html">http://localhost/mod_pubsub/kn_docs/javascript_reference.html</a>
 
 There is also one "javascript:" URI which may be useful for debugging
 JavaScript applications:
@@ -331,7 +330,7 @@ Favorites or Bookmarks list for easy access.
 Here are other bookmarklets you can try:
 
 <a target="_top"
-href="../../kn_tools/bookmarklets.html">http://localhost/kn/kn_tools/bookmarklets.html</a>
+href="../../kn_tools/bookmarklets.html">http://localhost/mod_pubsub/kn_tools/bookmarklets.html</a>
 </pre>
 </body>
 </html>
