@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: testlist.html,v 1.3 2003/04/25 23:52:13 ifindkarma Exp $
+ $Id: testlist.html,v 1.4 2003/04/26 00:29:45 ifindkarma Exp $
 
 -->
 
@@ -44,6 +44,8 @@
 
 <head>
 <title>pubsub client test page</title>
+
+<script src="/kn?do_method=whoami"></script>
 
 <script><!--
 
@@ -301,7 +303,7 @@ function make_url_uncachable(url)
 function frame_esp(url, frame)
 {
     if ((navigator.appName == "Microsoft Internet Explorer") &&
-        (navigator.appVersion.indexOf("Macintosh") >= -1))
+        (navigator.appVersion.indexOf("Macintosh") > -1))
     {
         // We have to do strange things to get the test suite working
         // in Mac MSIE, at least under Mac OS X.  Doing this causes
