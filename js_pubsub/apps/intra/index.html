@@ -1,0 +1,826 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/07/29 00:10:27 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>Intranet Sample</title>
+<link href="intra.css" rel="stylesheet" type="text/css">
+    
+<script type="text/javascript" src="../../js/kn_config.js"></script>
+<script type="text/javascript" src="../../js/kn_browser.js"></script>
+
+<script type="text/javascript" src="../../js/kn_htmlsafe.js"></script>
+<script type="text/javascript" src="kn_excel_table.js"></script>
+<script type="text/javascript" src="client_presence.js"></script>
+
+
+<script type="text/javascript"><!--
+
+// browser testing... only IE5 at the moment... need to check for macs, too.
+
+var ie = false;
+var kn_sid;
+
+if (document.all) 
+{
+	ie = true;
+} else
+{
+	top.location.href = "sitelist.html";
+}
+
+function Guid()
+{
+    return Math.random().toString().split(".").join("");
+}
+
+function showNews(filename) {
+
+	// sets iframe src to appropriate newsbox
+
+	document.all.newsframe.src = filename;
+
+}
+
+
+var chat_rid, user_kn_route_id;
+var username_cookie = "myintraname";
+var color_cookie = "kn_intra_chat_color";
+var chat_topic = "/what/chat";
+var updates_topic = "/what/intranet/updates";
+var system_topic = "/what/intranet/system";
+var clients = [];
+var username = "";
+var guid = Guid();
+var rendererBusy = false;
+var user_status = "In The Office";
+var selectedColor = "black";
+var chat_updates = false;
+
+function QuitIntra()
+{
+    if (kn && chat_rid) kn.unsubscribe(chat_rid);
+    if (kn && updates_rid) kn.unsubscribe(updates_rid);
+    if (kn && system_rid) kn.unsubscribe(system_rid);
+    chat_rid = false;   
+}
+
+function init()
+{  
+    // check for previous session marker
+    
+    GetUserName();
+    GetColor();
+    KNExcelTableInit();
+    DoChatInit();
+}
+
+function alertStatus(evt)
+{
+    alert(evt.status);
+}
+
+function GetUserName()
+{
+
+    username = getCookie(username_cookie);
+    if (!username || username == null)
+    {
+        while (username == "" || !username)
+        {
+            username = prompt("Please enter a unique username","");
+        }
+        setCookie(username_cookie,username,365);                      
+    }
+    document.forms["mycookieform"].elements["myname"].value = username;
+}
+
+function GetColor()
+{
+    var c = getCookie(color_cookie);
+    if (c && c !=null)
+    {
+        selectedColor = c;
+    }
+    setFontColor(selectedColor);
+}
+
+function DoChatInit()
+{
+    rw = new RouteWatcher(chat_topic);
+    rw.autodelete = true;
+    rw.onRouteStatus = calculatePresence;
+    rw.watch();
+    
+    chat_rid = kn.subscribe(
+                chat_topic,
+                receiveMessage,
+                {
+                   displayname:username,
+                   guid:guid,
+                   user_status:user_status,
+                   do_max_n:20          
+                },
+                {
+                   onError:ignoreStatus,
+                   onStatus:ignoreStatus,
+                   onSuccess:ignoreStatus
+                }
+    );
+    
+    logged = true;
+    systemMsg("BEHOLD! " + username + " has signed on.");
+    
+    updates_rid = kn.subscribe(
+                updates_topic,
+                receiveUpdate,
+                {
+                   do_max_n:10          
+                },
+                {
+                   onError:ignoreStatus,
+                   onStatus:ignoreStatus,
+                   onSuccess:function()
+                   {
+                        chat_updates = true;
+                   }
+                }
+    );
+    
+    system_rid = kn.subscribe(
+                system_topic,
+                receiveSystemEvent,
+                {},
+                {
+                   onError:ignoreStatus,
+                   onStatus:ignoreStatus,
+                   onSuccess:ignoreStatus
+                }
+    );
+
+}
+
+function receiveUpdate(evt)
+{
+    var update = htmlSanitize(evt.kn_payload);
+    var div = document.getElementById("newsdiv");
+    if (div)
+    {
+        var html = div.innerHTML;
+        div.innerHTML = "<p>" + update + "</p>" + html;
+    }
+    
+    if (chat_updates)
+    {
+        systemMsg("We interrupt this broadcast to bring you the following news:");
+        systemMsg(update);
+    }
+    
+}
+
+function receiveSystemEvent(evt)
+{
+    switch (evt.type)
+    {
+       case "alert":
+         window.alert(evt.kn_payload);
+         return;
+       case "reload":
+         top.location.reload(true);
+    }
+    
+}
+
+function receiveMessage(evt)
+{
+    var msg = "<span style='color:" + evt.chat_color +" ;'><strong>" +
+    
+    kn_htmlEscape(evt.displayname) + ": </strong>" +
+    
+    htmlSanitize(evt.kn_payload) + "</span><br>";
+    
+    
+    var newchatH = document.all.chatdiv.scrollHeight;
+	var origchatH = 200;
+    
+    var html = document.all.chatdiv.innerHTML;
+    document.all.chatdiv.innerHTML = html + msg;
+    
+    if (newchatH > origchatH) chatdiv.scrollTop = (newchatH-origchatH);
+    
+}
+
+function calculatePresence(route,status)
+{
+    if (status == "new")
+    {
+        if (route.guid == guid)
+        {
+            user_kn_route_id = route.kn_id;
+        }
+        
+        // UPDATE_ROUTE apparently generates a new route 
+        // notification without deletion, so we check for dupes
+        var rt = get_event_by_id(route.kn_id,clients);
+        if (rt)
+        {
+            rt.user_status = route.user_status;
+            rt.displayname = route.displayname;
+        } else
+        {
+            route.current_status = "connecting";
+            clients[clients.length]  = route;
+        }
+        
+    } else
+    {
+        var rt = get_event_by_id(route.kn_id,clients);
+        if (!rt) return;
+        
+        if (status == "journal found" || status == "tunnel open")
+        {
+            rt.current_status = "active";
+            
+        } else if (status == "no tunnel")
+        {
+            rt.current_status = "idle";
+            
+        } else if (status == "tunnel closed" || status == "deleted")
+        {
+        
+            if (rt.current_status != "disconnected")
+            {
+                if (rt.current_status != "idle")
+                {
+                    systemMsg(rt.displayname + " has logged off.",true);
+                }
+                rt.current_status = "disconnected";
+
+            }
+        }
+    }
+    
+    displayPresence();
+}
+
+function displayPresence()
+{
+    var s = "";
+    for (var i=0;i<clients.length;i++)
+    {
+        var st = clients[i].current_status;
+        if (st != "disconnected" && st != "idle")
+        {
+            s += "<span class='status-" + clients[i].current_status + "'>" + 
+            clients[i].displayname + " | " + (clients[i].user_status||"") + 
+            "</span><br>";
+        }
+    }
+    
+    document.getElementById("presdiv").innerHTML = s;
+}
+
+var presencestatus = "closed";
+var shortcutstatus = "closed";
+
+function flipPresence()
+{
+
+	if (presencestatus == "closed")
+    {
+		document.all.presenceformdiv.style.visibility = "visible";
+		presencestatus = "open";
+		// make sure the other one is closed before opening it
+		document.all.shortcutdiv.style.visibility = "hidden";
+		shortcutstatus = "closed";
+	} else if (presencestatus == "open")
+    {
+		document.all.presenceformdiv.style.visibility = "hidden";
+		presencestatus = "closed";
+	}
+
+}
+
+function flipShortcut()
+{
+	if (shortcutstatus == "closed")
+    {
+		document.all.shortcutdiv.style.visibility = "visible";
+		shortcutstatus = "open";
+		// make sure the other one is closed before opening it
+		document.all.presenceformdiv.style.visibility = "hidden";
+		presencestatus = "closed";
+	} else if (shortcutstatus == "open")
+    {
+		document.all.shortcutdiv.style.visibility = "hidden";
+		shortcutstatus = "closed";
+	}
+}
+
+function quickUpdatePresence(status)
+{
+    document.all.shortcutdiv.style.visibility = "hidden";
+    shortcutstatus = "closed";
+
+    kn.UPDATE_ROUTE
+    (
+        {
+            kn_from:chat_topic,
+            kn_to:chat_rid,
+            kn_id:user_kn_route_id,
+            user_status:status
+        },
+        {
+            onError:ignoreStatus,
+            onStatus:ignoreStatus,
+            onSuccess:ignoreStatus
+        }
+    );
+    
+    user_status = status;
+    
+    systemMsg("BEHOLD! " + username + " is now " + status + ". Neat, huh?");
+}
+
+function updatePresence()
+{
+    document.all.presenceformdiv.style.visibility = "hidden";
+    presencestatus = "closed";
+        
+    if (document.presform.kn_payload.value != "")
+    {
+        var status = document.presform.kn_payload.value;
+        quickUpdatePresence(status)
+    }
+    
+}
+
+function resetName()
+{
+    var old_username = username;
+    setCookie(username_cookie,"",-1);
+    GetUserName();
+    kn.UPDATE_ROUTE
+    (
+        {
+            kn_from:chat_topic,
+            kn_to:chat_rid,
+            kn_id:user_kn_route_id,
+            displayname:username,
+            user_status:user_status
+        },
+        {
+            onError:ignoreStatus,
+            onStatus:ignoreStatus,
+            onSuccess:ignoreStatus
+        }
+    );
+    
+    systemMsg("LO! " + old_username + " now goeth by the name of " + username + ".");
+}
+
+function updateChat()
+{
+    kn.publish(
+        chat_topic,
+        {
+            kn_payload:document.msgform.kn_payload.value,
+            displayname:username,
+            chat_color:selectedColor
+        }
+        ,
+        {
+            onSuccess:function()
+            {
+                document.msgform.kn_payload.value = "";
+            }
+        }
+    );
+}
+
+function systemMsg(msg,local)
+{
+    var evt = {
+                displayname:"INTRA",
+                kn_payload:msg,
+                chat_color:"#ff0000"
+            };
+            
+    if (!local)
+    {
+        kn.publish(
+            chat_topic,
+            evt,
+            {
+                onError:ignoreStatus,
+                onStatus:ignoreStatus,
+                onSuccess:ignoreStatus
+            }
+        );
+    } else
+    {
+        receiveMessage(evt);
+    }
+}
+
+
+function setFontColor(color)
+{
+
+	// clear the style from the presently selected color
+	oldcolorhighlighter = eval(selectedColor+"_color");
+	oldcolorhighlighter.style.borderColor = "fff";
+
+	// update the color in the form
+	document.msgform.color.value=color;
+	
+	// mark the color that's selected
+	colorhighlighter = eval(color+"_color");
+	colorhighlighter.style.borderColor = "aaa";
+	
+	// record the selectedColor
+	selectedColor = color;
+    
+    setCookie(color_cookie,color,365);
+	
+}
+
+// this function is from the chat app
+// RMD - this is the cookie expiry time being set
+
+function setCookie(name,value,days)
+{
+		if (days) {
+			var date = new Date();
+			date.setTime(date.getTime()+(days*24*60*60*1000));
+			var expires = "; expires="+date.toGMTString();
+		}
+		else expires = ""
+		document.cookie = name+"="+value+expires+"; path=/";
+}
+
+		
+// this is from webreference.com
+
+function getCookie(name)
+{
+  var dc = document.cookie;
+  var prefix = name + "=";
+  var begin = dc.indexOf("; " + prefix);
+  if (begin == -1)
+  {
+    begin = dc.indexOf(prefix);
+    if (begin != 0) return null;
+  } else
+    begin += 2;
+  var end = document.cookie.indexOf(";", begin);
+  if (end == -1)
+    end = dc.length;
+  return unescape(dc.substring(begin + prefix.length, end));
+}
+
+function ignoreStatus()
+{
+    // like the man say
+}
+
+
+window.onbeforeunload = window.onunload = QuitIntra;
+
+// -->
+</script>
+
+</head>
+
+<body bgcolor="#3366cc" text="#000000" link="#3366cc" vlink="#3366cc" alink="#ff9900" onload="init();">
+
+<form action="" name="mycookieform" id="mycookieform" onsubmit="return false;">
+<div id="header" class="bodyparts">
+<table cellspacing=0 cellpadding=0 border=0 width=100%><tr>
+<td rowspan="2">Intranet Portal</td>
+<td align=right>You are logged in as: <input type="text" name="myname" class="inputelement"></td></tr>
+<tr>
+<td align=right>
+<a href="#" onclick="resetName(); return false;">Change Username?</a><!-- 
+<img onclick="setName();" onmouseover="this.style.cursor='hand';" id="loginbutton" src="images/login.gif" width="42" height="14" hspace="2" vspace="0" border="0" alt="LogIn"><img onclick="logOut();" onmouseover="this.style.cursor='hand';" id="logoutbutton" src="images/logout-gray.gif" width="38" height="14" hspace="0" vspace="0" border="0" alt="LogOut">
+ --></td></tr></table>
+</div>
+</form>
+<div id="mainbody" class="bodyparts">
+<table cellspacing=0 cellpadding=0 border=0 width=100%><tr><td valign=top>
+
+<!-- Chat & System Monitor -->
+<form action="" method="post" id="msgform" name="msgform" onsubmit="updateChat();return false;">
+<input type="hidden" name="kn_expires" value="+43200">
+<input type="hidden" name="displayname">
+<input type="hidden" name="color">
+
+<!-- <img src="images/chatterbox.gif" width="171" height="14" hspace="0" vspace="0" border="0" alt="Chat & System Monitor"> -->
+
+<span class="subheader">Chatterbox</span>
+
+<div id="chatdiv" class="chatchat">
+
+</div>
+
+<table cellspacing=0 cellpadding=0 border=0 style="border-top: 2px solid fff;"><tr><td><input type="text" name="kn_payload" class="inputelement" size=40></td><td><img onclick="updateChat();" onmouseover="this.style.cursor='hand';" src="images/sayit.gif" width="37" height="14" hspace="3" vspace="0" border="0" alt="Say It"></td><td>&nbsp;&nbsp;&nbsp;</td>
+<td>
+<table cellspacing=0 cellpadding=0 border=0><tr><td>
+<div id="black_color" onclick="setFontColor('black');" onmouseover="this.style.cursor='hand';" style="position:relative; border: 2px solid fff; width:12px; height:12px; background='000000';"></div></td><td>
+<div id="green_color" onclick="setFontColor('green');" onmouseover="this.style.cursor='hand';" style="position:relative; border: 2px solid fff; width:12px; height:12px; background='33cc00';"></div></td><td>
+<div id="orange_color" onclick="setFontColor('orange');" onmouseover="this.style.cursor='hand';" style="position:relative; border: 2px solid fff; width:12px; height:12px; background='ff9900';"></div></td><td>
+<div id="blue_color" onclick="setFontColor('blue');" onmouseover="this.style.cursor='hand';" style="position:relative; border: 2px solid fff; width:12px; height:12px; background='3366cc';"></div></td><td>
+<div id="purple_color" onclick="setFontColor('purple');" onmouseover="this.style.cursor='hand';" style="position:relative; border: 2px solid fff; width:12px; height:12px; background='cc99ff';"></div>
+</td>
+<!-- <td valign="middle">
+&nbsp;&nbsp;Display Images <input align="absbottom" type="checkbox" name="toggleImg" value="" checked="true" onclick="toggleChatImages();">
+</td> -->
+</tr></table>
+
+</td></tr></table>
+
+</form>
+
+<!-- end Chat & System Monitor --> 
+
+
+<!-- CUSTOMER ISSUES MONITOR-->
+
+<table cellspacing=0 cellpadding=0 width=550 border=0>
+<tr>
+<td align=left valign="middle" class="subheader">
+    Top Customer Issues
+</td>
+<td align=right valign="middle">
+    <a href="/excel2html/customer_issues.html" target="_blank">View Entire Report</a>
+</td>
+</tr>
+</table>
+
+<div id="customersdiv" class="updateupdate">
+<!-- 1/7/03 RMD adjusted the spreadsheet w/ last updated date -->
+<table id="customerissuestable" class="kn_excel" cellspacing="0" cellpadding="3" border="0" width="100%" kn_from="/what/customers/overview" do_max_n="1" exclude_rows="0" exclude_cols="4,5,6,7,8,9,10" max_rows="100">
+
+<tr>
+    <td class="tblheaderleft">Customer</td>
+    <td class="tblheaderleft">Status</td>
+    <td class="tblheaderleft">Issues</td>
+    <td class="tblheaderleft">Product</td>
+</tr>
+
+</table>
+
+</div>
+
+<!-- END  MONITOR -->
+
+<br>
+
+<!-- Update monitor-->
+<!--
+<table cellspacing=0 cellpadding=0 width=550 border=0>
+<tr>
+<td align=left valign="middle" class="subheader">
+    Top New Customer Prospects
+</td>
+<td align=right valign="middle">
+    <a href="/excel2html/top_prospects.html" target="_blank" onclick="alert('No report is available\nat this time.'); return false;">View Entire Report</a>
+</td>
+</tr></table>
+
+<div id="prospectsdiv" class="updateupdate">
+
+<table id="updatetable" class="kn_excel" cellspacing="0" cellpadding="3" border="0" width="100%" kn_from="/what/prospects" do_max_n="1">
+</table>
+
+</div>
+-->
+
+<!-- end Update Monitor -->
+
+
+<br>
+
+
+</td><td valign=top><img src="images/10x10.gif" width="10" height="10" hspace="0" vspace="0" border="0" alt=""></td><td valign=top>
+
+<!-- end Presence -->
+
+
+<table cellspacing=0 cellpadding=0 width=219 border=0>
+<tr>
+<td align=left valign="middle" class="subheader">
+    Intranet Sites
+</td>
+</tr></table>
+
+<div id="newsdiv" class="">
+<iframe id="newsframe" name="newsframe" src="sitelist.html" class="newsframe" frameBorder=no scrolling=yes></iframe>
+</div>
+
+
+<!-- Presence -->
+
+<table cellspacing=0 cellpadding=0 width=219 border=0>
+<tr>
+<td align=left valign="middle" class="subheader">
+    Who's Online?
+</td>
+<td align=right><img onclick="flipPresence();" onmouseover="this.style.cursor='hand';" src="images/presence_custom.gif" width="19" height="14" hspace="2" vspace="2" border="0" alt="Custom Status Message"><img onclick="flipShortcut();" onmouseover="this.style.cursor='hand';" src="images/presence_quick.gif" width="19" height="14" hspace="0" vspace="2" border="0" alt="Status Message Shortcuts"></td></tr></table>
+
+
+<div id="presdiv" class="prespres">
+
+
+</div>
+
+</td></tr><tr><td colspan=3>
+
+<br>
+
+<!-- DIRECTORY -->
+
+<!--
+<img src="images/intranetsites.gif" width="118" height="14" hspace="0" vspace="0" border="0" alt="Intranet Sites & News"><div id="newsholder" name="newsholder" class="newsholder">
+
+
+<table cellspacing=0 cellpadding=0 width=550 border=0>
+<tr>
+<td align=left valign="middle" class="subheader">
+    
+</td>
+</tr></table>
+
+<div id="newsindex" name="newsindex" style="position:absolute; top: 0px; left: 0px; width:199px; height:298px; background-color: ddd; border-right: 1px solid #666666;">
+
+<div onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="showNews('sitelist.html');" class="newslist">Intranet Site List</div>
+
+<div onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="showNews('bill/news.html');" class="newslist">CEO News</div>
+
+<div onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="showNews('engineering/news.html');" class="newslist">Engineering News</div>
+
+<div onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="showNews('marketing/news.htm');" class="newslist">Marketing News</div>
+
+<div onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="showNews('sales/news.html');" class="newslist">Sales News</div>
+
+<div onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="showNews('HR/news.html');" class="newslist">HR News</div>
+
+</div>
+
+
+<div id="newsboxes" name="newsboxes" style="position:relative; width:576px; height:298px; background-color: ddd; border: 1px solid #666666;">
+
+<iframe id="newsframe" name="newsframe" src="sitelist.html" class="newsframe" frameBorder=no scrolling=yes></iframe>
+
+</div>
+
+-->
+
+<!-- END DIRECTORY -->
+
+
+
+</td></tr></table>
+
+
+
+
+</div>
+
+
+<!-- presence shortcut div -->
+
+<div id="shortcutdiv" class="presenceform">
+<table cellspacing=0 cellpadding=3 border=0 width=100%><tr><td bgcolor="#cccccc" class="tblheaderright"><b>Shortcuts for Status Messages:</b></td></tr>
+<tr><td>
+<span onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="quickUpdatePresence('In The Office');"><li>In The Office</li></span><br>
+
+<span onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="quickUpdatePresence('In A Meeting');"><li>In A Meeting</li></span><br>
+
+<span onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="quickUpdatePresence('Away From Desk');"><li>Away From Desk</li></span><br>
+
+<span onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="quickUpdatePresence('At Lunch');"><li>At Lunch</li></span><br>
+
+<span onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="quickUpdatePresence('Working From Home');"><li>Working From Home</li></span><br>
+
+<span onmouseover="this.style.background='ff9900';this.style.cursor='hand';" onmouseout="this.style.background='';" onmousedown="quickUpdatePresence('Out of Office');"><li>Out of Office</li></span>
+
+</td></tr></table>
+</div>
+
+<!-- end presence shortcut div -->
+
+
+<!-- hidden content div for presence id management -->
+
+<div id="presholder" STYLE="display:none;">
+<!-- This as a proxy for managing the user id value that can't appear in prestable-->
+<table id="presholdertable" kn_topic="/what/intranet/people" kn_do_max_age="infinity" kn_onmessage="addpresrow('yeah');">
+<tr bgcolor="#ddd"><td><b>Id</b></td><td><b>Name</b></td><td><b>Status</b></td></tr>
+</table>
+</div>
+
+<!-- end hidden content div -->
+
+
+<!-- hidden update form div -->
+
+<div id="updateformdiv" class="updateform">
+
+<form action="" method="post" id="updateform" name="updateform" onsubmit="return false;">
+<table width=100% cellspacing=0 cellpadding=5 border=0><tr><td valign=top><img src="images/addupdateform.gif" width="65" height="17" hspace="0" vspace="0" border="0" alt="Add Update"></td><td align=right valign=top><img onclick="document.all.updateformdiv.style.visibility='hidden';" onmouseover="this.style.cursor='hand';" src="images/closebutton.gif" width="14" height="14" hspace="0" vspace="0" border="0" alt="Close Window"></td></tr></table>
+<input type="hidden" name="kn_expires" value="+630000">
+<input type="hidden" name="displayname">
+<table cellspacing=3 cellpadding=3 border=0><tr><td>Filename:<br><input type="text" name="docname" class="inputelement"></td></tr><tr><td>URL:<br><input type="text" name="url" value="http://" class="inputelement"></td></tr><tr><td>Description of Update:<br><textarea cols="30" rows="10" name="why" class="textareaelement"></textarea></td></tr><tr><td><select name="category" class="inputelement">
+<option>Select Category:</option>
+<option value="Administration">Administration</option>
+<option value="Engineering">Engineering</option>
+<option value="ExecTeam">ExecTeam</option>
+<option value="Fun">Fun</option>
+<option value="Marketing">Marketing</option>
+<option value="Sales">Sales</option>
+</select></td></tr><tr><td>or enter another category:<br><input type="text" name="othercategory" class="inputelement"></td></tr><tr><td><img onclick="submitUpdate();" onmouseover="this.style.cursor='hand';" src="images/submitupdate.gif" width="77" height="14" hspace="0" vspace="2" border="0" alt="Submit Update"></td></tr></table>
+
+</div>
+</form>
+
+<!-- end hidden update form divs -->
+
+
+<!-- hidden linklog form div -->
+
+<div id="linkformdiv" class="linkform">
+
+<form action="" method="post" id="linkform" name="linkform" onsubmit="return false;">
+<table width=100% cellspacing=0 cellpadding=5 border=0><tr><td valign=top><img src="images/addlinkform.gif" width="48" height="14" hspace="0" vspace="0" border="0" alt="Add Link"></td><td align=right valign=top><img onclick="document.all.linkformdiv.style.visibility='hidden';" onmouseover="this.style.cursor='hand';" src="images/closebutton.gif" width="14" height="14" hspace="0" vspace="0" border="0" alt="Close Window"></td></tr></table>
+<input type="hidden" name="kn_expires" value="+630000">
+<input type="hidden" name="displayname">
+<table cellspacing=3 cellpadding=3 border=0><tr><td>Filename:<br><input type="text" name="linkname" class="inputelement"></td></tr><tr><td>URL:<br><input type="text" name="url" value="http://" class="inputelement"></td></tr><tr><td>Description of Link:<br><textarea cols="30" rows="10" name="why" class="textareaelement"></textarea></td></tr><tr><td><select name="category" class="inputelement" id="category">
+<option>Select Category:</option>
+<option value="BizNews">BizNews</option>
+<option value="Gadget Geeks">Gadget Geeks</option>
+<option value="Fun">Fun</option>
+</select></td></tr><tr><td>or enter another category:<br><input type="text" name="othercategory" class="inputelement"></td></tr><tr><td><img onclick="submitLink();" onmouseover="this.style.cursor='hand';" src="images/submitlink.gif" width="62" height="14" hspace="0" vspace="2" border="0" alt="Submit Link"></td></tr></table>
+
+</div>
+
+</form>
+
+<!-- end hidden linklog form div -->
+
+
+<!-- hidden presence form -->
+
+<div id="presenceformdiv" class="presenceform">
+
+<form action="" method="post" id="presform" name="presform" onsubmit="return false;">
+<input type="hidden" name="kn_id">
+<input type="hidden" name="displayname">
+<input type="hidden" name="kn_expires" value="+630000">
+<table cellspacing=0 cellpadding=3 border=0 width=100%><tr><td colspan=2 bgcolor="#cccccc" class="tblheaderright"><b>Custom Status Message:</b></td></tr><tr><td width=79><input type="text" name="kn_payload" size="20" maxlength="110" class="inputelement"></td><td width=79><img onclick="updatePresence();" onmouseover="this.style.cursor='hand';" src="images/updatestatus.gif" width="75" height="14" hspace="0" vspace="0" border="0" alt="Update Status"></td></tr></table>
+</div>
+</form>
+
+<!-- end hidden presence form -->
+
+</body>
+</html>

@@ -1,0 +1,401 @@
+
+body {
+font-family: verdana,arial,sans-serif;
+font-size: 11px;
+}
+
+ul {
+font-size: 11px;
+}
+
+li {
+font-size: 11px;
+}
+
+h2 {
+margin-top: 10px;
+font-size: 18px;
+font-weight: bold;
+}
+
+h3 {
+font-family: verdana,arial,sans-serif;
+margin-top: 10px;
+font-size: 14px;
+font-weight: bold;
+}
+
+div {
+font-size: 11px;
+}
+
+.hideme {
+//		position: relative;
+padding: 5px 5px 5px 5px;
+background-color: ddd;
+border: 1px solid ccc;
+font-size: 11px;
+//	visibility: hidden;
+}
+
+.chatchat {
+position: relative;
+padding: 5px 5px 5px 5px;
+background-color: ffffff;
+border: 1px solid #666666;
+font-size: 11px;
+line-height:16px;
+height: 236px;
+width: 550px;
+overflow-x: auto;
+overflow-y: scroll;
+scrollbar-3dlight-color:;
+scrollbar-arrow-color:;
+scrollbar-base-color:;
+scrollbar-darkshadow-color:;
+scrollbar-face-color:;
+scrollbar-highlight-color:;
+scrollbar-shadow-color:;
+}
+
+.updateupdate {
+position: relative;
+padding: 0px 0px 0px 0px;
+background-color: ffffff;
+border: 1px solid #666666;
+font-size: 11px;
+height: 200px;
+width: 550px;
+overflow-x: auto;
+overflow-y: scroll;
+scrollbar-3dlight-color:;
+scrollbar-arrow-color:;
+scrollbar-base-color:;
+scrollbar-darkshadow-color:;
+scrollbar-face-color:;
+scrollbar-highlight-color:;
+scrollbar-shadow-color:;
+}
+
+.linklink {
+position: relative;
+padding: 0px 0px 0px 0px;
+background-color: ffffff;
+border: 1px solid #666666;
+font-size: 11px;
+height: 156px;
+width: 550px;
+overflow-x: auto;
+overflow-y: scroll;
+scrollbar-3dlight-color:;
+scrollbar-arrow-color:;
+scrollbar-base-color:;
+scrollbar-darkshadow-color:;
+scrollbar-face-color:;
+scrollbar-highlight-color:;
+scrollbar-shadow-color:;
+}
+
+#presdiv, #newsdiv {
+position: relative;
+padding: 6px;
+background-color: fff;
+border: 1px solid #666666;
+font-size: 11px;
+height: 236px;
+width: 219px;
+overflow-x: auto;
+overflow-y: auto;
+scrollbar-3dlight-color:;
+scrollbar-arrow-color:;
+scrollbar-base-color:;
+scrollbar-darkshadow-color:;
+scrollbar-face-color:;
+scrollbar-highlight-color:;
+scrollbar-shadow-color:;
+margin-bottom:36px;
+}
+
+.presenceform {
+position: absolute;
+top: 118px;
+left: 580px;
+padding: 0px 0px 0px 0px;
+background-color: fff;
+border: 1px solid #666666;
+border-right: 3px solid #666666;
+border-bottom: 3px solid #666666;
+font-size: 11px;
+line-height: 15px;
+width: 219px;
+overflow-x: no;
+overflow-y: no;
+visibility: hidden;
+scrollbar-3dlight-color:;
+scrollbar-arrow-color:;
+scrollbar-base-color:;
+scrollbar-darkshadow-color:;
+scrollbar-face-color:;
+scrollbar-highlight-color:;
+scrollbar-shadow-color:;
+}
+
+.updateform {
+position: absolute;
+top: 200px;
+left: 360px;
+padding: 0px 0px 0px 0px;
+background-color: fff;
+border: 5px solid #666666;
+font-size: 11px;
+width: 252px;
+overflow-x: no;
+overflow-y: no;
+visibility: hidden;
+scrollbar-3dlight-color:;
+scrollbar-arrow-color:;
+scrollbar-base-color:;
+scrollbar-darkshadow-color:;
+scrollbar-face-color:;
+scrollbar-highlight-color:;
+scrollbar-shadow-color:;
+}
+
+.linkform {
+position: absolute;
+top: 380px;
+left: 360px;
+padding: 0px 0px 0px 0px;
+background-color: fff;
+border: 5px solid #666666;
+font-size: 11px;
+width: 252px;
+overflow-x: no;
+overflow-y: no;
+visibility: hidden;
+scrollbar-3dlight-color:;
+scrollbar-arrow-color:;
+scrollbar-base-color:;
+scrollbar-darkshadow-color:;
+scrollbar-face-color:;
+scrollbar-highlight-color:;
+scrollbar-shadow-color:;
+}
+
+
+p {
+font-size: 11px;
+}
+
+b.systemmsg_b_color {
+font-size: 11px;
+font-weight: bold;
+color: aa0000;
+}
+
+b.systemmsg_m_color {
+font-size: 11px;
+font-weight: normal;
+color: aa0000;
+}
+
+b.systemtime {
+font-size: 10px;
+font-weight: normal;
+color: 999999;
+}
+
+b.black_b_color {
+font-size: 11px;
+font-weight: bold;
+color: 000000;
+}
+
+b.black_m_color {
+font-size: 11px;
+font-weight: normal;
+color: 000000;
+}
+
+b.green_b_color {
+font-size: 11px;
+font-weight: bold;
+color: 33cc00;
+}
+
+b.green_m_color {
+font-size: 11px;
+font-weight: normal;
+color: 33cc00;
+}
+
+b.orange_b_color {
+font-size: 11px;
+font-weight: bold;
+color: ff9900;
+}
+
+b.orange_m_color {
+font-size: 11px;
+font-weight: normal;
+color: ff9900;
+}
+
+b.blue_b_color {
+font-size: 11px;
+font-weight: bold;
+color: 3366cc;
+}
+
+b.blue_m_color {
+font-size: 11px;
+font-weight: normal;
+color: 3366cc;
+}
+
+b.purple_b_color {
+font-size: 11px;
+font-weight: bold;
+color: cc99ff;
+}
+
+b.purple_m_color {
+font-size: 11px;
+font-weight: normal;
+color: cc99ff;
+}
+
+td {
+font-size: 11px;
+}
+
+.newsholder {
+
+position: relative;
+height: 300px;
+width: 778px;
+background-color: ddd;
+border: 1px solid #666666;
+font-size: 11px;
+visibility: visible;
+
+}
+
+.newslist {
+
+position: relative;
+height: 18px;
+width: 199px;
+padding: 5px 5px 5px 5px;
+background-color: ddd;
+border-bottom: 1px solid #666666;
+font-size: 11px;
+visibility: visible;
+
+}
+
+.newsframe {
+
+width:200px;
+padding: 0px 0px 0px 0px;
+
+}
+
+.bodyparts {
+
+position: relative;
+width: 800px;
+background-color: fff;
+border: 1px solid black;
+padding: 10px 10px 10px 10px;
+
+}
+
+.tblcontent {
+
+background-color: ffffff;
+
+}
+
+.tblheaderleft {
+
+background-color: ddd;
+font-size: 11px;
+font-weight: bold;
+border-right: 1px solid #666666;
+border-bottom: 1px solid #666666;
+
+}
+
+.tblheaderright {
+
+background-color: ddd;
+font-size: 11px;
+font-weight: bold;
+border-bottom: 1px solid #666666;
+
+}
+
+.inputelement {
+background-color: eee;
+font-size: 11px;
+border: 1px solid #666666;
+height: 14px;
+line-height : 10px;
+padding-left: 2px;
+}
+
+.textareaelement {
+background-color: eee;
+font-size: 11px;
+border: 1px solid #666666;
+height: 100px;
+line-height : 12px;
+padding: 2px 2px 2px 2px;
+}
+
+.updateupdate
+{
+    height: 236px;
+}
+
+.updateupdate td
+{
+    border-right:1px solid #666;
+    border-bottom:1px solid #666;
+    vertical-align:top;
+}
+
+.subheader
+{
+    font-size:14px;
+    font-weight:bold;
+}
+
+span.status-connecting
+{
+    color:#aaa;
+    font-style:italic;
+} 
+
+span.status-idle
+{
+    color:#aaa;
+}
+
+span.status-active
+{
+    color:#000;
+}
+
+button.btn
+{
+    background-color:#ff9900;
+    color:#000;
+    font-family:"arial narrow", arial;
+    padding:0px 0px;
+    margin:0px;
+    line-height:11px;
+    font-size:11px;
+    height:20px;
+}
