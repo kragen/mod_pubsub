@@ -3,20 +3,28 @@
 <html>
 <head>
 <title>mod_pubsub Project Home</title>
-<style type="text/css" media="screen">@import "primary.css";</style>
+<style type="text/css">@import "mps.css";</style>
 </head>
 
 <body>
 
-<div id="header">
-<a href="http://sourceforge.net/projects/mod-pubsub">
-<h1><img border="0" src="mod_pubsub.png" alt="mod_pubsub"></h1>
-<p>Asynchronous publish and subscribe messaging for the Web...</a>
+<div id="main">
+
+<div id="serendipity_banner">
+<h1>mod_pubsub</h1>
+<h2>publish and subscribe messaging for the web.</h2>
+<br>
+<a href="http://sourceforge.net/">
+<img title="mod_pubsub: publish and subscribe messaging for the web."
+     alt="mod_pubsub: publish and subscribe messaging for the web."
+     src="pubsub.gif" width="185" height="72" border="0" align="left" valign="bottom">
+<img src="http://sourceforge.net/sflogo.php?group_id=66293&amp;type=2"
+     border="0" alt="[SourceForge]" align="right" valign="bottom"></a>
 </div>
 
-<br/>
+<br>
 
-<div id="content">
+&nbsp;
 
 <a href="http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=164088"
 onclick="window.open(this.href,this.target);return false" target="_blank">
@@ -26,22 +34,21 @@ onclick="window.open(this.href,this.target);return false" target="_blank">
 onclick="window.open(this.href,this.target);return false" target="_blank">
 <button>mod_pubsub Blog</button></a>
 
-<a href="http://www.mod-pubsub.org/kn_apps/blogchatter/"
-onclick="window.open(this.href,this.target);return false" target="_blank">
-<button>Blogchatter App</button></a>
-
 <a href="http://www.mod-pubsub.org/kn_apps/presence1/"
 onclick="window.open(this.href,this.target);return false" target="_blank">
 <button>Caf&eacute; PubSub (Chat)</button></a>
 
 <a href="http://sourceforge.net/mail/?group_id=66293"
 onclick="window.open(this.href,this.target);return false" target="_blank">
-<button>Mailing List Archives</button></a>
+<button>Mail List Archives</button></a>
 
-<h2>What is <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h2>
+<p> &nbsp; </p>
+
+<h3 class="serendipity_date">
+What is <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
 
 <p><a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>
-is a set of libraries, tools, and scripts that enable asynchronous
+is a set of libraries, tools, and scripts that enable
 <a href="http://www.infoworld.com/article/02/10/08/021010opwebserv_1.html"
 target="_blank">publish and subscribe</a> messaging over HTTP.
 <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> extends
@@ -49,24 +56,27 @@ target="_blank">publish and subscribe</a> messaging over HTTP.
 its <a href="http://perl.apache.org/" target="_blank">mod_perl</a>
 Web Server <a href="http://modules.apache.org/" target="_blank">module</a>.</p>
 
-<h2>What's the benefit of developing with
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h2>
+<h3 class="serendipity_date">
+What's the benefit of developing with
+<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
 
 <p><a href="http://udell.roninhouse.com/bytecols/2001-11-26.html" target="_blank">
-Real-time data delivery</a> to &amp; from Web Browsers without refreshing;
+Real-time data delivery</a> to and from Web Browsers without refreshing;
 without installing client-side software; and without Applets, ActiveX,
-or Plug-ins.  This is useful for live portals &amp; dashboards and
+or Plug-ins.  This is useful for live portals and dashboards, and
 Web Browser notifications.</p>
 
-<h2>What about other Web Servers?  What if I have no Web Server?</h2>
+<h3 class="serendipity_date">
+What about other Web Servers?  What if I have no Web Server?</h3>
 
 <p><a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>'s
-scripts can be used with other Web Servers as well.
+scripts can be used with other Web Servers, as well.
 We also provide a separate, feature-compatible standalone PubSub Server
-written in Python that can be run from the command-line.</p>
+written in Python that is run from the command-line.</p>
 
-<h2>Are there any other products like
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h2>
+<h3 class="serendipity_date">
+Are there any other products like
+<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
 
 <p>One similar project is <a href="http://www.pushlets.com/"
 target="_blank">Pushlets</a>.  Unlike
@@ -78,21 +88,20 @@ and require Java programming.  With
 if you know how to use HTTP, you can do PubSub.
 Courtesy of <a href="http://www.knownow.com/" target="_blank">KnowNow</a>.</p>
 
-<h2>What programming languages does
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> support?</h2>
+<h3 class="serendipity_date">
+What programming languages does
+<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> support?</h3>
 
 <p>Besides a zero-install JavaScript library that runs within a
 Browser's Web page, we also offer embeddable libraries to connect
 applications written in C; Visual Basic, Visual C++, and C# using
 ActiveX, COM, .NET, or PocketPC; Python, Perl, PHP, and Ruby; and Java.
 These libraries allow asynchronous Web messaging -- PubSub over
-HTTP.  Our goal is to connect to as many platforms as possible.</p>
+HTTP.  Our goal is to connect as much as possible.</p>
 
-<h2>Cool, how can I try
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?
-&nbsp;&nbsp;&nbsp;  <a href="http://sourceforge.net/"> <img
-src="http://sourceforge.net/sflogo.php?group_id=66293&amp;type=2"
-border="0" alt="[SourceForge]"></a></h2>
+<h3 class="serendipity_date">
+Cool, how can I try
+<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
 
 <p><a href="http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=164088"
 target="_blank">Download</a> the
@@ -103,16 +112,14 @@ lists</a> to keep up to date on the development of
 <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>.
 And, feel free to peruse some of our technical documents:
 <a href="http://www.mod-pubsub.org/kn_docs/developer_guide.html" target="_blank">Developer Guide</a>,
-<a href="http://www.mod-pubsub.org/kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol</a>, and
-<a href="http://www.mod-pubsub.org/kn_docs/javascript_reference.html" target="_blank">JavaScript PubSub
-Library Reference</a>.
-</p>
+<a href="http://www.mod-pubsub.org/kn_docs/pubsub_protocol.html" target="_blank">PubSub
+Protocol</a>, and
+<a href="http://www.mod-pubsub.org/kn_docs/javascript_reference.html" target="_blank">JavaScript
+Library Reference</a>.</p>
 
-<div id="header">
-<br/>
+<div id="serendipity_banner">
 </div>
-
-<br/>
+</div>
 
 </body>
 </html>

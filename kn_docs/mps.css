@@ -1,0 +1,258 @@
+/* Common styles */
+BODY {
+    margin: 0px 100px;
+    background-color: #eee;
+    font-size: 13px;
+    font-family: verdana, arial, helvetica, sans-serif;
+    /*height: 8.5in;  Why?  does it set a minimum? */
+}
+
+P, TD, TH, DIV, SPAN {
+    font-family: verdana, arial, helvetica, sans-serif;
+}
+
+P, TD, TH, DIV
+{
+     /* border:1px solid violet; */
+}
+
+A {
+    color: #666633;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+A:hover {
+    text-decoration: underline;
+}
+
+#main
+{
+    width: auto;
+    background-color:#fff;
+    border-left:1px dashed #aaa;
+    border-right:1px dashed #aaa;
+    border-top:26px groove #77a477;
+    border-bottom:10px double #77a477;
+    margin-bottom:20px;
+}
+
+.skip
+{
+    display:none;
+}
+
+/* Header styles */
+#serendipity_banner {
+    height: 72px;
+    padding-left:20px;
+    padding-top:0px;
+}
+
+#serendipity_banner h1 {
+    font-size: 18px;
+    color: #fff;
+    font-style:italic;
+    margin: 0px 0px;
+    position:absolute;
+    top:2px;
+    right:120px;
+    text-align:right;
+}
+
+#serendipity_banner h2 {
+    font-size: 12px;
+    color: #c1c184;
+    margin: 0px 0px;
+    font-style:italic;
+    position:absolute;
+    right:120px;
+    top:30px;
+    text-align:right
+}
+
+#serendipity_banner img
+{
+    margin-top:10px;
+}
+
+
+/* Entries styles */
+
+
+#content {
+    width: auto;
+    margin-left:220px;
+    background-color:#fff;
+}
+
+.serendipity_Entry_Date {
+    margin: 20px;
+    width: auto;
+}
+
+.serendipity_title {
+   font-size: 18px;
+   color: #404040;
+   font-weight: bold;
+   border: 1px;
+   margin-bottom: 8px;
+   margin-top: 8px;
+}
+
+.serendipity_entry {
+    color: #404040;
+    line-height:20px;
+}
+
+.serendipity_date {
+    text-align: right;
+    color: #669966;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.serendipity_time {
+    font-size: 11px;
+    margin-top: 8px;
+    font-weight: bold;
+}
+
+/* This one doesn't seem to be used
+TD.serendipityEntriesBox {
+    background-color: #ffffff;
+    padding: 10px;
+    margin: 10px;
+}
+*/
+
+
+/* Sidebar styles */
+#serendipityRightSideBar {
+    width: 250px;
+    background-color: white;
+    padding: 20px;
+    vertical-align: top;
+}
+
+#serendipityLeftSideBar {
+    width: 180px;
+    background-color: white;
+    margin-left:20px;
+    vertical-align: top;
+    position:absolute;
+    float:left;
+    top:140px;
+}
+
+TABLE.serendipity_calendar TD {
+    font-size:11px;
+    padding: 3px;
+}
+TABLE.serendipity_calendar A {
+    font-weight: bold;
+    text-decoration:none;
+}
+
+TABLE.serendipity_calendar A:hover {
+    text-decoration:underline;
+}
+
+.serendipity_weekDayName {
+    background-color: #FFFFFF;
+    font-size:11px;
+    font-weight:bold;
+}
+
+/* Missing classes:  serendipity_calendarBlankDayFirstInRow, 
+serendipity_calendarBlankDay, serendipity_calendarDayLastInRow, serendipity_calendarDay, 
+serendipity_calendarDayFirstInRow, serendipity_calendarDayLastRow, 
+serendipity_calendarDayLastInLastRow */
+ 
+/* This one doesn't seem to be used */
+TD.serendipitySideBar {
+    width: 180px;
+    background-color: #ffffff;
+    padding: 10px;
+
+}
+
+.serendipitySideBarContent
+{
+    list-style : none;
+    padding:0px;
+    margin:0px;
+}
+
+.serendipityPlug, div.serendipityPlug A {
+    font-size: 11px;
+}
+
+.serendipitySideBarItem {
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.serendipitySideBarTitle {
+    color:#669966;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: normal;
+    margin-bottom: 8px;
+    border-bottom:1px solid #669966;
+}
+
+img.serendipityImageButton {
+    cursor: hand;
+}
+
+
+/* Comments styles */
+.serendipity_commentsTitle {
+    display: block;
+    background-color: #f2f4f6;
+    width: 100%;
+    border: 0px;
+    color: #404040;
+    font-size: 16px;
+    padding-left:8px;
+}
+
+TD.serendipity_commentsLabel {
+    font-size: 12px;
+    font-weight: bold;
+    width: 10%;
+    vertical-align: top;
+}
+
+TD.serendipity_comment {
+    padding-left:8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    color: #404040;
+}
+
+.serendipity_comment_source {
+    margin-top: 5px;
+}
+
+
+/* Admin styles */
+TD.serendipity_admin {
+    padding: 10px;
+}
+div.serendipity_admin_title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+div.serendipity_admin_list_title {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+td.serendipity_admin_list_item {
+    padding: 15px;
+}
