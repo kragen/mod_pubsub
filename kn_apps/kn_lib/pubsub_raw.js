@@ -1,5 +1,5 @@
-// pubsub.js - The PubSub JavaScript Library
-
+/*! @file pubsub_raw.js PubSub JavaScript library <p>Select the appropriate PubSub JavaScript Library build, one of: <dl> <dt><tt>kn_raw</tt></dt> <dd>unlocalized, debug, uncompressed</dd> <dt><tt>knl_raw</tt></dt> <dd>localized, debug, uncompressed</dd> <dt><tt>knp_raw</tt></dt> <dd>unlocalized, non-debug, uncompressed</dd> <dt><tt>knl</tt></dt> <dd>localized, debug, compressed [for development]</dd> <dt><tt>knp</tt></dt> <dd>unlocalized, non-debug, compressed [for production]</dd> </dl> <pre> <b>self.kn_config_connector = "pubsubl"; // define before kn_config() runs</b> </pre>
+ */
 // FIXME: Make long-lived connections work with IE 6+.
 
 // FIXME: Refactor this library so it has an ECMA runtime
@@ -40,8 +40,9 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.3 2003/03/25 06:04:26 ifindkarma Exp $
+// $Id: pubsub_raw.js,v 1.4 2003/04/19 00:19:58 ifindkarma Exp $
 
+////////////////////////////////////////////////////////////////////////
 // Notes on notation:
 // 1. local variable and parameter names with four or more
 //    characters prefixed by _l_ are compressed; at least one
@@ -67,7 +68,7 @@
 // generally because thay may be used in inter-window communication
 // among different microserver releases [i.e. debug vs. production]
 
-// /* */ is used for indentation before string constants. This
+// /**/ is used for indentation before string constants. This
 // particular one-line form of the C comment [with no * characters
 // inside it] is removed by the compressor.
 
@@ -92,23 +93,11 @@ function _kn_object() // args ...
     return _kn_object2(arguments);
 }
 
-// create an array from a list of elements; substitute for JavaScript
-// 1.2 array literals
-function _kn_array()
-{
-    var _l_result = new Array();
-    for (var i = 0; i < arguments.length; i ++)
-    {
-        _l_result[_l_result.length] = arguments[i];
-    }
-    return _l_result;
-}
-
 ////////////////////////////////////////////////////////////////////
 // CHARACTER-CODE LOOKUP TABLE
 //
 // charcode table for ancient, broken JavaScript implementations
-_kn_codes8 = _kn_array();
+_kn_codes8 = new Array();
 {
     var i;
     for (i = 1; i < 256; i ++)
@@ -141,9 +130,9 @@ _kn_codes8 = _kn_array();
 function _kn_Pool()
 {
     this._l_pool = //_
-        _kn_array();
+        new Array();
     this._l_freelist = //_
-        _kn_array();
+        new Array();
     this._l_freecount = 0;
 }
 
@@ -348,16 +337,22 @@ if (! self.kn_lang)
     kn_lang = '';
 if (! self.kn_response_flush)
     kn_response_flush = null;
+// deprecated, but we'll still have to allow it for the forseeable future
 if (self.kn_defaultHacks != null)
     kn_defaultHacks = _kn_utf8decode(kn_defaultHacks);
+if (self.kn_defaultOptions != null)
+    kn_defaultOptions = _kn_utf8decode(kn_defaultOptions);
 if (self.kn_appFrameAttributes != null)
     _kn_appFrameAttributes = _kn_utf8decode(kn_appFrameAttributes);
 
 if (self.kn_defaultHacks == null)
     kn_defaultHacks = null;
 
-// kn_maxHits is the number of events before a restart; tune it
-// to control memory consumption in older browsers
+if (self.kn_defaultOptions == null)
+    kn_defaultOptions = null;
+
+// kn_maxHits is the number of events before a restart; tune it to
+// control memory consumption in older browsers
 if (self.kn_maxHits == null)
     kn_maxHits = 3000;
 
@@ -369,14 +364,28 @@ if (self.kn_maxHits == null)
 if (self._kn_appFrameAttributes == null)
     _kn_appFrameAttributes = '';
 
-// FIXME: this is currently used in kn_xml_msg.js
-// XXX: this needs to be made internal to kn.js
-kn_retryInterval = 4000;
+// kn_retryInterval is the number of milliseconds the microserver will
+// wait before retrying an unacknowledged PubSub Server request; each time
+// the retry interval is reached, it is doubled for the next try, with
+// kn_maxRetryInterval as an upper bound (set these before loading the
+// microserver)
+if (self.kn_retryInterval == null)
+    kn_retryInterval = 4 * 1000;
+if (self.kn_maxRetryInterval == null)
+    kn_maxRetryInterval = 30 * 1000;
+
+// kn_maxBatchSize is the maximum number of items the microserver will
+// place in any single automatic batch request (set this before
+// loading the microserver -- see kn.maxBatchSize for adjustment at
+// runtime)
+if (self.kn_maxBatchSize == null)
+    kn_maxBatchSize = 10;
 
 // internal global variables
 _kn_tryingToInitTunnel=false;
 _kn_aboutToRunTunnel=false;
 _kn_heartbeat = 100; // milliseconds
+kn_heartbeat_ = _kn_heartbeat; // exposed
 // list of event sources indexed by window name
 _kn_paidInformants = _kn_object();
 
@@ -384,7 +393,6 @@ _kn_paidInformants = _kn_object();
 kn_argv = _kn_parseArgs();
 
 // the global microserver object
-kn = _kn_initMicroserver();
 
 function _kn_initMicroserver()
 {
@@ -396,10 +404,12 @@ function _kn_initMicroserver()
         kn_server = parent.kn_server;
         kn_blank = parent.kn_blank;
     } else {
+    
+
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.3 2003/03/25 06:04:26 ifindkarma Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.4 2003/04/19 00:19:58 ifindkarma Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -436,6 +446,14 @@ function _kn_initMicroserver()
             'displayname', _kn_$("Guest User") // the default
 
             );
+            
+          // call the handler to execute developer-defined code that 
+          // modifies auth properties before they are appended to kn
+          
+          if (self.kn_customInit)
+          {
+            self.kn_customInit();
+          }
 
         // implementation of kn_sendCallback
         kn._sendCallback = //_
@@ -477,7 +495,8 @@ function _kn_initMicroserver()
             var p =
                 ( "route add_route delete_route update_route add_journal" +
                   " notify add_topic clear_topic set_topic_property" +
-                  " add_notify delete_notify update_notify batch" ) .
+                  " delete_topic" +
+                  " add_notify delete_notify update_notify batch save_config" ) .
                 split(" ");
             for (var i = 0; i < p.length; i ++)
             {
@@ -533,7 +552,7 @@ function _kn_initMicroserver()
         kn._postFrame = null;
 
         kn._workQ = //_
-            _kn_array(); // deferred work list
+            new Array(); // deferred work list
         kn._workQcursor = 0;
         kn._worker = null;
         kn._postFrameBusy = false;
@@ -552,10 +571,14 @@ function _kn_initMicroserver()
             _kn_object();
 
         kn._argv = kn_argv; // this is the kn_argv of the owner window
+        // do not use directly; use _kn_debug() instead
         kn._debug = //_
-            kn._argv.kn_debug; // do not use directly; use _kn_debug() instead
-        kn._hacks = //_
-            kn._argv.kn_hacks; // do not use directly; use _kn_hacks() instead
+            kn._argv.kn_debug;
+        // do not use directly; use _kn_options() instead
+        kn._options = //_
+            kn._argv.kn_options || //_
+            kn._argv.kn_opts || //_
+            kn._argv.kn_hacks;
         kn_response_flush = kn._argv.kn_response_flush ?
             kn._argv.kn_response_flush :
             kn_response_flush;
@@ -621,6 +644,16 @@ function _kn_initMicroserver()
         if (self.kn_lastTag_) kn.lastTag_ = self.kn_lastTag_; // the server says
         if (kn._argv.kn_lastTag_) kn.lastTag_ = kn._argv.kn_lastTag_; // the url says
 
+        // automatic batching support
+        kn.maxBatchSize = kn_maxBatchSize;
+        if (kn._argv.kn_maxBatchSize) kn.maxBatchSize = parseInt(kn._argv.kn_maxBatchSize);
+
+        // automatic retry support
+        if (kn._argv.kn_retryInterval)
+            kn_retryInterval = parseInt(kn._argv.kn_retryInterval);
+        if (kn._argv.kn_maxRetryInterval)
+            kn_maxRetryInterval = parseInt(kn._argv.kn_maxRetryInterval);
+
         if (self.kn__wrapApp)
         {
             // allow a custom override for appwrapping
@@ -635,6 +668,8 @@ function _kn_initMicroserver()
     return kn;
 }
 
+kn = _kn_initMicroserver(true);
+
 // We handle our own JavaScript error logging with kn.lastError
 onerror = _kn_lastErrorHandler;
 
@@ -642,11 +677,12 @@ onerror = _kn_lastErrorHandler;
 // PUBLIC MICROSERVER INTERFACE
 //
 
+
 // implementation of kn.getHashCache; return serialization of
 // hashCache
 function _kn_getHashCache()
 {
-    var keys = _kn_array();
+    var keys = new Array();
     for (var key in this._l_hashCache1)
     {
         keys[keys.length] = key;
@@ -940,7 +976,7 @@ function _kn_unsubscribe(rid, handler)
 // implementation of kn.sendQueue
 function _kn_sendQueue(queue, options, handler)
 {
-    var e = _kn_object("kn_batch", _kn_array());
+    var e = _kn_object("kn_batch", new Array());
     for (var i = 0; i < queue.length; i ++)
     {
         e.kn_batch[i] = kn_encodeRequest(queue[i]);
@@ -1086,7 +1122,7 @@ function _kn_sendCallback(theEvent, theWindow)
         ! kn._isRestartingP)
     {
         kn._hits ++;
-        if ((! _kn_hacks("noswap")) &&
+        if ((! _kn_options("noswap")) &&
             (kn._hits > kn_maxHits))
         {
             _kn_restartTunnel();
@@ -1115,11 +1151,11 @@ function _kn_checkFlag(flag, parameters)
     return false;
 }
 
-// implementation of kn__hacks()
-function _kn_hacks(flag)
+// implementation of kn__options()
+function _kn_options(flag)
 {
-    return self.kn ? (_kn_checkFlag(flag, kn._hacks) ||
-                        _kn_checkFlag(flag, kn_defaultHacks)) : false;
+    return self.kn ? (_kn_checkFlag(flag, kn._options) ||
+                      _kn_checkFlag(flag, kn_defaultOptions || kn_defaultHacks)) : false;
 }
 
 // implementation of kn__debug()
@@ -1134,11 +1170,11 @@ function _kn_debug(flag)
 // implementation of kn__submitRequest
 function _kn_submitRequest(e)
 {
-    // this function supports the 'single' and 'noforward' hacks
+    // this function supports the 'single' and 'noforward' options
     var _l_sent = false;
 
-    // the 'single' hack disables batching entirely
-    if (_kn_hacks("single") &&
+    // the 'single' option disables batching entirely
+    if (_kn_options("single") &&
         ((! kn._batch_list) ||
          (! kn._batch_list.length)))
     {
@@ -1154,19 +1190,19 @@ function _kn_submitRequest(e)
                          'return obj.handler(evt, obj.data);'
                 );
 
-        // the 'noforward' hack disables status forwarding
-        if (! _kn_hacks("noforward"))
+        // the 'noforward' option disables status forwarding
+        if (! _kn_options("noforward"))
             e.kn_status_to = kn.tunnelURI;
         return _kn_submitFormInFrame(e, kn._postFrame);
     }
 
     if (! kn._batch_list)
-        kn._batch_list = _kn_array();
+        kn._batch_list = new Array();
     if ((kn._batch_list.length == 0) ||
         (kn._batch_list[0] == e))
     {
         kn._batch_list[0] = e;
-        if (kn_isReady(kn._postFrame) && ! kn._postFrameBusy)
+        if (! kn._postFrameBusy)
         {
             var _l_batch = //_
                 _kn_object("do_method", "batch");
@@ -1176,8 +1212,8 @@ function _kn_submitRequest(e)
             _l_handler.onError = kn._onPostError;
             _l_batch.kn_status_from =
                 _kn_setStatusHandler(_l_handler);
-            // the 'noforward' hack disables status forwarding
-            if (! _kn_hacks("noforward"))
+            // the 'noforward' option disables status forwarding
+            if (! _kn_options("noforward"))
                 _l_batch.kn_status_to = kn.tunnelURI;
             _l_batch.kn_batch = kn._batch_list;
 
@@ -1198,7 +1234,7 @@ function _kn_submitRequest(e)
             }
         }
     }
-    else
+    else if (kn._batch_list.length < kn.maxBatchSize)
     {
         kn._batch_list[kn._batch_list.length] = e;
         // since we've just batched up the request, we can return true.
@@ -1240,14 +1276,13 @@ function _kn_isArray(obj)
 // returns false until the request has been sent
 function _kn_submitFormInFrame(e, f)
 {
-    if (!kn_isReady(f) ||
-        ((f == kn._postFrame) && kn._postFrameBusy)) {
+    if (f == kn._postFrame && kn._postFrameBusy) {
         return false; // signal the workQ to keep trying
     }
 
     if (f == kn._postFrame)
         kn._postFrameBusy=true;
-
+        
     var _l_html;
     _l_html =
         '<html>\n'+
@@ -1377,18 +1412,93 @@ function _kn_submitFormInFrame(e, f)
         f.location.replace(kn_blank);
     }
 
-    f.setTimeout('parent._kn_retry()',kn_retryInterval);
+    if (f == kn._postFrame)
+    {
+        // Netscape Navigator 4.x has a serious setTimeout bug, so we use
+        // a different window's timer list there; other browsers (Netscape
+        // 6/Mozilla, at least) need to do this from the parent window to
+        // avoid occasional JavaScript errors
+        if ((navigator.appVersion.charAt(0) == '4') &&
+            (navigator.appVersion.indexOf("MSIE ") == -1))
+        {
+            kn._postFrame.setTimeout('parent._kn_retry()',kn_retryInterval);
+        }
+        else
+        {
+            kn._ownerWindow.setTimeout('_kn_retry()',kn_retryInterval);
+        }
+    }
     return true; // signal to workQ to stop retrying
 }
 
 function _kn_retry()
 {
+    // un-hook from the leader election train
+    kn._ownerWindow. //_
+        _kn_postPending = false;
+    // try to start the tunnel if it's not running already
+    if ((!kn.isLoadedP_) ||
+        // sometimes the post frame becomes unlinked (in kn_popup, for
+        // example)
+        ! kn_isReady(kn._postFrame) ||
+        // this is a very odd and illegal state: F5 has reloaded
+        // the frameset, including a tunnel frame from a past life
+        // (which never loads, thus preventing the KN frameset's own
+        // _kn_framesetOnLoad from ever being called
+        (!kn.leaderWindow.kn) ||
+        (!kn.leaderWindow.kn.isLoadedP_) ||
+        (!kn.leaderWindow.kn.tunnelRunning_))
+        // this is a normal case; we are the leader, but have not been
+        // ratified in office yet
+    {
+        // postpone the work and initiate the leader election algorithm
+        if (kn._ownerWindow == kn.leaderWindow)
+        { 
+            // tie onto the leader election train
+            kn._ownerWindow. //_
+                _kn_postPending = true;
+            if (!_kn_tryingToInitTunnel)
+                _kn_initTunnel();
+        }
+        else
+        {
+            // Netscape Navigator 4.x has a serious setTimeout bug, so we use
+            // a different window's timer list there; other browsers (Netscape
+            // 6/Mozilla, at least) need to do this from the parent window to
+            // avoid occasional JavaScript errors
+            if ((navigator.appVersion.charAt(0) == '4') &&
+                (navigator.appVersion.indexOf("MSIE ") == -1) &&
+                kn_isReady(kn._postFrame) &&
+                kn._postFrame.parent == kn._ownerWindow)
+            {
+                kn._postFrame.setTimeout('parent._kn_retry()',kn_retryInterval);
+            }
+            else
+            {
+                kn._ownerWindow.setTimeout('_kn_retry()',kn_retryInterval);
+            }
+        }
+        return;
+    }
     if (kn._postFrameBusy)
     {
         kn_retryInterval = kn_retryInterval * 2;
+        if (kn_retryInterval > kn_maxRetryInterval) kn_retryInterval = kn_maxRetryInterval;
         if (kn._postFrame.stop) kn._postFrame.stop();
         kn._postFrame.location.replace(kn_blank);
-        kn._postFrame.setTimeout('parent._kn_retry()',kn_retryInterval);
+        // Netscape Navigator 4.x has a serious setTimeout bug, so we use
+        // a different window's timer list there; other browsers (Netscape
+        // 6/Mozilla, at least) need to do this from the parent window to
+        // avoid occasional JavaScript errors
+        if ((navigator.appVersion.charAt(0) == '4') &&
+            (navigator.appVersion.indexOf("MSIE ") == -1))
+        {
+            kn._postFrame.setTimeout('parent._kn_retry()',kn_retryInterval);
+        }
+        else
+        {
+            kn._ownerWindow.setTimeout('_kn_retry()',kn_retryInterval);
+        }
         if (_kn_debug()) //#
         { //#
             kn._ownerWindow.status = //#
@@ -1407,9 +1517,16 @@ function _kn_initTunnel(force)
 {
     _kn_tryingToInitTunnel = true;
 
-    if (!kn.isLoadedP_) {
-        // spin cycle, waiting to resolve an F5 or control-N reload race condition
-        kn._ownerWindow.setTimeout("_kn_initTunnel()",_kn_heartbeat);
+    if (! kn.isLoadedP_ ||
+        ! kn_isReady(kn.tunnelFrame_))
+    {
+        // spin cycle, waiting to resolve an F5 or control-N reload
+        // race condition, or a temporarily inaccessible tunnel frame
+        // (e.g. pop-up window proxy was closed for some reason)
+
+        kn._ownerWindow.setTimeout("_kn_initTunnel(" +
+                                   (force || "") +
+                                   ")",_kn_heartbeat);
         return;
     }
 
@@ -1430,7 +1547,7 @@ function _kn_initTunnel(force)
         if ((navigator.appName.indexOf("Microsoft") != -1) &&
             (navigator.platform == "Win32") &&
             (kn._ownerWindow == top) &&
-            ! _kn_hacks("quiet"))
+            ! _kn_options("quiet"))
             alert(
                 _kn_$("[KNJS:IPC] This web application uses local cookies for communication. Without permission to set local cookies, Internet Explorer on Windows can only support one such web application at a time.")
                 );
@@ -1448,9 +1565,9 @@ function _kn_initTunnel(force)
                 );
     }
 
-    if (_kn_debug()) kn.tunnelFrame_.document.bgColor="blue"; //#
+    if (_kn_debug() && kn_isReady(kn.tunnelFrame_)) kn.tunnelFrame_.document.bgColor="blue"; //#
 
-    if (_l_noOtherCookies || force)
+    if ((_l_noOtherCookies || force) && kn_isReady(kn.tunnelFrame_))
         _kn_launchTunnel();
     else  // gives the leader-election alg 5 beats to converge
         setTimeout("_kn_launchTunnel()",5*_kn_heartbeat);
@@ -1614,9 +1731,13 @@ function _kn_leaderScanner()
         } //#
         kn._isLeaderP = false;
         _kn_silenceWindow(kn.tunnelFrame_);
-        if (_kn_debug()) kn.tunnelFrame_.document.bgColor="green"; //#
+        if (_kn_debug() && kn_isReady(kn.tunnelFrame_)) kn.tunnelFrame_.document.bgColor="green"; //#
         _kn_tryingToInitTunnel=false;
         document.cookie = _kn_escape(kn.TFN_) + "=closed;path=/";
+        // do what _kn_assumeLeadership() would have done
+        if (kn._ownerWindow. //_
+            _kn_postPending) //_
+            _kn_retry();
         return; // short-circuit the rest
     }
 
@@ -1650,7 +1771,21 @@ function _kn_leaderScanner()
 
 function _kn_checkTunnel() {
     // 3. Do I need to restart my tunnel?
-    if (kn._isLeaderP && kn.tunnelRunning_ &&
+    
+    /* check if tunnel frame became radioactive. A dead frame is a dead tunnel, no? */
+    
+    if (kn._isLeaderP && kn.tunnelRunning_ && !kn_isReady(kn.tunnelFrame_))
+    {
+        if (!_kn_tryingToInitTunnel)
+        {
+            kn_retryInterval = kn_retryInterval * 2;
+            if (kn_retryInterval > kn_maxRetryInterval) kn_retryInterval = kn_maxRetryInterval;
+            _kn_restartTunnel();
+        }
+        return;
+    }
+    
+    if (kn._isLeaderP && kn.tunnelRunning_ && kn_isReady(kn.tunnelFrame_) && 
         (kn.tunnelFrame_.document.readyState == "complete")) {
         _kn_tunnelLoadCallback(kn.tunnelFrame_);
     }
@@ -1665,6 +1800,7 @@ function _kn_checkTunnel() {
             if ((now - kn._tunnelStartTime) > kn_retryInterval)
             {
                 kn_retryInterval = kn_retryInterval * 2;
+                if (kn_retryInterval > kn_maxRetryInterval) kn_retryInterval = kn_maxRetryInterval;
                 kn__restartTunnel();
             }
         }
@@ -1733,7 +1869,7 @@ function _kn_escrow(my_kn, hero_kn)
     {
         if (_l_my.kn.dispatch_[i] != _l_hero.kn.ownerWindow)
         {   // do not rescue those who are not drowning.
-            if (_kn_debug()) _l_hero.kn.tunnelFrame_.document.bgColor="orange"; //#
+            if (_kn_debug() && kn_isReady(_l_hero.kn.tunnelFrame_)) _l_hero.kn.tunnelFrame_.document.bgColor="orange"; //#
             // escrowing color mode iff remote routes exist *to a third party*
             _l_hero.kn.dispatch_[i] = _l_my.kn.dispatch_[i];
             if (_l_hero.kn.dispatch_[i].kn)
@@ -1749,7 +1885,8 @@ function _kn_escrow(my_kn, hero_kn)
         {
             while (ql[tfn])
             {
-                var s = _kn_array('kn__routeEvent(kn__object(');
+                var s = new Array();
+                s[0] = 'kn__routeEvent(kn__object(';
                 var evt = ql[tfn].event;
                 ql[tfn] = ql[tfn].next;
                 var first = true;
@@ -1808,9 +1945,9 @@ function _kn_onPostError(ev)
 
 function _kn_onPostSuccess(ev)
 {
-    // this function supports the 'noforward' hack
-    if (! kn__hacks("noforward")) _kn_silenceWindow(kn._postFrame);
-    if (_kn_debug()) kn._postFrame.document.bgColor = "yeLLow"; //#
+    // this function supports the 'noforward' option
+    if (! kn__options("noforward")) _kn_silenceWindow(kn._postFrame);
+    if (_kn_debug() && kn_isReady(kn._postFrame)) kn._postFrame.document.bgColor = "yeLLow"; //#
     kn._postFrameBusy = false;
 
     // Netscape Navigator 4.x has a serious setTimeout bug, so we
@@ -1895,6 +2032,21 @@ function _kn_processWorkQ()
         kn._ownerWindow.kn._clearInterval(kn._worker);
         kn._worker = null;
     }
+
+    // collapse the workQ when it exceeds 50% empty slots; normally,
+    // this will keep it quite short
+
+    if ((2 * kn._workQcursor) >= kn._workQ.length)
+    {
+        var nq = new Array();
+        for (var i = kn._workQcursor; i < kn._workQ.length; i ++)
+        {
+            if (kn._workQ[i]) nq[nq.length] = kn._workQ[i];
+        }
+        kn._workQ = nq;
+        kn._workQcursor = 0;
+    }
+
 }
 
 // implementation of kn._tunnelLoadCallback
@@ -1913,7 +2065,7 @@ function _kn_tunnelLoadCallback(theWindow)
         kn.tunnelRunning_ = false;
         if (self.kn_onTunnelStop) kn_onTunnelStop();
     }
-    if (_kn_debug()) kn.tunnelFrame_.document.bgColor="pink"; //#
+    if (_kn_debug() && kn_isReady(kn.tunnelFrame_)) kn.tunnelFrame_.document.bgColor="green"; //#
     // someday, this will intelligently consider restarting after some watchdog interval
     // i.e. if a proxy dropped it
     kn._ownerWindow.setTimeout("kn__restartTunnel()",5*_kn_heartbeat);
@@ -1931,7 +2083,7 @@ function _kn_onTunnelStatus(ev)
             ! kn._isBrokenP)
         {
             kn._isBrokenP = true;
-            if (! _kn_hacks("quiet"))
+            if (! _kn_options("quiet"))
                 alert(
                     _kn_$_("[KNJS:Transport] Can not connect: %{0}\nURL: %{1}#%{2}\n\n%{3}\n%{4}",
                            ev.status,
@@ -1971,7 +2123,7 @@ function _kn_onTunnelStatus(ev)
 
 function _kn_assumeLeadership()
 {
-    if (_kn_debug()) kn.tunnelFrame_.document.bgColor="red"; //#
+    if (_kn_debug() && kn_isReady(kn.tunnelFrame_)) kn.tunnelFrame_.document.bgColor="red"; //#
     if (kn._isRestartingP)
     {
         kn._isRestartingP = false;
@@ -1982,6 +2134,18 @@ function _kn_assumeLeadership()
     kn._isLeaderP = true;
     _kn_clearCookie();
     _kn_aboutToRunTunnel=false;
+    // Netscape Navigator 4.x has a serious setTimeout bug, so we end
+    // up retrying the request by blanking the post frame there; other
+    // browsers use the regular _kn_retry() system.
+    if ((navigator.appVersion.charAt(0) == '4') &&
+        (navigator.appVersion.indexOf("MSIE ") == -1))
+    {
+        kn._postFrame.location.replace(kn_blank);
+    }
+    // restart any pending retry
+    if (kn._ownerWindow. //_
+        _kn_postPending) //_
+        _kn_retry();
     kn._processWorkQ();
 }
 
@@ -2031,12 +2195,6 @@ function _kn_wrapApp() {
         '<frameset><noframes><xmp><!-' + '-\0';
     document.write(_l_framesetdoc);
 
-    // if writing the frameset failed, force a reload
-    if (! frames.length)
-    {
-        location.reload(true);
-        return;
-    }
 
     // give the browser a chance to call the onload handler, then
     // force the issue
@@ -2077,6 +2235,8 @@ function _kn_framesetOnUnload()
                                                                   _kn_escape(kn.TFN_) +
                                                                   ";") != -1))
     {
+        var _l_escrowed = false;
+
         // abandon leadership, if any
         if (! nav4)
         {
@@ -2096,7 +2256,23 @@ function _kn_framesetOnUnload()
                 (kn.dispatch_[i].top != kn._ownerWindow.top))
             {
                 _kn_escrow(kn, kn.dispatch_[i].kn);
+                _l_escrowed = true;
                 break;
+            }
+        }
+
+        if (! _l_escrowed)
+        {
+            // call upon any survivors to set up shop
+            for (var i in kn.dispatch_)
+            {
+                if (kn_isReady(kn.dispatch_[i]) &&
+                    (kn.dispatch_[i].kn != kn))
+                {
+                    _kn_escrow(kn, kn.dispatch_[i].kn);
+                    _l_escrowed = true;
+                    break;
+                }
             }
         }
     }
@@ -2111,6 +2287,13 @@ function _kn_framesetOnUnload()
 
 function _kn_framesetOnLoad()
 {
+    // if writing the frameset failed, force a reload
+    if (! frames.length)
+    {
+        location.reload(true);
+        return;
+    }
+    
     if (_kn_debug()) //#
     { //#
         kn._ownerWindow.status = kn_formatString(_kn_$("PubSub JavaScript Library %{RCSID}"), kn); //#
@@ -2191,7 +2374,24 @@ function _kn_framesetOnLoad()
         // and often leads to a completely broken application.
         location.reload(true);
     }
+    
+    // expose frame references
+    // kn.postFrame_ = kn._postFrame;
+    // kn.appFrame_ = kn._appFrame;
+    
 }
+
+function kn__framesetOnUnload()
+{
+    return _kn_framesetOnUnload();
+}
+
+function kn__hookFrames(post,app)
+{
+    // hook in shim frame references
+    kn._postFrame =  post;
+    kn._appFrame = app;
+}   
 
 ////////////////////////////////////////////////////////////////////
 // INITIALIZATION, UTILITY, AND CONVENIENCE FUNCTIONS
@@ -2229,13 +2429,13 @@ function _kn_clearHandler(rid)
     }
 }
 
-// default status handler for successful status events
+/*! default status handler for successful status events @tparam object e status event */
 function kn_defaultOnSuccess(e)
 {
     // do nothing
 }
 
-// default status handler for unsuccessful status events
+/*! default status handler for unsuccessful status events @tparam object e status event */
 function kn_defaultOnError(e)
 {
     if (_kn_debug()) //#
@@ -2249,8 +2449,7 @@ function kn_defaultOnError(e)
     } //#
 }
 
-// default status event handler; status handler object is passed as
-// the (optional) second argument, or as "this"
+/*! default status event handler; status handler object is passed as the (optional) second argument, or as "this" @tparam object e status event @tparam statusHandlers handler optional status handlers */
 function kn_defaultOnStatus(e, handler)
 {
     if (! handler) handler = this;
@@ -2281,7 +2480,7 @@ function kn_defaultOnStatus(e, handler)
     }
 }
 
-// invoke status handlers on optional handler object for status event e
+/*! invoke status handlers on optional handler object for status event e @tparam object e status event @tparam statusHandlers handler optional status handler object */
 function kn_doStatus(e, handler)
 {
     handler = handler ? handler : _kn_object();
@@ -2375,8 +2574,7 @@ function _kn_parseArgs()
     return _l_args;
 }
 
-// this resolves a relative path against an absolute base path
-// (the absolute path should end with a slash!)
+/*! this resolves a relative path against an absolute base path (the absolute path should end with a slash!) @tparam string base absolute base path (must end with a slash!) @tparam string path relative path to resolve @treturn string absolute resolved version of relative path */
 function kn_resolvePath(base,path)
 {
     // if there is a leading slash, we return the path immediately
@@ -2568,11 +2766,60 @@ function _kn_uniqueWindowName()
     return _l_new_name;
 }
 
-// This tests a potentially lethal radioactive Window handle
+function kn__uniqueWindowName()
+{
+    return _kn_uniqueWindowName();
+}
+
+// anException = kn__try(aClosure [ , aClosureArg [, aClosureArg ... ]
+// ] ) - invoke a closure (aClosure) - - the first argument - - with
+// the specified arguments - - the remaining arguments. If an
+// exception is raised during execution of the closure, kn__try()
+// attempts to catch and return the exception object (anException); in
+// browsers with missing or incomplete try/catch support, this is
+// similar to eval('aClosure(aClosureArg, aClosureArg, ...)')
+
+/*! invoke a closure (aClosure) with the specified arguments. If an exception is raised during execution of the closure, kn__try() attempts to catch and return the exception object (anException); in browsers with missing or incomplete try/catch support, this is similar to eval('aClosure(aClosureArg, aClosureArg, ...)') @tparam function aClosure closure to execute @treturn object exception generated, or undefined */
+function kn__try(aClosure /* [ , aClosureArg [ , aClosureArg ... ] ] */)
+{
+    var aClosureArgs = new Array;
+    var aClosureArgStrings = new Array;
+    for (var anIndex = 1; anIndex < arguments.length; anIndex ++)
+    {
+        var aClosureArgsIndex = aClosureArgs.length;
+        aClosureArgStrings[aClosureArgStrings.length] =
+            "aClosureArgs[" + aClosureArgsIndex + "]";
+        aClosureArgs[aClosureArgsIndex] = arguments[anIndex];
+    }
+    var anException;
+    var aClosureString = "aClosure(" + aClosureArgStrings.join(", ") + ");";
+    if (typeof Error != 'undefined' ||
+        (navigator.appVersion.indexOf('MSIE ') != -1 &&
+         navigator.platform == 'MacPPC'))
+    {
+        eval('try { ' + aClosureString + ' } catch (x) { anException = x; }');
+    }
+    else
+    {
+        eval(aClosureString);
+    }            
+}
+
+/*! This tests a potentially lethal radioactive Window handle @tparam Window w window handle to test @treturn boolean true if w is safe to access */
 function kn_isReady(w)
 {
+    var ctx = new Object;
+    ctx.wNameType = "unknown";
+    var testClosure =
+        new Function('ctx', 'w',
+                     'if (w!=null)' +
+                     '{' +
+                     /**/'ctx.wNameType=typeof(w["name"]);' +
+                     '}'
+            );
+    kn__try(testClosure, ctx, w);
     return ((w != null) &&
-            ((typeof w.name) != "unknown") &&
+            (ctx.wNameType != "unknown") &&
             (w.closed != null) &&
             ((typeof w.closed) == "boolean") &&
             (!w.closed));
@@ -2599,10 +2846,12 @@ function _kn_lastErrorHandler(message, url, line)
 // encoded = kn_encodeRequest(e)
 // given an event e, kn_encodeRequest returns the corresponding
 // application/x-www-form-urlencoded string
+
+/*! given an event e, kn_encodeRequest returns the corresponding application/x-www-form-urlencoded string @tparam object e request to encode @treturn string encoded version of request */
 function kn_encodeRequest(e)
 {
     var _l_request = //_
-        _kn_array();
+        new Array();
     for (var key in e)
     {
         if (e[key] != null)
@@ -2642,9 +2891,7 @@ function _l_htmlEscape_converter(c, tc)
     else return tc;
 }
 
-// replace unsafe characters with character entities.
-// makes any string safe for doc.write() as an HTML attribute or textarea.
-// does UTF-16 decoding.
+/*! replace unsafe characters with character entities. makes any string safe for doc.write() as an HTML attribute or textarea. does UTF-16 decoding. @tparam string t free-form string @treturn string safely encoded HTML version of the input */
 function kn_htmlEscape(t)
 {
     return _kn_utf16decode(t, _l_htmlEscape_converter);
@@ -2660,7 +2907,7 @@ function _kn_unescape(value)
 {
     // stringify the input
     value = '' + value;
-    if (_kn_hacks("unescape"))
+    if (_kn_options("unescape"))
         return unescape(value);
     // decode URL-encoding
     var _l_decoded = '';
@@ -2689,7 +2936,7 @@ function _kn_unescape(value)
     return '' + _kn_utf8decode(_l_decoded);
 }
 
-// convert a string from UTF-16 to URL-encoded UTF-8
+/*! convert a string from URL-encoded UTF-8 to UTF-16 @tparam string value UTF-8-encoded, application/x-www-form-urlencoded string @treturn string decoded UTF-16 string */
 function kn_unescape(value)
 {
     return _kn_unescape(value);
@@ -2704,7 +2951,7 @@ function _kn_stringFromCharCode() // codes ...
 // implementation of kn_stringFromCharCodes
 function _kn_stringFromCharCodes(codes)
 {
-    var _l_result = _kn_array();
+    var _l_result = new Array();
     for (var i = 0; i < codes.length; i++)
     {
         var _l_code = //_
@@ -2860,7 +3107,7 @@ function kn_utf8decode(string)
 // the corresponding UCS character codes.
 function kn_charCodesFromString(string)
 {
-    var ptr = kn._memorize(_kn_array());
+    var ptr = kn._memorize(new Array());
     var _l_converter = //_
         new Function('_l_code', //_
                      'var _l_codes = ' + //_
@@ -2877,7 +3124,7 @@ function kn_charCodesFromString(string)
 // which will be appended to the overall result
 function _kn_utf16decode(string, converter)
 {
-    var s = _kn_array();
+    var s = new Array();
     string = '' + string;
     for (var i = 0; i < string.length; i ++)
     {
@@ -2974,14 +3221,15 @@ function _l_escape_converter( //_
 function _kn_escape(value)
 {
     value = '' + value;
-    if (_kn_hacks("escape"))
+    if (_kn_options("escape"))
         return escape(value);
     var _l_result = //_
         _kn_utf16decode(value, _l_escape_converter);
     return _l_result;
 }
 
-// convert a string from URL-encoded UTF-8 to UTF-16
+/*! convert a string from UTF-16 to URL-encoded UTF-8 @treturn string UTF-8-encoded, application/x-www-form-urlencoded string @tparam string value decoded UTF-16 string */
+// convert a string from UTF-16 to URL-encoded UTF-8
 function kn_escape(value)
 {
     return _kn_escape(value);
@@ -3185,20 +3433,35 @@ function kn_debug(flags)
         kn._debug = true; //#
     else //#
         kn._debug = flags; //#
-    if (kn._ownerWindow.document.all) //#
+    if (kn_isReady(kn._ownerWindow) && //#
+        kn._ownerWindow.document && //#
+        kn._ownerWindow.document.all) //#
     { //#
-        kn._ownerWindow.document.all[kn._ownerWindow.name + "_esp"].rows = //#
+        var esp = kn._ownerWindow.document.all[kn._ownerWindow.name + "_esp"]; //#
+        if (esp) esp.rows = //#
             (_kn_debug() ? (_kn_debug("posts") ? '70%,30%' : '90%,10%') : '100%,*'); //#
     } //#
 }
 
-// like kn_debug(), but for hacks instead of debugging options
-function kn_hacks(flags)
+// like kn_debug(), but for general options instead of debugging options
+function kn_options(flags)
 {
     if ((flags == null) && (typeof(flags) == 'undefined'))
-        kn._hacks = true;
+        kn._options = true;
     else
-        kn._hacks = flags;
+        kn._options = flags;
+}
+
+// abbreviation for kn_options(flags)
+function kn_opts(flags)
+{
+    return kn_options(flags);
+}
+
+// deprecated, but we'll still have to allow it for the forseeable future
+function kn_hacks(flags)
+{
+    return kn_options(flags);
 }
 
 function kn_inspectAsText (target, depth, prefix)
@@ -3255,31 +3518,25 @@ function kn_inspectInWindow(target, depth)
 // These are used for communication across window and frame
 // boundaries, where different microserver versions may be present.
 
-// submit (or possibly batch) a KN server request
-// returns false until the request has been sent (or at least batched)
+/*! submit (or possibly batch) a KN server request returns false until the request has been sent (or at least batched) @tparam object e request to submit */
 function kn__submitRequest(e)
 {
     return _kn_submitRequest(e);
 }
 
-// restart the tunnel connection
+/*! restart the tunnel connection */
 function kn__restartTunnel()
 {
     return _kn_restartTunnel();
 }
 
-// create an object from a list of names and values; substitute for
-// JavaScript 1.2 object literals; since this is used to pass
-// events across window boundaries [during escrow] it has an
-// "internal-but-visible" name.
-function kn__object() // args ...
+/*! create an object from a list of names and values; substitute for JavaScript 1.2 object literals; since this is used to pass events across window boundaries [during escrow] it has an "internal-but-visible" name. @treturn object an object with properties corresponding to the names and values in the argument list */
+function kn__object() // ...
 {
     return _kn_object2(arguments);
 }
 
-// handle dispatches from the leader; all parts of the inter-window
-// API need to be uncompressed [and preferably backwards-compatible,
-// in the future] for the sake of interoperability
+/*! handle dispatches from the leader; all parts of the inter-window API need to be uncompressed [and preferably backwards-compatible, in the future] for the sake of interoperability */
 function kn__consumeEvents()
 {
     while (kn.leaderWindow.kn__queue &&
@@ -3302,37 +3559,28 @@ function kn__consumeEvents()
     }
 }
 
-// this internal function checks for the presence of a particular
-// word in the comma-separated kn_hacks=... value; it returns
-// true if the flag is present, and false otherwise; the special
-// flag kn_hacks=all causes _kn_hacks to return true for all flags.
-// this is called kn__hacks because it's library-internal, but not
-// internal to kn.js (document.js uses it, for example.)
-// If no flag is specified, _kn_hacks checks for the presence
-// of the kn_hacks parameter.
-function kn__hacks(flag)
+/*! this internal function checks for the presence of a particular word in the comma-separated kn_options=... value; it returns true if the flag is present, and false otherwise; the special flag kn_options=all causes _kn_options to return true for all flags. If no flag is specified, _kn_options checks for the presence of the kn_options parameter. @tparam string flag word to scan the kn_options list for @treturn boolean true if the named flag is set */
+function kn__options(flag)
 {
-    return _kn_hacks(flag);
+    return _kn_options(flag);
 }
 
-// this internal function checks for the presence of a particular
-// word in the comma-separated kn_debug=... value; it returns
-// true if the flag is present, and false otherwise; the special
-// flag kn_debug=all causes _kn_debug to return true for all flags.
-// this is called kn__debug because it's library-internal, but not
-// internal to kn.js.
-// If no flag is specified, _kn_debug checks for the presence
-// of the kn_debug parameter.
+/*! deprecated, but we'll still have to allow it for the forseeable future @see kn__options() @tparam string flag word to scan the kn_options list for @treturn boolean true if the named flag is set */
+function kn__hacks(flag)
+{
+    return kn__options(flag);
+}
+
+/*! this internal function checks for the presence of a particular word in the comma-separated kn_debug=... value; it returns true if the flag is present, and false otherwise; the special flag kn_debug=all causes _kn_debug to return true for all flags. If no flag is specified, _kn_debug checks for the presence of the kn_debug parameter. @tparam string flag word to scan the kn_debug list for @treturn boolean true if the named flag is set */
 function kn__debug(flag)
 {
     return _kn_debug(flag);
 }
 
-// this is a low-level local-only equivalent to kn_publish; it uses
-// the event's kn_route_location header for dispatching
+/*! this is a low-level local-only equivalent to kn_publish(); it uses the event's kn_route_location header for dispatching @tparam object e event to route */
 function kn__routeEvent(e)
 {
-    // this function supports the 'single' and 'noforward' hacks
+    // this function supports the 'single' and 'noforward' options
     var rid = e.kn_route_location;
     if (_kn_debug("events")) //#
     { //#
@@ -3423,9 +3671,9 @@ function kn__routeEvent(e)
     }
     else
     {
-        if (_kn_hacks("single") && _kn_hacks("noforward"))
+        if (_kn_options("single") && _kn_options("noforward"))
         {
-            if (_kn_debug()) //#
+            if (_kn_debug() && ! _kn_options("quiet")) //#
                 alert( //#
                     _kn_$("[KNJS:Dispatcher] Got an unlabeled event, assuming post frame success.") //#
                     ); //#
@@ -3448,7 +3696,7 @@ function kn__routeEvent(e)
     }
 }
 
-// called in new follower windows by the leader window
+/*! called in new follower windows by the leader window @tparam Window _l_window new leader window @tparam string _l_tunnelURI leader's journal path @tparam string _l_lastTag leader's curent kn_route_checkpoint */
 function kn__follow(
     _l_window, //_
     _l_tunnelURI, //_
@@ -3461,7 +3709,7 @@ function kn__follow(
     }
     if (kn._isLeaderP)
     {
-        if (_kn_debug()) kn.tunnelFrame_.document.bgColor="seagreen"; //#
+        if (_kn_debug() && kn_isReady(kn.tunnelFrame_)) kn.tunnelFrame_.document.bgColor="seagreen"; //#
         // a special case to send in-progress route table entries to the new leader. Very rare.
         _kn_escrow(kn, _l_window.kn);
     }
@@ -3491,21 +3739,25 @@ function kn__follow(
 // these exist to appease old-school javascript programmers who do
 // not like method syntax
 
+/*! @see kn.subsribe */
 function kn_subscribe(kn_from, kn_to, kn_options, handler)
 {
     return kn.subscribe(kn_from, kn_to, kn_options, handler);
 }
 
+/*! @see kn.publishForm */
 function kn_publishForm(kn_to, theForm, handler)
 {
     return kn.publishForm(kn_to, theForm, handler);
 }
 
+/*! @see kn.publish */
 function kn_publish(kn_to, event, handler)
 {
     return kn.publish(kn_to, event, handler);
 }
 
+/*! @see kn.unsubsribe */
 function kn_unsubscribe(rid, handler)
 {
     return kn.unsubscribe(rid, handler);
@@ -3516,15 +3768,13 @@ function kn_unsubscribe(rid, handler)
 //
 // These callbacks are invoked by pages returned by mod_pubsub
 
-// callback for event delivery, as defined in the PubSub Protocol
-// document; accepts events in a "form" style, and converts
-// them to simple Objects
+/*! callback for event delivery, as defined in the PubSub Protocol document; accepts events in a "form" style, and converts them to simple Objects @tparam object theEvent event to deliver, in "form" style @tparam Window theWindow originating frame (optional) */
 function kn_sendCallback(theEvent, theWindow)
 {
     return kn._sendCallback(theEvent, theWindow);
 }
 
-// called from kn_blank, and used for kn.documents and KNDocument
+/*! called from kn_blank, and used for kn.documents and KNDocument @tparam Window w the originating frame */
 function kn_redrawCallback(w)
 {
     if (w['document'] && w.document['write'])
@@ -3543,7 +3793,23 @@ function kn_redrawCallback(w)
                     " _kn_native_onload = self.onload;" +
 
                     "onload=new Function('" +
-                    "parent.kn.documents[self.name].kn_onLoad();" +
+
+                    // make sure the documents cache entry still
+                    // exists and has a kn_onLoad method before
+                    // invoking the kn_onLoad.
+
+                    "if (parent != null &&" +
+                    " typeof(parent.name) != \"unknown\" &&" +
+                    " parent.closed != null &&" +
+                    " typeof(parent.closed) == \"boolean\" &&" +
+                    " ! parent.closed &&" +
+                    " parent.kn &&" +
+                    " parent.kn.documents &&" +
+                    " parent.kn.documents[self.name] &&" +
+                    " parent.kn.documents[self.name].kn_onLoad)" +
+                    "{" +
+                    /**/"parent.kn.documents[self.name].kn_onLoad();" +
+                    "}" +
                     // there is some weird timing issue to be worked out here
                     "if (_kn_native_onload) _kn_native_onload();" +
                     "');" +
@@ -3559,11 +3825,13 @@ function kn_redrawCallback(w)
     }
 }
 
-// triggered by a tunnel frame's onLoad
+/*! triggered by a tunnel frame's onLoad */
 function kn_tunnelLoadCallback(theWindow)
 {
     return kn._tunnelLoadCallback(theWindow);
 }
+
+//kn = _kn_initMicroserver(true);
 
 ////////////////////////////////////////////////////////////////////
 // HISTORY
@@ -3900,35 +4168,35 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
-// Revision 1.3  2003/03/25 06:04:26  ifindkarma
-// Updated index to include pubsublib.php and publish.php .
+// Revision 1.4  2003/04/19 00:19:58  ifindkarma
+// Fixed long-lived connections in IE6+.
 //
-// Updated PubSub::ReplayEvents::begin_replaying_events to take a
-// mod_pubsub filesystem prefix as an argument.
+// Revision 1.14  2002/08/16 03:31:34  bsittler
+// Allowed kn_retryInterval and kn_maxRetryInterval to be overridden by
+// the user at microserver startup.
 //
-// Update pubsub_test.cgi to include relative URL support so you
-// can tell it your URL is /kn even though it's http://whatever/kn .
+// Added a new integer property kn_maxBatchSize to limit the size of
+// automatic batches. The default value is 10 (requests).
 //
-// Added descriptive text to the do_method=help redirect.
+// All three parameters can also be initialized using command-line
+// arguments.
 //
-// Switched Topic.pm to indirect do_method=help instead of referring
-// to ../kn_docs directly.
+// Request retries now work even after tunnel restarts, even in Netscape
+// 4 (they hook into the leader-election algorithm.)
 //
-// Lots of untested changes to cgi-bin/soap_gateway/PubSubService.cgi --
-// we really do need to get this tested and working.
+// Revision 1.13  2002/08/10 05:57:18  bsittler
+// added support for the undocumented do_method=delete_topic
 //
-// Updated pubsub_raw.js to disallow codepoints in reserved surrogate range
-// for UCS-4 to UTF-16 encoding.
+// Revision 1.12  2002/08/08 19:04:33  bsittler
+// Retries now work in MSIE and Netscape 7 even after extended connection
+// outages. Netscape 4 still seems to have some setTimeout issues here,
+// though.
 //
-// publish.php now uses pubsublib.php
+// Added kn_options/kn_opts stuff (thanks, Scott!) to replace the old kn_hacks flags.
 //
-// pubsublib.php and its test suite were added.
+// Removed _kn_array(), since it wasn't actually necessary.
 //
-// Revision 1.2  2003/03/19 02:44:12  ifindkarma
-// Added FIXME for long lived connections in IE6+.
-//
-// Revision 1.1.1.1  2002/11/07 07:08:18  troutgirl
-// Initial checkin of mod_pubsub
+// Added Scott's fix for the checkTunnel exception in MSIE.
 //
 // Revision 1.11  2002/03/26 19:25:44  bsittler
 // Fixed a nasty kn_resolvePath bug which broke the microserver after a while.
