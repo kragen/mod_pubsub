@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.34 2003/06/05 01:29:09 ifindkarma Exp $
+# $Id: pubsub.py,v 1.35 2003/06/05 01:34:48 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -1143,7 +1143,9 @@ def http_header(statusline, contenttype, expires = None):
     else:
         return "HTTP/1.0 %s\r\nContent-Type: %s\r\nExpires: %s\r\n\r\n" % (statusline, contenttype, expires)
 
-# Here's a big, long FIXME:
+# Here's a big, long FIXME: Blocking vs. nonblocking HttpClient.
+# The correct way to do it is nonblocking.  Right now we do neither.
+# The right way is to use sendMessage() from pubsublib.py .
 
 # How to use HttpClient?
 # Well, we need it for two things: outbound routes and content-transform routes.
