@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.50 2003/06/23 22:13:37 ifindkarma Exp $
+# $Id: pubsub.py,v 1.51 2003/06/23 22:34:30 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -858,7 +858,7 @@ class ServerSaver:
         """
         Topics are /kn_statistics/%statname%/ where %statname% are:
             starttime
-            uptime = time.time() - starttime
+            uptime = int( time.time() - starttime )
             openedconns
             closedconns
             liveconns = openedconns - closedconns
@@ -872,7 +872,7 @@ class ServerSaver:
 
         stats = { }
         stats['starttime'] = self.server.getstarttime()
-        stats['uptime'] = time.time() - stats['starttime']
+        stats['uptime'] = int ( time.time() - stats['starttime'] )
         stats['openedconns'] = self.server.getopenedconns()
         stats['closedconns'] = self.server.getclosedconns()
         stats['liveconns'] = stats['openedconns'] - stats['closedconns']
