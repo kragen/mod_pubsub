@@ -1,17 +1,19 @@
 -------------------------------------
 High-level items on the "to do" list.
 -------------------------------------
-$Id: TODO,v 1.9 2003/03/22 14:14:25 ifindkarma Exp $
+$Id: TODO,v 1.10 2003/04/02 03:26:19 ifindkarma Exp $
+
+ 0. Modify the Perl server and the Python server to not send
+    so many flush spaces when writing simple response format.
+    This will make our simple wire format less chatty.
 
  1. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
     that has publish, subscribe, and unsubscribe.  This still needs a
-    test suite and several other things; see python_pubsub/TODO for
-    next things on the list.
+    test suite and several other things; see python_pubsub/TODO .
 
  2. PubSub/ModPubSub.pm and pubsub.py should be less lazy about
     detecting closed sessions.  Bring active presence detection to
-    mod_pubsub. Perhaps do this by writing an external cleanup.py
-    program.
+    mod_pubsub. Do this by writing an external cleanup.py program.
 
  3. PubSub/ModPubSub.pm and pubsub_test.cgi still expect
     other things to live near PubSub/ModPubSub.pm in URL-space. Fix this.
