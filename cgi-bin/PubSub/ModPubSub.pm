@@ -1,8 +1,22 @@
 package PubSub::ModPubSub;
 
-# Sample use with Apache 1.3 and mod_perl:
+# Sample use with Apache 1.3 and mod_perl 1.0:
 
+# LoadModule perl_module        libexec/httpd/libperl.so
+# AddModule mod_perl.c
 # <Perl>
+# use lib "/var/www/mod_pubsub/cgi-bin";
+# use PubSub::ModPubSub 'mod_pubsub';
+# mod_pubsub("/var/www/mod_pubsub", "/mod_pubsub", "/kn",
+#            \%Location, \%Directory);
+# </Perl>
+
+# Sample use with Apache 2.0 and mod_perl 2.0 (same as above except
+# for the first three lines):
+
+# LoadModule perl_module modules/mod_perl.so
+# PerlModule Apache2
+# <Perl >
 # use lib "/var/www/mod_pubsub/cgi-bin";
 # use PubSub::ModPubSub 'mod_pubsub';
 # mod_pubsub("/var/www/mod_pubsub", "/mod_pubsub", "/kn",
@@ -43,7 +57,7 @@ package PubSub::ModPubSub;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: ModPubSub.pm,v 1.1 2003/03/22 14:10:35 ifindkarma Exp $
+# $Id: ModPubSub.pm,v 1.2 2003/04/28 23:25:54 ifindkarma Exp $
 
 
 use strict;
@@ -55,11 +69,18 @@ use Carp 'cluck';
 
 @EXPORT_OK = qw(mod_pubsub handler);
 
+# when in ModPerl2, use ModPerl1 compatibility layer
+BEGIN {
+    eval {
+        require Apache::compat;
+        import Apache::compat;
+    };
+}
+use Apache::Constants qw(OK);
+
 use CGI ();
 use PubSub::Server qw(set_cgi_url set_docroot dispatch_request);
 use PubSub::EventFormat 'set_topic_root_dir';
-
-use Apache::Constants qw(OK);
 
 # initialize mod_pubsub configuration
 sub mod_pubsub
