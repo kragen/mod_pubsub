@@ -1,7 +1,6 @@
-To Do List for Python PubSub (February 14, 2003)
+To Do List for Python PubSub (February 18, 2003)
 ------------------------------------------------
 
--2. Make a python pubsub client, pubsublib.py .
 -1. Make a reaper.py which removes expired events.
     Note: this client can work for both pubsub.py and pubsub.cgi
  0. Find out which of (asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py)
