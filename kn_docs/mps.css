@@ -1,7 +1,10 @@
+/* Copyright 2003 Scott LePera
+   Copyright 2003 Joyce Park */
+
 /* Common styles */
 BODY
 {
-    min-height:10in;
+    min-height:4in;
     margin: 0px 50px;
     background-color: #eee;
     font-size: 13px;
@@ -50,7 +53,7 @@ A:hover
 
 #main
 {
-    min-height:10in;
+    min-height:4in;
     width: auto;
     background-color:#fff;
     border-left:1px dashed #aaa;
