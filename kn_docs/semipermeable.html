@@ -1,0 +1,771 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.0.2  (Linux)">
+	<META NAME="AUTHOR" CONTENT="Joyce Park">
+	<META NAME="CREATED" CONTENT="20030513;19390300">
+	<META NAME="CHANGED" CONTENT="20030805;21162300">
+	<STYLE>
+	<!--
+		@page { margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+		P { margin-bottom: 0.21cm }
+		P.sdfootnote { margin-left: 0.5cm; text-indent: -0.5cm; margin-bottom: 0cm; font-size: 10pt }
+		A.sdfootnoteanc {font-family: Times New Roman }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US">
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman"><FONT SIZE=4><B>TOWARDS
+SEMI-PERMEABLE BLOGGING</B></FONT></FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman"><FONT SIZE=4>Joyce
+Park</FONT></FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman"><FONT SIZE=3>2003.08.06</FONT></FONT></P>
+<P STYLE="margin-bottom: 0cm; line-height: 150%"><BR>
+</P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+lightweight content management systems known as weblogs or blogs have
+enjoyed a massive popularity explosion in the past few years, more or
+less becoming a distinct literary form.  But although the blog has
+proven itself <I>technically</I> capable of meeting the need for many
+kinds of information dissemination and archiving, numerous social and
+legal problems have emerged in the practice of real-world blogging. 
+Many of these problems cluster around the almost totally public
+nature of online expression.  Paradoxically, we may be reaching a
+point where greater expression can only be achieved through greater
+privacy.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Online
+privacy is ultimately a matter of law; but the law develops within an
+understanding of specific technical capabilities.  Software
+implementors can, should, and increasingly do design towards
+social-engineering goals, such as the ability to withstand legal
+challenge.  Design from high-level needs is particularly relevant in
+the case of blogware, where a large percentage of users are not
+themselves admins or developers and therefore usability is a primary
+concern -- perhaps <I>the</I> primary concern.  The combination of
+sophisticated social goal and need for usability means that the state
+of the law must be baked into blogware tools themselves – a
+daunting challenge for any development team.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Another
+major area for improvement in weblog software is integration with
+other communications apps:  other people's blogs, bulletin boards,
+Wikis, chat, IM, email, PIMs, external websites, and RSS aggregators.
+ At the moment users are habituated to monitoring numerous apps –
+and ceding control over their private and/or copyrighted data to
+numerous external organizations -- to manage their personal
+communications, but it should be possible in theory to reduce the
+number of interfaces.  This step would help move the web towards its
+ultimate goal of facilitating a seamless conversation regardless of
+the form in which data is presented.  Integration of communication
+apps might also habituate people to the value of controlling their
+own data, being able to choose with whom and under what conditions to
+share it – which comes back to the overarching goal of using
+technology to enhance privacy.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">We
+believe that asynchronous publish and subscribe messaging frameworks
+like mod_pubsub<A CLASS="sdfootnoteanc" NAME="sdfootnote1anc" HREF="#sdfootnote1sym">[1]</A>
+could offer a substantially improved architecture towards the goal of
+carving out spaces of privacy on the Internet.  Instead of monolithic
+public weblogs, semi-permeable blogging offers the promise of
+numerous levels of online privacy which can offer the preconditions
+for certain desired privacy protections.  This paper will focus on
+the general problem of privacy in social software like weblogs; a
+follow-up paper will detail mod-pubsub's design for semi-permeable
+blogware.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">I
+wish to emphasize that I am not a lawyer, nor are any of the members
+of the mod-pubsub group at this time.  We are software developers who
+are interested in needs that come from “high on the stack”, in
+the social-engineering layers.  Furthermore, many of the issues
+discussed in this paper have barely begun to work their way through
+the legislative and justice systems of our project's home (the United
+States of America).  Therefore, much of what we've read about these
+issues tends to be promulgated by advocacy groups, law professors,
+and other interested parties whose interpretations may be incomplete,
+biased, unpopular, or otherwise unlikely to be implemented.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm; line-height: 150%; page-break-before: auto">
+<FONT FACE="Times New Roman"><FONT SIZE=3><B>Privacy: social and
+legal challenges</B></FONT></FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Consider
+these common situations:</FONT></P>
+<P STYLE="margin-left: 1.47cm; margin-right: 2.13cm; margin-bottom: 0cm; line-height: 150%">
+<BR>
+</P>
+<P STYLE="margin-left: 1.47cm; margin-right: 1.63cm; margin-bottom: 0cm; line-height: 150%">
+<FONT FACE="Times New Roman">* Alice is the HR director of a small
+startup company.  During a job search, she receives a resume from a
+highly qualified programmer -- whom she immediately looks up using a
+search engine.  On the candidate's weblog, Alice discovers something
+that makes her think this person might cause problems for the company
+down the line:  perhaps a chronic illness, recreational drug use, an
+employment lawsuit, or just an unprofessional moment.  She chooses
+not to pass on the resume to the hiring manager.</FONT></P>
+<P STYLE="margin-left: 1.47cm; margin-right: 1.63cm; margin-bottom: 0cm; line-height: 150%">
+<BR>
+</P>
+<P STYLE="margin-left: 1.47cm; margin-right: 1.63cm; margin-bottom: 0cm; line-height: 150%">
+<FONT FACE="Times New Roman">* Bob is an MBA candidate and dot-com
+refugee who is writing a paper about the experience of working for a
+very young CEO.  He would like to solicit the informed opinions of
+his circle of professional acquaintances on this topic, ideally even
+get a round-robin conversation going.  A weblog-type page with
+comments would be by far the easiest technical means to accomplish
+this.  However, Bob discovers that his informants are not willing to
+express themselves freely about this topic in a public forum – even
+one with security-through-obscurity and robots.txt files.  He decides
+he must rely on the much more time-consuming face-to-face interview
+to get the information he wants.</FONT></P>
+<P STYLE="margin-left: 1.47cm; margin-right: 1.63cm; margin-bottom: 0cm; line-height: 150%">
+<BR>
+</P>
+<P STYLE="margin-left: 1.47cm; margin-right: 1.63cm; margin-bottom: 0cm; line-height: 150%">
+<FONT FACE="Times New Roman">* Carol and Dave start dating.  Carol is
+not aware until too late that Dave maintains a weblog which describes
+his relationships with women, mostly in unflattering terms.  When she
+discovers that he has revealed intimate details of their dates, and
+even posted a photograph of her without her consent, she sues him.  A
+judge decides that she has suffered harm to her professional
+reputation, and forces Dave to take down the relevant portions of his
+weblog as well as compensate Carol for damages.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><BR>
+</P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">As
+these examples suggest, blogging in its current form constitutes
+fully public speech.  Although this realm of expression is protected
+from certain forms of government suppression, at least in most
+advanced nations, there is no guarantee of freedom from criminal
+investigation, civil liability, subtle discrimination, or social
+ostracism resulting from information voluntarily revealed in public. 
+In other words, there is no expectation of privacy on the Internet<A CLASS="sdfootnoteanc" NAME="sdfootnote2anc" HREF="#sdfootnote2sym">[2]</A>
+at this point.  As long as you can be tracked via a subpoena, you can
+be held liable for offenses ranging from terrorism and treason, to
+securities fraud, libel, and sexual harassment, to violating the
+terms of your employment agreement.  Any information you reveal can
+also be used to your detriment if seen by potential or current
+employers, romantic candidates, people you're arguing with online,
+relatives, etc.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+full publicness of the web has been exacerbated by the predelictions
+and interests of the pioneers.  Early blogging, for instance, was
+marked by the heavy overrepresentation of three groups that are
+atypical in their privacy needs:  academics, who basically cannot be
+fired for intellectually meaningful public statements<A CLASS="sdfootnoteanc" NAME="sdfootnote3anc" HREF="#sdfootnote3sym">[3]</A>;
+independent web developers, who can be helped by controversy more
+than they are hurt by lack of discretion; and individuals who are
+interested in experimenting with publicness as a quasi-artistic
+theme, like webcam operators.  At the same time, commercial websites
+encouraged users to contribute as much personal information as they
+could be persuaded to part with:  product reviews, personal profiles,
+email archives, wishlists, evaluations of other users, etc.  By a
+confluence of these factors, the gut-level assumption was established
+that the web was somehow “naturally” an arena of fully-public
+discourse.  At this point, many people who desire even a modicum of
+privacy in online exchanges have been cowed into apologetic
+submission by numerous curt admonitions not to express themselves
+online at all if they aren't prepared to deal with the consequences
+of a public medium.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Stepping
+back from things as they currently are, it should be clear that fully
+public speech is not the only imaginable or even the optimal level of
+privacy necessary on the Internet.  The vast majority of people
+express themselves in greater quantity and often greater quality if
+they are allowed to freely choose the level of publicness of each of
+their utterances.  In the real world, you almost certainly feel more
+comfortable discussing certain topics – political controversies, or
+the shortcomings of your company's management team, or your marital
+problems – in an environment where you can control who hears you,
+for instance at a dinner party with old and trusted friends; or in an
+environment where you have legal guarantees of confidentiality, as in
+a therapist's office.  Why should the Internet be different?  Privacy
+in the real world results in greater and truer expression, and it may
+do so in the online world too – if we application developers can
+build the proper environments to enable it.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+various levels of online privacy that should be handled gracefully by
+social software include:</FONT></P>
+<UL>
+	<P STYLE="margin-bottom: 0cm; line-height: 150%"></P>
+	<LI><P STYLE="margin-right: 1.63cm; margin-bottom: 0cm; line-height: 150%">
+	<FONT FACE="Times New Roman">1.  Totally private information. 
+	Obviously the realm of the traditional diary -- innermost thoughts
+	and feelings -- falls in this category.  It may also include data
+	that the user wishes to archive but not share with others, such as
+	daily body weight (and alcohol units, for Bridget Jones).</FONT></P>
+	<LI><P STYLE="margin-right: 1.65cm; margin-bottom: 0cm; line-height: 150%">
+	<FONT FACE="Times New Roman">2.  Information primarily intended for
+	self, but not specifically private.  Blogs have begun to replace
+	scratch paper for devoted users, because they are a known-good means
+	of archiving in a searchable way.  For example, blog users often
+	begin to use weblog entries to save links they want to remind
+	themselves of later.</FONT></P>
+	<LI><P STYLE="margin-right: 1.65cm; margin-bottom: 0cm; line-height: 150%">
+	<FONT FACE="Times New Roman">3.  Information shared with only a
+	select subset of known, trusted viewers.  For instance, you want
+	everyone in your web of trust to be able to see a particular entry,
+	except your in-laws.</FONT></P>
+	<LI><P STYLE="margin-right: 1.65cm; margin-bottom: 0cm; line-height: 150%">
+	<FONT FACE="Times New Roman">4.  Information shared with known,
+	trusted viewers.  A good deal of business and professional
+	information might fall under this rubric, given the large realm of
+	legal issues attending these topics.  Health and family news might
+	also comprise a set of topics about which you'd like to keep a
+	fairly large social circle apprised without going fully public. 
+	Political discourse may also lie in this category in some cases.</FONT></P>
+	<LI><P STYLE="margin-right: 1.65cm; margin-bottom: 0cm; line-height: 150%">
+	<FONT FACE="Times New Roman">5.  Information shared with unknown,
+	semi-trusted viewers.  Some central authority prevalidates all
+	viewers through registration or other means, often with restrictive
+	and legally binding terms of use.  Most such systems (MetaFilter,
+	LiveJournal) allow public browsing of at least some posts, but not
+	public posting.</FONT></P>
+	<LI VALUE=1><P STYLE="margin-right: 1.65cm; margin-bottom: 0cm; line-height: 150%">
+	<FONT FACE="Times New Roman">6.  Totally public information
+	(unknown, untrusted viewers). The default realm of public blogs.</FONT></P>
+	<P STYLE="margin-right: 2.13cm; margin-bottom: 0cm; line-height: 150%">
+	</P>
+</UL>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+desire to carve out these various levels of privacy in an essentially
+public medium has bred a plethora of cute, if largely ineffectual,
+strategies.  The most common is simple anonymity (usually actually
+pseudonymity, but why quibble), or privacy through obscurity.  It's
+surprisingly common for someone who has developed a strong online
+persona to find that identity confining, and wish to start afresh in
+some other patch of Blogistan -- generally by starting a completely
+separate and unpublicized blog.  Other novice bloggers start out
+anonymous from the beginning, although many of them break cover
+later.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Unfortunately,
+anonymity turns out to be almost infinitely frangible and certainly
+incompatible with any significant amount of visibility.  Numerous
+bloggers have lost their jobs due to their writing activity<A CLASS="sdfootnoteanc" NAME="sdfootnote4anc" HREF="#sdfootnote4sym">[4]</A>
+-- although it must be noted that none of these bloggers attempted to
+lie or stonewall, which might have shifted the burden of
+investigation to the employer, or to seek redress after the fact; and
+most of the employers were small businesses which tend to have less
+sophisticated HR policies because they incur less employment-related
+liability.  Other bloggers have evidently been threatened with loss
+of employment<A CLASS="sdfootnoteanc" NAME="sdfootnote5anc" HREF="#sdfootnote5sym">[5]</A>,
+or even in the most extreme cases political prison<A CLASS="sdfootnoteanc" NAME="sdfootnote6anc" HREF="#sdfootnote6sym">[6]</A>.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Probably
+the major issue with pseudonymous blogging is that the community
+tends to discount the opinions of those who explicitly want to avoid
+all the consequences of having expressed them in public, or even to
+suspect such individuals of troll-like intentions.  This scorn is
+particularly marked in the realm of political blogging (aka
+warblogging), where the refusal to stand behind one's opinions for
+all to see can leave the writer open to endless personal
+imprecations.  Anonymity and pseudonymity are also especially
+unappreciated by sites which rely heavily on personal reputation
+within a community, such as WikiWikiWeb (which maintains a
+“RealNamesPlease” policy) and Slashdot (which famously forces
+unregistered contributions to be signed “Anonymous Coward”). 
+When the reputations of those using real names can be harmed more
+than those using pseudonyms – who can always walk away from a
+particular identity, and establish a new one; or even use multiple
+identities to game the system – social trust mechanisms are liable
+to break down in a classic iterated Prisoner's Dilemma.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+difficulty of discretion is increased by search engine caching and
+the Wayback Machine, which ensure there is no definitive mechanism to
+change or delete a post permanently.  Once a blog entry has escaped
+from the private sphere into the wild, there is no way to guarantee
+that every trace of it has been eradicated from the public realm. 
+Also, some corrective mechanisms that have evolved in the context of
+journalism or academic publishing to reduce liability, such as
+editing or retraction, have not yet found any firm legal footing in
+the world of weblogs.  Generally a public retraction will stave off a
+libel or defamation lawsuit in the world of journalism, but no one
+yet knows whether it has the same effect in the blogging world.  In
+fact, some netizens are vociferously opposed to the practice of
+editing electronic content in place.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Invisiblog
+is a recent technical twist on the anonymity strategy.  It employs
+PGP and anonymous remailers to effectively erase the tracks of the
+writer.  The staff of Invisiblog never knows the identity or even
+(definitively) the IP address of any given blogger, although
+obviously if one is foolish enough to use one's public PGP key all
+bets are off.  However, Invisiblog does warn its users that it will
+comply with court orders as technically possible – for instance,
+those directing them to remove content from their servers.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Another
+strategy to deal with different levels of privacy is the use of
+multiple weblogs, or multiple sections of one weblog.  This may be
+combined with some kind of disclaimer<A CLASS="sdfootnoteanc" NAME="sdfootnote7anc" HREF="#sdfootnote7sym">[7]</A>
+and/or robots.txt files, as means to indicate that a particular
+section contains material which should not be spidered by search
+engines or read by those whose relationship with the author is
+strictly professional.  Unfortunately, this strategy entirely depends
+upon voluntary compliance by viewers; and human nature being what it
+is, identifying and segregating one's juiciest blog posts is not
+exactly the most efficacious method to discourage snoops.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">A
+third privacy-seeking technique is to restrict access to other
+registered members of an online community.  The problems that arise
+from this technique are generally not legal, but social ones caused
+by a violation of the writer's assumption that what is said inside
+the group should stay inside the group.  There is no technical means
+of preventing a bona-fide member of the group from revealing the
+details of your weekend in Vegas to your girlfriend.  Small
+communities being what they are, the anonymous letter -- or rather
+the anonymous printout or cut-and-paste of a screenful of weblog text
+– seems to have (re)emerged as the technique of choice for in-group
+payback.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Because
+these problems occur in the context of a service it's generally not
+possible for the blogger, who does not control the machinery of the
+server, to identify potential rats well enough to deter or punish
+them.  In some cases it's also not clear who effectively controls
+these expressions.  The actual service provider is usually considered
+a “publisher” or common carrier in the United States, and thus
+assiduously shuns the legal burdens of content ownership by means of
+disclaimers; but almost always retains the power to pull offending
+posts if presented with a legal demand to do so.  Some websites also
+reserve the right to reprint their users' content in various forms –
+potentially exposing it to a wider or different audience than the
+author intended -- or even sell it back to the user under certain
+conditions.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">A
+restricted-access blog is considered undesirable because it limits
+the potential egoboo afforded to bloggers.  There is a very clear
+tension experienced by every novice blogger between the payoff of
+openness -- the thrill of knowing strangers could be reading your
+words -- and that of discretion -- reducing legal and social
+liability.  It must be noted that restricted-access blogs are
+currently seen as platforms for the very young to maintain trivial
+online diaries -- sort of a blog with training wheels, for people who
+are not quite ready for the risks and responsibilities of truly
+public speech.  Only a few blogging communities (notably LiveJournal)
+offer any means to restrict access on a per-post basis to a list of
+chosen viewers, while maintaining all the advantages of an otherwise
+public blog.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">As
+far as anyone can tell, it has not become common to preserve privacy
+by loading blog software onto only locally-accessible machines for a
+true &quot;Dear Diary&quot; experience.  Although this is technically
+feasible, it probably requires a level of technical sophistication
+that appears to still be uncommon in the blogging world.  Also,
+perhaps truly private blogging by itself is too cut off from the rest
+of the world to be a compelling application of the technology. 
+People who sincerely want privacy write in locked notebooks, they do
+not put messages into tiny virtual bottles and cast them upon the
+waters.  Obviously it's hard to get hard numbers on how many people
+use blog software locally, but the fact that so few talk about it in
+their public blogs would seem to indicate the rarity of the practice.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">We
+want to re-emphasize that although there are certainly bloggers who
+could potentially face criminal prosecution for online activities,
+the vast majority merely seeks protection from civil liability or
+social sanction.  Blog software can and should meet the felt needs of
+individuals who wish to bitch about work without risking termination,
+discuss technical issues without being slapped with a DMCA violation,
+gossip about mutual acquaintances without incurring of a libel suit,
+or record their struggles with mental illness without fear of being
+judged an insurance liability.  All of these forms of expression are
+legal, common, and usually enjoy some expectation of privacy on the
+telephone or in face-to-face conversation in one's home, where
+generally only a criminal warrant can penetrate the expectation of
+privacy.  Although ultimately the question of privacy on the web
+belongs to the courts, technical experiments must be built before
+legal theories can be tested.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><BR>
+</P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman"><B>Privacy:
+technical challenges</B></FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Thus
+far, the few weblogs that make any serious attempt to ensure privacy
+do so by means of simple password protection:  either web server
+access control, or database plus cookie/session authentication. 
+However, the law has not yet definitively decided whether this type
+of access control establishes an expectation of privacy – and if
+so, how much and under what circumstances.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+main case to make it to a higher court in the United States thus far,
+<I>Konop v. Hawaiian Airlines</I>, resulted in a notably confusing
+decision which is still being argued over by legal scholars<A CLASS="sdfootnoteanc" NAME="sdfootnote8anc" HREF="#sdfootnote8sym">[8]</A>;
+but the original case has still mostly not been decided on its
+merits, the defendant has now entered bankruptcy, and the plaintiff
+has indicated that he might appeal part of the circuit court
+decision<A CLASS="sdfootnoteanc" NAME="sdfootnote9anc" HREF="#sdfootnote9sym">[9]</A>.
+ The opinion seems to hold that unauthorized access to a website
+which requires  unique usernames and passwords provided by the site
+operator, and also requires all viewers to accept a click-through
+user agreement prohibiting disclosure to third parties, can
+constitute a violation of the Stored Communications Act, which allows
+the website owner to bring suit against the intruder in Federal
+court.  However, the SCA may not apply if a legitimate habitual user
+of the site allows an unauthorized third party to use his or her
+username and password to access the site.  Also, the content on the
+password-protected website may still potentially be found defamatory
+– it was not in <I>Konop</I>, but that may have been specifically
+due to the fact that the two parties were engaged in a labor dispute.
+ Finally, even if content is obtained from a web server illegally, a
+recent case called <I>US v. Jarrett</I> suggests that it might still
+be available as evidence in a criminal case.  As this account should
+make clear, this is very much a developing area of the law -- and no
+one can be certain exactly how it will develop.  Even if the courts
+eventually decide that password-protection affords some privacy,
+there are numerous means of circumventing this intention in practice
+for those willing to risk the possible penalties.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+Supreme Court may (or may not) make online privacy possible, in the
+sense of offering some protection from lawsuits and prosecution under
+certain conditions -- but strong crypto lets you be <I>sure</I>. 
+Rather than relying simply on authentication, more privacy may be
+gained by the use of two-way encryption.  In addition to the
+technical advantages, this strategy takes advantage of an unintended
+consequence of the DMCA, which criminalizes any attempt to break a
+cryptographic system intended to protect copyright.  Since a
+blogger's intention is to prevent any unauthorized user from
+reproducing his or her words in any form -- especially in an
+indictment or subpoena -- presumably DMCA could apply to weblogs.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">But
+given that basic auth is too technically challenging for the vast
+majority of bloggers today, cryptographically-based blog privacy will
+never get any traction unless software is written that handles all
+the machinery of cryptography transparently.  Also, we should mention
+that crypto may be about to undergo a period of rigorous testing by
+both legal and technical means, with a possible result that the USA
+will try to exert control over strong crypto schemes such as PGP
+again soon.  Militating against this, crypto has become big business
+and it's difficult to see how Washington's untechnical minions will
+craft legislation of sufficient fineness to distinguish between a
+legitimate business use of cryptography and any other use.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">There
+are two main technologies for encrypting Internet data:  SSL and PGP
+(there's also SSH, but that is tied to user accounts and will not be
+considered here).  For these purposes, SSL suffers from requiring a
+separate user-authentication system.  It also is not fully anonymous
+if used two-way:  certificates must be issued for both server and
+client by a third-party which verifies certain information about both
+sides.  SSL was largely designed to help the browser user trust the
+host website enough to transmit private information to the server,
+not the other way around.  And finally, SSL certificates are not very
+portable, being deliberately difficult to transfer between
+applications and hosts.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">PGP
+has not yet been applied to web communications on any large scale,
+but in theory it offers some advantages over SSL.  In effect, it
+provides a built-in authentication system -- possibly a higher level
+one since social trust mechanisms can theoretically be applied. 
+However, for maximum privacy it would be better to use only keys not
+registered with the public key servers – the lack of intermediaries
+being another virtue of PGP.  PGP keys are portable and easy to
+transfer from one application or host to the next, because they are
+tied to an individual or identity rather than to a domain.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">It
+should be mentioned that the laws affecting compelled disclosure --
+forcibly turning over PGP keys, passphrases, and decrypted messages
+-- have yet to be settled in the USA.  So far, the few test cases
+that have emerged have all been criminal investigations (notably <I>US
+v. Scarfo</I>) rather than civil offenses.  The balance of opinion at
+this time seems to be that in the USA one cannot be compelled to
+self-incriminate due to the Fifth Amendment, but probably can be
+compelled to provide plain-text copies of subpoenaed documents,
+especially in cases where one is not oneself the defendant.  In the
+UK, residents <I>can</I> be compelled to turn over PGP keys in a
+criminal investigation under the Regulation of Investigatory Powers
+Act, which also prohibits the key user from revoking or otherwise
+reporting the invalidation of the key.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Another
+factor affecting privacy is the architecture of the web, particularly
+the fixed location of the web server and of content on that server. 
+Because web servers are almost always found at fixed IP addresses,
+it's childishly easy to pinpoint the party to be served with a legal
+demand.  One subpoena, or sometimes just a WHOIS lookup, is all it
+takes to identify the entity that can pull the plug<A CLASS="sdfootnoteanc" NAME="sdfootnote10anc" HREF="#sdfootnote10sym">[10]</A>.
+ Given that security is less about absolutes than about increasing
+the level of difficulty, it might be helpful for a system to be
+designed which is more distributed and easy to move around.  Ideally,
+the physical location of a blog could be changed frequently to elude
+surveillance, or it might exist in multiple locations, or in pieces
+scattered throughout a distributed network.  When an authorized
+visitor connects with a valid PGP key, the web server might forward a
+request to some other location without actually storing or vending
+any content itself.  Content on the wire may have more legal
+protection than content inscribed to a disk, as it may require a
+wiretapping warrant to access<A CLASS="sdfootnoteanc" NAME="sdfootnote11anc" HREF="#sdfootnote11sym">[11]</A>;
+therefore, making it more difficult to identify and seize a physical
+copy of the content could be a potentially useful tactic.<A CLASS="sdfootnoteanc" NAME="sdfootnote12anc" HREF="#sdfootnote12sym">[12]</A></FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">There
+is no easy way to prevent authorized users from printing or
+cutting-and-pasting text from a browser.  One could potentially
+deliver a blog page in PDF or other binary format, which makes
+cutting and pasting more difficult, but this does not deter printing.
+ This issue really lies in the realm of social engineering, and
+therefore is resistant to technical solution.  It's possible that
+some kind of restrictive terms of use might have legal force, but so
+far this idea has not been fully tested in court.  The best a piece
+of blog software can do is make it easier to narrow down the specific
+user who violated the veil of privacy.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Although
+we have mostly focused our discussion on individual privacy, the
+kinds of changes we are proposing could have benefits for businesses
+also.  For instance, if software could be designed which carved out a
+certain level of legally-tested privacy for users connecting with
+known PGP keys, IT security concerns could be squared with the ease
+of the outside-the-firewall Internet.  Currently a mass of
+proprietary data – HR documents and forms, buglists and version
+control systems, Wikis and knowledgebases – must reside behind the
+corporate firewall because  it contains proprietary information.  The
+technical solutions to this problem, which include VPNs and ssh, are
+difficult to implement and monitor properly.  The kinds of
+architectural changes we propose could potentially enhance the
+security of proprietary corporate information as well as private
+personal data.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><BR>
+</P>
+<P STYLE="text-indent: -0.02cm; margin-bottom: 0cm; line-height: 150%">
+<FONT FACE="Times New Roman"><B>Integrating blogging with other
+applications</B></FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+current distinction between communications applications is not fully
+necessary, and leads to numerous inefficiencies.  A given user may
+need to monitor and employ email (including Trackback/Pingback and
+comment notifications for his or her own blog, as well as emails sent
+by readers and update notifications from other people's blogs), a
+chat window, numerous IM windows, multiple weblogs and Wikis and
+individual threads from those blogs and Wikis, one's own blogware
+system, a PIM, other websites (for instance those that accept
+copyrighted product reviews), and possibly an RSS aggregator to
+participate in the full range of desirable online conversations.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">For
+instance, at the moment there is no truly elegant way to track
+comment activity on other people's weblogs, or even to keep track of
+which posts you've commented on recently -- much less get some kind
+of quick notification when someone specifically replies to one of
+your comments.  Of course, one can see why the makers of current
+weblogs might not want to implement systems which might result in
+tons of spam flying around, much of it from their own servers.  Email
+is undergoing a phase where it has become a victim of its own
+success, in that spam filters are now totally mandatory, but they
+tend to assume that lots of email from any given address increases
+the likelihood that it's being used by a spammer.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">There
+is no technical reason why an individual could not sit in front of a
+single application window and interact with all the different kinds
+of communication software mentioned above in near-realtime.  It's all
+just data and endpoints, and once these two become decoupled the
+necessity for multiple viewing applications can disappear if desired.
+ Of course this deconstruction is much simpler in a publish and
+subscribe architecture than in the inflexible display-oriented
+architecture of current weblogs.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">It
+would also be highly desirable to extend the kinds of privacy
+protections under discussion from weblogs to other communications
+applications.  The state of privacy practice in other communication
+applications is truly deplorable.  Blogs are at least understood to
+be public by most people, even if perhaps they don't fully grasp all
+the implications.  In contrast, the vast majority of users of IM,
+email, and chat apps behave as if these channels of communication are
+equivalent to the telephone.  Even telephone conversations have a
+reduced expectation of privacy in certain situations, such as in the
+workplace; but email and IM have absolutely none.  Email in
+particular, but also IM and browsing, are fully susceptible to
+surveillance by the employer and potentially by the third-party owner
+of the server, and increasingly constitute important evidence in
+legal cases.  Nevertheless, many employees transmit confidential and
+private information over these channels routinely with no attempts at
+concealment or discretion.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">The
+good news is that considerable work has already been done to enhance
+privacy in email and IM, if not necessarily to make it user-friendly.
+ As we will discuss in the the followup technical paper, it should be
+possible to build blog privacy on the foundation of technologies
+proven in other applications.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">Finally,
+one particular way in which we believe pub/sub will enhance privacy
+is by returning control of an individual's data to that individual. 
+People – not users, people – should be able to choose with whom
+and under what circumstances they wish to share their personal
+details and insights.  They should also be helped in keeping track of
+what they said where.  As individuals establish long-lived online
+identities with contributions scattered all over the Internet, the
+slippage between copyright and control becomes ever more apparent: 
+in theory an individual owns his or her own expressions, but in
+practice they have become part of the body of a website owned by
+another person or entity – and therefore under the control of that
+person or entity, and possibly subject to foreign law.  Only by
+personal archiving, independent of the original publisher of each
+contribution, can an individual maintain control over his or her
+online identity over time.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman">For
+instance, it is fairly well established that all my comments on
+various US-based community websites exist under my copyright; but
+those website operators can sometimes choose to edit or be compelled
+to delete my copyrighted material<A CLASS="sdfootnoteanc" NAME="sdfootnote13anc" HREF="#sdfootnote13sym">[13]</A>
+– and I will not even be able to contest the action in public
+without a copy of my original post.  A website could also go out of
+business or be shut down, causing the loss of all content contributed
+by me.  By simply being able to route my comments through my own
+server, which would post it to my own blog and then transparently
+forward a copy to the website in question, I could make sure that I
+had a copy of every single thing I posted to any website anywhere on
+the Internet.  If for some reason I wanted to share that same piece
+of writing with some other person or website, I could do so with
+another subscription.  In this way, integrating blogs with other web
+applications could enhance individual control over personal data –
+which is also an important privacy concern.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; line-height: 150%"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm; line-height: 150%"><FONT FACE="Times New Roman"><B>Conclusion</B></FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; font-weight: medium; line-height: 150%">
+<FONT FACE="Times New Roman">Simon Winchester, in his recent book
+<I>Krakatoa</I>, mentions a telling fact about the development of
+undersea telegraphy in the 19th century:  despite the fact
+that overland cables were already available and cheaper, demand for
+undersea telegraph grew rapidly.  The real value-add of submarine
+cable, according to Winchester, was privacy and security:  the
+deep-sea lines were thought to be impossible to tap and less likely
+to be susceptible to operator theft of secrets, unlike overland
+cables which passed through a multitude of jurisdictions and through
+numerous hands before reaching their destination.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; font-weight: medium; line-height: 150%">
+<FONT FACE="Times New Roman">A similar story can be told about the
+growth of private postal services (meaning those carrying
+non-governmental mail) in Renaissance Europe.  By the turn of the
+15th century, successful merchants were exchanging around
+10,000 letters a year with business associates in multiple
+countries<A CLASS="sdfootnoteanc" NAME="sdfootnote14anc" HREF="#sdfootnote14sym">[14]</A>.
+ One of the factors accounting for the explosive rise of
+letter-writing at this time was the development of private postal
+services (most notably that run by the Thurn und Taxis family) which
+were considered neutral networks.  The vast and enduring success of
+these private postal services indicates a demand for a common carrier
+that was subject to neither governmental snooping nor competitive
+industrial espionage.  One of the reasons centralized European
+governments later nationalized postal monopolies was in fact to
+maintain better surveillance on possible dissident elements.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; font-weight: medium; line-height: 150%">
+<FONT FACE="Times New Roman">As these historical examples suggest, in
+the past the promise of privacy in communication media has led to an
+increase in expression.  For this reason, we think it rather unlikely
+that increased privacy would lead to a disastrous closing off of the
+great conversation that is the Internet.  Instead, it will create
+more rooms in the mansion:  those who wish can still shout their
+ideas from the street, while others will choose to unburden
+themselves only to trusted friends in their own living rooms. 
+Obviously everyone hopes that bloggers will choose to keep much of
+their expression public and free – but it should be each
+individual's choice to make, aided by software that recognizes the
+eternal tension between the human needs for freedom and privacy.</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; font-weight: medium; line-height: 150%">
+<BR>
+</P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; font-weight: medium; line-height: 150%">
+<FONT FACE="Times New Roman">[The following individuals commented on
+drafts of this paper:  Timothy Converse, Tim Cullen, Scott Andrew LePera, Adam Rifkin, Ben Sittler.]</FONT></P>
+<P STYLE="text-indent: 1cm; margin-bottom: 0cm; font-weight: medium; line-height: 150%">
+<BR>
+</P>
+<DIV ID="sdfootnote1">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote1sym" HREF="#sdfootnote1anc">1</A><A HREF="http://www.mod-pubsub.org/">http://www.mod-pubsub.org</A></FONT></P>
+</DIV>
+<DIV ID="sdfootnote2">
+	<P CLASS="sdfootnote"><A CLASS="sdfootnotesym" NAME="sdfootnote2sym" HREF="#sdfootnote2anc">2</A><FONT FACE="Times New Roman">Although
+	there is a limited right of pseudonymity in the United States.  See
+	</FONT><A HREF="http://vjolt.student.virginia.edu/graphics/vol3/vol3_art1.html"><FONT FACE="Times New Roman">Anonymous
+	Internet Communication and the First Amendment: A Crack in the Dam
+	of National Sovereignty</FONT></A><FONT FACE="Times New Roman"> by
+	Michael H. Spencer (Virginia Journal of Law and Technology, Spring
+	1998) for a brief overview.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote3">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote3sym" HREF="#sdfootnote3anc">3</A>However,
+	academics can be asked by their universities to distance themselves
+	somewhat from their professional homes.  For instance, no less an
+	academic and Internet luminary than Lawrence Lessig was recently
+	asked to move his personal site and weblog off the servers of
+	Stanford University on very short notice.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote4">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote4sym" HREF="#sdfootnote4anc">4</A>Some
+	well-known examples of termination for blogging include:  Dooce.com,
+	BrazosportNews.blogspot.com, DiveIntoMark.org,
+	EnglandsSword.blogspot.com, DenisHorgan.com.  For more on how
+	blogging may affect employment law, see Paul Gutman's very helpful
+	paper “<A HREF="http://www.paulgutman.net/Gutman--Blogging.pdf">Did
+	You Just Say That?:  Blogging and Employment Law in Conflict</A>”
+	(Columbia Journal of Law and the Arts, vol. 27 issue 1).</FONT></P>
+</DIV>
+<DIV ID="sdfootnote5">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote5sym" HREF="#sdfootnote5anc">5</A>KevinSites.net,
+	Gotham.realwomenonline.com.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote6">
+	<P CLASS="sdfootnote"><A CLASS="sdfootnotesym" NAME="sdfootnote6sym" HREF="#sdfootnote6anc">6</A><FONT FACE="Times New Roman">Dear_raed.Blogspot.com</FONT></A><FONT FACE="Times New Roman">,
+	Rooznegar.com.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote7">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote7sym" HREF="#sdfootnote7anc">7</A>See
+	Gutman for a discussion of the pros and cons of disclaimers.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote8">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><FONT SIZE=1><A CLASS="sdfootnotesym" NAME="sdfootnote8sym" HREF="#sdfootnote8anc">8</A><FONT SIZE=2>The
+	main point of contention is whether web content is subject to the
+	more stringent Wiretap Act (as argued </FONT><A HREF="http://www.eff.org/Legal/Cases/Konop_v_Hawaiian_Airlines/20010319_eff_rehear_amicus.html"><FONT SIZE=2>by
+	the EFF</FONT></A><FONT SIZE=2>) or the Stored Communications Act
+	(as argued by, for instance, </FONT><A HREF="http://hermes.circ.gwu.edu/cgi-bin/wa?A2=ind0208&amp;L=cybercrime&amp;F=&amp;S=&amp;P=498"><FONT SIZE=2>law
+	professor Orin Kerr</FONT></A><FONT SIZE=2> – although he then
+	goes on to suggest that perhaps neither should apply).  The 9th
+	Circuit originally ruled unanimously on this case in January 2001,
+	but withdrew their decision in August 2001 after two of the three
+	judges apparently changed their minds.  In August 2002, they issued
+	a split verdict with one judge maintaining his original opinion
+	while two reversed themselves after the filing of an amicus brief by
+	the Department of Justice which maintained that application of the
+	Wiretap Act to the web would hinder their ability to catch
+	pedophiles.</FONT></FONT></FONT></P>
+</DIV>
+<DIV ID="sdfootnote9">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><FONT SIZE=1><A CLASS="sdfootnotesym" NAME="sdfootnote9sym" HREF="#sdfootnote9anc">9</A><A HREF="http://www.usatoday.com/travel/news/2003/06/04-hawaiian-web.htm"><FONT SIZE=2>USA
+	Today 6/4/2003</FONT></A><FONT SIZE=2>.</FONT></FONT></FONT></P>
+</DIV>
+<DIV ID="sdfootnote10">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote10sym" HREF="#sdfootnote10anc">10</A>Generally,
+	the “publisher” or common carrier of a piece of content (the
+	hosting website or owner of the actual physical server) must comply
+	immediately with orders to remove or block content on grounds such
+	as DMCA violation, copyright or trademark violation, or publication
+	of trade secrets.  Further legal action can be taken against the
+	individual who posted the content.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote11">
+	<P CLASS="sdfootnote"><A CLASS="sdfootnotesym" NAME="sdfootnote11sym" HREF="#sdfootnote11anc">11</A><FONT FACE="Times New Roman">See
+	</FONT><A HREF="http://www.eff.org/effector/HTML/effect13.02.html"><FONT FACE="Times New Roman">this
+	EFF discussion</FONT></A><FONT FACE="Times New Roman"> of <I>Steve
+	Jackson Games v. Secret Service</I>.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote12">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote12sym" HREF="#sdfootnote12anc">12</A>This
+	tactic requires that ownership of a domain name remain separate from
+	legal controls based on content hosted at that domain.  If a webhost
+	can be forced to disallow a domain name owner from changing to some
+	other host, this tactic may be less effective.  In the meantime, use
+	of a third-party DNS provider, separate from the webhost itself, can
+	never hurt.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote13">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote13sym" HREF="#sdfootnote13anc">13</A>This
+	practice has been greatly increased in the United States by the
+	strictures of the DMCA, which limits an ISP or publisher's liability
+	for intellectual property violations if the ISP or publisher agrees
+	to immediately remove content which a complainant alleges violates
+	their intellectual property rights.  Some well-known cases in this
+	regard are Slashdot's response to Microsoft's trade secrets case
+	regarding Kerberos; <I>Universal City Studios v. Raimerdes</I>, the
+	so-called 2600 DeCSS case; and various cases involving the RIAA and
+	MPAA in their fight against file traders.</FONT></P>
+</DIV>
+<DIV ID="sdfootnote14">
+	<P CLASS="sdfootnote"><FONT FACE="Times New Roman"><A CLASS="sdfootnotesym" NAME="sdfootnote14sym" HREF="#sdfootnote14anc">14</A>Lisa
+	Jardine, <I>Worldly Goods:  a new history of the Renaissance</I>
+	(Doubleday     1996), p 103.</FONT></P>
+</DIV>
+</BODY>
+</HTML>
