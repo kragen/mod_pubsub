@@ -34,7 +34,7 @@ package PubSub::Server;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Server.pm,v 1.7 2003/04/26 03:01:46 ifindkarma Exp $
+# $Id: Server.pm,v 1.8 2003/04/26 03:31:32 ifindkarma Exp $
 
 use strict;
 
@@ -1213,10 +1213,10 @@ sub js_prologue_string
         s/\t/\\t/g;
         s/(<|[^ -~])/sprintf("\\x%2.2x",ord($1))/ge;
     }
-    return("window.kn_userid = '$kn_userid' ;" .
-           "window.kn_displayname = '$kn_displayname' ;" .
-           "if (! window.kn_server) window.kn_server = '$kn_server' ;\r\n" .
-	   $str);
+    return("window.kn_userid = '$kn_userid';" .
+           "window.kn_displayname = '$kn_displayname';\r\n" .
+	   $str . "\r\n" .
+           "if (! window.kn_server) window.kn_server = '$kn_server';");
 }
 
 sub dispatch_request
