@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.36 2003/06/14 04:44:40 ifindkarma Exp $
+# $Id: pubsub.py,v 1.37 2003/06/14 05:33:04 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -304,12 +304,12 @@ class Topic(Event):
             if kn_routes is not None:
                 kn_routes.clean()
             self.kn_subtopics.clean()
-        # Walk through self.events and self.eventdict, and delete all the expired items.
+        # Walk through self.events and self.eventdict, deleting all expired items.
         compact = 0
         for i in range(len(self.events)):
             event = self.events[i]
             if event is not None:
-                if event.is_expired(): # Delete this event.
+                if event.is_expired():
                     # print "Deleting " + self.getname() + "/" + event['kn_id'] + "\n"
                     self.events[i] = None
                     compact = 1
@@ -332,7 +332,7 @@ class Topic(Event):
         # so this is not possible yet.  The eventual goal here is to be able to
         # delete every resource we allocate so the server can run indefinitely.
     # FIXME: We'll need is_empty() when we start pruning empty topics.
-    # Verify that it works as expected.
+    # FIXME: Verify that it works as expected.
     # def is_empty(self):
     #     if self.kn_subtopics is not None:
     #         for subtopic in self.kn_subtopics.get_events():
@@ -420,12 +420,10 @@ class StaticRoute(Route):
             self.kn_uri = None
         if misc.has_key('kn_content_filter'): self.content_filter = re.compile(misc['kn_content_filter'])
         else: self.content_filter = None
-    def poisoned(self):
-        return StaticRoute(None, self.location, self.clone({'kn_payload': '', 'kn_expires': '+300'}))
     def post(self, event):
         """ Forward an event to the destination.  Returns a success value;
         if it returns false, this route will be removed. """
-        # This early return is going to make do_max_n interesting.
+        # This early return makes do_max_n interesting.
         if event.is_expired(): return 1
         if self.is_expired(): return 1
         if self.kn_to is None: return 1  
@@ -437,7 +435,10 @@ class StaticRoute(Route):
         try: self.kn_to.notify(event.clone(changes))
         except: return 0
         return 1
-    def is_static_route(self): return 1
+    def is_static_route(self):
+        return 1
+    def poisoned(self):
+        return StaticRoute(None, self.location, self.clone({'kn_payload': '', 'kn_expires': '+300'}))
     def close(self): pass
 
 class Tunnel(Route):
@@ -480,7 +481,6 @@ class Tunnel(Route):
             self.header_sent = 1
         self.conn.report_status("tunnel sending event %s" % event['kn_id'])
         self.conn.tickle_renderer = 1
-        # print "%s" % self.encode(event)
         self.conn.send(self.encode(event))
         return 1
         
@@ -645,7 +645,6 @@ class Server:
     def report_status(self, conn, status):
         self.connstatus[id(conn)] = status
         self.log(conn, 'connection', self.peers[id(conn)], status)
-        #gsb print(conn, 'connection', self.peers[id(conn)], status)
     def connection_closed(self, conn):
         del self.connstatus[id(conn)]
         del self.peers[id(conn)]
@@ -766,6 +765,7 @@ def run_batchable(conn, uri, httpreq, query, routine):
 
 def add_static_route(conn, uri, httpreq, query):
     run_batchable(conn, uri, httpreq, query, add_static_route_internal)
+
 def notify(conn, uri, httpreq, query):
     run_batchable(conn, uri, httpreq, query, notify_internal)
     
@@ -1076,9 +1076,8 @@ class Connection(asyncore.dispatcher_with_send):
         # in places where we're passed an entire URI, we should.
         (_, _, path, _, _, _) = urlparse.urlparse(uri)
         urlroot = "/%s/" % self.urlroot()
-        # print str(("get_topic 1", path, urlroot))
-        if (path == urlroot) or (string.find(path, urlroot)) == 0: path = path[len(urlroot):]
-        # print str(("get_topic 2", path, urlroot))
+        if (path == urlroot) or (string.find(path, urlroot)) == 0:
+            path = path[len(urlroot):]
         return self.server.root_topic.get_descendant(filter(lambda x: x != '', string.split(path, '/')))
     def getservername(self):
         if self.httpreq['headers'].has_key('host'):
