@@ -39,7 +39,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.8 2003/07/19 09:04:18 ifindkarma Exp $
+// $Id: pubsub_raw.js,v 1.9 2003/07/19 09:39:45 ifindkarma Exp $
 
 ////////////////////////////////////////////////////////////////////////
 // Notes on notation:
@@ -408,7 +408,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.8 2003/07/19 09:04:18 ifindkarma Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.9 2003/07/19 09:39:45 ifindkarma Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -1752,8 +1752,10 @@ function _kn_leaderScanner()
                 {
                     // usually, kill, but if abouttoruntunnel, kill on sort order
                     if (!_kn_aboutToRunTunnel || (_l_victim < _kn_escape(kn.TFN_)))
+                    {
                         var expDate = (new Date(Date.parse(new Date()) + (kn.tunnelMaxAge * 1000)).toString());
                         document.cookie = _l_victim + "=closing;expires=" + expDate + ";path=/";
+                    }
                 }
                 else if (_l_KNcookies[_l_victim] == "closed")
                 {
@@ -4166,6 +4168,9 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
+// Revision 1.9  2003/07/19 09:39:45  ifindkarma
+// Patched another bug.  pubsub_raw.js now passes all unit tests.
+//
 // Revision 1.8  2003/07/19 09:04:18  ifindkarma
 // Added several Bug patches.
 //
