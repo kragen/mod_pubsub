@@ -34,7 +34,7 @@ package PubSub::Server;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Server.pm,v 1.3 2003/03/25 06:04:26 ifindkarma Exp $
+# $Id: Server.pm,v 1.4 2003/04/25 22:58:40 ifindkarma Exp $
 
 use strict;
 
@@ -416,7 +416,7 @@ sub notify
         }
         else
         {
-            $event{'kn_id'} ||= uuid();
+            $event{'kn_id'} = uuid() unless defined($event{'kn_id'});
             post_and_forward($q, $topic, $status, \%event);
         }
     }
