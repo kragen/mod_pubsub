@@ -25,48 +25,23 @@ public class SimpleRouter implements Router {
 	public SimpleRouter(String uri) throws MalformedURLException{
 		this.serverURI = uri;
 		this.server = new EventServer(uri);
-		this.dispatcher = new Dispatcher();
+		this.dispatcher = new Dispatcher(uri);
 	}
 
+	/**
+	 * Get current connection or open new one.
+	 * @return
+	 */
 	Connection acquireConnection()
 	{
 		if (connection == null)
 		{
 			connection=server.openConnection(null,null,dispatcher,null);
+			new Thread(connection).start();
 		}
 		return connection;
 	}
 	
-	public String getMessageId() {
-		return Double.toString(Math.random()).substring(2, 10);
-	}
-
-	public String getRouteId(String topic, String msg_id) {
-		return serverURI + topic + ROUTES_STR + msg_id;
-	}
-	public String getTopicFromRoute(String route_id) {
-		String retVal = "";
-
-		int topicsIdx = route_id.indexOf(ROUTES_STR);
-		if (route_id.startsWith(serverURI) && topicsIdx != -1) {
-
-			retVal = route_id.substring(serverURI.length(), topicsIdx);
-		}
-
-		return retVal;
-	}
-	public String getIdFromRoute(String route_id) {
-		String retVal = "";
-
-		int topicsIdx = route_id.indexOf(ROUTES_STR);
-		if (topicsIdx != -1) {
-
-			retVal = route_id.substring(topicsIdx + ROUTES_STR.length());
-		}
-
-		return retVal;
-	}
-
 	/**
 	 * Post a message to the specified topic on the pubsub server.
 	 * @param topic the destination
@@ -134,7 +109,7 @@ public class SimpleRouter implements Router {
 	public static void main(String args[]) {
 		// subscribe
 		try {
-			SimpleRouter router = new SimpleRouter("http://localhost/kn/");
+			SimpleRouter router = new SimpleRouter("http://www.mod-pubsub.org:9000/kn");
 			Listener listener = new DebugListener();
 			router.subscribe("/what/chat", listener, null);
 		} catch (Exception e) {
@@ -143,7 +118,7 @@ public class SimpleRouter implements Router {
 		// publish
 		try {
 			Map msg = new HashMap();
-			SimpleRouter router = new SimpleRouter("http://localhost/kn/");
+			SimpleRouter router = new SimpleRouter("http://www.mod-pubsub.org:9000/kn");
 
 			msg.put("displayname", "Snow White");
 			msg.put("kn_payload", "Someday my prince will come");

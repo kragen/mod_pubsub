@@ -231,14 +231,14 @@ public class EventServer {
 	public static void main(String args[]) {
 		// subscribe
 		try {
-			EventServer server = new EventServer("http://localhost/kn/");
+			EventServer server = new EventServer("http://www.mod-pubsub.org:9000/kn");
 			Connection connection;
 			EventStreamReader reader;
 			Listener listener = new DebugListener();
 			
 			connection=server.openConnection("snowwhite",null,listener,null);
 			reader = new EventStreamReader(connection.getEvents(),listener);
-			reader.run();
+			new Thread(reader).start();
 			
 			connection.subscribe("/what/chat",null);
 		} 
@@ -250,7 +250,7 @@ public class EventServer {
 		// publish
 		try {
 			Map msg = new HashMap();
-			EventServer router = new EventServer("http://localhost/kn/");
+			EventServer router = new EventServer("http://www.mod-pubsub.org:9000/kn");
 
 			msg.put("displayname", "Snow White");
 			msg.put("kn_payload", "Someday my prince will come");

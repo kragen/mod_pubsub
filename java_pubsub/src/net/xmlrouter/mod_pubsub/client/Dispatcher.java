@@ -17,12 +17,14 @@ public class Dispatcher implements Listener, Router {
 	 * map from route_id to listener
 	 */
 	Map routes = new HashMap();	
-
+	String baseTopic;
+	
 	/**
 	 * Local event router. Dispatches messages to all listeners of a topic.
 	 *
 	 */
-	public Dispatcher() {
+	public Dispatcher(String baseTopic) {
+		this.baseTopic=baseTopic;
 	}
 
 	/**
@@ -68,11 +70,19 @@ public class Dispatcher implements Listener, Router {
 	 */
 	public void onMessage(Map msg)
 	{
+		String from;
 		String topic;
 		
 		// get destination		
-		topic = (String)msg.get("kn_to");
-
+		from = (String)msg.get("kn_routed_from");
+		if (from == null)
+			return;
+		
+		if (from.startsWith(baseTopic))
+			topic = from.substring(baseTopic.length());
+		else
+			return;
+			
 		// route
 		publish(topic,msg);
 	}
@@ -95,6 +105,10 @@ public class Dispatcher implements Listener, Router {
 				listener = (Listener)listeners.get(i);
 				listener.onMessage(msg);	
 			}	
+		}
+		else
+		{
+			System.out.println("no listeners for topic "+topic);
 		}
 	}
 

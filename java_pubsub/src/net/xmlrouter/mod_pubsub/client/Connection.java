@@ -11,7 +11,7 @@ import java.util.Iterator;
  * Manages connection and subscriptions to pubsub server.
  * 
  */
-public class Connection 
+public class Connection implements Runnable
 {
 	EventServer server;
 	String journal;
@@ -67,10 +67,17 @@ public class Connection
 		// make sure we are closed
 		close();
 		
+		try
+		{
 		// send message
 		conn = HTTPUtil.Post(url, msg);
 		events = new EventStream(conn.getInputStream());
-		
+		}
+		catch(IOException e)
+		{
+			System.err.println("open() : Unable to open connection to "+url+" : "+e.getMessage());
+			throw e;		
+		}
 		// re-establish subscriptions
 		establishSubscriptions();
 	}
@@ -115,6 +122,18 @@ public class Connection
 		if (listener != null)
 		{
 			listener.onMessage(events.readEvent());
+		}
+	}
+	public void run()
+	{
+		try
+		{
+			while (true)
+				dispatchNextEvent();		
+		}
+		catch(Exception e)
+		{			
+			System.err.println("Connection stopped. "+e.getMessage());
 		}
 	}
 }
