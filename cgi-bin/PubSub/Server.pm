@@ -34,7 +34,7 @@ package PubSub::Server;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Server.pm,v 1.5 2003/04/26 00:31:48 ifindkarma Exp $
+# $Id: Server.pm,v 1.6 2003/04/26 02:54:31 ifindkarma Exp $
 
 use strict;
 
@@ -777,7 +777,7 @@ sub blank
     my ($q) = @_;
     print $q->header(-type=>'text/html; charset=utf-8',
                      -expires=>'+1y');
-    print $q->start_html(-head=>html_prologue_string($q).<<HEAD, -title=><<TITLE), $q->end_html;
+    print $q->start_html(-head=>html_prologue_string().<<HEAD, -title=><<TITLE), $q->end_html;
 <script type="text/javascript">
 <!--
 if (parent.kn_redrawCallback) { parent.kn_redrawCallback(window); }
@@ -1175,12 +1175,8 @@ sub set_cgi_url
 
 sub html_prologue_string
 {
-    my ($q) = @_;
-    return ("<script type=\"text/javascript\">\n" .
-            "<!--\n" .
-            js_prologue_string($q) . "\n" .
-            "// -->\n" .
-            "</script>");
+    my $quoted_url = PubSub::Htmlsafe::entify($cgi_url);
+    return ("<script type=\"text/javascript\" src=\"$quoted_url?do_method=whoami\"></script>\n");
 }
 
 # For cross domain and other JavaScript customization.
@@ -1290,7 +1286,7 @@ sub dispatch_request
         
         my $status_topic;
         $status_topic = new PubSub::Topic($q, \&post_remote_event,
-					  html_prologue_string($q));
+					  html_prologue_string());
         my $event = $status_topic->status_event();
         # This is how Perl spells "try".  This bothers some people.
         eval 
