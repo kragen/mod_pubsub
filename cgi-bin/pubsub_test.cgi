@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub_test.cgi,v 1.3 2003/03/25 06:04:26 ifindkarma Exp $
+# $Id: pubsub_test.cgi,v 1.4 2003/04/26 02:32:19 ifindkarma Exp $
 
 use strict;
 use PubSub::UUID;
@@ -247,11 +247,35 @@ sub test_header
     return "Running " . @tests . " tests:\n";
 }
 
+sub js_prologue_string
+{
+    my $str = "";
+    eval
+    {
+	my $resp = $ua->get($url.'?do_method=whoami');
+	if ($resp->is_success) 
+	{
+	    $str = $resp->content;
+	}
+    };
+    return $str;
+}
+
+sub html_prologue_string
+{
+    return ("<script type=\"text/javascript\">\n" .
+            "<!--\n" .
+            js_prologue_string . "\n" .
+            "// -->\n" .
+            "</script>");
+}
+
 sub run_all_tests 
 {
     my $start = time();
     print(header('text/html; charset=utf-8'),
           start_html(-title => "PubSub test results from " . localtime($start),
+		     -head => html_prologue_string,
                      -text => "black",
                      -bgcolor => "white"), 
           h1(test_header @tests), "<ol>\n");
