@@ -60,7 +60,7 @@
 //074
 		075854EA007192F10A0A0A23 = {
 			isa = PBXFrameworkReference;
-			path = KnowNow.framework;
+			path = PubSub.framework;
 			refType = 3;
 		};
 		075854EB007192F10A0A0A23 = {
@@ -84,7 +84,7 @@
 				OTHER_LIBTOOL_FLAGS = "";
 				OTHER_REZFLAGS = "";
 				PRINCIPAL_CLASS = "";
-				PRODUCT_NAME = KnowNow;
+				PRODUCT_NAME = PubSub;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wall -Werror";
 				WRAPPER_EXTENSION = framework;
@@ -104,7 +104,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>KnowNow</string>
+	<string>PubSub</string>
 	<key>CFBundleGetInfoString</key>
 	<string>PubSub Client Library</string>
 	<key>CFBundleIconFile</key>
@@ -770,7 +770,7 @@
 		1BA73B940071AD5B0A0A0A23 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
-			path = KnowNow.h;
+			path = PubSub.h;
 			refType = 4;
 		};
 		1BA73B950071AD5B0A0A0A23 = {

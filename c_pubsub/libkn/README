@@ -1,4 +1,4 @@
-$Id: README,v 1.4 2003/03/22 09:20:08 ifindkarma Exp $
+$Id: README,v 1.5 2003/03/23 21:53:56 wsanchez Exp $
 
 libkn is the C PubSub Client Library.
 
@@ -66,6 +66,6 @@ you to publish to and subscribe to topics on a PubSub Server on
 the command line or within shell scripts.  If run with a '-h'
 argument, they will print usage information.
 
-libkn includes an Objective-C API (KnowNow.framework) which wraps the
+libkn includes an Objective-C API (PubSub.framework) which wraps the
 C API using the Foundation framework in Mac OS X.  This API is
 experimental and is therefore unsupported.

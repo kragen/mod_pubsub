@@ -50,7 +50,7 @@
 
 #include <sys/cdefs.h>
 #ifdef __RCSID
-__RCSID("$Id: kn_test.m,v 1.2 2003/03/19 05:36:47 ifindkarma Exp $");
+__RCSID("$Id: kn_test.m,v 1.3 2003/03/23 21:53:56 wsanchez Exp $");
 #endif
 
 #include <sys/types.h>
@@ -61,7 +61,7 @@ __RCSID("$Id: kn_test.m,v 1.2 2003/03/19 05:36:47 ifindkarma Exp $");
 
 #include <Foundation/Foundation.h>
 #include "FoundationExtensions.h"
-#include <KnowNow/KnowNow.h>
+#include <PubSub/PubSub.h>
 
 #define HELLO_WORLD_PART1            "Hello, World!\n"
 #define HELLO_WORLD_PART2            "1!2@3#4$5%6^7&8*9(0)\n"
