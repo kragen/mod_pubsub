@@ -5,7 +5,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -40,7 +40,7 @@
  * @KNOWNOW_LICENSE_END@
  **/
 
-#define _PROTO_ID_ "$Id: kn_Server_http.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
+#define _PROTO_ID_ "$Id: kn_Server_http.c,v 1.3 2003/03/13 00:42:27 ifindkarma Exp $"
 
 #include <sysexits.h>
 
@@ -60,7 +60,9 @@ static void kn_ServerProcessEventsForDescriptor (kn_ServerRef aServer, int aFile
   if (aFileDescriptor == aServer->event.socket) kn_ServerProcessEvents(aServer);
 }
 
+#ifdef HAVE_OPENSSL
 static kn_Error kn_ServerSetSSLTunnel(kn_Server* aServer, kn_Server_Connection* aConnection);
+#endif /* HAVE_OPENSSL */
 
 static kn_Error kn_ServerConnect (kn_Server* aServer, kn_Server_Connection* aConnection)
 {
@@ -756,6 +758,7 @@ disconnect:
   return NULL;
 }
 
+#ifdef HAVE_OPENSSL
 kn_Error kn_ServerSetSSLTunnel(kn_Server *aServer, kn_Server_Connection* aConnection)
 {
 	kn_MutableStringRef aRequest    = kn_StringCreateMutable();
@@ -827,3 +830,4 @@ kn_Error kn_ServerSetSSLTunnel(kn_Server *aServer, kn_Server_Connection* aConnec
 	free(aBuffer);		
 	return anError;
 }
+#endif /* HAVE_OPENSSL */

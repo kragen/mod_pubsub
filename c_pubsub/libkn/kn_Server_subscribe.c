@@ -5,7 +5,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -40,7 +40,7 @@
  * @KNOWNOW_LICENSE_END@
  **/
 
-#define _GET_ID_ "$Id: kn_Server_subscribe.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _GET_ID_ "$Id: kn_Server_subscribe.c,v 1.2 2003/03/13 00:42:27 ifindkarma Exp $"
 
 /**
  * Actions
@@ -164,7 +164,11 @@ static kn_Error kn_ServerSendSubscribeRequest (kn_Server* aServer)
       kn_StringRef        aHostName = kn_StringCreateWithHostNameFromURI(aServer->uri);
 
       kn_StringAppendCString(aRequest, "GET "                               );
-	  if (aServer->proxy_host && !aServer->event.ssl_connection)
+	  if (aServer->proxy_host
+#ifdef HAVE_OPENSSL
+	      && !aServer->event.ssl_connection
+#endif /* HAVE_OPENSSL */
+	      )
       	kn_StringAppendString (aRequest, aServer->uri                       );
       else
         kn_StringAppendString (aRequest, aPath                              );

@@ -2,8 +2,8 @@
  * PubSub Client Library
  * libkn test suite
  *
- * WARNING: Don't use this as a source of good examples as to how to
- * program the library; it's job is only to test it.  In particular,
+ * WARNING: Don't use this as a source of good examples of how to
+ * program the library; its job is only to test it.  In particular,
  * one should note that we very often return from a function without
  * having released all of the objects we have hanging about.  This is
  * rather poor practice, as it leaks memory, but we're going to exit
@@ -11,7 +11,7 @@
  * -Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -48,7 +48,7 @@
 
 #include "kn_config.h"
 
-RCSID("$Id: kn_test.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $");
+RCSID("$Id: kn_test.c,v 1.2 2003/03/13 00:42:27 ifindkarma Exp $");
 
 #include <sys/types.h>
 #include <stdio.h>
@@ -80,10 +80,10 @@ RCSID("$Id: kn_test.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $");
 #define PUBSUB_SUB_TOPIC KNSTR("/what/chat")
 #define PUBSUB_PUB_TOPIC KNSTR("/test/kn_test.c/routed_topic/")
 
-#define PROXY_HOST		  "127.0.0.1"
-#define PROXY_USER		  "kncgi"
-#define PROXY_PASSWD	  "kncgi"
-#define	PROXY_PORT		 		3128	
+#define PROXY_HOST	NULL /* "127.0.0.1" */
+#define PROXY_USER	NULL /* "kncgi" */
+#define PROXY_PASSWD	NULL /* "kncgi" */
+#define	PROXY_PORT	3128
 
 #define BOBO_HEADER_NAME KNSTR("bobo")
 
@@ -895,7 +895,7 @@ int message ()
   kn_RouteRef         aRouteToFunction;
   kn_MutableStringRef aPubTopic = kn_StringCreateMutableCopy(PUBSUB_PUB_TOPIC);
   kn_StringRef        aHello    = kn_StringCreateWithCString(HELLO_WORLD);
-  kn_StringRef 		  aProxyHost = kn_StringCreateWithCString(gProxyHost);
+  kn_StringRef 		  aProxyHost = gProxyHost ? kn_StringCreateWithCString(gProxyHost) : NULL;
   unsigned short int  aProxyPort = PROXY_PORT; 
 
   {
@@ -916,7 +916,7 @@ int message ()
 	kn_StringRef	aProxyPasswd = (gProxyPasswd) ? kn_StringCreateWithCString(gProxyPasswd) : NULL;
     aServer = kn_ServerCreateWithURIUserPassword(aServerURI, aUserName, aPassword);
 
-    kn_ServerSetProxy(aServer, aProxyHost, aProxyPort, aProxyUser, aProxyPasswd); 
+    if (aProxyHost) kn_ServerSetProxy(aServer, aProxyHost, aProxyPort, aProxyUser, aProxyPasswd); 
     kn_Release(aServerURI);
     kn_Release(aProxyHost);
     kn_Release(aUserName );

@@ -1,3 +1,5 @@
+$Id: README,v 1.2 2003/03/13 00:42:27 ifindkarma Exp $
+
 libkn is the PubSub C client library.
 
 Known working platforms:
@@ -17,11 +19,14 @@ GNU toolchain.
 
 GNU make, gcc, and autoconf are required to build libkn.
 
-To build libkn using Sun compiler on Solaris:
+To build libkn using Sun compiler on Solaris or Linux:
 
     ./setup
     ./configure
     make
+
+Note that in Linux, you need to have installed g++.
+You might also need to have installed libtool.
 
 To build libkn using GNU compiler:
     ./setup 

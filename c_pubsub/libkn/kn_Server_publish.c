@@ -5,7 +5,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -40,7 +40,7 @@
  * @KNOWNOW_LICENSE_END@
  **/
 
-#define _POST_ID_ "$Id: kn_Server_publish.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
+#define _POST_ID_ "$Id: kn_Server_publish.c,v 1.3 2003/03/13 00:42:27 ifindkarma Exp $"
 
 /**
  * Actions
@@ -105,7 +105,11 @@ kn_Error kn_ServerPublishEventToTopic (kn_ServerRef aServerRef, kn_EventRef anEv
       sprintf(aContentLength, "%ld", (long int)kn_StringGetSize(aPostFields));
 
       kn_StringAppendCString(aRequest, "POST "                           );
-      if (aServer->proxy_host && !aServer->post.ssl_connection)
+      if (aServer->proxy_host
+#ifdef HAVE_OPENSSL
+	  && !aServer->post.ssl_connection
+#endif /* HAVE_OPENSSL */
+	  )
         kn_StringAppendString (aRequest, aServer->uri                    );
       else
         kn_StringAppendString (aRequest, aPath				 ); 
