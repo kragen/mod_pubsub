@@ -47,7 +47,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: asyncgeturl.py,v 1.2 2003/02/10 02:10:10 ifindkarma Exp $
+## $Id: asyncgeturl.py,v 1.3 2003/02/15 23:52:38 ifindkarma Exp $
 
 
 import sys, string, urllib, urlparse, asynchttp
@@ -86,9 +86,22 @@ class AsyncGetURL(asynchttp.AsyncHTTPConnection):
         self.getresponse()
                                                                                 
 
+
+class AsyncGetURLProgressReport(AsyncGetURL):
+    """Overrides asynchttp.AsyncHTTPConnection"""
+    def __init__(self, url, onResponse = None):
+        AsyncGetURL.__init__(self, url, onResponse)
+        self.bytesread = 0
+    def intercept_body(self, data):
+        self.bytesread += len(data)
+        print "Bytes read: " + str(self.bytesread)
+
+
+
 class AsyncGetURLTest:
     def __init__(self, url):
-        self.http = AsyncGetURL(url, self)
+        # Simpler call:  self.http = AsyncGetURL(url, self)
+        self.http = AsyncGetURLProgressReport(url, self)
         self.http.connect()
     def __call__(self, tester):
         if not hasattr(tester, "response"):
@@ -108,8 +121,12 @@ class AsyncGetURLTest:
 
 
 def main(argv):
-    # Print out Google's i-mode.
-    http = AsyncGetURLTest("http://www.google.com/imode")
+    # Take the url provided on the command line...
+    url = ""
+    if len(argv) > 1:
+        url = argv[1]
+    # ...or print out Google's i-mode.
+    http = AsyncGetURLTest(url or "http://www.google.com/imode")
     # Keep the asyncore loop as close to main as possible --
     # in command of the main, not the library.
     asyncore.loop();
