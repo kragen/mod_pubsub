@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.11 2003/04/25 04:03:44 bsittler Exp $
+# $Id: pubsub.py,v 1.12 2003/04/25 20:21:25 bsittler Exp $
 
 
 """
@@ -510,8 +510,8 @@ class SimpleTunnel(Tunnel):
 class JavaScriptTunnel(Tunnel):
     def headerfrom(self, event):
         return (http_header(event['status'], 'text/html; charset=utf-8') +
-                "<html><head><title>%s</title></head>\n" % event['status'] +
-                html_prologue_string(self._jsTunnel_conn) +
+                "<html><head><title>%s</title>" % event['status'] +
+                html_prologue_string(self._jsTunnel_conn) + "</head>\n" +
                 '<body bgcolor="#f0f0ff" %s>\n' % (self.watching and (' onload="if (parent.kn_tunnelLoadCallback) ' +
                                                    'parent.kn_tunnelLoadCallback(window)"') or '') +
                 "<h1>%s</h1>" % event['status'] + event['html_payload'] + '<!--');
@@ -871,7 +871,8 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
         do_batch(conn, query)
     elif do_method == 'lib':
         header = http_header('200 OK', 'text/javascript')
-        data = js_prologue_string(conn)
+        data = (js_prologue_string(conn) +
+                conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1])
         conn.send(header + data)
         conn.finish_sending()
     elif do_method == 'libform':
