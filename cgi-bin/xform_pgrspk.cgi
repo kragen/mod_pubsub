@@ -1,6 +1,10 @@
 #!/usr/bin/perl -w
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# For an example of how a transformation script like this is
+# used between routes, please see the sample application
+# mod_pubsub/kn_apps/pager/ .
+
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,7 +38,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: xform_pgrspk.cgi,v 1.1 2002/11/07 07:07:59 troutgirl Exp $
+# $Id: xform_pgrspk.cgi,v 1.2 2003/03/21 04:53:23 ifindkarma Exp $
 
 use strict;
 use CGI ':standard';
