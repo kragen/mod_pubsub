@@ -3,6 +3,32 @@
 
 <!--
 
+    This small utility application was written in response to the question,
+    can I get a list of subtopics from the PubSub Server in my browser?
+
+    To get a list of subtopics for a particular topic, subscribe to the
+    "kn_subtopics" topic of that topic.  To get a full tree, simply do this
+    recursively.  This is how applications like mod_pubsub/kn_apps/introspect/
+    and mod_pubsub/kn_apps/subtopics/ work.
+
+    The rest of this file is a demonstration of how to do this.
+
+    By the way, once you've browsed the subtopics, you might decide that
+    you want to delete an event on the PubSub server.  To delete an event,
+    simply publish a new event with the same kn_id, an empty kn_payload,
+    and kn_expires: "+0".  For example, this can be done in JavaScript with
+
+       // delete event with kn_id "1234" from topic "/x/y/z"
+       kn.publish( "/x/y/z", { kn_id: "1234", kn_expires: "+0", kn_payload: "" } );
+
+    or, it can be done in the browser by typing in an URL such as
+
+       http://mypubsubserver/kn/what/test/?do_method=notify&kn_id=1234&kn_expires=+0&kn_payload=
+
+-->
+
+<!--
+
  Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
  @KNOWNOW_LICENSE_START@
@@ -37,7 +63,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.1 2003/03/05 23:27:52 ifindkarma Exp $
+ $Id: index.html,v 1.2 2003/04/11 16:34:04 ifindkarma Exp $
 
 -->
 
