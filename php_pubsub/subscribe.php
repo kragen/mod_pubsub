@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: subscribe.php,v 1.3 2003/04/29 03:01:18 ifindkarma Exp $';
+$RCSID = '$Id: subscribe.php,v 1.4 2003/05/06 02:10:06 ifindkarma Exp $';
 
 include('pubsublib.php');
 include('eventloop.php');
@@ -70,8 +70,8 @@ $ctx = array();
 $ctx['topic'] = "/who/anonymous/s/" .
     uniqid("") .
     "/kn_journal";
-$ctx['host'] = "127.0.0.1";
-$ctx['port'] = "80";
+$ctx['host'] = getenv("SERVER_ADDR") ? getenv("SERVER_ADDR") : "127.0.0.1";
+$ctx['port'] = getenv("SERVER_PORT") ? getenv("SERVER_PORT") : "80";
 $ctx['req'] =
     "GET /kn" .
     $ctx['topic'] .
@@ -188,6 +188,7 @@ function onClose($p, $ctx)
 }
 
 $addrl = gethostbynamel($ctx['host']);
+
 if ($addrl)
 {
     $addr = $addrl[0];
@@ -201,12 +202,15 @@ else
 {
     $addr = @gethostbyaddr($ctx['host']);
 }
-$port = @getservbyname($ctx['port'], "tcp");
+
+$port = getservbyname($ctx['port'], "tcp");
+
 if (kn_isEqualTo($port, false))
 {
     $rv = sscanf($ctx['port'], "%d%c", $port, $extra);
     if ($rv != 1) $port = 0;
 }
+
 if (! $addr)
 {
     print kn_htmlEscape($ctx['host']) .

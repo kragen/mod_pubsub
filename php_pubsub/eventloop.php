@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: eventloop.php,v 1.2 2003/04/29 00:04:30 ifindkarma Exp $';
+$RCSID = '$Id: eventloop.php,v 1.3 2003/05/06 02:10:05 ifindkarma Exp $';
 
 if (! defined("EVENTLOOP_PHP_INCLUDED"))
 {
@@ -68,7 +68,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # Jan 1 00:00:00 UTC 1970
         function getTime()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $now = split(" ", microtime());
             return $now[0] + $now[1];
         }
@@ -76,7 +76,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # return string representation for debugging
         function repr()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $str =
                 "EventLoop ($this) {\n" .
                 "   _readsocks: " . kn_toSource($this->_readsocks) . "\n" .
@@ -98,23 +98,13 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # constructor
         function EventLoop()
         {
-            # detect PHP3 vs. PHP4 syntax
-            if (5 == true)
-            {
-                # protect against accidental copy-on-write
-                eval('$this->_refs = array("this" => & $this);');
-                $this->_verify = '$this = & $this->_refs["this"];';
-            }
-            else
-            {
-                $this->_verify = '';
-            }
+            eval(PUBSUB_MUTABLE);
         }
 
         # initializer
         function init()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->_readsocks = array();
             $this->_writesocks = array();
             $this->_exceptsocks = array();
@@ -123,7 +113,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
             $this->_onException = array();
             $this->_timerlist = array();
             $this->_timerobjs = array(PUBSUB_NULL);
-            $this->_timerfreelist = array();
+            $this->_timerfreelist = PUBSUB_NULL;
             $this->_running = false;
         }
 
@@ -138,7 +128,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # without processing timer events.
         function run($onPoll = '', $args = PUBSUB_NULL)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $brunning = $this->getRunning();
             $this->setRunning();
             if (! $args)
@@ -147,9 +137,21 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
             }
             while ($this->getRunning())
             {
-                $rv = $this->poll($this->getTimeout());
-                if (kn_apply($onPoll,
-                             array_merge(array($rv), $args)))
+                $rv = array($this->poll($this->getTimeout()));
+                reset($args);
+                while (list($idx, $val) = each($args))
+                {
+                    if (is_integer($idx) and
+                        isset($rv[$idx]))
+                    {
+                        $rv[count($rv)] = $val;
+                    }
+                    else
+                    {
+                        $rv[$idx] = $val;
+                    }
+                }
+                if (kn_apply($onPoll, $rv))
                 {
                     $this->clearRunning();
                 }
@@ -164,21 +166,21 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # set is-running flag
         function setRunning($brunning = true)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->_running = $brunning;
         }
 
         # clear is-running flag
         function clearRunning()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->setRunning(false);
         }
 
         # get is-running flag
         function getRunning()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             return $this->_running;
         }
 
@@ -187,7 +189,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # return the delay until the next scheduled event
         function getTimeout()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             reset($this->_timerlist);
             while (list($slot_major, $major_list) = each($this->_timerlist))
             {
@@ -214,7 +216,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # dispatch any pending timer events
         function runTimeouts()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $runlist = array();
             reset($this->_timerlist);
             while (list($slot_major, $major_list) = each($this->_timerlist))
@@ -226,7 +228,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
                     return;
                 }
                 reset($major_list);
-                while (list($slot_minor, $minor_list) = each($major_list))
+                while (list($slot_minor, $minor_head) = each($major_list))
                 {
                     $now = $this->getTime();
                     $now_major = intval(floor($now));
@@ -235,9 +237,9 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
                     {
                         return;
                     }
-                    reset($minor_list);
-                    while (list($pos, $id) = each($minor_list))
+                    if ($minor_head)
                     {
+                        $id = $minor_head["id"];
                         $closure = $this->_timerobjs[$id][0];
                         $args = $this->_timerobjs[$id][3];
                         $this->clearTimeout($id);
@@ -256,7 +258,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # for zero or more events processed
         function poll($fmaxdelay = PUBSUB_NULL)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $fmaxdelay_minor = 0;
             if ($fmaxdelay)
             {
@@ -342,7 +344,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # cancel timer corresponding to handle $id
         function clearTimeout($id)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $ent = $this->_timerobjs[$id];
             if (! $ent)
             {
@@ -352,13 +354,28 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
             else
             {
                 $this->_timerobjs[$id] = PUBSUB_NULL;
-                array_push($this->_timerfreelist, $id);
+                $copy =
+                    array("id" => $id,
+                          "rest" => $this->_timerfreelist);
+                $this->_timerfreelist = $copy;
                 $slot_major = $ent[1];
                 $slot_minor = $ent[2];
-                $this->_timerlist[$slot_major][$slot_minor] =
-                    array_diff($this->_timerlist[$slot_major][$slot_minor],
-                               array($id));
-                if (! count($this->_timerlist[$slot_major][$slot_minor]))
+                $copy = PUBSUB_NULL;
+                $head = $this->_timerlist[$slot_major][$slot_minor];
+                while ($head)
+                {
+                    if ($head["id"] != $id)
+                    {
+                        $copy2 =
+                            array("id" => $head["id"],
+                                  "rest" => $copy);
+                        $copy =
+                            $copy2;
+                    }
+                    $head = $head["rest"];
+                }
+                $this->_timerlist[$slot_major][$slot_minor] = $copy;
+                if (! $copy)
                 {
                     $this->_timerlist[$slot_major] =
                         array_diff_assoc($this->_timerlist[$slot_major],
@@ -380,14 +397,16 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # timer event fires
         function setTimeout($closure, $fdelay, $args = PUBSUB_NULL)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $timeout = $this->getTime() + $fdelay;
             $slot_major = intval(floor($timeout));
             $slot_minor = intval(floor(($timeout - floor($timeout)) * 1e6));
-            $id = array_pop($this->_timerfreelist);
-            if (! $id)
+            $id = count($this->_timerobjs);
+            if ($this->_timerfreelist)
             {
-                $id = count($this->_timerobjs);
+                $id = $this->_timerfreelist["id"];
+                $this->_timerfreelist =
+                    $this->_timerfreelist["rest"];
             }
             if (! $args)
             {
@@ -398,20 +417,22 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
                       $slot_major,
                       $slot_minor,
                       $args);
-            if (! array_key_exists($slot_major, $this->_timerlist))
+            if (! isset($this->_timerlist[$slot_major]))
             {
                 $this->_timerlist[$slot_major] =
                     array();
                 ksort($this->_timerlist);
             }
-            if (! array_key_exists($slot_minor, $this->_timerlist[$slot_major]))
+            if (! isset($this->_timerlist[$slot_major][$slot_minor]))
             {
                 $this->_timerlist[$slot_major][$slot_minor] =
-                    array();
+                    PUBSUB_NULL;
                 ksort($this->_timerlist[$slot_major]);
             }
-            array_push($this->_timerlist[$slot_major][$slot_minor],
-                       $id);
+            $copy =
+                array("id" => $id,
+                      "rest" => $this->_timerlist[$slot_major][$slot_minor]);
+            $this->_timerlist[$slot_major][$slot_minor] = $copy;
             return $id;
         }
 
@@ -422,14 +443,14 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         function setInterest($sock, $onReadable, $onWritable, $onException,
                              $args = PUBSUB_NULL)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->setInterestOnReadable($sock, $onReadable, $args);
             $this->setInterestOnWritable($sock, $onWritable, $args);
             $this->setInterestOnException($sock, $onException, $args);
         }
         function clearInterest($sock)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->clearInterestOnReadable($sock);
             $this->clearInterestOnWritable($sock);
             $this->clearInterestOnException($sock);
@@ -440,7 +461,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # closure clears that handler
         function setInterestOnReadable($sock, $onReadable, $args = PUBSUB_NULL)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if (! $args) $args = array();
             $this->_readsocks =
                 array_diff($this->_readsocks,
@@ -461,7 +482,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         }
         function clearInterestOnReadable($sock)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->setInterestOnReadable($sock, PUBSUB_NULL);
         }
 
@@ -470,7 +491,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # closure clears that handler
         function setInterestOnWritable($sock, $onWritable, $args = PUBSUB_NULL)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if (! $args) $args = array();
             $this->_writesocks =
                 array_diff($this->_writesocks,
@@ -491,7 +512,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         }
         function clearInterestOnWritable($sock)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->setInterestOnWritable($sock, PUBSUB_NULL);
         }
 
@@ -500,7 +521,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         # closure clears that handler
         function setInterestOnException($sock, $onException, $args = PUBSUB_NULL)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if (! $args) $args = array();
             $this->_exceptsocks =
                 array_diff($this->_exceptsocks,
@@ -521,7 +542,7 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
         }
         function clearInterestOnException($sock)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->setInterestOnException($sock, PUBSUB_NULL);
         }
     }

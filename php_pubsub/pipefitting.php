@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: pipefitting.php,v 1.2 2003/04/29 00:04:30 ifindkarma Exp $';
+$RCSID = '$Id: pipefitting.php,v 1.3 2003/05/06 02:10:06 ifindkarma Exp $';
 
 if (! defined("PIPEFITTING_PHP_INCLUDED"))
 {
@@ -95,7 +95,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
         # return string representation for debugging
         function repr()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $str =
                 "PipeFitting ($this) {\n" .
                 "   _evl: " . kn_toSource($this->_evl) . "\n" .
@@ -115,23 +115,13 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
         # constructor
         function PipeFitting()
         {
-            # detect PHP3 vs. PHP4 syntax
-            if (5 == true)
-            {
-                # protect against accidental copy-on-write
-                eval('$this->_refs = array("this" => & $this);');
-                $this->_verify = '$this = & $this->_refs["this"];';
-            }
-            else
-            {
-                $this->_verify = '';
-            }
+            eval(PUBSUB_MUTABLE);
         }
 
         # initializer
         function init($evl, $insock, $outsock)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->_handlers =
                 array('args' => array(), # additional args ", ..." for handlers
 
@@ -190,7 +180,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
 
         function _call_close_callback()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if (! $this->_closed)
             {
                 $this->_closed = true;
@@ -205,13 +195,13 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
         # behavior of the pipe fitting.
         function getHandlers()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             return $this->_handlers;
         }
 
         function setHandlers($handlers, $args = PUBSUB_NULL)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if ($args)
             {
                 $this->_handlers['args'] = $args;
@@ -227,7 +217,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
         # failure; running out of buffer space is considered failure.
         function write($data)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if ($this->_finished_writing)
             {
                 #errno = EBADF;  # as if we were writing on a closed fd
@@ -248,7 +238,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
         # success.
         function finish_writing()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->_finished_writing = true;
             $this->_shutdown_if_necessary();
             return 1;
@@ -257,7 +247,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
         # call this if you want to invalidate the pipe fitting
         function destroy()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $this->_evl->clearInterestOnReadable($this->_insock);
             if ($this->_insock != $this->_outsock)
             {
@@ -275,7 +265,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
 
         function _shutdown_if_necessary()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if (! $this->_output_shutdown and
                 $this->_finished_writing and
                 strlen($this->_outbuf) == 0)
@@ -300,7 +290,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
         # called after errors have happened
         function error($why)
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if (!$this->_closed)
             {
                 kn_apply($this->_handlers['onError'],
@@ -329,7 +319,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
         # successfully connected. 
         function _note_is_connected()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             if (!$this->_connected)
             {
                 $this->_connected = 1;
@@ -341,7 +331,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
 
         function onReadable()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $inbuf = "";
             # random magic number shows up in truss output
             $read_size = 3202;
@@ -384,7 +374,7 @@ if (! defined("PIPEFITTING_PHP_INCLUDED"))
 
         function onWritable()
         {
-            eval($this->_verify);
+            eval(PUBSUB_MUTATE);
             $rv = @socket_write($this->_outsock, $this->_outbuf);
             if (kn_isEqualTo($rv, false))
             {

@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: pubsublib.php,v 1.8 2003/04/30 23:39:55 ifindkarma Exp $';
+$RCSID = '$Id: pubsublib.php,v 1.9 2003/05/06 02:10:06 ifindkarma Exp $';
 
 if (! defined("PUBSUBLIB_PHP_INCLUDED"))
 {
@@ -74,6 +74,63 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
     # pseudo-NULL
     unset($PUBSUB_NULL);
     define("PUBSUB_NULL", $PUBSUB_NULL);
+
+    # OO-helpers for objects with mutable properties:
+    # eval(PUBSUB_MUTABLE) at the beginning of a constructor;
+    # eval(PUBSUB_IMMUTABLE) at the end of a destructor [if you have one];
+    # eval(PUBSUB_MUTATE) at the beginning of any other method;
+    # pubsub_setMutableValue($this, 'name', $value) sets the value of mutable property 'name';
+    # pubsub_getMutableValue($this, 'name') returns the value of mutable property 'name'
+
+    # detect PHP3 vs. PHP4 syntax
+    if (5 == true)
+    {
+        # PHP4/PHP5: use a reference
+        define("PUBSUB_MUTABLE",
+               '$this->_pubsub_refs = array("this" => & $this);' .
+               '$this->_pubsub_mutable = array();');
+        define("PUBSUB_MUTATE",
+               '$this = & $this->_pubsub_refs["this"];');
+        define("PUBSUB_IMMUTABLE",
+               'unset ($this->_pubsub_refs["this"]);' .
+               '$this->_pubsub_mutable = PUBSUB_NULL;');
+        define("_PUBSUB_GET_MUTABLE_VALUE",
+               '$ret = $o->_pubsub_mutable[$name];');
+        define("_PUBSUB_SET_MUTABLE_VALUE",
+               '$o->_pubsub_mutable[$name] = $value;');
+    }
+    else
+    {
+        # PHP3: use the squirrel table
+        $_pubsub_squirrel_table = array();
+        define("PUBSUB_MUTABLE",
+               'global $_pubsub_squirrel_table;' .
+               '$this->_pubsub_squirrel_id = uniqid("_pubsub_squirrel_");' .
+               '$_pubsub_squirrel_table[$this->_pubsub_squirrel_id] = array();');
+        define("PUBSUB_MUTATE",
+               '');
+        define("PUBSUB_IMMUTABLE",
+               'global $_pubsub_squirrel_table;' .
+               'unset ($_pubsub_squirrel_table[$this->_pubsub_squirrel_id]);');
+        define("_PUBSUB_GET_MUTABLE_VALUE",
+               'global $_pubsub_squirrel_table;' .
+               '$ret = $_pubsub_squirrel_table[$o->_pubsub_squirrel_id][$name];');
+        define("_PUBSUB_SET_MUTABLE_VALUE",
+               'global $_pubsub_squirrel_table;' .
+               '$_pubsub_squirrel_table[$o->_pubsub_squirrel_id][$name] = $value;');
+    }
+
+    function pubsub_getMutableValue(& $o, $name)
+    {
+        $ret = PUBSUB_NULL;
+        eval(_PUBSUB_GET_MUTABLE_VALUE);
+        return $ret;
+    }
+
+    function pubsub_setMutableValue(& $o, $name, $value)
+    {
+        eval(_PUBSUB_SET_MUTABLE_VALUE);
+    }
 
     # get a parameter (named $name) from one of the sources (_GET,
     # _POST, and _COOKIE by default; fallback sources are used if the
@@ -1120,35 +1177,117 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
             {
             }
 
+            $s->defineTest("object mutation", "test_object_mutation");
+            function test_object_mutation()
+            {
+                class _test_object_mutationO
+                {
+                    var $id;
+                    function _test_object_mutationO()
+                    {
+                        eval(PUBSUB_MUTABLE);
+                    }
+                    function destroy()
+                    {
+                        eval(PUBSUB_IMMUTABLE);
+                    }
+                    function init()
+                    {
+                        eval(PUBSUB_MUTATE);
+                        $this->setId("UNINITIALIZED");
+                    }
+                    function setId($new_id)
+                    {
+                        eval(PUBSUB_MUTATE);
+                        pubsub_setMutableValue($this, 'id', $new_id);
+                    }
+                    function getId()
+                    {
+                        eval(PUBSUB_MUTATE);
+                        return pubsub_getMutableValue($this, 'id');
+                    }
+                }
+                function _test_object_mutation_a1(& $o, $new_id)
+                {
+                    $o->setId($new_id);
+                }
+                $o = new _test_object_mutationO();
+                $o->init();
+                $original_id = uniqid("");
+                $o->setId($original_id);
+                $new_id = uniqid("");
+                _test_object_mutation_a1($o, $new_id);
+                $res = false;
+                if ($o->getId() == $original_id)
+                {
+                    $res = "objects are immutable";
+                }
+                $o->destroy();
+                return $res;
+            }
+
             $s->defineTest("kn_apply", "test_kn_apply");
             function test_kn_apply()
             {
                 class _test_kn_applyO
                 {
-                    var $acc = 1;
-                    function __call ($m)
+                    function _test_kn_applyO()
                     {
-                        $this->acc *= $m;
-                        return $this->acc;
+                        eval(PUBSUB_MUTABLE);
+                    }
+                    function destroy()
+                    {
+                        eval(PUBSUB_IMMUTABLE);
+                    }
+                    function init()
+                    {
+                        eval(PUBSUB_MUTATE);
+                    }
+                    function setAcc($n)
+                    {
+                        eval(PUBSUB_MUTATE);
+                        pubsub_setMutableValue($this, 'acc', $n);
+                    }
+                    function getAcc()
+                    {
+                        eval(PUBSUB_MUTATE);
+                        return pubsub_getMutableValue($this, 'acc');
+                    }
+                    function __call($m)
+                    {
+                        eval(PUBSUB_MUTATE);
+                        $this->setAcc($this->getAcc() * $m);
+                        return $this->getAcc();
                     }
                 }
                 $o = new _test_kn_applyO;
-                function a1($o, $a1 = 1)
+                $o->init();
+                $o->setAcc(1);
+                function _test_kn_apply_a1($o, $a1 = 1)
                 {
-                    $o->acc = $a1;
-                    return $a1 < 2 ? 1 :
-                        kn_apply($o, array(kn_apply("a1", array($o, $a1 - 1))));
+                    $o->setAcc($a1);
+                    if ($a1 < 2)
+                    {
+                        $r = 1;
+                    }
+                    else
+                    {
+                        $rr = kn_apply("_test_kn_apply_a1", array($o, $a1 - 1));
+                        $r = kn_apply($o, array($a1));
+                    }
+                    return $r;
                 }
-                function a2($a1, $a2, $o)
+                function _test_kn_apply_a2($a1, $a2, $o)
                 {
                     return kn_apply($a1, array($o, $a2));
                 }
                 $n = 9;
                 $nfact = 9 * 8 * 7 * 6 * 5 * 4 * 3 * 2 * 1;
                 $fact = kn_apply(
-                                 'return kn_apply("a2"' .
+                                 'return kn_apply("_test_kn_apply_a2"' .
                                  ',array($args[1],$args[0],$args[2]));',
-                                 array($n, "a1", $o));
+                                 array($n, "_test_kn_apply_a1", $o));
+                $o->destroy();
                 if ($fact == $nfact)
                 {
                     return "";
