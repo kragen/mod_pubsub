@@ -26,7 +26,7 @@ For questions and comments, please refer to the mailing list.
    http://mod-pubsub.sf.net/
    mod-pubsub-developer@lists.sourceforge.net
 
-$Id: INSTALL,v 1.17 2003/04/28 23:25:54 ifindkarma Exp $
+$Id: INSTALL,v 1.18 2003/04/30 23:21:08 ifindkarma Exp $
 
 
 
@@ -334,6 +334,21 @@ and run some of the sample PubSub-enabled browser applications.
 
 So far, we have tested and run pubsub.py on Linux, Mac OS X, Solaris,
 and Windows 2000/XP.
+
+
+
+------------------
+Cross-Domain Setup
+------------------
+
+To use cross-domain, copy mod_pubsub/kn_apps/kn_lib/sample_prologue.js
+to mod_pubsub/kn_apps/kn_lib/prologue.js and modify it accordingly.
+
+For example, if you wanted to use the Perl Apache module as the front
+door, and get the performance of the Python Server, set the 'kn_server'
+property in prologue.js to point to the Python server, and then from
+the web browser you connect to the appropriate Perl server URL for your
+app, and it forwards appropriately.
 
 
 
