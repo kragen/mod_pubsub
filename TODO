@@ -1,7 +1,7 @@
 -------------------------------------
 High-level items on the "to do" list.
 -------------------------------------
-$Id: TODO,v 1.12 2003/04/28 23:55:29 ifindkarma Exp $
+$Id: TODO,v 1.13 2003/04/30 22:50:08 ifindkarma Exp $
 
  0. Fix kn_apps/kn_lib/cookie_auth.js so that it properly escapes userids.
 
@@ -70,3 +70,24 @@ $Id: TODO,v 1.12 2003/04/28 23:55:29 ifindkarma Exp $
 19. Revamp RSS Support because kn_sense/rss is an awful hack.
     Use Jeff Barr's wonderful http://www.syndic8.com/ tools.
     (Update 3/2003: cxx_pubsub contains a Windows RSS-sensing tool.)
+
+20. Improvements to python_pubsub
+    A. "depth:" header in pubsub.py; modify topic & tree kn_apps to use it
+    B. bridge.py bridging application
+    C. auth in pubsub.py
+    D. ulimit in pubsub.py
+    E. off-host routes in pubsub.py
+    F. kn_content_transform in pubsub.py
+    G. expire_events.py
+    H. pubsub.py watchdog
+    I. pubsub.py stats
+    J. kn_apps/sitewatch2 : watch stats and notify if down
+       i. browser-based
+       ii. watches stats
+       iii. on two routers
+       iv. emails if down
+       v. depends on A, B, C, D, G, H, and I
+
+21. An application that uses Amazon Web Services
+
+22. An application that uses httptop from O'Reilly's _Linux Hacks_ book
