@@ -1,0 +1,36 @@
+# rss.rsslist
+
+# $Id: moreover.rsslist,v 1.1 2002/11/07 07:09:28 troutgirl Exp $
+
+# Use this list for the sensor for the "rssticker" weblication demo.
+# ./rss.plx http://localhost/mod_pubsub/cgi-bin/pubsub.cgi -rsslist moreover.rsslist
+
+# From Moreover's Consumer page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+http://p.moreover.com/cgi-local/page?index_bookreviews+rss 
+http://p.moreover.com/cgi-local/page?index_fitness+rss 
+http://p.moreover.com/cgi-local/page?index_foodanddrink+rss 
+http://p.moreover.com/cgi-local/page?index_consumertravel+rss 
+http://p.moreover.com/cgi-local/page?index_health+rss 
+http://p.moreover.com/cgi-local/page?index_naturalhealth+rss 
+http://p.moreover.com/cgi-local/page?index_parenting+rss 
+http://p.moreover.com/cgi-local/page?index_womens+rss 
+http://p.moreover.com/cgi-local/page?index_coolsites+rss 
+http://p.moreover.com/cgi-local/page?index_entertainmenttvshows+rss
+http://p.moreover.com/cgi-local/page?index_entertainmentgeneral+rss
+http://p.moreover.com/cgi-local/page?index_homeandgarden+rss 
+http://p.moreover.com/cgi-local/page?index_jokes+rss 
+http://p.moreover.com/cgi-local/page?index_mp3+rss
+http://p.moreover.com/cgi-local/page?index_moviereviews+rss  
+http://p.moreover.com/cgi-local/page?index_mutualfunds+rss  
+http://p.moreover.com/cgi-local/page?index_outdoorrecreation+rss  
+http://p.moreover.com/cgi-local/page?index_personalfinance+rss  
+http://p.moreover.com/cgi-local/page?index_personaltech+rss  
+http://p.moreover.com/cgi-local/page?index_popmusic+rss 
+http://p.moreover.com/cgi-local/page?index_popmusicreviews+rss 
+http://p.moreover.com/cgi-local/page?index_retailinvestor+rss 
+http://p.moreover.com/cgi-local/page?index_softwaredownloads+rss 
+http://p.moreover.com/cgi-local/page?index_topconsumer+rss 
+       
+# End of rss.rsslist

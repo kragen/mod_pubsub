@@ -1,0 +1,10 @@
+The following files are distributed under the same license as Python.
+
+asyncore.py  cgi.py  cgitb.py  inspect.py  pydoc.py
+
+Refer to the file LICENSE in the Python source distribution
+(http://www.python.org/) for details.  Note that we made some minor
+modifications to these files to support pubsub.py .
+
+It is our goal to get pubsub.py working out-of-the-box with a Python
+release without using the modified versions of these files.

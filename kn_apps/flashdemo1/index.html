@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:15 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub flash demo 1: vote with sound</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!-- Note: This is not cross-browser.  Windows IE 4+ only. -->
+
+<script><!--
+topic = (kn_argv.kn_topic)? kn_argv.kn_topic : "/what/election-2000";
+
+function init(){
+    kn_subscribe(topic, add_vote, {do_max_age: 3*24*60*60 });
+    document.tally.reset();
+}
+
+var votes = new Object;
+votes.total = 0;
+
+function cast_vote() 
+{
+    var voteEvent = {kn_payload:""};
+
+    for (var i=0; i < document.tally.elements.length ; i++)
+    { 
+        if (document.tally.elements[i].checked == true) 
+        {
+            voteEvent.kn_payload += document.tally.elements[i].name + ",";
+            document.tally.elements[i].checked = false;
+        }
+    }
+    kn.publish(topic, voteEvent);
+    return false;
+}
+
+function add_vote(ballot) 
+{
+    var candidates = ballot.kn_payload.split(",");
+
+    for (var i=0; i<candidates.length; i++) 
+    {   
+        if (candidates[i] && (document.tally[candidates[i]] != null)) 
+        {
+            if (votes[candidates[i]] == void 0)
+                votes[candidates[i]] = 0;
+            votes[candidates[i]]++; 
+            votes.total++;
+            document.tally.total_votes.value = votes.total;
+        }
+    }       
+
+    for (var c in votes)
+    {
+        var e = c + "_votes";
+        if (document.tally[e])
+            document.tally[e].value = 
+                Math.round((votes[c]/votes.total)*100)+'% ('+votes[c] +')';
+
+		// Make a "Whiz" sound if someone has more than 50% of the votes. -brb
+
+		if (parseInt((votes[c]/votes.total)*100) > 50 && e != "total_votes"){
+			whiz();
+		}
+    }
+
+    render_shares();
+}
+
+var max = 0;
+
+function render_shares()
+{
+    if (document.all)  // An IE-4 only feature
+    {
+        // For every _bar, if there are any corresponding votes, draw.
+
+        for (var i=0; i < document.all.length; i++)
+        {
+            n = document.all[i].name;
+            if (n && (n.substr(n.length-4,4) == "_bar") &&
+                votes[n.substring(0,n.length-4)])
+            {
+                document.all[i].bgColor = "green";
+                document.all[i].width = 
+                    Math.round((votes[n.substring(0,n.length-4)] /
+                                         votes.total)*100) + "%";
+            }
+        }
+    }
+}
+
+// -->
+</script>
+
+<script language="JavaScript"><!--  
+
+// Moock's flash object setter-upper code!
+
+var moviename = "testcommand";
+var movie_ready = "false";
+
+function movieobject(moviename){
+
+    //IE and Netscape refer to the movie object differently.
+    //This function returns the appropriate syntax depending on the browser.
+
+	if (navigator.appName.indexOf ("Microsoft") !=-1) {
+		return window[moviename];
+	} else {
+		return document[moviename];
+	}
+}
+
+
+function whiz(){
+	if (movie_ready == "false") {
+		while (movie_ready == "false") {
+			if (movieobject(moviename).PercentLoaded() == 100) {
+				movieobject(moviename).Play();
+				movie_ready = "true";
+			}
+		}
+	} else {
+		movieobject(moviename).Play();
+	}
+}
+
+//--> 
+</script>
+
+</head>
+
+<body onload='init()'>
+
+<h1>Election 2000, Chicago Style</h1>
+
+<p> <i>Voting is such a fissiparous process...</i> so vote early and
+vote <b>often</b>!  Listen for the jubilant sound in Windows Internet
+Explorer 4 and above, everytime someone gets more than 50% of the
+votes (as the votes are piling in). </p>
+
+<form name="tally" onSubmit="return cast_vote()">
+<table border=0 width=100%>
+<tr>
+<td width=30%><input type="checkbox" name="nobody"/><big>Nobody</big>
+<td width=10%><input name="nobody_votes" size=10 value="0"/> 
+<td width=60%><table border=0 width=100%><td name=nobody_bar bgColor=white width=20%>&nbsp;<td>&nbsp;</table>
+
+<tr>
+<td><input type="checkbox" name="gore"/><big>Al Gore</big>
+<td><input name="gore_votes" size=10 value="0"/>
+<td width=60%><table border=0 width=100%><td name=gore_bar bgColor=white width=20%>&nbsp;<td>&nbsp;</table>
+
+<tr>
+<td><input type="checkbox" name="bush"/><big>George W. Bush</big>
+<td><input name="bush_votes" size=10 value="0"/>
+<td width=60%><table border=0 width=100%><td name=bush_bar bgColor=white width=20%>&nbsp;<td>&nbsp;</table>
+<tr>
+<td><input type="checkbox" name="nader"/><big>Ralph Nader</big>
+<td><input name="nader_votes" size=10 value="0"/> 
+<td width=60%><table border=0 width=100%><td name=nader_bar bgColor=white width=20%>&nbsp;<td>&nbsp;</table>
+<tr>
+<td><input type="checkbox" name="pikachu"/><big>Pikachu</big>
+<td><input name="pikachu_votes" size=10 value="0"/> 
+<td width=60%><table border=0 width=100%><td name=pikachu_bar bgColor=white width=20%>&nbsp;<td>&nbsp;</table>
+<tr>
+<td><input type="checkbox" name="rohit"/ onClick="cast_vote()"><big>Rohit Khare</big>
+<td><input name="rohit_votes" size=10 value="0"/> 
+<td width=60%><table border=0 width=100%><td name=rohit_bar bgColor=white width=20%>&nbsp;<td>&nbsp;</table>
+<tr>
+<td><big>Total votes:</big>
+<td><input name="total_votes" size=10 value="0"/> 
+</table>
+<input type='submit' value='Vote!'>
+</form>
+
+<!-- Flash whizzer object... it's the one that makes the noise! -->
+
+<object	classid="clsid:d27cdb6e-ae6d-11cf-96B8-444553540000"
+    width="400" height="300"
+    codebase="http://active.macromedia.com/flash3/cabs/" id=testcommand>
+
+<param name="movie" value="whiz.swf">
+<param name="play" value="false">
+<param name="loop" value="true">    
+<param name="quality" value="high">
+<param name="scale" value="showall">
+
+<embed name="testcommand" src="whiz.swf" width="400" height="300"
+    play="false" loop="true" quality="high" scale="showall" swLiveConnect="true"
+    pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash">
+</embed>
+
+</object>
+
+<!-- End flash -->
+
+</body>
+</html>
+

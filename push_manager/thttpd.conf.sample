@@ -1,0 +1,34 @@
+# Sample thttpd config for development work.
+#
+# Also, for development, helpful to 'touch .devel' before running
+# 'configure'; this gets you a more reasonable set of compiler flags.
+#
+# 'debug' keeps thttpd from daemonizing; necessary to run under gdb
+#
+debug
+#
+# Pattern used to recognize CGI scripts
+#
+cgipat=**.cgi
+#
+# Embedded perl interpreter configuration.  Note that perl_pattern is
+# only applied where cgipat has already matched
+#
+perl_startup=./persistent.pl
+perl_pattern=**.cgi
+#
+# CGI-format log file (by default, it uses syslog.  Huh?)
+#
+logfile=thttpd.log
+#
+# Where to find the kn_events dir, and log
+# '%' at end of event_dispatch_file is replaced with highest number;
+# if event posters obey log rotation protocol (write 'end' at end of each
+# file), push_manager will follow along.
+#
+event_dispatch_file=../kn_events/kn_journal_log
+event_dispatch_dir=../kn_events
+#
+# Where to show up
+#
+port=9092

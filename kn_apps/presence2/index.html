@@ -1,0 +1,1174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:51 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub chat with presence 1</title>
+
+<!-- Style -->
+<link href="tiny.css" rel="stylesheet" type="text/css" />
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+</head>
+
+<body
+     text="black"
+     bgcolor="white"
+     link="black"
+     alink="black"
+     vlink="black"
+     leftmargin="0"
+     topmargin="0"
+     marginwidth="0"
+     marginheight="0"
+     style="margin: 0px 0px"
+>
+
+<noscript>
+
+<h1 align="center">JavaScript 1.2 Required</h1>
+
+<p>This page requires JavaScript 1.2 support, which may be either
+missing or not enabled. If your browser has such support, but that
+support is disabled, it is suggested that you enable it and reload.</p>
+
+</noscript>
+
+<!-- START OF CHAT WITH PRESENCE WEBLICATION -->
+
+    <!-- Presence Logic -->
+    <script type="text/javascript">
+    <!--
+
+// Apply a CSS style to a form element ("node"). Works in the
+// Netscape6 DOM and the MSIE DOM. The name of the stylesheet
+// property in CSS syntax ("property") is automatically converted
+// to the MSIE syntax when necessary. The value ("value") should
+// be in CSS syntax.
+function presenceSetStyle(node, property, value)
+{
+    var ieproperty = "";
+    for (var i = 0; i < property.length; i ++)
+    {
+        if (property.charAt(i) == "-" && i < property.length)
+            ieproperty += property.charAt(++ i).toUpperCase();
+        else
+            ieproperty += property.charAt(i);
+    }
+    if (node.style)
+    {
+        if (node.style[ieproperty] != null)
+            node.style[ieproperty] = value;
+        else
+            node.style = property + ': ' + value;
+    }
+}
+
+// name of cookie that determines if user has logged into Developer or not
+var knDevLoginCookie = "kne";
+var knDevUseCookie = false;
+
+// client ID
+var presenceClientId = kn_argv.client_id;
+
+// indicates we are still waiting for old client status events
+
+var presenceStatusLoading = true;
+
+// shared status topic for all clients participating in this scheme
+var presenceStatusTopic = "/what/apps/presence";
+
+// "system message" topic (configurable in URL)
+var presenceMessageTopic = kn_argv.kn_topic || "/what/chat";
+
+// "system message" subscription route id
+var presenceMessageRoute;
+
+// route introspection (presence) topic for presenceMessageTopic
+var presenceTopic = presenceMessageTopic + "/kn_routes";
+
+// does this router allow introspection of tunnel routes?
+// false: no, true: yes, null: unsure
+var presenceTunnelEvents = null;
+
+// log element
+var presenceLog;
+
+// list element
+var presenceList;
+
+// status element
+var presenceStatus;
+
+// map of session-monitoring subscriptions indexed by route ID
+
+var presenceSessions = new Object();
+
+// map of live clients by client ID
+
+var presenceClients = new Object();
+
+// presence and status map
+
+var presenceClientStatus = new Object();
+
+// presenceOnMessage(event) -- show a system message
+function presenceOnMessage(event)
+{
+
+    var name = event.displayname || event.userid || "(unknown)";
+
+    presenceLog.value =
+        $_("[%{0}] %{1}\n",
+           name,
+           event.kn_payload) +
+        presenceLog.value;
+
+}
+
+// presenceSendMessage(msg) -- publish a system message
+function presenceSendMessage(msg)
+{
+
+    kn.publish(presenceMessageTopic,
+               ({ displayname: presenceClientId, kn_payload: msg }));
+
+}
+
+// presenceShowStatus() -- update the status list entries
+
+function presenceShowStatus()
+{
+
+    var statusList = new Array();
+    var newClients = new Object();
+    var routesFound = 0;
+
+    for (var routeId in presenceSessions)
+    {
+        routesFound ++;
+        var session = presenceSessions[routeId];
+        var clientId = session.clientId;
+
+        if (session.ready && ! newClients[clientId] &&
+            (presenceTunnelEvents == false ||
+             session.connections))
+	{
+
+            // sense client connection
+
+            if (! presenceClients[clientId])
+	    {
+
+                if (kn__debug("presence") || true)
+		{
+
+                    presenceLog.value =
+                        // $_("=%{0}= Client connected at %{1}.\n",
+                        $_("User %{0} connected.\n",
+                           clientId,
+                           (session.date.toUTCString ?
+                            session.date.toUTCString() :
+                            session.date.toGMTString())) +
+                        presenceLog.value;
+
+		}
+
+	    }
+
+            newClients[clientId] = true;
+
+            var status =
+                presenceClientStatus[clientId];
+
+            if (status &&
+                presenceClientId == clientId)
+	    {
+
+                // update local status holder
+
+                presenceStatus.value = status;
+
+	    }
+
+            if (status)
+	    {
+
+                statusList[statusList.length] =
+                    $_("%{0}:\n %{1}",
+                       clientId,
+                       status
+                        );
+
+	    }
+            else
+	    {
+
+                statusList[statusList.length] =
+                    $_("%{0}",
+                       clientId
+                        );
+
+	    }
+
+	}
+
+    }
+
+    // sense client disconnection
+
+    for (var otherClient in presenceClients)
+    {
+
+        if (presenceClients[otherClient] &&
+            ! newClients[otherClient])
+	{
+
+            presenceLog.value =
+                $_("User %{0} disconnected.\n",
+                   otherClient,
+                   (session.date.toUTCString ?
+                    session.date.toUTCString() :
+                    session.date.toGMTString())) +
+                presenceLog.value;
+
+	}
+
+    }
+
+    // update client map
+    presenceClients = newClients;
+
+    if (! statusList.length)
+    {
+
+        var msg =
+            $_("Searching... %{0}",
+               routesFound
+                );
+
+        if (presenceList.value != msg)
+	{
+	
+            presenceList.value = msg;
+
+	}
+
+    }
+    else
+    {
+
+        // update global status list
+
+        var statusString = statusList.join("\n");
+
+        if (presenceList.value != statusString)
+	{
+
+            presenceList.value = statusString;
+
+	}
+
+    }
+
+}
+
+// presenceStatusLoaded(status) -- finished receiving old client status
+// events
+
+function presenceStatusLoaded(status)
+{
+    presenceStatusLoading = false;
+}
+
+// presenceOnStatus(event) -- this callback handles presence updates
+
+function presenceOnStatus(event)
+{
+    if (event.kn_deleted == "true" || ! event.kn_payload)
+    {
+        if (kn__debug("status") ||
+            presenceClients[event.kn_id] && ! presenceStatusLoading)
+	{
+            presenceLog.value =
+                $_("=%{0}= Status cleared.\n",
+                   event.kn_id) +
+                presenceLog.value;
+	}
+
+        delete presenceClientStatus[event.kn_id];
+    }
+    else
+    {
+        if (kn__debug("status") ||
+            presenceClients[event.kn_id] && ! presenceStatusLoading)
+	{
+            presenceLog.value =
+                $_("=%{0}= Status: %{1}.\n",
+                   event.kn_id,
+                   event.kn_payload) +
+                presenceLog.value;
+	}
+
+        presenceClientStatus[event.kn_id] = event.kn_payload;
+    }
+
+    presenceShowStatus();
+
+}
+
+// presenceUpdateStatus(status) -- publish a presence update
+
+function presenceUpdateStatus(status)
+{
+
+    if (status != null)
+
+    {
+
+        kn.publish(presenceStatusTopic,
+                   ({ kn_id: presenceClientId, kn_payload: status, kn_expires: "infinity" }));
+
+    }
+
+}
+
+// PresenceSessionMonitor(route) -- constructor for session monitor
+
+function PresenceSessionMonitor(route)
+{
+
+    // workaround for bug in 1.6.2 router
+
+    if (route.kn_payload.substring(0,4) == "/kn/")
+    {
+
+        route.kn_payload =
+            route.kn_payload.substring(3);
+
+    }
+
+    // methods
+
+    this.end = PresenceSessionMonitor_end;
+    this.onMessage = PresenceSessionMonitor_onMessage;
+    this.onSuccess = PresenceSessionMonitor_onSuccess;
+    this.onError = PresenceSessionMonitor_onError;
+    this.cleanUp = PresenceSessionMonitor_cleanUp;
+    this.date = new Date(parseFloat(route.kn_time_t) * 1000);
+
+    // properties
+
+    this.routeId = route.kn_id;
+    this.clientId = route.client_id || route.displayname || route.userid;
+    this.ready = false;
+    this.connections = 0;
+    this._connectionMap = new Object();
+    this._rid = null;
+    this._rid2 = null;
+
+    if (kn__debug("presence"))
+    {
+
+        presenceLog.value =
+            $_("[=Presence=] Added client ID %{0}.\n",
+               this.clientId) +
+            presenceLog.value;
+
+    }
+
+    // a presence subscription was created (or updated)
+
+    var journalSuffixPattern = /\/kn_journal$/;
+    if (route.kn_payload.match(journalSuffixPattern))
+    {
+
+        // this session is tied to a journal topic, so we can
+        // monitor the corresponding subtopic event
+
+        var subtopicsSuffix = "/kn_subtopics";
+        var subtopicsTopic =
+            route.kn_payload.replace(journalSuffixPattern,
+                                     subtopicsSuffix);
+
+        // start watching the session
+
+        this._rid = kn.subscribe(subtopicsTopic,
+                                 this,
+                                 ({ kn_deletions: "true", do_max_age: "infinity" }),
+                                 this);
+
+        if (presenceTunnelEvents != false)
+        {
+
+            // start watching tunnel connections
+
+            var tunnelMonitor = new Object();
+
+            tunnelMonitor.routeURI = route.kn_uri;
+            tunnelMonitor.session = this;
+
+            tunnelMonitor.onMessage = function (tunnel)
+            {
+
+                var id = tunnel.kn_id;
+
+                if (presenceTunnelEvents == null)
+                {
+
+                    presenceTunnelEvents = true;
+
+                    if (kn__debug("presence"))
+                    {
+
+                        presenceLog.value =
+                            $_("[=Presence=] Tunnel monitoring enabled.\n") +
+                            presenceLog.value;
+
+                    }
+
+                }
+
+                if (tunnel.kn_deleted == "true" || ! tunnel.kn_payload)
+                {
+
+                    if (this.session._connectionMap[id])
+                    {
+
+                        delete this.session._connectionMap[id];
+                        this.session.connections --;
+
+                        if (kn__debug("presence"))
+                        {
+
+                            presenceLog.value =
+                                $_("[=Presence=] Disconnection for client Id %{0}; %{1} connection(s) remain.\n",
+                                   this.session.clientId,
+                                   this.session.connections) +
+                                presenceLog.value;
+
+                        }
+
+                    }
+                    else
+                    {
+
+                        if (kn__debug("presence"))
+                        {
+
+                            presenceLog.value =
+                            $_("[=Presence=] Ignored unrecognized disconnection for client Id %{0}.\n",
+                               this.session.clientId) +
+                            presenceLog.value;
+
+                        }
+
+                    }
+
+                }
+                else
+                {
+
+                    this.session._connectionMap[id] = true;
+                    this.session.connections ++;
+
+                    if (kn__debug("presence"))
+                    {
+
+                        presenceLog.value =
+                            $_("[=Presence=] Connection for client Id %{0}.\n",
+                               this.session.clientId) +
+                            presenceLog.value;
+
+                    }
+
+                }
+
+                presenceShowStatus();
+
+            };
+
+            tunnelMonitor.onSuccess = function (evt)
+            {
+
+                if (presenceTunnelEvents == null &&
+                    this.routeURI == presenceMessageRoute &&
+                    ! this.session.connections)
+                {
+
+                    presenceTunnelEvents = false;
+                    presenceShowStatus();
+
+                    if (kn__debug("presence"))
+                    {
+
+                        presenceLog.value =
+                            $_("[=Presence=] Tunnel monitoring disabled.\n") +
+                            presenceLog.value;
+
+                    }
+
+                }
+
+            };
+
+            this._rid2 = kn.subscribe(route.kn_payload + "/kn_routes",
+                                      tunnelMonitor,
+                                      ({ kn_deletions: "true", do_max_age: "infinity" }),
+                                      tunnelMonitor);
+
+        }
+
+    }
+    else
+    {
+
+        // this session is a static route
+
+        this.ready = true;
+        this.connections = 1;
+        presenceShowStatus();
+
+    }
+
+}
+
+// PresenceSessionMonitor::cleanUp() -- remove the route for this session
+// (this lazy cleanup keeps routes from accumulating forever)
+
+function PresenceSessionMonitor_cleanUp()
+{
+
+    // unsubscribe is really subscribe with empty kn_to
+
+    var ignoreStatus = function (status) { };
+    kn.subscribe(presenceMessageTopic,
+                 "",
+                 ({ kn_id: this.routeId, kn_expires: "+5" }),
+                 ({ onStatus: ignoreStatus }));
+
+}
+
+// PresenceSessionMonitor::onMessage(subtopic) -- called when a subtopic event is
+// received
+
+function PresenceSessionMonitor_onMessage(subtopic)
+{
+    var journalSuffix = "kn_journal";
+
+    // check to make sure this is a journal topic
+
+    if ((subtopic.kn_id == journalSuffix) ||
+        (subtopic.kn_payload == journalSuffix))
+    {
+
+        if (subtopic.kn_deleted == "true" || ! subtopic.kn_payload)
+	{
+
+            this.cleanUp();
+            this.end(
+                $("journal expired")
+                );
+
+	}
+        else
+	{
+
+            this.ready = true;
+
+	}
+
+    }
+
+}
+
+// PresenceSessionMonitor::onSuccess(status) -- called when subtopic initial route
+// population has finished
+
+function PresenceSessionMonitor_onSuccess(status)
+{
+
+    if (! this.ready)
+    {
+
+        this.cleanUp();
+        this.end(
+            $_("no journal found")
+            );
+
+    }
+    else
+    {
+
+        presenceShowStatus();
+
+    }
+
+}
+
+// PresenceSessionMonitor::onError(status) -- called when subtopic
+// subscription has failed
+
+function PresenceSessionMonitor_onError(status)
+{
+
+    this.end(
+        $_("unable to monitor journal: %{0}",
+           status.status)
+        );
+
+}
+
+// PresenceSessionMonitor::end(msg) -- called when the session ends
+
+function PresenceSessionMonitor_end(msg)
+{
+
+    if (this._rid)
+    {
+
+        // stop monitoring the subtopic event for this session
+
+        var ignoreStatus = function (status) { };
+        kn.unsubscribe(this._rid,
+                       ({ onStatus: ignoreStatus }));
+
+    }
+
+    if (this._rid2)
+    {
+
+        // stop monitoring tunnel events for this session
+
+        var ignoreStatus = function (status) { };
+        kn.unsubscribe(this._rid2,
+                       ({ onStatus: ignoreStatus }));
+
+    }
+
+    if (kn__debug("presence"))
+    {
+
+        presenceLog.value =
+            $_("[=Presence=] Removed client ID %{0}: %{1}.\n",
+               this.clientId,
+               msg) +
+            presenceLog.value;
+
+    }
+
+    delete presenceSessions[this.routeId];
+    presenceShowStatus();
+
+}
+
+// presenceOnRoute(route) -- this callback handles presence subscription updates
+
+function presenceOnRoute(route)
+{
+    // alert(event.userid);
+    // if (event.userid && event.userid.indexOf("anonymous") != -1)
+    // {
+        // return;
+    // }
+    
+    var id = route.kn_id;
+    
+    
+
+    if (route.kn_deleted == "true" || ! route.kn_payload)
+    {
+
+        if (route.kn_uri == presenceMessageRoute)
+        {
+
+            alert($("Your session has been terminated. Reloading..."));
+            parent.location.reload(true);
+
+        }
+
+        // a presence subscription went away
+
+        if (presenceSessions[id])
+	{
+
+            // stop watching that session
+
+            presenceSessions[id].end(
+                $("subscription gone")
+                );
+
+	}
+
+    }
+    else
+    {
+
+        if (presenceSessions[id])
+	{
+
+            // stop watching previous location
+
+            presenceSessions[id].end(
+                $("session moved")
+                );
+
+	}
+
+        // start watching the session
+
+        presenceSessions[id] = new PresenceSessionMonitor(route);
+        presenceShowStatus();
+
+    }
+
+}
+
+// getCookie(name) - return value of cookie
+
+function presenceGetCookie(name)
+{
+    var cookiesEnabled =
+        (typeof navigator.cookieEnabled == "boolean") ?
+        navigator.cookieEnabled :
+        (typeof document.cookie == "string");
+
+    if (cookiesEnabled)
+    {
+
+        var splitCookies = document.cookie.split("; ");
+        for (var i = 0; i < splitCookies.length; i ++)
+    	{
+            var splitCookie = splitCookies[i].split("=");
+            if (splitCookie[0] == name)
+	        {
+                 return (kn_unescape(splitCookie[1]));
+    	    }
+    	}
+    }
+    return null;
+}
+
+function presenceSaveCookie(name,value,expires)
+{
+
+    if (!expires) expires = (new Date((new Date()).getTime() +  365 * 24 * 60 * 60 * 1000)).toGMTString()
+
+    var cookiesEnabled =
+        (typeof navigator.cookieEnabled == "boolean") ?
+        navigator.cookieEnabled :
+        (typeof document.cookie == "string");
+
+    if (cookiesEnabled)
+    {
+        document.cookie =
+            name + "=" + kn_escape(value) +
+            ";path=/" +
+            ";expires=" + expires;
+    }
+}
+
+
+// presenceGetClientId() - make up a default client ID
+
+function presenceGetClientId()
+{
+
+    presenceClientId = presenceGetCookie("presenceClientId");
+
+    presenceClientId =
+        presenceClientId ||
+        (kn.userid +
+         Math.random().toString().substring(2));
+
+    // Allow the user to override the client ID we made up
+
+    presenceClientId =
+        prompt("Please choose a unique user name (client ID): ", presenceClientId) ||
+        presenceClientId;
+        
+    presenceSaveCookie(
+        "presenceClientId",
+        presenceClientId,
+        (new Date((new Date()).getTime() +  365 * 24 * 60 * 60 * 1000)).toGMTString()
+        );
+
+}
+
+// if (presenceGetCookie(knDevLoginCookie) != null)
+// {
+    // presenceGetClientId();
+// }
+
+// presenceOnLoad() -- when the page finishes loading, this gets
+// called to start up the application
+
+function presenceOnLoad()
+{
+
+    presenceSetStyle(document.
+                     forms.
+                     presenceInputForm.
+                     elements.
+                     messageElement,
+                     "border", "1px solid #777777");
+
+    presenceSetStyle(document.
+                     forms.
+                     presenceInputForm.
+                     elements.
+                     sendElement,
+                     "border", "1px solid black");
+
+    presenceSetStyle(document.
+                     forms.
+                     presenceDisplayForm.
+                     elements.
+                     updateElement,
+                     "border", "1px solid black");
+
+    presenceSetStyle(document.
+                     forms.
+                     presenceCookieForm.
+                     elements.
+                     clearElement,
+                     "border", "1px solid black");
+
+    // initialize presenceStatus
+
+    presenceStatus =
+        document.
+        forms.
+        presenceDisplayForm.
+        elements.
+        statusElement;
+    presenceStatus.value = "";
+
+    // connect presenceLog to HTML display
+
+    presenceLog =
+        document.
+        forms.
+        presenceDisplayForm.
+        elements.
+        logElement;
+    presenceLog.value = "";
+
+    // connect presenceList to HTML display
+
+    presenceList =
+        document.
+        forms.
+        presenceDisplayForm.
+        elements.
+        listElement;
+    presenceList.value = "";
+
+    var now = new Date();
+
+    presenceLog.value =
+        $_("\r\n[SYSTEM] Client initialized for %{0} at %{1}.\n",
+           presenceClientId,
+           (now.toUTCString ?
+            now.toUTCString() :
+            now.toGMTString()));
+
+    // this subscription monitors subscriptions to presenceMessageTopic,
+    // including subscription deletions. we ask for old events so that
+    // we can build a complete map of existing subscriptions
+
+    kn.subscribe(presenceTopic,
+                 presenceOnRoute,
+                 ({ do_max_age: "infinity", kn_deletions: "true" }));
+
+    // this subscription monitors presenceStatusTopic. we ask for old events
+    // so that we can build a complete map of existing presence
+    // information. we store our client ID in the "client_id" header of the
+    // route.
+
+    kn.subscribe(presenceStatusTopic,
+                 presenceOnStatus,
+                 ({ do_max_age: "infinity", kn_deletions: "true" }),
+                 ({ onSuccess: presenceStatusLoaded }));
+
+    // subscribe to the system message topic
+
+    presenceMessageRoute =
+        kn.subscribe(presenceMessageTopic,
+                     presenceOnMessage,
+                     ({ do_max_age: "30", client_id: presenceClientId, displayname: presenceClientId, userid: presenceClientId }));
+                     
+
+    if (!kn_argv.client_id)
+    {
+        var chatB = document.getElementById("chatBar");
+        chatB.innerHTML = "<strong>You could chat if you were <a href=\"/login.html\">logged in</a>.</strong>";
+    }
+}
+
+// presenceTrimLog(lines) -- trim message log
+
+function presenceTrimLog(lines)
+{
+
+    var splitLog = presenceLog.value.split(/\n|\r|\r\n/);
+
+    while ((splitLog.length > 1) &&
+           ! splitLog[splitLog.length - 1])
+    {
+
+        splitLog.length = splitLog.length - 1;
+
+    }
+
+    if (splitLog.length > lines)
+    {
+
+        splitLog.length = lines;
+
+    }
+    else
+    {
+
+        if (splitLog.length < 2)
+	{
+
+            splitLog = [ "" ];
+
+	}
+        else
+	{
+
+            splitLog.length = Math.floor(splitLog.length / 2);
+
+	}
+
+    }
+
+    presenceLog.value = splitLog.join("\n");
+
+}
+
+// prepend to the onload event handler chain
+
+{
+
+    var presence_old_onload = self.onload;
+
+    onload =
+        function ()
+    {
+
+        presenceOnLoad();
+        document.forms.presenceInputForm.elements.messageElement.focus();
+        onload = presence_old_onload;
+        if (onload) onload();
+
+    };
+
+}
+
+    // -->
+    </script>
+
+    <!-- Look and Feel -->
+
+    <div
+       class="presence"
+    >
+      <table
+         id="tblMain"
+         border="1"
+         cellpadding="0"
+         cellspacing="0"
+         bgcolor="#777777"
+         width="100%"
+      >
+  
+      <tr>
+  
+      <!-- Input -->
+      <form
+         name="presenceInputForm"
+         target="_self"
+         action="javascript:void(0)//"
+         onsubmit="
+  
+             with(this.elements.messageElement)
+             {
+  
+                 presenceSendMessage(value);
+                 value='';
+                 focus();
+  
+             }
+  
+             return false;
+  
+         "
+      >
+      <td class="presence" valign="top" colspan="2" height="20">
+      
+      <div id="chatBar" style="display:block;">
+          <div align="right" style="display:block; float:right;">
+          <input id="btnSubmit" name="sendElement" type="submit" class="submit" value="Send" title="Publish your message." />
+          </div>
+          <div style="display:inline">
+          <input id="btnText" name="messageElement" size="" value="" title="Type your message here." />
+          </div>
+      </div>
+      </td>
+      </form>
+  
+      </tr>
+      <tr>
+  
+      <!-- Display -->
+      <form
+         name="presenceDisplayForm"
+         target="_self"
+         action="javascript:void(0)//"
+         onsubmit="
+
+             presenceUpdateStatus(prompt('Status: ', this.elements.statusElement.value));
+             document.forms.presenceInputForm.elements.messageElement.focus();
+
+             return false;
+
+         "
+      >
+        <td
+           class="presence"
+  	       valign="top"
+           width="100"
+        ><!--
+     --><font color="black"><!--
+     --><input
+           name="statusElement"
+           type="hidden"
+        /><!--
+     --><input
+           id="btnStatus" 
+           name="updateElement"
+           type="submit"
+           class="submit"
+           value="Update My Status..."
+           title="Change the status message displayed near your username."
+        /><!--
+     --><!-- <br /> --><!--
+     --><textarea
+           id="listUsers" 
+           name="listElement"
+           class="list"
+           cols="15"
+           rows="12"
+           wrap="virtual"
+           readonly="readonly"
+        ></textarea><!--
+     --><!--
+     --></td>
+        <td class="presence" valign="top" width="100%"><!--
+     --><font color="black"><!--
+     --><textarea
+           id="listLog" 
+           name="logElement"
+           cols="0"
+           rows="10"
+           wrap="virtual"
+           readonly="readonly"
+        ></textarea><!--
+     --></font><!--
+     --></td>
+      </form>
+  
+      </tr>
+  
+      </table><div id="divClearCookie" class="presence">
+      <form
+         name="presenceCookieForm"
+         target="_self"
+         action="javascript:void(0)//"
+         onsubmit="
+
+             document.cookie='presenceClientId=;path=/';
+             alert($('Your user name has been erased from the web browser cookie jar.\n For maximum safety, you should exit your web browser before relinquishing this machine to another user.'));
+
+             return false;
+
+         "
+      >
+        <h1>Chat with Presence</h1>
+        <p><!--
+       --><strong>Note:</strong> This page uses a cookie (information stored in your web browser) to remember your user name across sessions.
+          <br />If your web browser is shared with other users, you should clear this cookie before ending your web browser session.<!--
+     --></p>
+        <input
+           type="submit"
+           class="submit"
+           name="clearElement"
+           value="Clear Cookie"
+        />
+        <input
+           type="button"
+           class="submit"
+           name="kneElement"
+           value="Set kne Cookie"
+           onclick="presenceSaveCookie('kne','test');"
+        />
+        <input
+           type="button"
+           class="submit"
+           name="kneElement2"
+           value="Clear kne Cookie"
+           onclick="document.cookie='kne=;path=/';"
+        />
+        
+      </form>
+      </div>
+    </div>
+
+<!-- END OF CHAT WITH PRESENCE WEBLICATION -->
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: unsubscribe.html,v 1.1 2002/11/07 07:08:58 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub test: unsubscribe</title>
+
+<!-- This test verifies 
+     (a) that kn_unsubscribe returns success;
+     (b) that it causes events to stop flowing. -->
+
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+<script src="test_lib.js"></script>
+
+<script><!--
+topic = '';
+rid = null;
+function do_it()
+{
+    topic = kn_argv['kn_topic'];
+    rid = kn_subscribe(topic, receive_event);
+    kn_publish(topic, {});
+}
+
+already_got_event = 0
+unsubscribed = 0
+function receive_event(e)
+{
+    if (already_got_event)
+    {
+        fail("got second event " + (unsubscribed ? 
+                                     "after unsubscribing" : 
+                                     "before unsubscribing"));
+    }
+    else
+    {
+        already_got_event = 1;
+        kn_unsubscribe(rid, {onSuccess: handle_success,
+                             onError: handle_failure });
+    }
+}
+
+function handle_failure(e)
+{
+    fail("unsub failed");
+}
+
+function handle_success(e)
+{
+    kn_publish(topic, {});
+    // We assume that if the event doesn't come back in 500 ms, it won't.
+    // if it does, the test suite will fail and go on to the next test, 
+    // and this setTimeout will be wiped out.
+    setTimeout('succeed()', 500);
+}
+// -->
+</script>
+
+</head>
+
+<body onload="do_it()">
+<h1>PubSub Test: unsubscribe</h1>
+</body>
+
+</html>

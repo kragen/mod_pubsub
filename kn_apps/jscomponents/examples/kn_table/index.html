@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ Copyright (c) 2001 KnowNow, Inc. All rights reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+ -->
+<html>
+<head>
+	<title>Index.html - A demonstration of table.js widget</title>
+<script type="text/javascript" src="/kn/?do_method=lib"></script>
+<script src="../../kn_table.js"></script>
+<script>
+/*
+A little demo to show off the new kn_table.js widget
+
+NOTE: for some reason, buttons aren't appearing, and chaning header display on fly doesn't work.
+
+*/
+var table_data =  "/what/table_demo"; 
+var msg_array = new Array();
+var doc_ref;
+var my_table;
+
+function init()
+{
+	kn.subscribe(table_data, receiveMsg, {do_max_age: "infinity",kn_expires:"infinity"} );
+	// doc ref to write table to
+	doc_ref = document.getElementById("tableContainer");
+	// cols
+	var columns = { name:"Name",address:"Address",city:"City" };
+	var display = new Object();
+	display.header = "<table border='1' cellpadding='5'>";
+	display.table_column_templates = ["<td bgcolor='#FFFFFF'>*name*</td>","<td bgcolor='#FFFFFF'>*address*</td>","<td bgcolor='#FFFFFF'>*city*</td>"]
+	var pagination = { start_point : 0, max_per_page : 5 };
+	my_table = new KN_Table(doc_ref,msg_array,columns,display,true,pagination);
+}
+
+function receiveMsg(msg)
+{
+  msg_array[msg_array.length] = msg;
+	my_table.draw();
+}
+
+function addData()
+{
+	var f = document.forms["data"];
+	var e = new Object();
+	e.name = f.name.value;
+	e.address = f.address.value;
+	e.city = f.city.value;
+  kn.publish(table_data, e);
+	f.name.value = "";
+	f.address.value = "";
+	f.city.value = "";
+}
+
+function changeDisplay()
+{
+	var f = document.forms["data"];
+	var nc = (f.name_color.value) ? f.name_color.value : '#FFFFFF';
+	var ac = (f.address_color.value) ? f.address_color.value : '#FFFFFF';
+	var cc = (f.city_color.value) ? f.city_color.value : '#FFFFFF';
+	my_table.table_column_templates = ["<td bgcolor='" + nc + "'>*name*</td>","<td bgcolor='" + ac + "'>*address*</td>","<td bgcolor='" + cc + "'>*city*</td>"]
+	my_table.draw();
+}
+
+function changePrefs()
+{
+	var f = document.forms["data"];
+	for (i=0; i<f.headers.length;i++)
+  {
+		if(f.headers[i].checked)
+    {
+			if (f.headers[i].value == "true")
+      {
+				my_table.header = Boolean(f.headers[i].value);
+			}
+      else
+      {
+				my_table.header = new Boolean();
+			}
+			break;
+		}
+	}
+	if (f.max_per_page.value) my_table.max_per_page = parseInt(f.max_per_page.value);
+	my_table.draw();
+}
+</script>
+<style>
+body {	
+
+  margin:0px;
+	padding:0px;
+}
+#toolbar {
+	background:#cccccc;
+	margin:0px;
+	padding:0px;
+	font-family:verdana, geneva, arial, sans-serif;
+	font-size:11px;
+	padding:5px;
+}
+table {
+	font-family:verdana, geneva, arial, sans-serif;
+	font-size:11px;
+}
+fieldset {
+  border: 2px groove #cccccc;
+}
+
+</style>
+</head>
+<body onload="init();">
+<div id="tableContainer"></div>
+<p>
+<div id="toolbar">
+<form name="data" action="">
+<fieldset>
+<legend><b>ADD DATA</b></legend>
+<table>
+<tr>
+<td>name:</td><td>address:</td><td>city:</td>
+</tr>
+<tr>
+<td><input type="text" name="name"></td><td><input type="text" name="address"></td><td><input type="text" name="city"></td>
+</tr>
+<tr>
+<td colspan="3"><input type="button" name="button" onclick="addData();" value="Add Data"></td>
+</tr>
+</table>
+</fieldset>
+<p>
+<fieldset>
+<legend><b>CHANGE DISPLAY OPTIONS</b></legend>
+<table width="100%">
+<tr>
+<td>background colors for table cells (enter a hex value, e.g. #FFFFFF):
+<table width="100%">
+<tr>
+<td>name:</td><td>address:</td><td>city:</td>
+</tr>
+<tr>
+<td><input type="text" name="name_color"></td><td><input type="text" name="address_color"></td><td><input type="text" name="city_color"></td>
+</tr>
+<tr>
+<td colspan="3"><input type="button" name="button" onclick="changeDisplay();" value="Change Display"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</fieldset>
+<p>
+<fieldset>
+<legend><b>CHANGE TABLE PREFS</b></legend>
+<table cellpadding="8" width="100%">
+<tr>
+<td>display table headers: yes <input type="radio" name="headers" value="true" CHECKED>&nbsp;&nbsp;&nbsp;no <input type="radio" name="headers" value="false"></td>
+</tr>
+<tr>
+<td>max rows per page: <input type="text" name="max_per_page" size="5"></td>
+</tr>
+<tr>
+<td><input type="button" name="button" onclick="changePrefs();" value="Change Preferences"></td>
+</tr>
+</table>
+</fieldset>
+<table width="100%">
+<tr>
+<td></td>
+</tr>
+</table>
+</form>
+</div>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:57 troutgirl Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>JavaScript Hacks, Tricks and Debugging</title>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+</head>
+<body>
+<h1>JavaScript Hacks, Tricks and Debugging</h1>
+<pre>
+
+The PubSub JavaScript Library (a.k.a. do_method=lib or pubsub.js)
+has a few tricks up its sleeve to aid in debugging and software
+development. For the purposes of this discussion, we'll pretend your
+mod_pubsub instance is in http://localhost/kn/ -- if it's somewhere
+else, change the URLs accordingly.
+
+
+
+
+      =========================================================
+        USING AND OVERRIDING LIBRARY AND APPLICATION DEFAULTS
+      =========================================================
+
+    PUBSUB JAVASCRIPT LIBRARY DEFAULTS: USER ID AND DISPLAY NAME
+
+To get the user's ID and display name, use the JavaScript variables
+kn.userid and kn.displayname:
+
+  alert('Welcome, ' + kn.displayname + '!');
+  if (kn.userid == 'guest') alert('Please stay as long as you like.');
+<script type="text/javascript">
+  alert('Welcome, ' + kn.displayname + '!');
+  if (kn.userid == 'guest') alert('Please stay as long as you like.');
+</script>
+
+
+
+A specific user ID (as opposed to using one assigned by the mod_pubsub
+instance or chosen by the PubSub JavaScript Library) can be chosen using
+the kn_userid URL parameter. Similarly, a display name can be chosen
+using the kn_displayname URL parameter. For example, to chat as the user
+named "John Doe" with the ID "jdoe":
+
+<a target="_top"
+href="../chat1/?kn_userid=jdoe;kn_displayname=John%20Doe">http://localhost/kn/kn_apps/chat1/?kn_userid=jdoe;kn_displayname=John%20Doe</a>
+
+ NOTE that the space between "John" and "Doe" was written as
+ "%20". In general, characters other than letters or numbers need to
+ be translated into bytes, and then written in hexadecimal -- preceded
+ by "%" -- when they appear in URL parameters. There's even a special
+ PubSub JavaScript Library function to do this for you, called
+ kn_escape(). For instance, kn_escape("John Doe") returns the string
+ "John%20Doe" (the kn_unescape() function translates the other way.)
+
+Of course, a mod_pubsub instance may reject events published under an
+assumed user ID and/or display name, or it may silently change the user
+ID and display name of those events to match your real user ID and
+display name.
+
+
+
+
+                   APPLICATION DEFAULT: TOPIC NAME
+
+If an application uses a default topic which may need to be overridden
+from time to time, it should use the kn_argv.kn_topic variable:
+
+  var topic = kn_argv.kn_topic;
+  if (topic == null) topic = "/what/chat";
+  var sent = false;
+  kn.publish(topic,
+             // event
+             { userid: kn.userid, displayname: kn.displayname,
+               kn_payload: kn.displayname + " sent a test message." },
+             // status event handlers
+             { onError: function(e) {
+                          alert('Publish error for "' + topic + '": ' +
+                                e.status) },
+               onSuccess: function() { sent = true; }});
+<script type="text/javascript">
+  var topic = kn_argv.kn_topic;
+  if (topic == null) topic = "/what/chat";
+  var sent = false;
+  kn.publish(topic,
+             // event
+             { userid: kn.userid, displayname: kn.displayname,
+               kn_payload: kn.displayname + " has connected" },
+             // status event handlers
+             { onError: function(e) {
+                          alert('Publish error for "' + topic + '": ' +
+                                e.status) },
+               onSuccess: function() { sent = true; }});
+</script>
+
+
+
+A specific topic may be chosen using the kn_topic URL parameter:
+
+<a target="_top"
+href="../chat1/?kn_topic=/what/elvis">http://localhost/kn/kn_apps/chat1/?kn_topic=/what/elvis</a>
+
+If the topic name doesn't start with "kn_", the "kn_topic=" may be
+omitted:
+
+<a target="_top"
+href="../chat1/?/what/elvis/alive">http://localhost/kn/kn_apps/chat1/?/what/elvis/alive</a>
+
+
+
+
+                  APPLICATION DEFAULT: OLD EVENT AGE
+
+Often, an application will use the "do_max_age" subscription parameter
+to fetch old events. It's nice to be able to change the default
+subscription age from time to time, so some applications support the
+do_max_age URL parameter:
+
+  var max_age = kn_argv.do_max_age;
+  if (max_age == null) max_age = "3600"; // one hour, by default
+  kn.subscribe(topic,
+               // event handler
+               { onMessage: function(e) {
+                              got_events = got_events + 1;
+                              alert(Date(1000 * e.kn_time_t) ': ' +
+                              e.kn_payload);
+                            }},
+               // subscription parameters
+               { do_max_age: max_age },
+               // status event handlers
+               { onError: function(e) {
+                            alert('Subscribe error for "' + topic + '": ' +
+                                  e.status) },
+                 onSuccess: function() { alert('Got ' + got_events +
+                                               'event(s) from the previous ' +
+                                               max_age + ' seconds'); }});
+<script type="text/javascript">
+  var max_age = kn_argv.do_max_age;
+  if (max_age == null) max_age = "3600"; // one hour, by default
+  kn.subscribe(topic,
+               // event handler
+               { onMessage: function(e) {
+                              got_events = got_events + 1;
+                              alert(Date(1000 * e.kn_time_t) + ': ' +
+                              e.kn_payload);
+                            }},
+               // subscription parameters
+               { do_max_age: max_age },
+               // status event handlers
+               { onError: function(e) {
+                            alert('Subscribe error for "' + topic + '": ' +
+                                  e.status) },
+                 onSuccess: function() { alert('Got ' + got_events +
+                                               'event(s) from the previous ' +
+                                               max_age + ' seconds'); }});
+</script>
+
+
+
+To adjust the number of old events, use the "do_max_age" URL parameter:
+
+<a target="_top"
+href="../Chat.esp?do_max_age=86400">http://localhost/kn/kn_apps/Chat.esp?do_max_age=86400</a>
+
+This would replay all events from the previous 24 hours.
+
+
+
+
+
+                           ===============
+                           DEBUGGING FLAGS
+                           ===============
+
+Debugging flags for the PubSub JavaScript Library can be set using the
+kn_debug URL parameter, or by calling the debug() JavaScript function
+with a list of debugging flags:
+
+  <a href="javascript:void debug('posts')">debug("posts")</a>
+
+or:
+
+<a target="_top"
+href="../chat1/?kn_debug=posts">http://localhost/kn/kn_apps/chat1/?kn_debug=posts</a>
+
+When no debugging flags are given, debugging is disabled *AND ALL
+JAVASCRIPT ERROR MESSAGES ARE SUPPRESSED!* To find the text of the
+last suppressed JavaScript error, check the kn.lastError JavaScript
+variable.
+
+When debugging is enabled, the normally-hidden PubSub tunnel and posting
+frames become visible in the bottom of the PubSub application
+window. These contain the connections over which the web browser
+receives and sends events, respectively, and are colored red and yellow
+during normal operation (the tunnel frame may be missing in some
+weblications.)
+
+The debugging flags supported so far are:
+
+all - turn on all debugging flags
+events - pop up an annoying alert box every time an event is received
+posts - display the contents of sent events in the posting frame
+routes - pop up an annoying alert box every time a subscription is cancelled
+
+More than one flag can be turned on at the same time:
+
+<a target="_top"
+href="../chat1/?kn_debug=posts,routes">http://localhost/kn/kn_apps/chat1/?kn_debug=posts,routes</a>
+
+
+
+
+
+                                =====
+                                HACKS
+                                =====
+
+Sometimes the most correct solution to a problem is not the most
+efficient, or is convenient in some way. To ignore correctness and
+bypass some inefficient or inconvenient PubSub JavaScript Library
+features, several hacks can be enabled using the kn_hacks URL parameter,
+or by calling the hacks() JavaScript function with a list of hacks:
+
+  <a
+href="javascript:void hacks('single,noforward')">hacks("single,noforward");</a>
+
+or:
+
+<a target="_top"
+href="../Chat.esp?kn_debug=single,noforward">http://localhost/kn/kn_apps/Chat.esp?kn_debug=single,noforward</a>
+
+The hacks supported so far are:
+
+all - turn on all hacks
+fastdoc - use document.open() for KNDocument
+single - don't batch multiple requests
+noforward - don't forward status events to the tunnel frame
+escape - use JavaScript escape() instead of kn_escape()
+unescape - use JavaScript unescape() instead of kn_unescape()
+noswap - don't swap tunnel and post frames periodically
+
+All of these hacks have compatibility problems, bad side-effects, or
+actually break something. Use them at your own risk...
+
+
+
+
+
+                           ===============
+                           DEBUGGING TOOLS
+                           ===============
+
+A few miscellaneous debugging tools are provided by the PubSub
+JavaScript Library. Briefly, they are: kn.publishForm, kn_escape,
+kn_unescape, kn_htmlEscape, kn_stringFromCharCode,
+kn_charCodesFromString, kn_resolvePath, kn_isReady, kn_inspectInWindow,
+iw, kn_inspectAsHTML, and kn_inspectAsText. These are documented in the
+PubSub JavaScript Library Reference:
+
+<a target="_top"
+href="../../kn_docs/javascript_reference.html">http://localhost/kn/kn_docs/javascript_reference.html</a>
+
+There is also one "javascript:" URI which may be useful for debugging
+JavaScript applications:
+
+javascript:/*_v0.2_*/_e=this['onError'];void(onError=function(p){var q=typeof _q=='undefined'?'=Math.PI':_q;if((q=prompt('Enter JavaScript to interpret. (Prefix with \'=\' for in-place evaluation.)\n'+p,q))!=null&amp;&amp;q!=''){_q=q;var s='onError(eval(unescape(\''+(_q.charAt(0)=='='?'_q=_q.charAt(0);_q+':'')+escape(_q)+'\')))';setTimeout(typeof Error=='undefined'?s:('try{'+s+'}catch(e){onError(typeof e.description==\'undefined\'?e:e.description)}'),1);}else onError=_e;})('')
+
+This URI opens an interactive JavaScript interpreter in a pop-up
+dialog. It is known colloquially as "jsi" or the PubSub JavaScript
+Interpreter Bookmarklet; it's particularly useful when placed in the
+Favorites or Bookmarks list for easy access.
+
+Here are other bookmarklets you can try:
+
+<a target="_top"
+href="../../kn_tools/bookmarklets.html">http://localhost/kn/kn_tools/bookmarklets.html</a>
+</pre>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:01 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub todo 2: "top" to do list (my view)</title>
+
+<!-- 
+
+ This app has been modified to allow a group of people to
+ collaboratively vote on a prioritized to do list.
+
+ The modification is that instead of sending a "state" variable of
+ {Proposed, Requested, Assigned, Completed}, we send a user's "vote"
+ (utility permutation) and display the results sorted by the overall
+ average of all user's votes.
+
+ Internally, there is now a two-dimensional voting array that has to be
+ maintained on-the-fly: Userid X ItemID -> Rank. This is used to
+ compute averages, sort, and then display overall rank. This done with
+ a fictional user, "overall".
+
+ Rank orders and reorders are "voted" by publishing each users ranking
+ with their userid as a kn_id: no one may vote more than once...
+
+ This app highlights again why sending structured data like Arrays
+ using SOAP would be a huge boon to the programmer.
+
+ STEPS TAKEN:
+
+ 1. collect user names manually
+ 1b. store them into a cookie (optional)
+ 2. replace UI for "Status" column with rank input fields
+ 3. re-rank once user changes any one entry's rank.
+ 4. display in sorted order. Remember, that we may *display* sorted by
+    "overall", yet the displayed numbers will be that user's
+ 5. start publishing rankings
+ 6. subscribe to rankings and compute overall scores.
+
+ Design (flaw) note: in the current information layout, even deleted
+ tasks will still have their ranking information floating in the
+ system. When item events expire, their corresponding ranking vote
+ fields for each user are not.
+
+-->
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- Todo Table Helper Library -->
+<script src="../kn_lib/todo_table.js"></script>
+
+<!-- HTML Parsing Library -->
+<script src="../kn_lib/htmlsafe.js"></script>
+
+<script><!--
+
+var s = new Object; // Holds all of the items discussed.
+var topic = null;
+var rankTopic = null;
+var maxRank = 1;
+var overallRanking = new Object; //Derived locally.
+
+// A ranking is an associative array with an additional userid property. 
+// In other words, it's an event with each item kn_id as a key (and rank as a value).
+
+var rankings = new Object;
+rankings [kn.userid] = new Object;
+
+function init() 
+{
+    s.input ={rankItem: '',
+           displayItem: '<form onSubmit="return parent.createTask()" name=task>'+
+                        '<input name="kn_payload" type="text" size=35></form>'}
+    redraw();
+    topic = (kn_argv.kn_topic)? kn_argv.kn_topic : "/what/todo";
+    kn.subscribe(topic, onMessage, {do_max_age: "infinity"});
+    rankTopic = topic+"/ranking";
+    kn.subscribe(rankTopic, onRanking, {do_max_age: "infinity"});
+}
+
+function onRanking(m) {
+    // Don't forget to recast as int!
+    rankings[m.userid] = m;
+    for (var id in s) {
+        if (id != 'input') {
+            recalc(id); // Foreach item we know about.
+            var tmp; if (typeof rankings[kn.userid][id] == 'undefined') tmp=""; else tmp = rankings[kn.userid][id];
+            s[id].rankItem ='<P class=tiny><FORM onSubmit="this.rank.blur();return false;">'+
+                    '<INPUT NAME="kn_id" TYPE=hidden VALUE="'+id+'">'+
+                    '<INPUT NAME="rank" TYPE=text SIZE=2 VALUE="'+tmp+'" onBlur="return parent.changeRank(this.form.kn_id.value, this.form.rank.value);">'+
+                    '</P></TD></FORM>';
+            s[id].overallRankItem = '<P class=tiny>'+overallRanking[id].toString().substring(0,4);+'</P>';
+        }
+    }
+    redraw();
+}
+
+function recalc (kn_id) {
+    // Recalc overall ranking score.
+    var tmp=0;
+    var tmpN=0;
+    for (var i in rankings) {
+ 	    if (typeof rankings[i][kn_id] != 'undefined') {
+            tmp += parseInt(rankings[i][kn_id]);
+            tmpN++;
+        }
+    }
+    if (tmpN) {
+        overallRanking[kn_id] = tmp/tmpN;
+    } else {
+        overallRanking[kn_id] = 999; // hopefully drop to the bottom.
+    }
+}
+
+function onMessage(m)
+{
+    // If we're already tracking this item, or this is a new non-null item.
+
+    if (s[m.kn_id] || m.kn_payload)
+    {
+        if (m.kn_payload != "")
+        {   
+            s[m.kn_id] = m;
+            if (m.displayname)
+                m.displayname = m.displayname.replace(/\s/g,"&nbsp;");
+        }
+        maxRank++;	    
+
+        // Safety check -- if we don't have an opinion on this item's rank already.
+
+        if (typeof rankings[kn.userid][m.kn_id] == 'undefined') {
+	        rankings[kn.userid][m.kn_id] = maxRank;
+        }
+        recalc(m.kn_id);
+
+        // Re-sort displayed list.
+ 
+        var tmp; if (typeof rankings[kn.userid][m.kn_id] == 'undefined') tmp=""; else tmp = rankings[kn.userid][m.kn_id];
+        m.rankItem ='<P class=tiny><FORM onSubmit="this.rank.blur();return false;">'+
+                    '<INPUT NAME="kn_id" TYPE=hidden VALUE="'+m.kn_id+'">'+
+                    '<INPUT NAME="rank" TYPE=text SIZE=2 VALUE="'+tmp+'" onBlur="return parent.changeRank(this.form.kn_id.value, this.form.rank.value);">'+
+                    '</P></TD></FORM>';
+        m.overallRankItem = '<P class=tiny>'+overallRanking[m.kn_id].toString().substring(0,4);+'</P>';
+	    m.displayItem = htmlSanitize(m.kn_payload,true) 
+                      + " [<A HREF='javascript:void parent.editItem(\""
+	                  + escape(m.kn_id) + "\")'>edit</A>]";
+        redraw();
+    }
+}
+
+function rankOrder(x, y) {
+    var a = 0;
+    if (typeof overallRanking[x] != 'undefined') 
+        a = overallRanking[x];
+    var b = 0;
+    if (typeof overallRanking[y] != 'undefined') 
+        b = overallRanking[y];
+    return a - b;
+}
+
+function redraw()
+{   
+    var d = frames[0].document;
+    d.open();
+    d.writeln("<style>\nP.tiny {font-size: 8pt; font-family: sans-serif;}\nP {font-size: 8pt; font-family: sans-serif;}\ninput {font-size: 8pt; font-family: sans-serif;}\n</style>");
+    if (topic && (parent == top))
+        top.document.title = "Top Todo: " + topic;
+    d.writeln("<title>Todo: "+topic+"</title><body bgcolor=#dddddd leftmargin=0 topmargin=0 bottommargin=0 rightmargin=0><font size=1 face='Sans'>");
+    var rowOrdering = new Array;
+    for (var j in s) rowOrdering[rowOrdering.length] = j;
+    rowOrdering.sort(rankOrder);
+    d.writeln(HTMLTableUsingColumns(s, ["rankItem", "overallRankItem", "displayItem"], 
+        ["<a href=\"allvoters.html\" target=\"_top\">My Rank</a>", "Overall", "Item"],
+        ["<p>", "</p>"], "WIDTH=100%", rowOrdering));
+    d.writeln("</font>");
+    d.close();
+}
+
+function createTask() {
+    var tmp = kn.publish(topic, {kn_payload : output.document.forms.task.kn_payload.value, kn_expires : "infinity"});
+    changeRank(tmp, maxRank);
+    return false; // To prevent form submission.
+}
+
+function changeRank(kn_id, rank) {
+    if (!isNaN(parseInt(rank))) {
+        rankings[kn.userid].kn_id = kn_userid;
+        var tmp = parseInt(rank);
+        rankings[kn.userid][kn_id] = (tmp > maxRank) ? maxRank : tmp;
+        rankings[kn.userid].kn_expires = "infinity";
+        kn.publish(rankTopic, rankings[kn.userid]);
+    }
+    return false; // To prevent form submission.
+}
+
+function editItem(k)
+{
+    var id = unescape(k);
+    var o = s[id];
+    var e = {"kn_id" : id, state : o.state , kn_expires : "infinity"};
+    e.kn_payload = prompt("Please edit or delete this Todo item:", s[id].kn_payload);
+
+    if (e.kn_payload != null) 
+    {    
+        if (e.kn_payload == "") {
+            e.state = "completed";
+            e.kn_expires = "+30";
+            e.kn_payload = o.kn_payload.strike();
+        } 
+        kn.publish(topic, e);
+    }
+    return false;
+}
+
+// -->
+</script>
+</head>
+
+<frameset rows="100%,*" frameborder=no onload="init()">
+<frame src="../../cgi-bin/pubsub.cgi?do_method=blank" name="output">
+<frame noresize>
+</frameset>
+
+</html>

@@ -1,0 +1,45 @@
+-------------------------------------
+High-level items on the "to do" list.
+-------------------------------------
+
+ 0. Instruct Apache to redirect /kn to pubsub.cgi .
+ 1. Create a mod_pubsub self-contained Apache module that
+    subsumes the best practices of pubsub.cgi and pubsub.py .
+ 2. Create a php_pubsub client.
+ 3. Revamp RSS Support because kn_sense/rss is an awful hack.
+    Use Jeff Barr's wonderful http://www.syndic8.com/ tools.
+ 4. Create a PubSub::Server.Pm and make pubsub.cgi a thin
+    wrapper around it.  (Note: we have already merged "KNMS"
+    into Client.pm .)  Part of this project may include making
+    Tunnel.pm event-driven.
+ 5. Unify the Perl PubSub client and server and
+    submit the PubSub perl package to CPAN.
+ 6. Import (and extend) Phil Harris' python pubsub client from
+    http://cvs.developer.knownow.com/
+ 7. Clean up python_pubsub so it doesn't need to ship with
+    all those other .py files.  (Ka-Ping Yee?  We wish...)
+ 8. Get push_manager working and clean up its directory.
+ 9. pubsub.cgi should be less lazy about detecting closed
+    sessions.  Bring active presence detection to mod_pubsub.
+10. While we're at it, clean up any broken and/or ugly kn_apps.
+11. pubsub.js -- fix to deal with long lived IE6 sessions.
+12. Build an Apache log sensor and use that to create a
+    "webmaster's dashboard" application.
+13. Get "Pocket NOC" application that monitors machines
+    working to create a "sysadmin's dashboard" application.
+14. Write a Jabber gateway using mod_pubsub.
+15. Write an (all-DHTML) IM client application using mod_pubsub.
+16. Get Pushlets working with mod_pubsub.
+17. Import applications from http://cvs.developer.knownow.com/
+18. Improve and extend pubsub_test.cgi .
+19. Build performance testing tools.
+20. Import Greg Burd's ruby pubsub client from
+    http://cvs.developer.knownow.com/
+    (Didn't think we were going to forget that one, did you? :)
+21. Get working Fred Sanchez's chess application from
+    http://cvs.developer.knownow.com/
+22. Start a Wiki for this project.
+    (?As part of the REST Wiki?  Talk with Mark Baker & Jeff Bone...)
+23. In the kn_apps directory, unify kn_lib and jscomponents.
+
+$Id: TODO,v 1.1 2002/11/07 07:07:52 troutgirl Exp $

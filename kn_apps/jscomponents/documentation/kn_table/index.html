@@ -1,0 +1,634 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>KN Table Component</title>
+<link type="text/css" rel="stylesheet" href="doc_style.css" />
+</head>
+
+<body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
+
+<p><img src="images/logo.gif"></p>
+
+<h1>KN Table Component</h1>
+
+<hr>
+<p>The KN Table component contains KN Table installation and parameter information.</p>
+<blockquote>
+
+<ul>
+  <li><a href="#Overview">Overview</a></li>
+  <li><a href="#Installing">Installing KN Table</a></li>
+  <li><a href="#Parameters">KN Table Parameters</a></li>
+  </ul>
+</blockquote>
+
+<hr>
+
+<h2><a name="Overview"></a>Overview</h2>
+<blockquote>
+
+<p>KN Table is a JavaScript library. By taking in an array of objects and writing each object's properties as a row of the table, KN Table helps you write a table of data to a web page. KN Table's sorting and pagination capabilities, as well as a number of template options, also allow you to customize your data.</p>
+
+</blockquote>
+	 
+<h2><a name="Installing"></a>Installing KN Table</h2>
+<blockquote>
+
+<p><b>To install KN Table:</b></p>
+
+<ol>
+   <li>Locate the <code>&lt;script&gt;</code> tag that calls the KnowNow JavaScript Microserver, near the top of your HTML page.</li>
+   <li>Add a new <code>&lt;script&gt;</code> tag, just below the <code>&lt;script&gt;</code> tag that calls the microserver.</li>
+   <li>Specify that the new <code>&lt;script&gt;</code> tag call the <b>kn_table.js</b> file from the <b>jscomponents</b> directory.</li>
+</ol>
+<p>After installing KN Table, your code should look similar to the following example. (The new <code>&lt;script&gt;</code> tag is shown in bold.)</p>
+
+<table width="550" bgcolor="#EEEEEE">
+      <tr> 
+        <td valign="top">
+<pre>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;
+&lt;html&gt;
+   &lt;head&gt;
+     &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;/kn/?do_method=lib&quot;&gt;&lt;/script&gt;
+     <b>&lt;script src=&quot;../jscomponents/table.js&quot;&gt;&lt;/script&gt;</b>
+</pre></td>
+      </tr>
+</table>
+</blockquote>
+
+<h2><a name="Parameters"></a>KN Table Parameters</h2>  
+<blockquote> 
+
+<p>KN Table creates a table object and stores all of the configurable options as properties of that object. When <code>.draw()</code> is called, it accesses the object's properties and re-draws the section of the table to the page by use of DOM innerHTML insertion.
+</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+      <pre><i>my_table</i> = new KN_Table(<i>doc_ref</i>, <i>data_array</i> [, <i>columns</i>, <i>display</i>,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>headers</i>, <i>pagination</i>, <i>sorting</i>]);</pre>
+    </td>
+  </tr>
+</table>
+
+<p>The following table lists and describes the KN Table parameters:</p>
+
+<table border="1" cellpadding="1" cellspacing="0" width="550">
+<tr>
+      <td valign="top"><b>KN Table Parameter</b></td>
+      <td valign="top"><b>Description</b></td>
+</tr>
+
+<tr>
+      <td valign="top"><code>doc_ref</code></td>
+      <td valign="top"> 
+        <p>The handler for a DOM reference. For example:</br>
+			<code>doc_ref = document.getElementById(&quot;tableContainer&quot;);</code></p>  
+      </td>
+</tr>
+
+<tr>
+      <td valign="top"><code>data_array</code></td>
+      <td valign="top"> The array of objects that are written into the specified 
+        table. </td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#Columns"><code>columns</code></a></td>
+      <td valign="top"> An object used to describe the columns of the specified 
+        table. </td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#Display"><code>display</code></a></td>   
+      <td valign="top"> An object containing customization options. 
+      </td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#Headers"><code>headers</code></a></td>   
+      <td valign="top"> A boolean value for whether or not to show 
+        headers.</td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#Pagination"><code>pagination</code></a></td>   
+      <td valign="top"> An object containing instructions on how to paginate the 
+        specified table data.</td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#Sorting"><code>sorting</code></a></td>   
+      <td valign="top"> An object containing information on how to sort the specified 
+        table data.</td>
+</tr>
+</table>
+
+<p>The properties for the configurable KN Table parameters are described in the following sections.</p>
+
+<h3><a name="Columns">Columns</a></h3>
+<p>The columns object acts as a map between the native property names of the objects being rendered and plain-english names that appear as table headers.</p>
+
+<p>For example, KN Table receives an array of buddy objects in the following format:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>buddy = new Object();
+buddy.name = &quot;Bob Johnson&quot;;
+buddy.presence = &quot;away&quot;;
+buddy.userid = &quot;123654&quot;;</pre>
+    </td>
+  </tr>
+</table>
+
+<p>When you know the structure of the object array, you can create columns objects with properties that match the properties of the object you are rendering. The property values of the columns are  plain-english names that you want to use as column headings. The order of the properties in the columns object is the order that is used for the columns of your output table.</p>
+
+<p>Using the following columns object, with the above buddy event, results in the output table below:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>columns = new Object();
+columns.userid = &quot;ID&quot;;
+columns.name = &quot;Real Name&quot;;
+columns.presence = &quot;Status&quot;;</pre>
+    </td>
+  </tr>
+</table>
+
+<p>Resulting output table:</p>
+
+<table border="1" cellpadding="1" cellspacing="0">
+<tr>
+<td>ID</td>
+<td>Real Name</td>
+<td>Status</td>
+</tr>
+
+<tr>
+<td>123654</td>
+<td>Bob Johnson</td>
+<td>Away</td>
+</tr>
+</table>
+
+<p>Any properties not explicitly set are ignored. To render only a list of names, use a columns object that only calls the name property. For example:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>columns = new Object();
+columns.name = &quot;Real Name&quot;;</pre>
+    </td>
+  </tr>
+</table>
+
+<h3><a name="Display">Display</a></h3>
+  <p>The following properties are available with the Display parameter:</p>
+
+<table border="1" cellpadding="1" cellspacing="0" width="550">
+<tr>
+<td valign="top"><b>Property</b></td>   
+<td valign="top"><b>Description</b></td>
+</tr>
+
+<tr>
+<td valign="top"><code>table_header</code></td>   
+      <td valign="top">Specifies the open table command and allows you to set 
+        table attributes. <b>Default value:</b> <code>&lt;table&gt;</code>
+</td>
+</tr>
+
+<tr>   
+<td valign="top"><code>table_row_open</code></td> 
+      <td valign="top"> 
+        <p>Specifies the row opener tag and allows you to set row attributes. 
+		<b>Default value</b>: <code>&lt;tr&gt;</code> </p>
+      </td>
+</tr>
+
+<tr>
+<td valign="top"><code>table_cell_open</code></td>    
+      <td valign="top"> 
+        <p>Specifies the cell opener tag and allows you to set cell attributes.
+        <b>Default value:</b> <code>&lt;td&gt;</code> </p>
+      </td>
+</tr>
+
+<tr>
+<td valign="top"><code>table_header_cell_open</code></td>    
+      <td valign="top">
+        <p>Specifies the header cell opener tag and allows you to set cell attributes.
+        <b>Default value:</b> <code>&lt;td&gt;</code> 
+      </td>
+</tr>
+</table>
+
+
+<p>The following properties are advanced display options, some of which make use of a substitution language that allows you to specify templates for the data, but leaves the coding to KnowNow. A word surrounded by *asterisks* indicates that it will be substituted out for real code later.</p> 
+
+
+<table border="1" cellpadding="1" cellspacing="0" width="550">
+<tr>
+      <td valign="top"><b>Property</b></td> 
+      <td valign="top"><b>Description</b></td> 
+</tr>
+
+<tr>
+<td valign="top"><code>table_cell_templates</code></td>    
+<td valign="top">
+<p>Specifies how each cell is formatted. <code>table_cell_templates[0]</code>, specifies how the first cell is formatted. When writing the template, each cell has access to every property of the object; therefore, you can use information from multiple columns at the same time. You can specify a template for as many cells as you need by adding more fields to the array. Individual cells do not have default templates, which means that if a template is not specified the cell is filled with the value of the property name matching the column header.</p>
+
+ <p><b>To create a list of users where each person's name is linked to their homepage:</b></p>
+<p>1. Start with an array of objects similar to the following:</p> 
+   <blockquote>
+    <pre>buddy = new Object();
+buddy.name = "Bob Johnson";
+buddy.homepage = "http://www.bob.com";
+buddy.userid = "123654";</pre>
+    </blockquote>
+
+<p>2. Specify a columns object that looks similar to the following:</p>
+
+<blockquote>
+    <pre>columns = new Object();
+columns.name = "Name";</pre>
+</blockquote>
+
+<p>3. Specify a <code>display.table_cell_templates</code> array similar to the following:</p>
+
+<blockquote>
+    <pre>display.table_cell_templates =
+ ['&lt;a href=&quot;*homepage*&quot;&gt;*name*&lt;/a&gt;'];</pre>
+    </blockquote>
+
+<p>For each row in the table, the *homepage* and *name* variables are evaluated into real data and results in a row that looks like this:</p>
+
+        <blockquote> 
+          <pre>&lt;tr&gt;
+&lt;td&gt;
+&lt;a href=&quot;http://www.bob.com&quot;&gt;
+Bob Johnson
+&lt;/a&gt;
+&lt;/td&gt;
+&lt;/tr&gt;</pre>
+        </blockquote>
+</td>
+</tr>
+<tr>
+<td valign="top"><code>forward_button</code></td>
+<td valign="top">
+Specifies what the forward button looks like. 
+Available substitution keys:
+<ul>
+<li><code>*code*</code> is replaced with the javascript required 
+to advance the table to the next page. This should be placed inside of 
+an anchor tag (&lt;a href="*code*"&gt;) or an onclick 
+(onclick="*code*").</li> 
+</ul>   
+</td>
+</tr>
+<tr>
+<td valign="top"><code>back_button</code></td>      
+      <td valign="top"> Specifies what the back button looks like. Available substitution 
+        keys: 
+        <ul>
+<li><code>*code*</code> is replaced with the javascript 
+required 
+to move the table to the previous page. This should be placed inside 
+of
+an anchor tag (&lt;a href="*code*"&gt;) or an onclick 
+(onclick="*code*").</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top"><code>begin_button</code></td>      
+      <td valign="top"> Specifies what the go-to-beginning button looks like. Available 
+        substitution keys: 
+        <ul>
+<li><code>*code*</code> is replaced with the javascript required 
+to advance the table to the first page. This should be placed inside of
+an anchor tag (&lt;a href="*code*"&gt;) or an onclick 
+(onclick="*code*").</li>
+</ul>
+</td>
+</tr>   
+<tr>
+<td valign="top"><code>end_button</code></td>      
+      <td valign="top"> Specifies what the go-to-the-end button looks like. Available 
+        substitution keys: 
+        <ul>
+<li><code>*code*</code> is replaced with the javascript required 
+to advance the table to its last page. This should be placed inside of
+an anchor tag (&lt;a href="*code*"&gt;) or an onclick 
+(onclick="*code*").</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top"><code>buttons</code></td>      
+<td valign="top">
+Use this template to format the stuff around the pagination buttons. 
+<ul>
+<li><code>*forward*</code> is replaced with the value of <code>display.forward_button.</code></li>
+<li><code>*back</code>* is replaced with the value of <code>display.back_button</code>.</li>
+<li><code>*begin*</code> is replaced with the value of <code>display.begin_button</code>.</li>
+<li><code>*end*</code> is replaced with the value of <code>display.end_button</code>.</li>
+<li><code>*current_min*</code> is replaced with the starting index for this page of results.</li>
+<li><code>*current_max*</code> is replaced with the ending index for this page of results.</li>
+</ul>
+</td>
+</tr>   
+<tr> 
+<td valign="top"><code>table_header_cell_template_off</code></td>
+      <td valign="top">Specifies what the contents of header cells look like when 
+        they are not selected as the sorting column. 
+        <ul>
+<li><code>*code*</code> is replaced with the javascript required to sort by this column. This should be 
+placed inside of an anchor tag (&lt;a href="*code*"&gt;) or an onclick 
+(onclick="*code*").</li>
+<li><code>*name*</code> is replaced with the name of this column.</li>
+</ul>
+</td>
+</tr>
+<tr> 
+<td valign="top"><code>table_header_cell_template_ascending</code></td>
+      <td valign="top"> Specifies what the contents of header cells look like 
+        when they are selected as the sort-by column and are in ascending order. 
+        <ul>
+<li><code>*code*</code> is replaced with the javascript required to sort by this column in descending order. 
+This should be placed inside of an anchor tag (&lt;a href="*code*"&gt;) or an onclick 
+(onclick="*code*").</li>
+<li><code>*name*</code> is replaced with the name of this column.</li>
+          
+</ul>
+</td>
+</tr>
+<tr> 
+<td valign="top"><code>table_header_cell_template_descending</code></td>
+      <td valign="top"> Specifies what the contents of header cells look like 
+        when they are selected as the sort-by column and are in descending order. 
+        <ul>
+<li><code>*code*</code> is replaced with the javascript required sort by this column in ascending order. 
+This should be placed inside of an anchor tag (&lt;a href="*code*"&gt;) or an onclick 
+(onclick="*code*").</li>
+          <li><code>*name*</code> is replaced with the name of this column.</li>
+</ul>
+</td>
+</tr>
+</table>
+
+<h3><a name="Headers">Headers</a></h3>
+<p>The Header parameter has the following property:</p>
+
+<table border="1" cellpadding="1" cellspacing="0" width="550">
+<tr>
+      <td valign="top"><b>Property</b></td> 
+      <td valign="top"><b>Description</b></td> 
+</tr>
+
+<tr>
+      <td valign="top">boolean value</td> 
+      <td valign="top">
+        <p>Specify whether or not to have headers. True, for headers. False, for 
+          no headers. 
+       <b>Default value:</b> true</p>
+      </td> 
+</tr>
+</table>
+
+
+<h3><a name="Pagination">Pagination</a></h3>
+<p>The Pagination parameter has the following properties:</p>
+
+<table border="1" cellpadding="1" cellspacing="0" width="550">
+<tr>
+      <td valign="top"><b>Property</b></td> 
+      <td valign="top"><b>Description</b></td> 
+</tr>
+<tr>
+<td valign="top">start_point</td>   
+<td valign="top">
+        <p>Specifies the row index that the table starts on. 
+       <b>Default value: </b>0</p>
+      </td>
+</tr>
+<tr>   
+<td valign="top">max_per_page</td> 
+<td valign="top">
+        <p>Specifies how many rows are displayed at a time. You can specify either 
+          a numeric value or infinity. If infinity is used, the table displays 
+          all rows. 
+       <b>Default value:</b> 10</p>
+      </td>
+</tr>
+</table>
+
+
+<h3><a name="Sorting">Sorting</a></h3>
+<p>The Sorting parameter has the following properties:</p>
+
+<table border="1" cellpadding="1" cellspacing="0" width="550">
+<tr>
+      <td valign="top"><b>Property</b></td> 
+      <td valign="top"><b>Description</b></td> 
+</tr>
+<tr>
+<td valign="top">sort_on</td>   
+<td valign="top">
+        <p>A string value that specifies the column to sort.
+       <b>Default value:</b> first column </p>
+      </td>
+</tr>
+<tr>   
+<td valign="top">sort_order</td> 
+<td valign="top">
+        <p>Specifies whether the data is sorted in ascending or descending order.<br>
+       <b>Default value:</b> ascending</p>
+      </td>
+</tr>
+
+</table>
+</blockquote>
+
+<h2>Examples</h2>
+
+<p>The following sample code includes an event handler function that populates an object array and writes the object array to the web page.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+<tr>
+<td>
+      <pre>
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;NewsTable ESP&lt;/title&gt;
+
+&lt;!-- The KnowNow Library --&gt;
+&lt;script type="text/javascript" src="/kn/?do_method=lib"&gt;
+
+&lt;/script&gt;
+
+&lt;!-- Table widget libraries --&gt;
+&lt;script src="../kn_lib/table.js"&gt;
+
+&lt;/script&gt;
+
+var topic = "/what/my_buddies/";
+var doc_ref;
+var my_array = new Array();
+var my_table;
+
+function init() {
+
+        kn.subscribe(topic, handleEvent);
+                
+        // Notice that this is a DOM reference to the container (a &lt;div&gt;)
+        // we create below 
+		doc_ref = document.getElementById("tableContainer");    
+        
+        // this object will map object property names to plain-english
+        // values to be displayed as column headers. The order of the 
+        // properties set on this object will also determine the order
+        // of the columns in the table.
+        var columns = { name : "Name" , email : "Email" , url : "URL"}
+        
+        // create the display object
+        var display = new Object();
+        display.header = '&lt;table border="1" cellpadding="5"&gt;';
+        // an array of templates to match columns
+        display.table_cell_templates = [null,'&lt;a href="*email*"&gt;Email&lt;/a&gt;',
+             '&lt;a href="*url*"&gt;URL&lt;/a&gt;'];
+        
+        display.table_header_cell_template_off = 
+             '&lt;a href="javascript: *code*"&gt;<b>*name*</b>&lt;/a&gt;';
+        display.table_header_cell_template_ascending = 
+             '&lt;a href="javascript: *code*"&gt;<b>*name*</b>
+             &lt;img src="up.gif" border="0"&gt;&lt;/a&gt;';
+        display.table_header_cell_template_descending = '
+             &lt;a href="javascript: *code*"&gt;<b>*name*</b>
+             &lt;img src="down.gif" border="0"&gt;&lt;/a&gt;';
+        
+        // we're creating the table with these things being passed:
+        //   - doc_ref defines the container for this table
+        //   - my_array is the array which will contain the list of objects above
+        //   - columns specifies which order the columns should be in, and the 
+        //     display-name is
+        //   - display sets properties to change the look of the table
+        //   - the final value tells the table to display headers on the columns
+        my_table = new kn_table(doc_ref,my_array,columns,display,true);
+}
+
+function handleEvent(e) {
+
+        // push the event onto the end of our array
+        my_array[my_array.length] = e;
+        
+        // there is no native throttling control in kn_table. 
+        // this means that the table will continually redraw itself while it's
+        // receiving events. This test will make sure that the table only
+        // redraws until it has reached the max per page and knows whether or
+        // not to draw arrows.
+        if (my_array.length &lt;= my_table.max_per_page + 1) {
+                // when you want to draw (or redraw) the table, just call 
+                // it's .draw() method
+                my_table.draw();
+        }
+}
+
+// -->
+&lt;/script&gt;
+        
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;div id="tableContainer"&gt;&lt;/div&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;</pre>
+</td>
+</tr>
+</table>
+
+
+<p>The following code provides sample events that contain the objects called by 
+  the event handler function above.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+<tr>
+<td>
+<pre>
+paul = new Object();
+paul.name = "Paul";
+bryan.userid = "paul";
+paul.url = "http://developer.knownow.com";
+paul.email = "user@knownow.com";
+
+bryan = new Object();
+bryan.name = "Bryan";
+bryan.userid = "bryan";
+bryan.url = "http://developer.knownow.com";
+bryan.email = "user@knownow.com";
+
+matt = new Object();
+matt.name = "Matt";
+matt.userid = "matt";
+matt.url = "http://developer.knownow.com";
+matt.email = "user@knownow.com";
+</pre>
+</td>
+</tr>
+</table>
+
+<p>The following output is generated:</p>
+
+
+<table border="1" cellpadding="5">
+<tr>
+<td><b>Name</b></td>
+<td><b>Email</b></td>
+<td><b>URL</b></td>
+</tr>
+
+<tr>
+<td>Bryan</td>
+<td><a href="mailto: user@knownow.com">Email</a></td>
+<td><a href="http://developer.knownow.com">Website</a></td>
+</tr>
+
+<tr>
+<td>Matt</td>
+<td><a href="mailto: user@knownow.com">Email</a></td>
+<td><a href="http://developer.knownow.com">Website</a></td>
+</tr>
+
+<tr>
+<td>Paul</td>
+<td><a href="mailto: user@knownow.com">Email</a></td>
+<td><a href="http://developer.knownow.com">Website</a></td>
+</tr>
+
+</table>
+
+<hr>
+
+<p><font size="-2">
+ All brand names and product names used in this document are trade
+ names, service marks, trademarks or registered trademarks of their
+ respective owners.
+<br>
+ Copyright &copy; <a href="http://www.KnowNow.com">KnowNow, Inc.</a>
+ All rights reserved.
+<br>
+ Printed in the U.S.A.
+<br>
+ Last updated: July 9, 2001
+</font></p>
+</body>
+</html>
+

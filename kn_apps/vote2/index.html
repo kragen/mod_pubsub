@@ -1,0 +1,638 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:18 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub vote 2: pop-up notifications</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<style><!--
+
+td.knownow, th, h1, h2, h2 button {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+h1 {
+  font-size: 18pt;
+  font-weight: normal;
+}
+
+h2, h2 button {
+  font-size: 15pt;
+  font-weight: normal;
+}
+
+input.clock {
+  border: 0px;
+  background: white;
+  color: black;
+  font-size: 10pt;
+  text-align: right;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+body, td, .output {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+.rule {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: #ff9900; 
+  margin: 0px 0%;
+}
+
+a:link, a:hover, a:active, a:visited {
+  color: #3366cc;
+}
+
+a:link, a:visited, a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+td.voter {
+  font-size: 12px;
+}
+
+td.leftmenu {
+        font-size: 11px;
+}
+
+
+b.number {
+        font-size: 16px;
+       	color: #003366;
+}
+
+
+p.copy {
+        font-size: 10px;
+        color: #999999;
+}
+
+input.output {
+  border: 0px;
+  background: white;
+  color: black;
+}
+
+--></style>
+
+<script><!--
+
+// Maximum bar width, in pixels.
+var maxWidth = 300;
+
+var bars = [];
+
+bars[bars.length] =
+{
+    id: "red",
+    name: $("Red"),
+    color: "#ff0000",
+    votes: 0
+};
+
+if (kn_argv.extra)
+{
+    bars[bars.length] =
+    {
+        id: "yellow",
+        name: $("Yellow"),
+        color: "#ffff00",
+        votes: 0
+    };
+}
+
+bars[bars.length] =
+{
+    id: "green",
+    name: $("Green"),
+    color: "#00ff00",
+    votes: 0
+};
+
+if (kn_argv.extra)
+{
+    bars[bars.length] =
+    {
+        id: "cyan",
+        name: $("Cyan"),
+        color: "#00ffff",
+        votes: 0
+    };
+}
+
+bars[bars.length] =
+{
+    id: "blue",
+    name: $("Blue"),
+    color: "#0000ff",
+    votes: 0
+};
+
+if (kn_argv.extra)
+{
+    bars[bars.length] =
+    {
+        id: "magenta",
+        name: $("Magenta"),
+        color: "#ff00ff",
+        votes: 0
+    };
+}
+
+var vote_topic = "/what/vote";
+
+function init()
+{
+    // Grab the proper object reference for each colored bar.
+
+    for (var index = 0; index < bars.length; index ++)
+    {
+        var bar = bars[index];
+        if (document.layers)
+        {
+            bar.div = document.layers[bar.id + "_bar"];
+        }
+        else if (document.all)
+        {
+            bar.div = document.all[bar.id + "_bar"].style;
+        }
+        else
+        {
+            bar.div = document.getElementById(bar.id + "_bar").style;
+        }
+	
+        if (! bar.div)
+        {
+            bar.div = {
+                clip: {
+                }
+            };
+        }
+
+        // Attach the setWidth method to each bar object.
+	
+        bar.div.setWidth = setWidth;
+    }
+
+    // Subscribe to the vote topic route.
+
+    kn.subscribe(
+        vote_topic,
+        displayIncomingVote,
+        ({ do_max_age: "infinity", kn_expires: "infinity" }));
+}
+
+// The setWidth function manages the widths of the colored bars.
+
+function setWidth(w){
+    this.width = (document.layers)? w : w + "px";
+    if (document.layers) this.clip.right = w;
+    else this.clip = "rect(0px " + w + "px 20px 0px)";
+}
+
+// The vote function creates an event and publishes it to
+// the mod_pubsub instance via the vote topic route.
+
+function vote(which){
+    var ev = {};
+    ev.kn_payload = which;
+    ev.kn_expires = "+86400";   // WAS: ev.kn_expires = "infinity";
+    kn.publish(vote_topic,ev);
+}
+
+alertWin = null;
+
+function myAlert(string)
+{
+    if (alertWin && kn_isReady(alertWin)) alertWin.close();
+    alertWin = window.open('javascript:void document.write("' +
+                        '<title>Notice - KnowNow Vote</title>' +
+                        '<body text=\\"white\\" bgcolor=\\"black\\" leftmargin=\\"0\\" topmargin=\\"0\\" marginwidth=\\"0\\" marginheight=\\"0\\">' +
+                        '<h1 align=\\"center\\"><tt>' +
+                        kn_htmlEscape(string) +
+                        '</tt></h1>' +
+			'<table width=\\"100%\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr>' +
+			'<form action=\\"javascript:close()//\\">' +
+			'<td align=\\"center\\">' +
+			'<input type=\\"submit\\" value=\\"Close\\" />' +
+			'</td>' +
+			'</form>' +
+			'</tr></table>' +
+			'</body>")', '_blank', 'width=250,height=200');
+}
+
+// The displayIncomingVote function does all the heavy lifting
+// in this app.  This function receives all vote events that 
+// arrive via the topic route, examines each one and determines
+// the total number of votes, vote percentages, and other data.
+
+function displayIncomingVote(voteEvt)
+{
+    // voteEvt is the incoming event.
+	
+    // Determine which color this vote is for and increment the
+    // vote count for that color.
+	
+    var totalVotes = 0;
+    var maxVotes = 0;
+    var eqclasses = [];
+    for (var index = 0; index < bars.length; index ++)
+    {
+        var bar = bars[index];
+        if (bar.id == voteEvt.kn_payload)
+        {
+            bar.votes ++;
+        }
+        totalVotes += bar.votes;
+        if (bar.votes > maxVotes)
+        {
+            maxVotes = bar.votes;
+        }
+
+        // Sort into equivalence classes by number of votes.
+        if (! eqclasses[bar.votes])
+        {
+            eqclasses[bar.votes] = [];
+        }
+        eqclasses[bar.votes][eqclasses[bar.votes].length] = index;
+
+        // Record previous ranking.
+        bar.old_place = bar.place;
+    }
+
+    // Translate from equivalence classes to place numbers.
+
+    var place = 1;
+    var alerts = [];
+    for (var votes = eqclasses.length; votes > 0; votes = votes - 1)
+    {
+        var eqclass = eqclasses[votes - 1];
+        if (eqclass)
+        {
+            for (var tie = 0; tie < eqclass.length; tie ++)
+            {
+                var index = eqclass[tie];
+                var bar = bars[index];
+                bar.place = place;
+
+                if (bar.place != bar.old_place &&
+                    document.forms[bar.id + "_form"].elements[0].checked)
+                {
+                    alerts[alerts.length] =
+                        ($_("%{0} is now in rank %{1}.",
+                            bar.name,
+                            bar.place));
+                }
+            }
+            place += eqclass.length;
+        }
+    }
+
+    // If the ranking changed (and the user cares) pop up
+    // an alert describing the change.
+
+    if (alerts.length)
+    {
+        myAlert(alerts.join(" "));
+    }
+
+    // Figure out the percentage ratios and calculate the width of
+    // each bar.
+
+    if (totalVotes > 0)
+    {
+        for (var index = 0; index < bars.length; index ++)
+        {
+            var bar = bars[index];
+            var ratio = bar.votes / totalVotes;
+
+            // Update the text display.
+            document.forms.voteform.elements[bar.id + "_box"].value =
+                $_("%{0} votes %{1}%%, ",
+                   bar.votes,
+                   Math.round(100 * ratio));
+
+            // Set the bar width.
+            bar.div.setWidth(Math.round(maxWidth * ratio));
+        }
+    }
+}
+
+function popWin(URL, target) {
+    var nav = navigator.appVersion;
+    if ((navigator.userAgent.indexOf("Gecko") != -1) ||
+        ! (nav.indexOf("Macintosh") != -1 ||
+           nav.charAt(0) == "4" &&
+           nav.indexOf("68K") != -1))
+    {
+
+        // Not a Mac (or some Gecko-based browser), so we can give the user
+        // a status bar and make the window the right size from the start.
+
+        aWindow =
+            window.open(URL, target,
+                        [
+                            "toolbar=no",
+                            "width=350",
+                            "height=500",
+                            "status=yes",
+                            "scrollbars=no",
+                            "resize=no",
+                            "menubar=no"
+                            ].join(",")
+                );
+    }
+    else
+    {
+        // Work around several Mac-related bugs:
+
+        // 1. Mac NN4 doesn't call onload for the new window's dynamic
+        // frameset when we pass window.open a feature string argument.
+
+        // 2. Mac NN4 and MSIE open new windows with the same size as
+        // the parent window's initial size.
+
+        var w = window.open(URL, target);
+        w.resizeTo(350, 500);
+    }
+}
+
+// -->
+</script>
+
+<script type="text/javascript"><!--
+
+function start_clock() {
+  setInterval("update_clock()", 500);
+  if (document.all && ! document.getElementById)
+    {
+      for (var i = 0; i < document.all.length; i ++)
+	{
+	  var node = document.all[i];
+	  if (node.className == "rule")
+	    {
+	      node.outerHTML = '<hr size="1" color="#ff9900" />';
+	    }
+	}
+    }
+}
+
+function update_clock() {
+  var now = new Date();
+  var form = document.forms.clock;
+  if (form)
+    { 
+      var ele = form.elements.clock;
+      if (ele) {
+	var msg = now.toUTCString ? now.toUTCString() : now.toGMTString();
+	if (ele.value != msg) ele.value = msg;
+      }
+    }
+}
+
+// -->
+</script>
+
+<base target="_top" />
+</head>
+
+<body bgcolor="#ffffff" link="#3366cc" vlink="#3366cc" alink="#3366cc" text="#000000"
+      leftmargin="10" topmargin="15" marginwidth="10" marginheight="15"
+      onload="start_clock();init()"
+      onunload="if (alertWin && kn_isReady(alertWin)) alertWin.close();">
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+
+   <td align="left" valign="top"> &nbsp;&nbsp;
+   <h1>Vote with Pop-Up Notifications</h1> &nbsp;&nbsp; </td>
+
+   <form action="javascript://" name="clock">
+   <td align="right" bgcolor="white" class="knownow"> &nbsp;&nbsp;
+   <input readonly="readonly" size="48" name="clock" class="clock" onfocus="blur()" />
+   &nbsp;&nbsp; </td>
+   </form>
+
+</tr>
+</table>
+
+<div class="rule"></div>
+
+<br /><br />
+
+<noscript>
+
+<h1 align="center">JavaScript 1.2 Required</h1>
+
+<p>This page requires JavaScript 1.2 support,
+which may be either missing or not enabled. If your browser has
+such support, but that support is disabled, it is suggested that
+you enable it and reload.</p>
+
+</noscript>
+
+<br clear="all" />
+
+<table width="100%" border="0" cellspacing="0" cellpadding="5">
+<tr>
+
+<td width="60%" valign="top">
+
+<h2>How It Works</h2>
+
+<p> The voting application uses the PubSub JavaScript Library to send
+and receive messages to and from the mod_pubsub instance.  Every time
+you cast a vote, the browser dipatches a new vote event that indicates
+which color you voted for, to a specific topic route.  That event is
+then relayed to everyone viewing the same page in their web browser. </p>
+
+<p> When the vote event is recorded and relayed, cross-browser Dynamic
+HTML is used to adjust the size of the colored bars which indicate the
+vote tally. </p>
+
+<p> When you select the checkbox next to a colored bar, the browser
+displays a real-time alert every time that color's ranking changes.
+Such pop-up notifications can be supplemented by mod_pubsub sending
+emails to people or messages to other applications. </p>
+
+</td>
+
+<td width="*" valign="top">
+&nbsp;
+</td>
+
+<td width="25%" valign="top">
+
+<table border="0" cellpadding="5" cellspacing="0" bgcolor="#ffffff" width="400"><tr>
+<td>
+<script><!--
+
+{
+    var html = new Array();
+    html[html.length] =
+        '<table border="0" cellspacing="0" cellpadding="5" bgcolor="#ffffff">';
+
+    // colored bars and labels
+
+    for (var index = 0; index < bars.length; index ++)
+    {
+        var bar = bars[index];
+
+        html[html.length] = '<tr>';
+        html[html.length] =
+            '<form name="' +
+            kn_htmlEscape(bar.id) +
+            '_form" action="javascript://">';
+        html[html.length] = '<td>';
+        html[html.length] =
+            '<input type="checkbox" name="monitor" title="' +
+            kn_htmlEscape($_("Monitor %{0}'s ranking.",
+                             bar.name)) +
+            '" />';
+        html[html.length] = '<' + '/td>';
+        html[html.length] = '<' + '/form>';
+        html[html.length] = '<td class="voter">';
+        html[html.length] = kn_htmlEscape(bar.name);
+        html[html.length] = '<' + '/td>';
+        html[html.length] = '<td>';
+        if (document.layers)
+        {
+            html[html.length] =
+                '<ilayer name="' +
+                kn_htmlEscape(bar.id) +
+                '_bar" bgcolor="' +
+                bar.color +
+                '" width="10" height="20" clip="10,20">' +
+                '<' + '/ilayer>';
+        }
+        else
+        {
+            html[html.length] =
+                '<div id="' +
+                kn_htmlEscape(bar.id) +
+                '_bar" style="position: relative; background-color: ' +
+                bar.color +
+                '; width: 10px; height: 20px; clip: rect(0px 10px 20px 0px);">' +
+                '<' + '/div>';
+        }
+        html[html.length] = '<' + '/td>';
+        html[html.length] = '<' + '/tr>';
+    }
+
+    html[html.length] = '<' + '/table>';
+    html[html.length] =
+        '<table border="0" cellspacing="0" cellpadding="0">';
+
+    // Voting buttons and display fields.
+
+    html[html.length] = '<form name="voteform" action="javascript://">';
+    for (var index = 0; index < bars.length; index ++)
+    {
+        var bar = bars[index];
+
+        html[html.length] = '<tr>';
+        html[html.length] = '<td>';
+        html[html.length] =
+            '<input type="button" value="' +
+            kn_htmlEscape($_("Vote %{0}",
+                             bar.name)) +
+            '" onclick="vote(kn_unescape(\'' +
+            kn_htmlEscape(kn_escape(bar.id)) +
+            '\'))" />';
+        html[html.length] = '&nbsp';
+        html[html.length] = '<font size="-1">';
+        html[html.length] =
+            '<input type="text" name="' +
+            kn_htmlEscape(bar.id) +
+            '_box" class="output" value="" readonly="readonly" onfocus="blur()" />';
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+        html[html.length] = '<' + '/tr>';
+    }
+    html[html.length] = '<' + '/form>';
+
+    html[html.length] = '<' + '/table>';
+    document.write(html.join(""));
+}
+
+// -->
+</script>
+
+<br /><br /><br />
+
+<h2><a href="vertical.html"
+target="_blank"
+onclick="popWin(this.href,this.target); return false"
+><button title="Open a separate voting window."
+>Try in Second Browser</button></a></h2>
+
+<p> Click the button to open another user interface in a new window.
+Voting in the new weblication communicates with the same mod_pubsub
+instance.  Since the vote weblication in <i>this</i> window is listening
+to the mod_pubsub instance, it will receive an update and change to
+reflect the new vote. </p>
+
+</td>
+</tr>		
+</table>
+
+</td>
+</tr>		
+</table>
+
+<br /><br />
+
+<div class="rule"></div>
+
+</body>
+</html>

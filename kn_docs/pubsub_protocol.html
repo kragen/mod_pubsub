@@ -1,0 +1,808 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: pubsub_protocol.html,v 1.1 2002/11/07 07:09:20 troutgirl Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PubSub Protocol</title>
+<link type="text/css" rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>PubSub Protocol</h1>
+
+<p>This document outlines the interface provided by mod_pubsub.  Section
+<a href="#1">1</a> explains the layout and contents of a typical event.
+Section <a href="#2">2</a> documents the HTTP interface, and section
+<a href="#3">3</a> documents the JavaScript callback interface.</p>
+
+<h2><a name="1" id="1">1. Events</a></h2>
+
+<p>Each event processed by mod_pubsub contains a set of elements, with a
+name and a value for each element. The element names and values are
+strings of Unicode or UCS characters. Some elements with special meaning
+are described in section <a href="#2.2">2.2</a>.</p>
+
+<p>We recommend that elements follow the naming and meaning of HTTP
+headers when appropriate, using <code>kn_payload</code> for message
+bodies. For example, a property named "<code>content-type</code>" whose
+value is "<samp>text/plain</samp>" would indicate to a receiver that the
+<code>kn_payload</code> property is a text string.</p>
+
+<p>However, since element names are case-sensitive, we recommend using
+lowercase equivalents of the analogous HTTP header names.</p>
+
+<p>A sample event might include the following elements:</p>
+
+<ul>
+<li>An element named "<samp>element1</samp>" with the value
+"<samp>value1</samp>"</li>
+<li>An element named "<samp>kn_payload</samp>" with the value
+"<samp>This is the kn_payload.<em class="highlight">LF</em>This is
+Greek: <em
+class="highlight">&#954;&#8057;&#963;&#956;&#949;</em></samp>"</li>
+<li>An element named "<samp>element2</samp>" with the value "<samp><em
+class="highlight">SP</em>value2<em class="highlight">LF</em>Japanese:
+<em
+class="highlight">&#12481;&#12515;&#12483;&#12488;</em></samp>"</li>
+<li>An element named "<samp>element<em class="highlight">LF</em>three
+is<em class="highlight">NUL</em>long</samp>" with the value
+"<samp>1</samp>"</li>
+<li>An element named "<samp>kn_id</samp>" with the value
+"<samp>979273892_861_2249</samp>"</li>
+</ul>
+
+<p>Some parts of the above example include <em
+class="highlight">highlighted</em> characters with special
+meanings:</p>
+
+<div class="dl">
+<dl>
+<dt><samp>NUL</samp></dt>
+
+<dd>A null character (character 0, <code>U+0000</code>)</dd>
+
+<dt><samp>LF</samp></dt>
+
+<dd>The linefeed character (character 10,
+<code>U+000A</code>)</dd>
+
+<dt><samp>SP</samp></dt>
+
+<dd>The literal space character (character 32,
+<code>U+0020</code>)</dd>
+
+<dt><samp>&#954;&#8057;&#963;&#956;&#949;</samp></dt>
+
+<dd>The Greek word <em>kosme</em> (a five-character string,
+<code>U+03BA,U+1F79,U+03C3,U+03BC,U+03B5</code>)</dd>
+
+<dt><samp>&#12481;&#12515;&#12483;&#12488;</samp></dt>
+
+<dd>The Japanese word <em>tyatto</em> (a four-character string,
+<code>U+30C1,U+30E3,U+30C3,U+30C8</code>)</dd>
+</dl>
+</div>
+
+<p>Elements may appear in any order, and each element must have a unique
+name. The order of elements is not preserved. Elements and values may
+include any UCS or Unicode character (including reserved characters
+and characters not yet allocated) and may be of any length.</p>
+
+<h2><a name="2" id="2">2. HTTP Interface</a></h2>
+
+<p>mod_pubsub implements the HTTP <code>GET</code> and
+<code>POST</code> methods. The <code>POST</code> method is
+preferred for route and notification requests, as it avoids
+overlong URLs, and is a better semantic match than <code>GET</code>
+for these nonidempotent operations. The <code>GET</code> method is
+preferred for the remaining request types, as their results are
+intended to be cached for long periods of time.</p>
+
+<p>Parameters are sent in the same formats used for HTML fill-out form
+submissions. For HTTP POST requests, parameters are sent as POST data
+in <code>application/x-www-form-urlencoded</code> format. For HTTP GET
+requests, parameters are sent as URL query strings in
+<code>application/x-www-form-urlencoded</code> format. Parameters and
+values use the UTF-8 character set encoding. Path information,
+the part of the URL path following the server URL,
+can be used to specify a default topic for
+<code>route</code> and <code>notify</code> requests, but does not count
+as a parameter.</p>
+
+<p>The parameters described in section <a href="#2.1">2.1</a> select
+operations and options; those described in section
+<a href="#2.2">2.2</a> are available as event elements, and are propagated
+along routes (except as otherwise noted.) Parameters not listed here are
+generally available for use as application-specific event elements, with
+the exception of parameter names starting with "<samp>kn_</samp>", which
+are reserved for future use by mod_pubsub. The parameters described in
+section <a href="#2.2.3">2.2.3</a> are used in status events, which are
+generated to indicate the success or failure of a request.</p>
+
+<h3><a name="2.1" id="2.1">2.1 Control</a></h3>
+
+<div class="dl">
+<dl>
+<dt><code>do_method</code></dt>
+
+<dd><p>Select a command:</p>
+
+<div class="dl">
+<dl>
+<dt><samp>route</samp></dt>
+
+<dd>Establish a route from <code>kn_from</code> to <code>kn_to</code>
+(an empty <code>kn_to</code> is used to signal route deletion.)
+Generates a status event, as described in section
+<a href="#2.2.3">2.2.3</a>. If parameters are given, but no
+<code>do_method</code> is given, this is the default behavior for an
+HTTP GET. If <code>kn_to</code> is not specified (or is a string
+starting with <samp>javascript:</samp>,) open a persistent HTTP
+connection with a stream of events from the specified source topic,
+which must be a <code>kn_journal</code>.  If no <code>kn_from</code>
+parameter is given, <code>kn_from</code> defaults to the path
+information.</dd>
+
+<dt><samp>notify</samp></dt>
+
+<dd>Post an event to <code>kn_to</code>. Generates a
+status event, as described in section <a
+href="#2.2.3">2.2.3</a>. If parameters are given, but
+no <code>do_method</code> parameter is given, this
+is the default behavior for an HTTP POST.
+If no <code>kn_to</code> parameter
+is given, <code>kn_to</code> defaults to the path
+information.</dd>
+
+<dt><samp>batch</samp></dt>
+
+<dd>Send several <code>route</code> or <code>notify</code> requests (or
+some of each), one per <code>kn_batch</code> parameter.  Generates a
+status event, as described in section <a href="#2.2.3">2.2.3</a>, as do
+the individual batched requests. All status events from the batched
+events use the <code>kn_response_format</code> and
+<code>kn_status_to</code> parameters supplied with the top-level
+<code>batch</code> request.</dd>
+
+<dt><samp>replay</samp></dt>
+
+<dd>Begin the replay of all old events stored on the
+<code>kn_from</code> topic, which should normally be a
+<code>kn_journal</code> topic; each event is reposted to the topic from
+which it was routed to the <code>kn_from</code> topic.  Timing intervals
+between event postings are preserved, but each event is given a new
+<code>kn_id</code> so duplicate-squashing won't kill it.  The first
+replayed event is posted immediately.  If <code>kn_from</code> is not
+specified, it defaults to the path information.  <samp>replay</samp>
+also takes parameters <code>user</code> and <code>password</code>, which
+specify a username and password to be used for authentication when
+reposting the events (note: this is a major security hole), and a
+floating-point parameter <code>warp</code>; if <code>warp</code> is
+specified, the intervals between events are divided by
+<code>warp</code>.  So, for example, if <code>warp</code> is
+<samp>2.5</samp>, the events will play back 2.5 times as fast as they
+were originally posted.  <code>replay</code> <a href="#2.2.3">generates
+a status event</a>.</dd>
+
+<dt><samp>whoami</samp></dt>
+
+<dd>Return JavaScript to set session-specific <code>window</code>
+string properties (all are optional, and UTF-8 encoded): 
+
+<div class="dl">
+<dl>
+<dt><code>kn_userid</code></dt>
+
+<dd>remote user ID (default: <samp>anonymous</samp> or <samp>guest</samp>)</dd>
+
+<dt><code>kn_displayname</code></dt>
+
+<dd>remote user name (default: <samp>Anonymous User</samp> or <samp>Guest User</samp>)</dd>
+
+<dt><code>kn_server</code></dt>
+
+<dd>pathname for mod_pubsub (default: <samp>../../cgi-bin/pubsub.cgi</samp>)</dd>
+
+<dt><code>kn_defaultHacks</code></dt>
+
+<dd>list of <code>kn_hacks</code> to enable by default; see the <a
+href="javascript_reference.html">PubSub JavaScript
+Libary Reference</a> for further details.</dd>
+
+</dl>
+</div>
+</dd>
+
+<dt><samp>lib</samp></dt>
+
+<dd>Return the PubSub JavaScript library (includes results of
+<code>whoami</code>.) See the <a href="javascript_reference.html">PubSub
+JavaScript Library Reference</a> for further details.</dd>
+
+<dt><samp>libform</samp></dt>
+
+<dd>Return the <code>kn:</code> scheme fill-out form handler
+(includes results of <code>lib</code>.) 
+
+<blockquote>
+<p>The form library must be included at the very beginning
+of your DHTML application:</p>
+
+<pre>
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;MyApp&lt;/title&gt;
+    &lt;script src="../../cgi-bin/pubsub.cgi?do_method=libform"&gt;&lt;/script&gt;
+</pre>
+
+<p>To publish events to a topic, use an HTML
+<code>&lt;form&gt;</code> element with
+<code>action="kn:/<var>topic</var>"</code> and
+<code>method="POST"</code>. Your form fields will be sent as an
+event each time the form is submitted.</p>
+
+<p>To subscribe to a topic, use an HTML <code>&lt;form&gt;</code>
+element with <code>action="kn:/<var>topic</var>"</code> and
+<code>method="GET"</code>. Matching form fields will be filled in
+and your <code>onsubmit</code> handler (if you have one) will be
+invoked for each received event.</p>
+</blockquote>
+</dd>
+
+<dt><samp>lib2form</samp></dt>
+
+<dd>Return the <code>kn:</code> scheme two-way fill-out form handler
+(includes results of <code>lib</code>.) 
+
+<blockquote>
+<p>The two-way form library must be included at the very beginning
+of your DHTML application:</p>
+
+<pre>
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;MyApp&lt;/title&gt;
+    &lt;script src="../../cgi-bin/pubsub.cgi?do_method=lib2form"&gt;&lt;/script&gt;
+</pre>
+
+<p>To simultaneously publish and subscribe to a topic, use an HTML
+<code>&lt;form&gt;</code> element with
+<code>action="kn:/<var>topic</var>"</code>.
+Matching form fields will be filled in for each received event.
+Your form fields will be sent as an
+event each time the form is
+submitted.</p>
+</blockquote>
+</dd>
+
+<dt><samp>blank</samp></dt>
+
+<dd>Return an empty HTML document with a JavaScript callback, as
+described in section <a href="#3">3</a>. Essential for enforcing
+the JavaScript 'same-domain' security policy (this is useful because
+JavaScript access to <samp>about:blank</samp> is sometimes
+restricted.)</dd>
+
+<dt><samp>help</samp></dt>
+
+<dd>Return this list. If no parameters are given, this is the default
+behavior.</dd>
+
+<dt><samp>test</samp></dt>
+
+<dd>Run internal test suite.</dd>
+</dl>
+</div>
+</dd>
+
+<dt><code>kn_response_format</code></dt>
+
+<dd><p>
+Select a format for events returned by <code>route</code>,
+<code>notify</code> and <code>batch</code> requests. The available
+formats, with their encodings of the sample event described in
+section <a href="#1">1</a>, are: 
+
+<div class="dl">
+<dl>
+<dt><samp>js</samp></dt>
+
+<dd><p>Provide browser-friendly HTML with JavaScript callbacks. The
+precise format may vary, but the JavaScript-visible result is always
+as described in section <a href="#3">3</a>.  This is the
+default.</p></dd>
+
+<dt><samp>simple</samp></dt>
+
+<dd>
+<p>Delivers events in a simple format resembling RFC-822, possibly
+with whitespace padding before and after encoded
+events. The sample event from
+section <a href="#1">1</a> would be formatted as follows:</p>
+
+<blockquote><pre>
+179
+element1: value1
+element2: =20value2=0AJapanese: &#12481;&#12515;&#12483;&#12488;
+element=0Athree=20is=20=00long: 1
+kn_id: 979273892_861_2249
+
+This is the kn_payload.
+This is Greek: &#954;&#8057;&#963;&#956;&#949;
+</pre></blockquote>
+
+<p>Each encoded event is preceded be a decimal byte count (<em>not</em> a
+character count) for the encoded form
+and a linefeed (character 10, <code>U+000A</code>),
+and followed by a linefeed. These are not part of the
+encoded event, and are not included in the byte count.
+When encoded, the sample event includes 176 bytes.</p>
+
+<p>Encoded events include a sequence of zero or more elements followed
+by a linefeed and the <code>kn_payload</code> value. Each element in an
+encoded event consists of an element name, a colon, a single space, an
+element value, and a linefeed. The element names and the element values
+may both include bytes which are encoded in MIME Quoted-Printable style
+(i.e. <code>=</code><var>XX</var>, where <var>XX</var> is the uppercase
+hexadecimal representation of the quoted byte value.) A server will
+always escape the following bytes: colon (U+003A), the equals sign
+(U+003D), and leading and trailing spaces (U+0020) in element names and
+values. Other bytes may be escaped, as in the above example (where all
+control characters are escaped.) UTF-8 sequences of two or more bytes
+may have none, some or all bytes escaped.</p>
+
+<p>The list of elements never includes <code>kn_payload</code>.
+The <code>kn_payload</code> value is not encoded
+in MIME Quoted-Printable style.</p>
+
+<p>Element names, element values and the <code>kn_payload</code> value
+are UTF-8 encoded (so <samp>&#12481;&#12515;&#12483;&#12488;</samp> in
+the above example is encoded [and counted] as the 12 bytes <samp>0xE3,
+0x83, 0x81, 0xE3, 0x83, 0xA3, 0xE3, 0x83, 0x83, 0xE3, 0x83,
+0x88</samp>; <samp>&#954;&#8057;&#963;&#956;&#949;</samp> is
+encoded [and counted] as the 11 bytes <samp>0xCE, 0xBA, 0xE1, 0xBD,
+0xB9, 0xCF, 0x83, 0xCE, 0xBC, 0xCE, 0xB5</samp>.)</p>
+
+</dd>
+</dl>
+</div>
+</dd>
+
+<dt><code>kn_batch</code></dt>
+
+<dd><code>batch</code> request in
+<code>application/x-www-form-urlencoded</code> format, e.g.
+<samp>do_method=notify;kn_to=/what/chat;kn_payload=hi%20there</samp>.
+Several <code>kn_batch</code> parameters may occur in a single
+<code>batch</code> request.</dd>
+
+<dt><code>kn_from</code></dt>
+
+<dd><code>route</code> sources, e.g. <samp>/postit</samp> or
+<samp>http://foo/mod_pubsub/cgi-bin/pubsub.cgi/postit</samp></dd>
+
+<dt><code>kn_to</code></dt>
+
+<dd><code>route</code> or <code>notify</code> destinations, e.g.
+<samp>/what/chat</samp>,
+<samp>/what/&#12481;&#12515;&#12483;&#12488;</samp>,
+<samp>/what/&#954;&#8057;&#963;&#956;&#949;</samp>,
+<samp>http://foo/mod_pubsub/cgi-bin/pubsub.cgi/what/chat</samp>.</dd>
+
+<dt><code>kn_status_to</code></dt>
+
+<dd>A topic to which to redirect status events, as described in
+section <a href="#2.2.3">2.2.3</a>, e.g.
+<samp>/who/anonymous/s/22690909/kn_journal</samp>).  If this is not
+specified, status events will be returned in the HTTP response.</dd>
+
+<dt><code>kn_status_from</code></dt>
+
+<dd>A value to place in the <code>kn_route_location</code> element
+of status events, as described in section <a href="#2.2.3">2.2.3</a>.</dd>
+
+<dt><code>kn_debug</code></dt>
+
+<dd><em>(Ignored for compatibility with old clients.)</em></dd>
+</dl>
+</div>
+
+<h3><a name="2.2" id="2.2">2.2. Event Elements</a></h3>
+
+<p>As described in section <a href="#1">1</a>, each event contains a
+set of elements, which are sent as parameters of the HTTP request.</p>
+
+<p>Certain event elements have special meaning. Those described in
+section <a href="#2.2.1">2.2.1</a> apply to all events. Those
+described in section <a href="#2.2.2">2.2.2</a> apply only to routes,
+and those in section <a href="#2.2.3">2.2.3</a> apply only to status
+events.</p>
+
+<h4><a name="2.2.1" id="2.2.1">2.2.1. All Events</a></h4>
+
+<div class="dl">
+<dl>
+<dt><code>content-type</code></dt>
+
+<dd>MIME-style content type for the data in <code>kn_payload</code>,
+e.g.  <samp>text/plain</samp>, <samp>image/gif</samp>,
+<samp>text/html</samp>, <samp>application/octet-stream</samp> or
+<samp>text/xml</samp>. In general, all <samp>text/*</samp> media types
+should undergo character set and encoding conversion to UCS or Unicode
+(encoded as UTF-8) before being sent in a request to mod_pubsub.
+The use of <code>content-type</code> qualifiers
+(e.g. <samp>charset=utf-8</samp>) is discouraged.  Since UCS or Unicode
+(encoded as UTF-8) is already the implied character set and encoding for
+event element names and values, a <samp>charset</samp> qualifier is
+unnecessary.</dd>
+
+<dt><code>deleted</code></dt>
+
+<dd>Flag to mark deleted events. If the value of the
+<code>deleted</code> element is the string <samp>true</samp>, an
+application receiving it should process the event as a notification of
+deletion. Any other value for this element should be ignored. It is
+recommended that the <code>kn_payload</code> of a deleted event be
+empty, and that a deleted event have a <code>kn_expires</code> element
+with the value <samp>+3600</samp>.</dd>
+
+<dt><code>kn_payload</code></dt>
+
+<dd>Event payload, analogous to a message body. If
+<code>kn_payload</code> is not present, mod_pubsub will insert this
+element with the empty string as the value.</dd>
+
+<dt><code>kn_id</code></dt>
+
+<dd>Event ID (default: a pseudorandom string, e.g.
+<samp>979273892_861_2249</samp>.) An event on a non-journal topic may be
+updated by posting again to the same topic using the same
+<code>kn_id</code>.</dd>
+
+<dt><code>kn_route_checkpoint</code></dt>
+
+<dd>Every time a new or updated event is posted to a
+particular topic, it is assigned a
+new <code>kn_route_checkpoint</code>.</dd>
+
+<dt><code>kn_time_t</code></dt>
+
+<dd>Event timestamp expressed as seconds since Thu Jan 1 00:00:00
+1970 UTC (default: event creation time, e.g. <samp>979273892</samp>
+for an event created at Fri Jan 12 04:31:32 2001 UTC)</dd>
+
+<dt><code>kn_expires</code></dt>
+
+<dd>Event or route expiration time expressed either in the same format as
+<code>kn_time_t</code> or as a positive offset in seconds from the time of
+the event's arrival, e.g. <samp>+15</samp> to expire 15 seconds
+after arrival. When a route with no <code>kn_to</code> expires,
+the persistent connection is closed and the journal topic becomes
+stale.</dd>
+
+<dt><code>kn_route_location</code></dt>
+
+<dd>URI of the route this event was forwarded along most recently,
+e.g.
+<samp>http://foo/mod_pubsub/cgi-bin/pubsub.cgi/what/chat/kn_routes/964832125_29689_47</samp>,
+which may be overridden by the <code>kn_uri</code> route parameter
+for routed events or provided by the <code>kn_status_from</code>
+parameter for status events</dd>
+
+<dt><code>kn_route_id</code></dt>
+
+<dd>The <code>kn_id</code> of the route this event was most
+recently forwarded along</dd>
+
+<dt><code>kn_routed_from</code></dt>
+
+<dd>Absolute URI of topic this event was most recently forwarded from</dd>
+</dl>
+</div>
+
+<h4><a name="2.2.2" id="2.2.2">2.2.2. Routes</a></h4>
+
+<p>In addition to the elements listed in section <a
+href="#2.2.1">2.2.1</a>, the following elements have special meaning
+for routes:</p>
+
+<div class="dl">
+<dl>
+<dt><code>kn_uri</code></dt>
+
+<dd>A value to place in the <code>kn_route_location</code> element
+of events forwarded along this route.</dd>
+
+<!--
+
+<dt><code>do_max_age</code>, <code>do_max_n</code></dt>
+
+<dd>Events posted to a topic are stored for some amount of time before
+being deleted.  <code>do_max_age</code> and <code>do_max_n</code>
+request the immediate forwarding of the most recent few events as if
+they had just been delivered; this is called "initial route
+population".  <code>do_max_age</code> and <code>do_max_n</code> are
+different ways of specifying how many events to forward;
+<samp>do_max_age=<var>nseconds</var></samp> requests that events
+younger than <var>nseconds</var> seconds be forwarded, while
+<samp>do_max_n=<var>n</var></samp> requests that the youngest
+<var>n</var> events be forwarded.  For the purpose of initial route
+population, an event's age is the amount of time since it was posted
+to the topic.  At present, <code>do_max_n</code> is ignored if
+<code>do_max_age</code> is specified.</dd>
+
+-->
+
+<dt><code>do_max_age</code></dt>
+
+<dd>If this parameter is present, all previously posted events
+in the source topic which have not expired will be forwarded along
+the route, provided they were posted within the time period defined
+by the value of this parameter. The value of this parameter is
+either an age in seconds (e.g. <samp>30</samp> for events posted
+within the previous 30 seconds) or <samp>infinity</samp> (for all
+previously posted events.) The previously posted events will be
+forwarded along the route before the status event indicating
+route success is sent
+(except on tunnel connections, where the status event is always
+sent first.)</dd>
+
+<dt><code>do_max_n</code></dt>
+
+<dd>If this parameter is present, its value is a number <var>n</var>.
+The <var>n</var> most recently posted events in the source topic which
+have not expired (or all unexpired events in the source topic, if
+fewer than <var>n</var> remain) will be forwarded along the route
+before the status event indicating route success is sent
+(except on tunnel connections, where the status event is always
+sent first.)</dd>
+
+<dt><code>do_since_checkpoint</code></dt>
+
+<dd>If this parameter is present, its value is
+a <code>kn_route_checkpoint</code> corresponding to a previous post to the
+topic. All events posted or updated since that post which
+have not expired will be forwarded along the route
+before the status event indicating route success is sent
+(except on tunnel connections, where the status event is always
+sent first.)</dd>
+
+<dt><code>kn_content_filter</code></dt>
+
+<dd>A Perl regular expression used to route only messages with
+matching payloads, e.g. <samp>(?i)\bimportant\b</samp></dd>
+
+<dt><code>kn_content_transform</code></dt>
+
+<dd>A URI and optional keyword for a payload transformer, e.g.
+<samp>http://foo/mod_pubsub/cgi-bin/kn_transform/rot13.cgi</samp></dd>
+</dl>
+</div>
+
+<h4><a name="2.2.3" id="2.2.3">2.2.3. Status Events</a></h4>
+
+<p>mod_pubsub generates status events to indicate
+the success or failure of <code>route</code>, <code>notify</code> and
+<code>batch</code> requests, as well as requests with unknown
+<code>do_method</code>s.  Each such request, whether in a batch or by
+itself on an HTTP connection, generates a status event; so, for
+example, a <code>batch</code> containing a <code>route</code> and two
+<code>notify</code>s will generate a status event for the batch, a
+status event for the route, and two more status events for the
+<code>notify</code>s.</p>
+
+<p>If <code>kn_status_to</code> is not specified, the status events
+are sent back in the body of the HTTP response, and the HTTP
+response's status line is taken from the <code>status</code> field of
+the first status event; <code>kn_response_format</code> determines how
+they are represented.  If <code>kn_status_to</code> is specified,
+however, the HTTP response uses <samp>204 No Content</samp> as the
+HTTP status code and reason phrase, and as per RFC 2616, there is no
+response body; instead, the events are forwarded to the topic whose
+URL is specified as the value of <code>kn_status_to</code>.</p>
+
+<p>This hack is to coddle browsers; if a browser submits a form in a
+frame, even a hidden frame, and get back a non-204 response, it adds
+an entry to the browser history --- effectively breaking the Back
+button.  <code>kn_status_to</code> allows success and failure status
+to be sent to the browser via the tunnel frame.</p>
+
+<p>Status events include at least these two elements:</p>
+
+<div class="dl">
+<dl>
+<dt><code>status</code></dt>
+
+<dd>A status code and brief description in HTTP format, e.g. a
+three-digit code followed by a descriptive string. 1<var>xx</var>,
+2<var>xx</var> and 3<var>xx</var> codes generally indicate success,
+while 4<var>xx</var> and 5<var>xx</var> generally indicate errors.  If
+this is the first event being sent back over the requesting connection
+(which happens when <code>kn_status_to</code> was not set and the
+request is not part of a batch), this will also be sent as the HTTP
+status code and reason phrase.</dd>
+
+<dt><code>kn_payload</code></dt>
+
+<dd>Ideally, a detailed and human-readable description of what
+happened in plain text format. In practice, it is often empty.</dd>
+</dl>
+</div>
+
+<h2><a name="3" id="3">3. JavaScript Interface</a></h2>
+
+<p>mod_pubsub generates HTML with JavaScript callbacks for event
+delivery and for dynamic document handling. Section <a
+href="#3.1">3.1</a> describes the JavaScript format used for event
+delivery, and section <a href="#3.2">3.2</a> lists the supported
+callbacks. It is recommended that JavaScript applications not use these
+callbacks directly. Instead, they should use the interface described in
+the <a href="javascript_reference.html">PubSub JavaScript Library
+Reference</a>.</p>
+
+<h3><a name="3.1" id="3.1">3.1. Event Format</a></h3>
+
+<p>mod_pubsub packages events in JavaScript <var>event</var> objects
+when using the <samp>js</samp> <code>kn_response_format</code> (see
+section <a href="#2.1">2.1</a>.)  Each <var>event</var> object includes
+an array of <code>&lt;INPUT&gt;</code>-style <code>elements</code> with
+<code>name</code> and <code>value</code> strings corresponding to UTF-16
+encoded event element names and values. If a particular element name or
+value has not already been decoded from UTF-8 into UTF-16 by mod_pubsub,
+the letter <code>U</code> will be appended to the property name, making
+it <code>nameU</code> or <code>valueU</code>. The UTF-8 encoded string
+must include JavaScript UTF-16 characters with values corresponding to
+the bytes in the UTF-8 sequence; that is, it must be encoded as UTF-8
+and then represented using one JavaScript character per UTF-8 byte.
+mod_pubsub might choose to provide only a UTF-8 version of a particular
+string, it might choose to provide only a UTF-16 version, or it might
+choose to provide both UTF-8 and UTF-16 versions.  The sample event
+described in section <a href="#1">1</a> would be structured as
+follows:</p>
+
+<pre>
+<var>event</var> =
+{ 
+    elements: 
+    [ 
+        { 
+            nameU: "element1", 
+            value: "value1" 
+        }, 
+        { 
+            name: "kn_payload", 
+            valueU: "This is the kn_payload.\nThis is Greek: " +
+                "\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5" 
+        }, 
+        { 
+            nameU: "element2", 
+            valueU: " value2\nJapanese: " +
+                "\xe3\x83\x81\xe3\x83\xa3\xe3\x83\x83\xe3\x83\x88" 
+        }, 
+        { 
+            name: "element\nthree is\0long", 
+            value: "1" 
+        }, 
+        { 
+            name: "kn_id", 
+            nameU: "kn_id", 
+            value: "979273892_861_2249" 
+            valueU: "979273892_861_2249" 
+        }
+    ] 
+} 
+</pre>
+
+<p>Typical usage of an <var>event</var>:</p>
+
+<div class="dl">
+<dl>
+<dt><var>event</var><code>.elements.length</code></dt>
+
+<dd>number of element name-value pairs (see section <a
+href="#2">2</a>) in an <var>event</var> (<samp>5</samp>, in this
+example)</dd>
+
+<dt><var>event</var><code>.elements[0].nameU</code></dt>
+
+<dd>UTF-8 encoded name of the first element in an <var>event</var>
+(<samp>"element1"</samp>, in this example)</dd>
+
+<dt><var>event</var><code>.elements[1].name</code></dt>
+
+<dd>UTF-16 encoded name of the second element in an <var>event</var>
+(<samp>"kn_payload"</samp>, in this example)</dd>
+
+<dt><var>event</var><code>.elements[2].valueU</code></dt>
+
+<dd>UTF-8 encoded value associated with the third element in an
+<var>event</var> (<samp>" value2\nJapanese:
+\xe3\x83\x81\xe3\x83\xa3\xe3\x83\x83\xe3\x83\x88"</samp>, in this
+example)</dd>
+</dl>
+</div>
+
+<p>Note that the JavaScript event format used here differs from the
+one used by the higher-level functions described in the <a
+href="javascript_reference.html">PubSub JavaScript Library
+Reference</a>.</p>
+
+<h3><a name="3.2" id="3.2">3.2. Callbacks</a></h3>
+
+<p>mod_pubsub communicates with JavaScript-enabled web browsers through
+the following callbacks:</p>
+
+<div class="dl">
+<dl>
+<dt><code>parent.kn_tunnelLoadCallback(window)</code></dt>
+
+<dd><p>Called when a tunnel connection (as produced by
+<code>do_method=route</code> with no <code>kn_to</code> or
+a <samp>javascript:</samp> <code>kn_to</code>)
+is closed.</p></dd>
+
+<dt><a name="sendCallback"><code>parent.kn_sendCallback(<var>event</var>,
+window)</code></a></dt>
+
+<dd><p>Called whenever an <var>event</var> is received. The format of
+an <var>event</var> is described in section <a
+href="#3.1">3.1</a>.</p></dd>
+
+<dt><code>parent.kn_redrawCallback(window)</code></dt>
+
+<dd><p>Called while <code>do_method=blank</code> is loading. Used by
+the KNDocument class to render HTML pages dynamically.</p></dd>
+</dl>
+</div>
+
+<p>The <code>window</code> parameter passed to all three callbacks may
+be used to determine which frame a callback was called in.</p>
+
+<hr />
+
+<p>
+$Id: pubsub_protocol.html,v 1.1 2002/11/07 07:09:20 troutgirl Exp $</p>
+
+</body>
+</html>

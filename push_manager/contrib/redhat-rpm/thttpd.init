@@ -1,0 +1,38 @@
+#!/bin/bash
+# The following two lines enable chkconfig(1) to manipulate this script
+# chkconfig: 2345 99 01
+# description: control Jef Poskanzer's tiny/turbo/throttling http daemon
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+case "$1" in
+  start)
+	echo -n "Starting thttpd: "
+        daemon /usr/sbin/thttpd -nor \
+		-u httpd \
+		-l /home/httpd/logs/thttpd.log \
+		-d /home/httpd \
+		-c '/cgi-bin/*'
+	touch /var/lock/subsys/thttpd
+	echo
+	;;
+  stop)
+	echo -n "Shutting down thttpd: "
+	killproc thttpd
+	rm -f /var/lock/subsys/thttpd
+	echo
+	;;
+  restart)
+        $0 stop
+        $0 start
+        ;;
+  status)
+        status thttpd
+        ;;
+  *)
+	echo "Usage: thttpd {start|stop|restart|status}"
+	exit 1
+esac
+
+exit 0

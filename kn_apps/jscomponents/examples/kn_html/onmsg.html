@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ Copyright (c) 2001 KnowNow, Inc. All rights reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+ -->
+<html>
+<head>
+	<title>KN_HTML onMessage Example</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="/kn/?do_method=lib"></script>
+    <script type="text/javascript" src="../../kn_html.js"></script>
+	<script type="text/javascript">
+    
+    var topic = "/what/tests/kn_html";
+	
+	function addNewOption(text,value,ev)
+    {
+		if (ev.kn_deleted) 
+        {   return;
+        }
+		var o = new Option();
+		o.text = ev[text];
+		o.value = ev[value];
+		ev.currentElement.options[ev.currentElement.options.length] = o;
+		document.forms[0].elements.kn_payload.value="";
+		/* now we delete the event from the router */
+		ev.kn_deleted = "true";
+		ev.kn_expires = "+10";
+		kn.publish(topic,ev);
+	}
+	
+	function getValue()
+    {
+		var f = document.getElementById("dataThing");
+		alert("The value of the selected option is " + f.options[f.selectedIndex].value);
+	}
+	
+	function sendEvent()
+    {
+		var evt = {};
+		var x = document.forms["zz"].elements["kn_payload"].value;
+		evt.kn_payload = x;
+		kn.publish(topic,evt);
+	}
+	
+	</script>
+	
+</head>
+
+<body>
+
+<h3>KN_HTML onMessage Example</h3>
+
+<p>This page demonstrates KN_HTML's ability to use custom 
+onMessage handlers directly in HTML, using the kn_onmessage attribute.</p>
+
+<p>Enter text into the Payload text box and click the button to publish 
+the event to the sample topic.  The form element containing the select 
+box is subscribed to the sample topic. The select box itself contains a 
+kn_onmessage attribute which call the addNewOption() function.  This function 
+takes the kn_payload and the kn_id properties and creates a new option 
+in the select box from those values.</p>
+
+<form action="#" name="zz" onsubmit="return false;">
+Payload: <input type="text" name="kn_payload"><input type="button" value="Publish Event" onclick="sendEvent();">
+</form>
+
+<form action="#" kn_topic="/what/tests/kn_html" kn_do_max_n="10" style="background-color:#cccccc; width:400px; padding: 10px 10px 10px 10px;" onsubmit="return false;">
+<select name="dataThing" id="dataThing" kn_onmessage="addNewOption('kn_payload','kn_id');">
+</select><br /><br />
+<input type="button" value="Get Selected Value" onclick="getValue();">
+</form>
+
+<h3>Source Code</h3>
+
+<div style="background-color:#eeeeee; padding: 10px 10px 10px 10px;"><xmp>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+    <title>KN_HTML onMessage Example</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="/kn/?do_method=lib"></script>
+    <script type="text/javascript" src="../../kn_html.js"></script>
+    <script type="text/javascript">
+    
+    var topic = "/what/tests/kn_html";
+	
+    function addNewOption(text,value,ev)
+    {
+        if (ev.kn_deleted) 
+        {   return;
+        }
+        var o = new Option();
+        o.text = ev[text];
+        o.value = ev[value];
+        ev.currentElement.options[ev.currentElement.options.length] = o;
+        document.forms[0].elements.kn_payload.value="";
+        /* now we delete the event from the router */
+        ev.kn_deleted = "true";
+        ev.kn_expires = "+10";
+        kn.publish(topic,ev);
+    }
+	
+    function getValue()
+    {
+        var f = document.getElementById("dataThing");
+        alert("The value of the selected option is " + f.options[f.selectedIndex].value);
+    }
+	
+    function sendEvent()
+    {
+        var evt = {};
+        var x = document.forms["zz"].elements["kn_payload"].value;
+        evt.kn_payload = x;
+        kn.publish(topic,evt);
+    }
+	
+    </script>
+	
+</head>
+
+<body>
+
+<h3>KN_HTML onMessage Example</h3>
+
+<p>This page demonstrates KN_HTML's ability to use custom 
+onMessage handlers directly in HTML, using the kn_onmessage attribute.</p>
+
+<p>Enter text into the Payload text box and click the button to publish 
+the event to the sample topic.  The form element containing the select 
+box is subscribed to the sample topic. The select box itself contains a 
+kn_onmessage attribute which call the addNewOption() function.  This function 
+takes the kn_payload and the kn_id properties and creates a new option 
+in the select box from those values.</p>
+
+<form action="#" name="zz" onsubmit="return false;">
+Payload: <input type="text" name="kn_payload"><input type="button" value="Publish Event" onclick="sendEvent();">
+</form>
+
+<form action="#" kn_topic="/what/tests/kn_html" kn_do_max_n="10" style="background-color:#cccccc; width:400px; padding: 10px 10px 10px 10px;" onsubmit="return false;">
+<select name="dataThing" id="dataThing" kn_onmessage="addNewOption('kn_payload','kn_id');">
+</select><br /><br />
+<input type="button" value="Get Selected Value" onclick="getValue();">
+</form>
+</body>
+</html>
+
+</xmp></div>
+
+</body>
+</html>

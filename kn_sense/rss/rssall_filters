@@ -1,0 +1,219 @@
+# rssall_filters
+
+# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+#
+# @KNOWNOW_LICENSE_START@
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in
+# the documentation and/or other materials provided with the
+# distribution.
+# 
+# 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+# be used to endorse or promote any product without prior written
+# permission from KnowNow, Inc.
+# 
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+# GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# @KNOWNOW_LICENSE_END@
+#
+# $Id: rssall_filters,v 1.1 2002/11/07 07:09:31 troutgirl Exp $
+
+# This demonstrates the use of filters with the mod_pubsub system.
+# See the file "make_filters.plx".
+
+# NASDAQ companies.
+
+/what/nasdaq/aapl (?i)\bapple.computer\b (?i)\baapl\b (?i)\bsteve.jobs\b (?i)\bimac\b (?i)\bmac.os\b
+/what/nasdaq/adbe (?i)\badobe\b (?i)\badbe\b
+/what/nasdaq/aeth (?i)\baether\b (?i)\baeth\b
+/what/nasdaq/akam (?i)\bakamai\b (?i)\btom.leighton\b (?i)\bdan.lewin\b (?i)\bdanny.lewin\b (?i)\bgeorge.conrades\b (?i)\bjonathan.seelig\b
+/what/nasdaq/amzn (?i)\bamazon\.com\b (?i)\bamzn\b (?i)\bjeff.bezos\b
+/what/nasdaq/arba (?i)\bariba\b (?i)\barba\b
+/what/nasdaq/athm (?i)\bathm\b (?i)\bathome\b (?i)\bexcite\.com\b (?i)\bgraham.spencer\b
+/what/nasdaq/beas (?i)\bbeas\b (?i)\bbea.systems\b
+/what/nasdaq/brcm (?i)\bbroadcom\b (?i)\bbrcm\b
+/what/nasdaq/cmgi (?i)\bcmgi\b (?i)\baltavista\b (?i)\bdavid.wetherell\b (?i)\bbill.hawkins\b
+/what/nasdaq/cmrc (?i)\bcommerce.one\b (?i)\bcovisint\b (?i)\bmarty.tenenbaum\b
+/what/nasdaq/coms (?i)\b3com\b (?i)\bcoms\b
+/what/nasdaq/csco (?i)\bcisco\b (?i)\bjohn.chambers\b
+/what/nasdaq/dell (?i)\bdell\b
+/what/nasdaq/ebay (?i)\bebay\b
+/what/nasdaq/hand (?i)\bhand\b
+/what/nasdaq/incy (?i)\bincyte\b (?i)\bincy\b
+/what/nasdaq/inkt (?i)\binktomi\b
+/what/nasdaq/insp (?i)\binfospace\b (?i)\binsp\b (?i)\bnaveen.jain\b
+/what/nasdaq/intc (?i)\bintel\b (?i)\bintc\b (?i)\bandrew.grove\b (?i)\bandy.grove\b
+/what/nasdaq/jdsu (?i)\bjds.uniphase\b (?i)\bjdsu\b
+/what/nasdaq/msft (?i)\bmicrosoft\b (?i)\bmsft\b (?i)\bsteve.ballmer\b (?i)\bbill.gates\b
+/what/nasdaq/mstr (?i)\bmicrostrategy\b (?i)\bmstr\b (?i)\bmichael.saylor\b
+/what/nasdaq/neon (?i)\bnew.era.of.networks\b (?i)\bneon\b (?i)\brick.adam\b
+/what/nasdaq/nsat (?i)\bnorsat\b (?i)\bnsat\b (?i)\bnsatf\b
+/what/nasdaq/nxtl (?i)\bnextel\b (?i)\bnxtl\b
+/what/nasdaq/orcl (?i)\boracle\b (?i)\borcl\b (?i)\blarry.ellison\b
+/what/nasdaq/palm (?i)\bpalm\b
+/what/nasdaq/pcln (?i)\bpriceline\b (?i)\bpcln\b
+/what/nasdaq/phcm (?i)\bphone\.com\b (?i)\bwap\b (?i)\bphcm\b (?i)\bswcm\b (?i)\bsoftware\.com\b
+/what/nasdaq/puma (?i)\bpumatech\b (?i)\bpuma\b (?i)\bbrad.rowe\b
+/what/nasdaq/qcom (?i)\bqualcomm\b (?i)\bqcom\b (?i)\bwingcast\b
+/what/nasdaq/rhat (?i)\bred.hat\b (?i)\brhat\b (?i)\bbob.young\b
+/what/nasdaq/rimm (?i)\bresearch.in.motion\b (?i)\brimm\b
+/what/nasdaq/rnwk (?i)\brealnetworks\b (?i)\brnwk\b (?i)\brob.glaser\b
+/what/nasdaq/sbas (?i)\bstarbase\b (?i)\bsbas\b
+/what/nasdaq/scii (?i)\bnet2wireless\b (?i)\bscii\b
+/what/nasdaq/swir (?i)\bsierra.wireless\b (?i)\bswir\b
+/what/nasdaq/sunw (?i)\bsun.microsystems\b (?i)\bscott.mcnealy\b
+/what/nasdaq/talr (?i)\btalarian\b (?i)\btalr\b
+/what/nasdaq/tibx (?i)\btibco\b (?i)\btibx\b (?i)\bvivek.ranadive\b (?i)\bsrinivasan\b
+/what/nasdaq/vitr (?i)\bvitria\b (?i)\bvitr\b (?i)\bjomei.chang\b (?i)\bdale.skeen\b
+/what/nasdaq/vlct (?i)\bvalicert\b (?i)\bvlct\b
+/what/nasdaq/vrsn (?i)\bverisign\b (?i)\bvrsn\b (?i)\bnetwork.solutions\b
+/what/nasdaq/wcap (?i)\bwinfield.capital\b (?i)\bwcap\b
+/what/nasdaq/wcom (?i)\bworldcom\b (?i)\bwcom\b (?i)\bvint.cerf\b
+/what/nasdaq/webm (?i)\bwebmethods\b (?i)\bcharles.allen\b (?i)\bphil.merrick\b (?i)\bphilip.merrick\b
+/what/nasdaq/yhoo (?i)\byahoo\b (?i)\byhoo\b (?i)\bjerry.yang\b (?i)\bdavid.filo\b (?i)\btim.koogle\b (?i)\btimothy.koogle\b
+
+# NYSE, AMEX, and International companies.
+
+/what/nyse/aol    (?i)\baol\b (?i)\btwx\b (?i)\bamerica.online\b (?i)\btime.warner\b
+/what/nyse/axp    (?i)\baxp\b (?i)\bamerican.express\b
+/what/nyse/dis    (?i)\bdis\b (?i)\bdisney\b
+/what/nyse/hwp    (?i)\bhewlett.packard\b (?i)\bhp\b (?i)\bhwp\b
+/what/nyse/ibm    (?i)\bibm\b
+/what/nyse/kde    (?i)\bkde\b (?i)\b4kids\b (?i)\bkide\b (?i)\bal.kahn\b
+/what/nyse/ko     (?i)\bko\b (?i)\bcoca.cola\b
+/what/nyse/mcd    (?i)\bmcdonald\'s\b (?i)\bmcd\b
+/what/nyse/mot    (?i)\bmot\b (?i)\bmotorola\b
+/what/nyse/t      (?i)\bat\&t\b (?i)\bmichael.armstrong\b
+/what/nyse/wmt    (?i)\bwmt\b (?i)\bwalmart\b (?i)\bwal\-mart\b
+
+# International Stocks.
+
+/what/intl/cert   (?i)\bcerticom\b
+/what/intl/docomo (?i)\bntt\b (?i)\bdocomo\b (?i)\bi\-mode\b
+/what/intl/ericy  (?i)\bericsson\b (?i)\bericy\b
+/what/intl/nok    (?i)\bnokia\b
+/what/intl/tad    (?i)\btadpole.technology\b (?i)\btadpole\.com\b
+/what/intl/xla    (?i)\bxla\b (?i)\bxcelera\b (?i)\bmirror.image\b (?i)\balex.vik\b
+
+# Companies not yet public.
+
+/what/dotcoms/appliedmeta (?i)\bapplied.metacomputing\b
+/what/dotcoms/avogadro    (?i)\bavogadro\b (?i)\bthomas.reardon\b
+/what/dotcoms/centerspan  (?i)\bcenterspan\b
+/what/dotcoms/crossgain   (?i)\bcrossgain\b (?i)\badam.bosworth\b (?i)\brod.chavez\b (?i)\btod.nielsen\b (?i)\bgary.burd\b
+/what/dotcoms/datachannel (?i)\bdatachannel\b (?i)\bdave.pool\b
+/what/dotcoms/dodots      (?i)\bdodots\b
+/what/dotcoms/dotcast     (?i)\bdotcast\b
+/what/dotcoms/dscience    (?i)\bdistributed.science\b
+/what/dotcoms/ebuilt      (?i)\bebuilt\b (?i)\broy.fielding\b
+/what/dotcoms/endeavors   (?i)\bendtech\.com\b (?i)\bgreg.*bolcer\b
+/what/dotcoms/enfish      (?i)\benfish\b
+/what/dotcoms/engenia     (?i)\bengenia\b
+/what/dotcoms/entropia    (?i)\bentropia\b
+/what/dotcoms/fleetwire   (?i)\bfleetwire\b (?i)\byobie.benjamin\b (?i)\bybenjamin\b (?i)\bmark.hogan\b (?i)\bgeneral.motors\b (?i)\bonstar\b (?i)\bdelphi\b (?i)\bwingcast\b
+/what/dotcoms/flycode     (?i)\bflycode\b (?i)\bapplesoup\b
+/what/dotcoms/goldpocket  (?i)\bgoldpocket\b
+/what/dotcoms/gonesilent  (?i)\bgonesilent\b (?i)\bgene.kan\b (?i)\binfrasearch\b
+/what/dotcoms/google      (?i)\bgoogle\b
+/what/dotcoms/groove      (?i)\bgroove\.net\b (?i)\bgroove.networks\b (?i)\bray.ozzie\b
+/what/dotcoms/invisible   (?i)\binvisible\.net\b (?i)\binvisible.worlds\b (?i)\bmarshall.rose\b (?i)\bmrose\b
+/what/dotcoms/jabber      (?i)\bjabber\b
+/what/dotcoms/kalepa      (?i)\bkalepa\b
+/what/dotcoms/knownow     (?i)\bknownow\b
+/what/dotcoms/lavastorm   (?i)\blavastorm\b
+/what/dotcoms/loudcloud   (?i)\bloudcloud\b (?i)\bmarc.andreessen\b
+/what/dotcoms/mangosoft   (?i)\bmangosoft\b
+/what/dotcoms/mithral     (?i)\bmithral\b
+/what/dotcoms/modo        (?i)\bmodo\b (?i)\bbill.cockayne\b (?i)\bscout.electromedia\b
+/what/dotcoms/napster     (?i)\bnapster\b (?i)\bshawn.fanning\b
+/what/dotcoms/octopus     (?i)\boctopus\.com\b
+/what/dotcoms/opengrid    (?i)\bopengrid\b (?i)\bphillipe.kahn\b
+/what/dotcoms/perfect     (?i)\bperfect\.com\b (?i)\bmarc.porat\b (?i)\bkevin.surace\b
+/what/dotcoms/spotcast    (?i)\bspotcast\b
+/what/dotcoms/static      (?i)\bstatic\.com\b
+/what/dotcoms/ud          (?i)\bunited.devices\b
+/what/dotcoms/uprizer     (?i)\buprizer\b
+/what/dotcoms/vtel        (?i)\bvtel\b
+/what/dotcoms/whatuwant   (?i)\bwhatuwant\b (?i)\bed.jung\b (?i)\bedward.jung\b (?i)\bnathan.myrvhold\b
+/what/dotcoms/yodlee      (?i)\byodlee\b (?i)\bsree.rajan\b
+
+# Venture capitalists.
+
+/what/vc/accel      (?i)\baccel\b (?i)\bmitch.kapor\b
+/what/vc/battery    (?i)\bbattery.ventures\b (?i)\bjim.orlando\b (?i)\bmichael.darby\b (?i)\btodd.dagres\b
+/what/vc/benchmark  (?i)\bbenchmark\b (?i)\bbill.gurley\b
+/what/vc/ea         (?i)\bentrepreneur.america\b (?i)\brob.ryan\b (?i)\broaring.lion\b
+/what/vc/firehose   (?i)\bfirehose\b
+/what/vc/hq         (?i)\bhambrecht\b (?i)\bquist\b (?i)\brupen.dolasia\b
+/what/vc/hummer     (?i)\bhummer.winblad\b (?i)\bann.hummer\b
+/what/vc/ignition   (?i)\bignition.corporation\b (?i)\bbrad.silverberg\b (?i)\bcameron.myrvhold\b
+/what/vc/kleiner    (?i)\bkleiner\b (?i)\bjohn.doerr\b (?i)\bvinod.khosla\b
+/what/vc/maveron    (?i)\bmaveron\b (?i)\bzach.herlich\b
+/what/vc/mayfield   (?i)\bmayfield\b (?i)\byogen.dalal\b
+/what/vc/mdv        (?i)\bmdv\b (?i)\bmohr\,.davidow\b (?i)\beric.strasser\b
+/what/vc/nea        (?i)\bnew.enterprise.associates\b (?i)\bstewart.alsop\b (?i)\bforest.baskett\b (?i)\barno.penzias\b
+/what/vc/redleaf    (?i)\bredleaf\b (?i)\bgeorge.hoyem\b (?i)\bglenn.osaka\b (?i)\brex.jackson\b
+/what/vc/sequoia    (?i)\bsequoia.capital\b (?i)\bdon.valentine\b (?i)\bmichael.moritz\b
+/what/vc/skymoon    (?i)\bskymoon.ventures\b (?i)\bdan.kohn\b (?i)\bmike.farmwald\b
+/what/vc/softbank   (?i)\bsoftbank\b
+/what/vc/staenberg  (?i)\bstaenberg.private.capital\b (?i)\bjon.staenberg\b
+/what/vc/vulcan     (?i)\bvulcan.ventures\b
+/what/vc/warburg    (?i)\bwarburg.pincus\b
+
+# Technology topics of interest.
+
+/what/tech/linux      (?i)\blinux\b (?i)\bred.?hat\b (?i)\bslashdot\b (?i)\bandover\.net\b (?i)\btorvalds\b (?i)\balan.cox\b (?i)\bsuse\b (?i)\bdebian\b (?i)\bgnu\b
+
+/what/tech/p2p        (?i)\bnapster\b (?i)\bgnutella\b (?i)\bfreenet\b (?i)\bpeer\-to\-peer\b (?i)\bp2p\b
+
+/what/tech/netscape   (?i)\bnetscape\b (?i)\bmozilla\b (?i)\biplanet\b
+/what/tech/paulallen  (?i)\bpaul.allen\b
+/what/tech/silivalley (?i)\bsilicon.valley\b
+/what/tech/soap       (?i)\bsimple.object.access.protocol\b \bSOAP\b
+/what/tech/wap        (?i)\bwap\b (?i)\bwml\b
+/what/tech/xml        (?i)\bxml\b (?i)\bxslt\b
+
+# Entertainment topics of interest.
+
+/what/entertainment/caffeine    (?i)\bcaffeine\b (?i)\bcoffee\b
+/what/entertainment/cringely    (?i)\bcringely\b
+/what/entertainment/depression  (?i)\bdepression\b (?i)\bprozac\b (?i)\bzoloft\b
+/what/entertainment/dilbert     (?i)\bdilbert\b (?i)\bscott.adams\b
+/what/entertainment/eminem      (?i)\beminem\b
+/what/entertainment/greenday    (?i)\bgreen.day\b
+/what/entertainment/harrypotter (?i)\bharry.potter\b (?i)\bmuggle\b
+/what/entertainment/madonna     (?i)\bmadonna\b
+/what/entertainment/olympics    (?i)\bolympics\b
+/what/entertainment/pokemon     (?i)\bpokemon\b (?i)\bpikachu\b
+/what/entertainment/survivor    (?i)\bsurvivor\b
+/what/entertainment/viagra      (?i)\bviagra\b
+
+# Places.
+
+/where/us/ma     (?i)\bmassachusetts\b
+/where/us/ma/bos (?i)\bboston\b (?i)\bmit\b (?i)\bharvard\b (?i)\bwaltham\b
+/where/us/ca     (?i)\bcalifornia\b
+/where/us/ca/lax (?i)\blos.angeles\b (?i)\bhollywood\b (?i)\bpasadena\b
+/where/us/ca/sna (?i)\borange.county\b (?i)\birvine\b
+/where/us/wa/sea (?i)\bseattle\b
+/where/india     (?i)\bindia\b
+
+# End of rssall_filters

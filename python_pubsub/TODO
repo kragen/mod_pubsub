@@ -1,0 +1,31 @@
+- verbose vs. non-verbose code not covered
+- Task.__repr__ never called
+- scheduled tasks never have errors
+- schedule never empty, so poll(None) never happens
+- events never get compared to non-events
+- illegal topic name characters never happen
+- never create tunnels from non-journal topics
+- never posted to a dead tunnel (when not restoring from persistent store)
+- never pickled tunnels (when not saving to persistent store)
+- ev_encode's exception handler for string.join (needs to go away)
+- is_utf8 never gets exceptions raised in it, and its exception handler is stupid anyway
+- server.handle_error never gets called
+- simple-format responses never get sent except to tunnels
+- bad HTTP request lines never happen
+- we never parse HTTP response headers
+- we never get HTTP requests with continuation lines
+- we never get HTTP request lines without colons
+- we never get multiple HTTP headers with the same name and have to join them with commas
+- libform and lib2form don't get tested
+- do_method=route defaulting for GET requests not tested
+- 'welcome to pubsub.py' never gets run
+- 404 Not Found never gets sent
+- non-{GET,HEAD,POST} requests never get sent
+- send_response's '500 Internal Server Error' catch never gets run for some reason
+- self.sockname never gets interpolated into a string because Host: headers are always sent
+- Connection.repr never gets called because it has the wrong name
+- Conection.kncgi's else never gets called when getknroot() returns ''
+- FinishRouting, ReportRouteStatus, and HttpClient are unused
+- not serving any .gif or .jpg or default files in the test suites
+- most of read_event_pool and write_event_pool don't run
+- most of the option parsing doesn't run normally

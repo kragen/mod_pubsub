@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:07 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub rss table</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!-- JavaScript Table Widget Helper Libraries -->
+<script src="filter_dialog.js"></script>
+<script src="table_widget.js"></script>
+
+<script><!--
+
+// From 2000: var topic = (kn_argv.kn_topic)? kn_argv.kn_topic : "/what/rss/all";
+var topic = (kn_argv.kn_topic)? kn_argv.kn_topic : "/moreover.com/what/bookreviews";
+var route_id = kn.subscribe(topic, onMessage, {do_max_n : 100});
+var idcache = new Object;
+var draw_timeout = null;
+
+function onMessage(m)
+{
+    if (m.kn_id && (idcache[m.kn_id] == null)) {
+
+       if (draw_timeout) {
+           clearTimeout(draw_timeout);
+           draw_timeout = null;
+       }
+
+       idcache[m.kn_id] = true;
+
+       if (m.displayname == "RSS") {
+       var tstamp = "";
+       var d = new Date(parseInt(m.kn_time_t) * 1000);
+       var now = new Date();
+
+       if ((d.getDate() != now.getDate()) ||
+           (d.getMonth() != now.getMonth()) ||
+           (d.getYear() != now.getYear()))
+       {
+           tstamp = d.toLocaleString();
+       }
+       else 
+       {
+           tstamp = ((d.getHours() % 12)  ? (d.getHours() % 12) : "12") +":"+ 
+                    ((d.getMinutes() < 10)? "0" : "")+ d.getMinutes() + " " + 
+            ((d.getHours() < 12)  ?"AM":"PM");
+       } 
+
+           theRows[theRows.length] = new Array
+              (tstamp,
+              (m.rss_source.substr(0,40) || "RSS"),
+              "<A HREF='" + (m.rss_link || "") +
+              "' TARGET=_blank onMouseover='showToolTip(this, event,\"" 
+              + (m.kn_payload.replace(/[^- :0-9a-zA-Z]/g," ") || "No Description")
+              +"\")' onMouseout='hideToolTip();' >"+
+              (m.rss_title || "NoTitleGiven") +"</A>");
+        } 
+
+        // Take out the next line if you don't want to be moved
+        // to the end of the table every time something new comes in.
+        // if (newsTable) newsTable.setPaginationPage(3);
+
+        draw_timeout = setTimeout("newsTable.refresh();",500);
+    }
+}
+
+var newsTable = null;
+var theRows = new Array();
+var theCols = new Array();
+theCols[0] = new Array("Date", 4, 0); // flag value for NOWRAP
+theCols[1] = new Array("Source", 4, 0);
+theCols[2] = new Array("Headline", 4, 200);
+
+function onLoad() {
+  // Our current design is intertwingled with a frameset setup.
+  newsTable = new TableWidget("newsTable", frames[0], theCols, theRows);
+  newsTable.setCssUrl("table_style.css");
+  newsTable.setCellPadding(5);
+  newsTable.cellAlignment="left";
+  newsTable.refresh();
+}
+// -->
+</script>
+
+</head>
+
+<frameset rows="100%,*" frameborder=no onload="onLoad();"
+onunload="if(newsTable.filterDialog.dialogWindow && !newsTable.filterDialog.dialogWindow.closed)newsTable.filterDialog.dialogWindow.close()">
+<frame src="../../cgi-bin/pubsub.cgi?do_method=blank" name="output">
+<frame noresize>
+</frameset>
+
+</html>

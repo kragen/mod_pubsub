@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: writer.html,v 1.1 2002/11/07 07:09:03 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub yew writer window</title>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- The JavaScript Document Helper Library -->
+<script src="../kn_lib/document.js"></script>
+
+<script><!--
+
+var topic = kn_argv.kn_topic ? kn_argv.kn_topic : '/what/chat';
+var conf_topic; // Set in startup().
+var e = new Object();
+var writer_doc;
+var rid;
+var eid;
+var closewindow = false; // Close window check box.
+
+top.document.title = 'pubsub writer: ' + kn_htmlEscape(topic);
+
+// Configuration stuff.
+
+function onConfigure(e)
+{
+    if (kn_argv.kn_debug)
+    {
+        alert('Configuration request ' + e.kn_id +
+              '("' + e.kn_payload + '") on ' + conf_topic);
+	}
+
+	if (e.kn_id == "closewindow" ) {
+		if(e.kn_payload == "true") {
+			closewindow = true;
+		}
+		else {
+			closewindow = false;
+		}
+		frames[0].document.forms[0].elements.closer.checked = closewindow;
+	}
+	
+}
+
+function configure(string, value)
+{
+    var e = new Object;
+    e.kn_id = string;
+    e.kn_payload = value;
+    kn.publish(conf_topic, e);
+}
+
+function pubevent()
+{
+	for(var x=0; x < frames[0].document.forms[0].elements.length;x++) {
+		frames[0].document.forms[0].elements[x].disabled = true;
+	}
+	eid = kn_publishForm(topic, frames[0].document.forms[0]);
+	
+}
+
+function onMessage(e)
+{
+    if (eid == e.kn_id)
+    {       
+        for(var x=0; x < frames[0].document.forms[0].elements.length;x++)
+        {
+            frames[0].document.forms[0].elements[x].disabled = false;
+        }
+        frames[0].document.forms[0].reset();
+        if (closewindow)
+        {
+            top.setTimeout('window.close()', 1);
+        }
+    }
+}
+
+function startup()
+{
+    rid = kn_subscribe(topic, onMessage );
+	// Configuration Management.
+	conf_topic = "/who/" + kn.userid + "/apps/yew";
+	kn_subscribe(conf_topic, onConfigure, {do_max_age: "infinity"});
+	writer_doc = new KNDocument(frames[0]);
+	with (writer_doc) {
+		open();
+		write('<body bgcolor="#e8e8f0" text="black" link="navy" alink="black" vlink="navy">');
+		write('<form method="GET" name="writer" action="javascript:void parent.setTimeout(\'pubevent()\',1)//">');
+		write('<table bgcolor="#dcdcf0" border="0" width="100%" cellspacing="0">');
+		write('<tr bgcolor="#c0c0f0"><th colspan="2" align="right"><font size="-1" color="black">Message to <font color="maroon">' +
+			  kn_htmlEscape(topic) + '</font></font></th></tr>');
+		write('<tr>');
+		write('<th align="left">');
+		write('Subject:<br>');
+		write('</th>');
+		write('<td>');
+		write('<input type="input" size="40" name="subject" /><br>');
+		write('</td>');
+		write('</tr>');
+		write('<tr>');
+		write('<th align="left">');
+		write('Who:<br>');
+		write('</th>');
+		write('<td>');
+		write('<input type="input" size="40" name="who" /><br>');
+		write('</td>');
+		write('</tr>');
+		write('<tr>');
+		write('<th align="left">');
+		write('What:<br>');
+		write('</th>');
+		write('<td>');
+		write('<input type="input" size="40" name="what" /><br>');
+		write('</td>');
+		write('</tr>');
+		write('<tr>');
+		write('<th align="left">');
+		write('When:');
+		write('</th>');
+		write('<td>');
+		write('<input type="input" size="40" name="when" /><br>');
+		write('</td>');
+		write('</tr>');
+		write('<tr>');
+		write('<th align="left">');
+		write('Where:');
+		write('</th>');
+		write('<td>');
+		write('<input type="input" size="40" name="where" /><br>');
+		write('</td>');
+		write('</tr>');
+		write('<tr>');
+		write('<td>&nbsp;</td>');
+		write('<td />');
+		write('<textarea wrap="logical" cols="40" rows="10" name="kn_payload" /></textarea /><br>');
+		write('</td>');
+		write('</tr>');
+		write('<tr>');
+		write('<td align="left"><font color="black"><input type="submit" value="Post" />&nbsp;<input type="checkbox" title="Auto-close window on post."');
+		write(' onClick="parent.setTimeout(\'configure(\\\'closewindow\\\',\\\'\' + ');
+		write('(document.forms[0].elements.closer.checked ? \'true\' : \'false\') + \'\\\')\',1 )" name="closer"' );
+		if (closewindow == true)
+			write(' checked');
+		write(' /></font>&nbsp;Close?</td>');
+		write('<td align="right"><font color="black"><input type="reset" value="Clear" /></font></td>');
+		write('</tr>');
+		write('</form>');
+		write('</table>');
+		close();
+	}
+}
+
+// -->
+</script>
+
+</head>
+
+<frameset rows="100%,*" onLoad="startup()" border="0">
+   <frame name="main" src="../../cgi-bin/pubsub.cgi?do_method=blank" noresize />
+   <frame name="useless" src="../../cgi-bin/pubsub.cgi?do_method=blank" />
+</frameset>
+
+</html>

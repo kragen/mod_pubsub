@@ -1,0 +1,119 @@
+/**
+ * Copyright (c) 2000-2002 KnowNow, Inc.  All rights reserved.
+ *
+ * @KNOWNOW_LICENSE_START@
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in
+ * the documentation and/or other materials provided with the
+ * distribution.
+ * 
+ * 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ * be used to endorse or promote any product without prior written
+ * permission from KnowNow, Inc.
+ * 
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * @KNOWNOW_LICENSE_END@
+ **/
+
+/* $Id: table_style.css,v 1.1 2002/11/07 07:09:10 troutgirl Exp $ */
+
+body
+{
+    margin-top: -10px;
+    font-size: 10pt;
+    background: #ffffff;
+    margin-left: -10px;
+    color: #000033;
+    font-family: Helvetica, Arial
+}
+table
+{
+    font-size: 8pt;
+    background-image: none;
+    background-repeat: repeat;
+    font-family: Helvetica, Arial;
+    background-color: steelblue
+}
+th
+{
+    font-weight: bold;
+    font-size: 8pt;
+    background-image: none;
+    color: #ffffff;
+    background-repeat: repeat;
+    font-family: Helvetica, Arial;
+    background-color: #000099;
+    text-align: left
+}
+td
+{
+    font-size: 8pt;
+    font-family: Helvetica, Arial
+}
+tr.dark
+{
+    font-size: 8pt;
+    background-image: none;
+    background-repeat: repeat;
+    font-family: Helvetica, Arial;
+    background-color: #ffdddd
+}
+tr.light
+{
+    font-size: 8pt;
+    background-image: none;
+    background-repeat: repeat;
+    font-family: Helvetica, Arial;
+    background-color: #ddddff
+}
+a:link
+{
+    color: #330099;
+    text-decoration: none
+}
+a:visited
+{
+    color: #330099;
+    text-decoration: none
+}
+a.head:link
+{
+    color: #ffffff;
+    text-decoration: underline
+}
+a.head:visited
+{
+    color: #ffffff;
+    text-decoration: underline
+}
+input
+{
+    font-size: 8pt;
+    font-family: Helvetica, Arial
+}
+select
+{
+    font-size: 8pt;
+    font-family: Helvetica, Arial
+}
+
+/* End of table_style.css */

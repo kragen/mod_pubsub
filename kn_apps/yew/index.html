@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:03 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub yew</title>
+
+<!--
+
+ This weblication presents the splash screen and loads the yew app.
+ The splash screen makes sure it has a working mod_pubsub connection
+ before presenting a user interface dependent on mod_pubsub.
+
+ It also gives us a place to display error messages encountered while
+ attempting to connect.
+
+-->
+
+<script><!--
+
+var log = 'Loading the PubSub JavaScript Library...';
+
+// -->
+</script>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<script><!--
+
+if (kn)
+    log += ' done.\nLoading...';
+else
+    log += ' FAILED.';
+
+var topic = kn_argv.kn_topic ? kn_argv.kn_topic : '/what/chat';
+
+function onMessage(e)
+{
+    // We ignore events in the splash screen.
+}
+
+function onSuccess(e)
+{
+    log +=
+        ' done.\nLoading user interface...';
+    document.forms[0].elements[0].value = log;
+    location.replace(kn_resolvePath(location.pathname,'yew.html') +
+                     document.location.search);
+}
+
+function onError(e)
+{
+    log +=
+        ' FAILED.\n' +
+        'Error: ' + e.status +
+        '\n\n' + e.kn_payload;
+    document.forms[0].elements[0].value = log;
+}
+
+function startup()
+{
+    if (! kn)
+        return;
+    log += " done.\nConnecting to " + kn_server + "...";
+    document.forms[0].elements[0].value = log;
+    kn_subscribe(topic, onMessage,
+                 { do_max_age: "infinity" },
+                 { onSuccess: onSuccess, onError: onError });
+}
+
+// -->
+</script>
+
+</head>
+
+<body onload="startup()" text="black" link="black" alink="black" vlink="black" bgcolor="#dcdcf0">
+
+<center>
+
+<h1 align="center">yew</h1>
+
+<p align="center"><b>More useful than elm and pine... another fine tree
+in the messaging grove... at the crossroads of email, web, chat, and
+usenet...</b></p>
+
+<form action="javascript:void null//">
+<textarea readonly cols="60" rows="5"><script><!--
+
+document.write(log);
+
+// -->
+</script></textarea>
+</form>
+
+</center>
+
+</body>
+</html>

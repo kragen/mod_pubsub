@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: chatbot.html,v 1.1 2002/11/07 07:09:15 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub chatbot</title>
+
+<script><!--
+
+who = new String(top.document.location.href);
+msg = who.substr(who.indexOf(",")+1);
+who = who.slice(who.indexOf("?")+1,who.indexOf(","));
+
+if (msg != ""){
+	top.opener.display_message({userid:who,kn_payload:unescape(msg)});
+}
+
+// Add some key click stuff.
+
+n = (document.layers) ? 1 : 0;
+ie = (document.all) ? 1 : 0;
+
+function grabKeys() {
+
+	document.onkeydown = keyDown;
+	document.onkeyup = keyUp;
+
+	if (n) {
+		document.captureEvents(Event.keydown | Event.keyup); 
+	}
+}
+
+function keyDown(e) {
+	// Do nothing!
+}
+
+function keyUp(e) {
+
+	if (n) {
+		var nKey = e.which;
+		var ieKey = 0;
+	}
+
+	if (ie) {
+		var ieKey = event.keyCode;
+		var nKey = 0;
+	}
+
+	if ((nKey == 13 || ieKey == 13)){
+		top.opener.publish_message(who,document.forms[0].elements[0].value);
+//		top.frames[1].forms[0].elements[0].focus();	
+	}
+}
+
+// -->
+</script>
+
+<body onLoad="grabKeys()">
+
+<form>
+<input size="20"><input type="button" value="kick it!" 
+onClick="top.opener.publish_message(who,document.forms[0].elements[0].value);">
+</form>
+
+</body>
+</html>

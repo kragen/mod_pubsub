@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>KN HTML Component</title>
+<link type="text/css" rel="stylesheet" href="doc_style.css" />
+</head>
+
+<body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
+
+<p><img src="images/logo.gif"></p>
+
+<h1>KN HTML Component</h1>
+
+<hr>
+<p>The following document contains information on how to install the KN HTML component, provides a list of KN attributes, and shows you how to use KN tokens.</p>
+
+
+<blockquote>
+
+<ul>
+  <li><a href="#Overview">Overview</a></li>
+  <li><a href="#Installing">Installing KN HTML</a></li>
+  <li><a href="#Attributes">KN Attributes</a></li>
+  <li><a href="#Tokens">KN Tokens</a></li>
+  </ul>
+</blockquote>
+
+<hr>
+
+<h2><a name="Overview"></a>Overview</h2>
+<blockquote>
+
+
+<p>The <i>KN HTML component</i> is a JavaScript library that allows you to enable existing HTML pages to subscribe to KN topics and respond to KN events. With KN HTML, you can add custom KN attributes to existing HTML tags. At runtime, KN HTML locates all subscriber elements and establishes subscription paths and event handlers for all the subscriber elements.</p>
+
+<p>When an event is received by an HTML element, the event is handled by the element's default onMessage handler. You can overwrite the default onMessage handler with a custom handler. The event is then passed inward to the HTML element's children. HTML element children can have their own onMessage handlers, allowing events to be transformed as they travel inward.KN HTML also allows you to insert <i>KN tokens</i> into the text content of HTML elements.  When an HTML element containing KN tokens receives a KN event, the tokens are replaced with the value of the matching event property.</p>
+
+<p>KN HTML does not require other KN components like KN Form or KN Table. However, KN HTML only supports the specific browsers because KN HTML relies on the browser's ability to traverse and manipulate the DOM. For a list of those browsers, refer to the Release Note for KN HTML, available at <a href="http://developer.knownow.com">Developer.Knownow.com</a>.</p>
+
+
+</blockquote>
+
+<h2><a name="Installing"></a>Installing KN HTML</h2>
+<blockquote>
+
+<p><b>To install KN HTML:</b></p>
+
+<ol>
+   <li>Locate the &lt;script&gt; tag that calls the KnowNow JavaScript Microserver, near the top of your HTML page.</li>
+   <li>Add a new &lt;script&gt; tag, just below the &lt;script&gt; tag that calls the KnowNow JavaScript Microserver.</li>
+   <li>Specify that the new &lt;script&gt; tag call the <b>kn_html.js</b> file.</li>
+</ol>
+<p>After installing KN HTML, your code should look similar to the following example:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+      <tr> 
+        <td valign="top">
+<pre>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;&gt;
+&lt;html&gt;
+   &lt;head&gt;
+     &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;/kn/?do_method=lib&quot;&gt;&lt;/script&gt;
+     &lt;script src=&quot;kn_html.js&quot;&gt;&lt;/script&gt;
+</pre></td>
+      </tr>
+</table>
+</blockquote>
+
+<h2><a name="Attributes">KN Attributes</a></h2>
+
+<blockquote>
+<p>KN HTML allows you to enable existing pages to work with KN topics by adding custom KN attributes to existing HTML tags. The following tables provide a list of KN attributes you can use to customize your web pages and to subscribe to KN topics and KN events.</p>
+
+<table border="1" cellpadding="1" cellspacing="0" width="550">
+<tr>
+      <td valign="top"><b>KN Attribute Name</b></td>
+      <td valign="top"><b>Description</b></td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#topic">kn_topic</a></td>
+      <td valign="top">Subscribes an element to the specified KN topic router.
+<p>
+<b>For example:<br></b>
+<code>&lt;p id=&quot;newsItem&quot; kn_topic=&quot;/what/news/national&quot;&gt;&lt;/p&gt;</code></p></td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#property">kn_property</a></td>
+      <td valign="top">Inserts the value of the specified event property into an element.
+<p>
+<b>For example:<br></b>
+<code>&lt;td id=&quot;newsText&quot; kn_property=&quot;kn_payload;&quot;&gt;&lt;/td&gt;</code></p></td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#onmessage">kn_onmessage</a></td>
+      <td valign="top">Calls the specified event handler when a KN event is received.
+<p>
+<b>For example:<br></b>
+<code>&lt;table id=&quot;newsTable&quot; kn_onmessage=&quot;creatNewRow();&quot;&gt;&lt;/table&gt;</code></p></td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#domaxage">kn_do_max_age</a></td>
+      <td valign="top">Use with kn_topic to request past events younger than the specified max age, in seconds.
+<p>
+<b>For example:<br></b>
+<code>&lt;p id=&quot;newsItem&quot; kn_topic=&quot;/what/news/national&quot; kn_do_max_age=&quot;400&quot;&gt;&lt;/p&gt;</code></p></td>
+</tr>
+
+<tr>
+      <td valign="top"><a href="#domaxn">kn_do_max_n</a></td>
+      <td valign="top">Use with kn_topic to specify the max number of recent events to be delivered.
+<p>
+<b>For example:<br></b>
+<code>&lt;p id=&quot;newsItem&quot; kn_topic=&quot;/what/news/national&quot; kn_do_max_n=&quot;10&quot;&gt;&lt;/p&gt;</code></p></td>
+</tr>
+
+</table>
+
+<h3><a name="topic">kn_topic</a></h3>
+
+<p>The <code>kn_topic</code> attribute specifies the KN topic to which an HTML element subscribes. An element that uses <code>kn_topic</code> is called a <i>subscriber element.</i></p>
+
+<p>At runtime, a subscriber element is assigned a default <code>onMessage</code> handler and subscribed to the specified topic. When an event arrives from the router, the default <code>onMessage</code> handler is responsible for passing the event inward to any children of the subscriber element. The onMessage handlers allow a collection of nested HTML elements to respond to and/or display events received by the top-level parent element.</p>
+
+<p><b>Note:</b> Subscribing an element to a topic prepares the element and its children to receive events from that topic. To display the values of an event's properties within the HTML, you must use the <code>kn_property</code> attribute or KN tokens to specify where and how the values are displayed.</p>
+
+<p>The sample code below uses <code>kn_topic</code> to subscribe to the KN topic router <b>/what/news/local</b>.  When the table receives an event from the specified topic, the event is passed along to the child elements of the table; specifically, the <code>&lt;tr&gt;</code> and <code>&lt;td&gt;</code> elements.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>&lt;table border=&quot;0&quot; cellpadding=&quot;2&quot; kn_topic=&quot;/what/news/local&quot;&gt;
+  &lt;tr&gt;
+    &lt;td&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<p>Child elements inside of subscriber elements can be subscribers themselves by specifying their own topic with <code>kn_topic</code>. In the case of nested subscriber elements, an event received by the parent subscriber is <i>not</i> passed to any child subscribers.</p>
+
+<p>In the following example, the table is subscribed to <b>/what/news/local</b>, while the first table cell is subscribed to <b>/what/weather</b>. Any events received by the table are passed to the two &lt;tr&gt; elements and the second table cell element, but <em>not</em> the first cell or its children. Similarly, events received by the first cell from <b>/what/weather</b> are passed down to the &lt;p&gt; element within it.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>&lt;table border=&quot;0&quot; cellpadding=&quot;2&quot; kn_topic=&quot;/what/news/local&quot;&gt;
+  &lt;tr&gt;
+    &lt;td kn_topic=&quot;/what/weather&quot;&gt;
+      &lt;p>&lt;/p&gt;
+    &lt;/td&gt;
+    &lt;td&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<h3><a name="property">kn_property</a></h3>
+
+<p>The <code>kn_property</code> attribute specifies the name of a KN event property to display within the HTML element.  The value of the event property is inserted as text into the element. In the following example, a &lt;p&gt; element is subscribed to a topic and uses <code>kn_property</code> to specify what event property to display.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>&lt;p kn_topic=&quot;/what/news/local&quot; kn_property=&quot;kn_payload&quot;&gt;&lt;/p&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<p>When an event with a <em>kn_payload</em> property is received, the value of <em>kn_payload</em> is inserted as text into the &lt;p&gt; element.</p>
+
+<p><b>Important:</b> For the kn_payload property to work, an element using the <code>kn_property</code> attribute must either be subscribed to a topic or a child of a subscriber element.</p>
+
+<p>In the following example, the table is subscribed to <b>/what/news/local</b> and two elements are using <code>kn_property</code> to display the values of the KN event properties <code>headlineText</code> and <code>itemSummary</code>.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>&lt;table border=&quot;1&quot; width=&quot;500&quot; cellpadding=&quot;2&quot; kn_topic=&quot;/what/news/local&quot;&gt;
+  &lt;tr&gt;
+    &lt;td&gt;
+    &lt;b&gt;Headline&lt;/b&gt;
+    &lt;/td&gt;
+    &lt;td&gt;
+    &lt;b&gt;Summary&lt;/b&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt; 
+  &lt;tr&gt; 
+    &lt;td kn_property=&quot;headlineText&quot;&gt;
+    &lt;/td&gt;
+    &lt;td kn_property=&quot;itemSummary&quot;&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<p>The following table is created by the above sample code.</p>
+
+<table border="1" width="500" cellpadding="2" kn_topic="/what/news/local">
+  <tr>
+    <td>
+      <b>Headline</b>
+    </td>
+    <td>
+      <b>Summary</b>
+    </td>
+  </tr>
+  <tr>
+    <td kn_property="headlineText">
+    </td>
+    <td kn_property="itemSummary">
+    </td>
+  </tr>
+</table>
+
+<p>Values inserted with the kn_property dynamically update in real time as new events are  received. <code>kn_property</code> uses the <code>innerHTML</code> property of HTML elements to display values, effectively deleting any existing content, including other child elements!  To insert KN event property values into existing text without overwriting the entire element content, see <a href="#Tokens">KN Tokens</a> later in this document.</p>
+
+<h3><a name="onmessage">kn_onmessage</a></h3>
+
+<p>The kn_onmessage attribute specifies a string of JavaScript to be executed when the element receives an event. <code>kn_onmessage</code> functions like a standard HTML event handlers. You can use <code>kn_onmessage</code> to intercept an event on a particular element and work with the element before it is passed on to the element's children. An element using <code>kn_onmessage</code> must either be a subscriber element or a child of a subscriber element to work properly.</p>
+
+<p>In the following example, the &lt;p&gt; element is subscribed to the <strong>/what/news/local</strong> topic. When the  &lt;p&gt; element receives an event from the subscribed topic, it executes the <code>reportEvent</code> function.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>function reportEvent(){
+  alert(&quot;Received an event!&quot;);
+}
+&lt;p kn_topic=&quot;/what/news/local&quot; kn_onmessage=&quot;reportEvent();&quot;&gt;&lt;/p&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<p>By default, the events are always sent to the <code>kn_onmessage</code> handler as the last argument. To access the event object within the function, include an extra empty argument at the end of the function declaration to &quot;catch&quot; the event.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>function reportEvent(faveMeat,ev){
+  alert(&quot;My favorite meat is: &quot; + faveMeat);
+  alert(&quot;The payload of this event is: &quot; + ev.kn_payload);
+}
+&lt;p kn_topic=&quot;/what/news/local&quot; kn_onmessage=&quot;reportEvent('salami');&quot;&gt;
+&lt;/p&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<p><strong>Important:</strong> You do not have to explicitly pass the KN event object to the function specified in <code>kn_onmessage</code> -- KN_HTML does that for you. However, you must include an extra argument in your function declaration to receive the event object and make it available.  The extra argument is not required.</p>
+
+<p>In addition to the standard KN event properties, KN_HTML makes several other properties available on the event object.</p>
+
+<table border="1" cellpadding="1" cellspacing="0" width="550">
+
+<tr valign="top">
+<td><strong>Property Name</strong></td><td><strong>Description</strong></td>
+</tr>
+
+<tr valign="top">
+<td>sourceElement</td><td>A reference to the HTML element that first received this event (i.e., the subscriber).</td>
+</tr>
+
+<tr valign="top">
+<td>currentElement</td><td>A reference to the HTML element currently receiving the event.</td>
+</tr>
+
+</table>
+
+<p>The following example shows you the location of the event as it &quot;flows&quot; from the subscriber element to its child elements.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>function whereIs(ev){
+  alert(&quot;The event is currently at: &quot; + ev.currentElement.id);
+}
+
+&lt;table id=&quot;topTable&quot; border=&quot;1&quot; width=&quot;300&quot; cellpadding=&quot;2&quot; kn_topic=&quot;/what/news/local&quot; kn_onmessage=&quot;whereIs();&quot;&gt;
+  &lt;tr id=&quot;firstRow&quot; kn_onmessage=&quot;whereIs();&quot;&gt;
+    &lt;td id=&quot;firstCell&quot; kn_onmessage=&quot;whereIs();&quot;&gt;
+    &lt;/td&gt;
+    &lt;td id=&quot;secondCell&quot; kn_onmessage=&quot;whereIs();&quot;&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr id=&quot;secondRow&quot; kn_onmessage=&quot;whereIs();&quot;&gt;
+    &lt;td id=&quot;thirdCell&quot; kn_onmessage=&quot;whereIs();&quot;&gt;
+    &lt;/td&gt;
+    &lt;td id=&quot;fourthCell&quot; kn_onmessage=&quot;whereIs();&quot;&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<h3><a name="domaxage">kn_do_max_age</a></h3>
+
+<p>The <code>kn_do_max_age</code> attribute allows you to request events that have occurred in the past and are younger than the specified max age in seconds. If <code>kn_do_max_age</code> is not specified, only events that occur after the subscription is established are delivered.</p>
+<p><strong>Important:</strong> <code>kn_do_max_age</code> must be used within a subscriber element.</p>
+
+<p>The following example uses <code>kn_do_max_age</code> in a &lt;p&gt; element to receive events that have occurred in the last five minutes.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>&lt;!-- five minutes is 300 seconds --&gt;
+	
+&lt;p kn_topic=&quot;/what/news/local&quot; kn_do_max_age=&quot;300&quot;&gt;&lt;/p&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<p>The keyword <code>infinity</code> can be used to request all previous events regardless of age. See the sample code below.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>&lt;p kn_topic=&quot;/what/news/local&quot; kn_do_max_age=&quot;infinity&quot;&gt;&lt;/p&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<h3><a name="domaxn">kn_do_max_n</a></h3>
+
+<p>The <code>kn_do_max_n</code> attribute allows you to specify the number of recent events that you want delivered. If this attribute is not specified, only events that occur after the subscription is established are delivered.</p>
+
+<p>For example, the &lt;p&gt; element below uses <code>kn_do_max_n</code> to receive the last five recent events: </p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>&lt;p kn_topic=&quot;/what/news/local&quot; kn_do_max_n=&quot;5&quot;&gt;&lt;/p&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<p><strong>Important:</strong> <code>kn_do_max_n</code> must be used within a subscriber element</p>
+
+</blockquote>
+<h2><a name="Tokens">KN Tokens</a></h2>
+<blockquote>
+
+<p>KN tokens allow developers to insert the values of KN event properties into existing text.</p>
+<p><b>To create KN tokens:</b></p>
+<ol>
+  <li>Identify the position you want to display a KN property.</li>
+  <li>Insert the name of the KN property you want displayed.</li>
+  <li>Enclose the KN property with double curly braces</li>
+</ol>
+
+<p>For example:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr> 
+    <td valign="top">
+    <pre>&lt;td kn_topic=&quot;/what/my/profile&quot;&gt;My nickname is &lt;b&gt;{{nickname}}&lt;/b&gt;&lt;/td&gt;</pre>
+    </td>
+  </tr>
+</table>
+
+<p>KN tokens are initially invisible to you. When the &lt;td&gt; element receives an event from the specified topic router with a <i>nickname</i> property, the <code>{{nickname}}</code> token is replaced by the the value of that property:</p>
+
+<table border="1" dwcopytype="CopyTableRow"><tr><td>My nickname is <strong>MC Stegosaurus</strong></td></tr></table>
+
+<p><b>Note:</b> Using KN tokens is different from using the <code>kn_property</code> attribute, which replaces the <i>entire contents</i> of the element with the value of the specified property. KN tokens attributes must be contained within a subscriber element.</p>
+
+</blockquote>
+
+<hr>
+
+<p><font size="-2">
+ All brand names and product names used in this document are trade
+ names, service marks, trademarks or registered trademarks of their
+ respective owners.
+<br>
+ Copyright &copy; <a href="http://www.KnowNow.com">KnowNow, Inc.</a>
+ All rights reserved.
+<br>
+ Printed in the U.S.A.
+<br>
+ Last updated: July 9, 2001
+</font></p>
+</body>
+</html>

@@ -1,0 +1,35 @@
+Things we might want to do for the PubSub push_manager stuff...
+
+*) Get pubsub.cgi running in the embedded perl interpreter.  (Don't bother
+   moving it to a module, but do preload the PubSub::Event.pm modules).
+
+*) ?Config parameters for Perl startup file and CGI pattern?.
+   Certainly need to choose better ones, though to get pubsub.cgi running,
+   might just want to hack the source.
+
+   Unfortunately, there's no clean way to do this with the code structured
+   as it is; httpd_initialize takes a bunch of flat args, and just needs
+   to get more args tossed onto it.  Sigh...
+
+*) Screen out ../ in supplied topic paths, to prevent hostile clients
+   from doing filesystem probes.
+
+*) Generate JS form event-tags from file offsets, and add "a0_" prefix, in
+   preparation for log-rolling support.
+
+*) Log-rolling support.
+
+*) Support for clean restarts, based on byte-offsets supplied in JS form
+   event tags.  (This should probably replace the max-age business, which
+   isn't presently supported, and probably shouldn't be).
+
+*) As an efficiency tweak, have channel_data_complete try_sending_on_channel
+   before returning, and report results.  If (as is highly likely) the new
+   data fits in the kernel buffers for the socket, we can mark the channel
+   idle immediately, and don't have to juggle the fdwatch masks to wait for
+   it, which should save some overhead (at least, judging by the way that
+   thttpd.c itself tries to avoid fdwatch_recompute when it can).
+
+*) Dispatch support for event delivery in formats other than the mutant
+   form + JavaScript glop.  Probably most sensible to postpone this until
+   we have such a format.  Don't solve a problem till you have it.

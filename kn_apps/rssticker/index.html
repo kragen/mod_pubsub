@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:10 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub rss ticker</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!--
+
+ FIXME: The marquee eventually sucks up all memory and crashes the
+ browser.
+
+ FIXME: The pull-down menu in the right frame doesn't work great.
+ It needs to be rewritten more cleanly.
+
+-->
+
+<script><!--
+
+var topic = null;
+var tickerText = "";
+var route_id = null;
+var subtopic_route_id = null;
+var hdr = "";
+var frm = "";
+
+function on_load() {
+
+    if (!topic)
+        topic = kn_argv.kn_topic ? kn_argv.kn_topic 
+                                 : "/moreover.com/what/bookreviews";
+
+    hdr="<body leftMargin=0 rightMargin=0 " +
+        "topMargin=0 bottomMargin=0 bgColor='#ffcccc'>" +
+        "<marquee scrollamount=2 scrolldelay=20 truespeed><h1>" +
+        "<font face='sans,Verdana'><b>"+topic+":</b> ";
+
+    frm="<body leftMargin=0 rightMargin=0 topMargin=0 " +
+        "bottomMargin=0 bgColor='#ccccff'>" +
+        "<form name='f' onsubmit='return false'> " +
+        "<select name='t' onChange='parent.change_topic()'>"+
+        "<option value='dot'>Choose a Category...</option>"+
+        "</select></form>";
+
+    tickerText = "";
+
+    route_id = kn.subscribe(topic, write_headline, {do_max_n : 20});
+    render_frames();
+}
+
+function render_frames() {
+
+    frames[0].document.close();
+    frames[0].document.open();
+    if ((navigator.userAgent.indexOf("Mac") != -1) &&
+        (navigator.userAgent.indexOf("MSIE") != -1)) {
+        frames[0].document.write(hdr + "</marquee>");
+        frames[0].document.close();
+    } else {
+        frames[0].document.writeln(hdr);
+    }
+
+    frames[1].document.close();
+    frames[1].document.open();
+    frames[1].document.writeln(frm);
+    frames[1].document.close();
+
+    if (subtopic_route_id) kn.unsubscribe(subtopic_route_id);
+    var st = topic.substring(0,topic.lastIndexOf('/')) + "/kn_subtopics";
+    subtopic_route_id = kn.subscribe(st, addCategory, {do_max_age:'infinity'});
+}
+
+function addCategory (e) 
+{
+    if (e.kn_payload == "kn_routes") return;
+
+    var widget = frames[1].document.forms[0].elements[0];
+
+    if (document.all) {
+        var newElem = frames[1].document.createElement("OPTION");
+        newElem.text = e.kn_payload;
+        newElem.value = topic.substring(0,topic.lastIndexOf('/'))
+                        +"/"+e.kn_payload;
+        widget.options.add(newElem,1);
+    } else {
+        s = topic.substring(0,topic.lastIndexOf('/'))
+            +"/"+e.kn_payload;
+        widget.options[widget.options.length] =
+            new Option(e.kn_payload, s, false, false);
+        widget.selectedIndex=-1;
+    }
+}
+
+function write_headline(m) {
+
+    if (topic.indexOf("egroups.com") != -1)
+        { m.rss_title += " : " + m.rss_description.substring(0,30); }
+
+    var s = "<a href='" + m.rss_link + "' target='_blank'>" +
+        (m.rss_title || "KnowNow") + "</a> . . .\n";
+
+    tickerText = s + tickerText;
+
+    if ((navigator.userAgent.indexOf("Mac") != -1) &&
+        (navigator.userAgent.indexOf("MSIE") != -1)) {
+        frames[0].document.close();
+        frames[0].document.open();
+        frames[0].document.write(hdr + tickerText + "</marquee>");
+        frames[0].document.close();
+    } else {
+        frames[0].document.writeln(s);
+    }
+}
+
+function change_topic() 
+{
+   var widget = frames[1].document.forms[0].elements[0];
+    
+   if (widget.options[widget.selectedIndex] != topic) 
+   {
+     if (route_id) 
+     { 
+         kn.unsubscribe(route_id); 
+     }
+     var temp = widget.options[widget.selectedIndex].value;
+     if (temp == "dot") 
+       return false;
+     if (temp == "dotdot") 
+     {
+         if (topic.lastIndexOf('/') == -1) {
+	   topic = topic + '/';
+	 }
+         else 
+         {
+	   topic = topic.substring(0,topic.lastIndexOf('/'));
+	 }
+     } else  if (temp == "notdot") {
+         topic = topic + '/';
+     } else {
+         topic = temp;
+     }
+   }
+   setTimeout("on_load()", 100);
+   return false;
+}
+
+// This hack doesn't keep the browser from crashing due to memory bloat.
+var refreshHandle = setTimeout("document.location.reload()", 3600000);
+
+// -->
+</script>
+
+</head>
+
+<frameset cols='75%,25%' onLoad='on_load()'>
+<frame name="headlines" src="../../cgi-bin/pubsub.cgi?do_method=blank" scrolling=no />
+<frame name="category" src="../../cgi-bin/pubsub.cgi?do_method=blank" scrolling=no />
+</frameset>
+
+</html>

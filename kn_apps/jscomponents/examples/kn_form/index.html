@@ -1,0 +1,49 @@
+<html><head>
+<title>KN_Form Demo</title>
+
+<!-- The KnowNow Library: Routines for KnowNow Pub/Sub FORMs -->
+<script src="/kn/?do_method=lib"></script>
+<script src="../../kn_form.js"></script>
+
+</head>
+<body>
+
+<h1>KN_Form Demo</h1>
+
+<table border="0"><tr>
+<td valign="top">
+
+<h2>Send</h2>
+
+<p>This form is using the POST method to create KN events from the field values and publish them to the <code>/what/tests/kn_form</code> topic route when submitted.</p>
+
+
+<form action="kn:/what/tests/kn_form" method="POST">
+  <p>What is your name?   <br><input type=text name="name"></p>
+  <p>What is your quest?  <br><input type=text name="quest"></p>
+  <p>What is your favorite color?  <br><input type=text name="color"></p>
+  <input type=submit value="Submit">
+</form>
+
+</td>
+<td valign="top" width="10%">
+&nbsp;
+</td>
+<td valign="top">
+
+<h2>Receive</h2>
+
+<p>This form is using the GET method to receive KN events that arrive from the <code>/what/tests/kn_form</code> topic route and display certain event properties that match the field names of the form.</p>
+
+<form action="kn:/what/tests/kn_form" method="GET">
+  <p>Name:	<br><input type=text name="name" readonly></p>
+  <p>Quest:	<br><input type=text name="quest" readonly></p>
+  <p>Color:	<br><input type=text name="color" readonly></p>
+  <p>Timestamp:     <br><input type=text name="kn_time_t" readonly></p>
+  <p>Event ID:      <br><input type=text name="kn_id" readonly></p>
+  <p>Event Routed From:      <br><input type=text name="kn_routed_from"></p>
+</form>
+
+</td></tr></table>
+</body>
+</html>

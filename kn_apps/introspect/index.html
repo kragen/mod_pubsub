@@ -1,0 +1,669 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:53 troutgirl Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>pubsub introspect</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!-- XML and SOAP Helper Libraries Used -->
+<script type="text/javascript" src="../kn_lib/kn_xml.js"></script>
+
+<!-- The PubSub Document Helper Library -->
+<script type="text/javascript" src="../kn_lib/document.js"></script>
+
+<!-- htmlSanitize and visibleEscape in Htmlsafe Helper Library -->
+<script type="text/javascript" src="../kn_lib/htmlsafe.js"></script>
+
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748                                         0821 -->
+<!-- filler 0231748   The devious Netscape programmers of   0821 -->
+<!-- filler 0231748   long ago left us broken Navigator 4   0821 -->
+<!-- filler 0231748   which truncated script tags at some   0821 -->
+<!-- filler 0231748   inconvenient places in this program   0821 -->
+<!-- filler 0231748                                         0821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<script type="text/javascript">
+<!--
+
+// FIXME: This program uses $_KN_Explorer_ as a prefix for some
+// headers inserted into events. However unlikely it is to cause
+// problems, this namespace pollution is a bug and needs to be fixed.
+
+var icons = new Object();
+icons.left = 0x25C4;
+icons.right = 0x25BA;
+icons.drill = 0x2192;
+
+if (navigator.appVersion.indexOf("X11") >= 0)
+{
+    icons.left = 0x25C0;
+    icons.right = 0x25B6;
+    icons.drill = 0x25B7;
+}
+else if (navigator.appVersion.indexOf("Mac") >= 0)
+{
+    if (navigator.userAgent.indexOf("Gecko") >= 0)
+    {
+        icons.left = 0x261C;
+        icons.right = 0x261E;
+        icons.drill = 0x21E8;
+    }
+    else
+    {
+        icons.left = 0x21E0;
+        icons.right = 0x21E2;
+        icons.drill = 0x21E8;
+    }
+}
+
+topic = (kn_argv.kn_topic) ? kn_argv.kn_topic : "/";
+var msgQ = new Object;
+firstPass = true;
+
+// Reformat a message for more readable display.
+
+function reformat(msg)
+{
+    var time_t = msg.kn_time_t;
+    if (time_t &&
+        ((time_t.charAt(0) == '0') ||
+         (time_t.substring(0, 2) == '.0') ||
+         new Number(time_t)))
+    {
+        msg.kn_time_t = {
+            toString: function () { return time_t; },
+            $_KN_Explorer_html: kn_htmlEscape(new Date(new Number('' + time_t) *
+                                                       1000).toLocaleString())
+        };
+    }
+    var expires = msg.kn_expires;
+    if (expires && (expires.charAt(0) != '+') &&
+        ((expires.charAt(0) == '0') ||
+         (expires.substring(0, 2) == '.0') ||
+         new Number(expires)))
+    {
+        msg.kn_expires = {
+            toString: function () { return expires; },
+            $_KN_Explorer_html: kn_htmlEscape(new Date(new Number('' + expires) *
+                                                       1000).toLocaleString())
+        };
+    }
+    var payload = msg.kn_payload;
+    if (payload != null)
+    {
+        if (msg["content-type"] == "text/html")
+            msg.$_KN_Explorer_html = htmlSanitize('' + payload, false);
+        else
+            msg.$_KN_Explorer_html = htmlSanitize(kn_htmlEscape('' + payload), true);
+    }
+}
+
+// Concatenate a topic and a subtopic with a single "/" between them.
+
+function fullTopic(topic, subtopic)
+{
+    if (! (topic.length && topic.charAt(topic.length - 1) == "/"))
+    {
+        topic = topic + "/";
+    }
+    return topic + subtopic;
+}
+
+function init(theTopic, theTarget)
+{
+    var onError = function (e)
+    {
+        var msg = filter_message(e) || e;
+        reformat(msg);
+        theTarget[e.status] = msg;
+        drawChanges(theTarget);
+    };
+
+    var o = new Object();
+    o.onMessage = onEvent;
+    o.onError = onError;
+    o.target = theTarget;
+    kn.subscribe(theTopic, o,
+    {do_max_n : 5, kn_expires: "infinity", kn_deletions: "true"},
+                 o);
+
+    o = new Object();
+    o.onMessage = onTopic;
+    o.onError = onError;
+    o.target = theTarget;
+    o.topic = theTopic;
+    kn.subscribe(fullTopic(theTopic, "kn_subtopics"), o,
+    {do_max_age : "infinity", kn_expires: "infinity", kn_deletions: "true"},
+                 o);
+}
+
+// We are constructing an overall message tree.
+// It begins at /; each branch has both branches (subtopics) and
+// leaves (events) browsing into an event works as is;
+// browsing into a branch works as is, but also sets up
+// subscriptions to stream new info into those branches.
+
+    // SO for every event that comes in, we need to demux
+    //     1 - - where to put it (an object/hash to insert into)
+    //     2 - - which column to redraw, if any
+    // In response to 1, we keep an object call-back style of work
+    // In response to 2, we need to walk the list of objects physically
+    // on the 4 onscreen columns and check which has been dirtied, if any.
+
+    // In the current version we do not unsubscribe; the mere act of
+    // unfolding (browsing) a branch causes it to grow dynamically forever.
+
+function onTopic(e)
+{
+    if (e.kn_deleted == "true")
+    {
+        delete this.target[e.kn_id + "/"];
+    }
+    else
+    {
+        this.target[e.kn_payload + "/"] = {
+            $_KN_Explorer_kn_subtopics : fullTopic(this.topic, e.kn_payload)
+        };
+    }
+    drawChanges(this.target);
+}
+
+function onEvent(e)
+{
+    if (e.kn_deleted == "true")
+    {
+        delete this.target[e.kn_id + "*"];
+    }
+    else
+    {
+        var msg = filter_message(e) || e;
+        reformat(msg);
+        this.target[e.kn_id + "*"] = msg;
+    }
+    drawChanges(this.target);
+}
+
+// -->
+</script>
+
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239                                 790821 -->
+<!-- filler 0231748097239   So we worked around the bug   790821 -->
+<!-- filler 0231748097239   by placing filler data here   790821 -->
+<!-- filler 0231748097239                                 790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 02317480972398472               23109847231984790821 -->
+<!-- filler 02317480972398472   and there   23109847231984790821 -->
+<!-- filler 02317480972398472               23109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<!-- filler 0231748097239847213094872130984723109847231984790821 -->
+<script type="text/javascript">
+<!--
+
+function drawChanges (target)
+{
+    if (firstPass) {
+        firstPass = false;
+        view(topic,target);
+    }
+    else
+    {
+        for (var i = voffset; (i < vcols.length) && (i < (voffset+cols.length)); i++)
+            if (vcols[i].object == target) {
+                viewVcol(i);
+            }
+    }
+}
+
+// Build a frameset.
+var docStr="";
+docStr += '  <' + '/head>\n' +
+'  <frameset rows="*,35" onLoad="whenLoaded()" frameborder="no"' +
+' framespacing="0">\n';
+
+// "Physical" columns.
+var cols = [ {}, {}, {}, {} ];
+
+// "Virtual" columns.
+var vcols = [ ];
+
+// Current virtual column.
+var current = 0;
+
+// Last Inspect string.
+var inspect_expr = '';
+
+// Last Invoke string.
+var invoke_expr = '.toString()';
+
+// Current offset between the two.
+var voffset = 0;
+
+{
+    var widths = [];
+
+    for (var col = 0; col < cols.length; col++)
+    {
+        cols[col].width = 100 / cols.length;
+        widths[col] = cols[col].width.toString() + '%';
+    }
+    docStr += ' <frameset cols="' + widths.join(',') + '" frameborder="no"' +
+        ' framespacing="0">\n';
+    for (var col = 0; col < cols.length; col++)
+    {
+        docStr += '      <frameset rows="35,*" frameborder="no" framespacing="0">\n' +
+            '        <frame src="' + kn_htmlEscape(kn_blank) + '"' +
+            ' scrolling="no" />\n' +
+            '        <frame src="' + kn_htmlEscape(kn_blank) + '"' +
+            ' scrolling="yes" />\n' +
+            '      <' + '/frameset>\n';
+    }
+    docStr += '    <' + '/frameset>\n' +
+        '  <frame src="' + kn_htmlEscape(kn_blank) + '" noresize="noresize"' +
+        ' scrolling="no" frameborder="no" marginheight="0" marginwidth="0" />\n' +
+        '  <' + '/frameset>\n' +
+        '      <noframes>\n' +
+        '      <h1>' + $("Frameset Wrapping Error") + '<' + '/h1>\n' +
+        '      <p>' + $("KN Explorer requires Frames and JavaScript") + '<' + '/p>\n' +
+        '      <xmp><!-' + '-\n' +
+        String.fromCharCode(0);
+    document.write(docStr);
+}
+
+// Initialize the viewer.
+function whenLoaded()
+{
+    // get references to the frames
+    for (var col = 0; col < cols.length; col ++)
+    {
+        cols[col].nameFrame = { document: new KNDocument(frames[2 * col]) };
+        cols[col].viewFrame = { document: new KNDocument(frames[2 * col + 1]) };
+    }
+    init(topic, msgQ);
+}
+
+// Scroll left, if possible.
+function scrollLeft(amount)
+{
+    if (voffset >= amount)
+    {
+        voffset -= amount;
+        redraw();
+        drawScrollbar();
+    }
+}
+
+// Scroll right, if possible.
+function scrollRight(amount)
+{
+    if ((voffset + cols.length + amount) <= vcols.length)
+    {
+        voffset += amount;
+        redraw();
+        drawScrollbar();
+    }
+}
+
+// Redraw a physical column's name panel.
+function drawColName(col)
+{
+    if ((col < 0) || (col >= cols.length))
+        return;
+    var nameDoc = cols[col].nameFrame.document;
+    var docStr;
+    nameDoc.open();
+    var vcol = col + voffset;
+    if (vcol < vcols.length)
+    {
+        docStr = '<body topmargin="0" bgcolor="#3366CC"' +
+            ' text="white" link="white" alink="white" vlink="white">';
+        docStr += '<h3 style="font-family: verdana, arial, sans-serif, helvetica">';
+        docStr += '<a title="';
+        docStr += kn_htmlEscape(vcols[vcol].name);
+        docStr += '">';
+        docStr += visibleEscape(vcols[vcol].name);
+        docStr += '<' + '/a>';
+        docStr += '<' + '/font>';
+        docStr += '<' + '/h3>';
+    }
+    else
+    {
+        docStr = '<body bgcolor="white">';
+    }
+    nameDoc.write( docStr + '<' + '/body>\n');
+    nameDoc.close();
+}
+
+// Redraw a physical column.
+function drawCol(col)
+{
+    if ((col < 0) || (col >= cols.length))
+        return;
+    drawColName(col);
+    var viewDoc = cols[col].viewFrame.document;
+    viewDoc.open();
+    var vcol = col + voffset;
+    if (vcol < vcols.length)
+    {
+        viewDoc.write('<body' +
+                      ' bgcolor="white" text="black"' +
+                      ' link="#ff9900" vlink="#ff9900" alink="#cc3300">');
+        viewDoc.writeln('<style>');
+        viewDoc.writeln('<' + '!-' + '-');
+        viewDoc.writeln('td { font-family: verdana, arial, sans-serif, helvetica; }');
+        viewDoc.writeln('-' + '->');
+        viewDoc.writeln('</style>');
+        viewDoc.write(vcols[vcol].view);
+    }
+    else
+    {
+        viewDoc.write('<body' +
+                      ' bgcolor="white">');
+    }
+    viewDoc.write('<' + '/body>\n');
+    viewDoc.close();
+}
+
+// Redraw all physical columns.
+function redraw()
+{
+    for (var col = 0; col < cols.length; col ++)
+        drawCol(col);
+}
+
+// Update the nasty synthetic scrollbar.
+function drawScrollbar()
+{
+    var navdoc = new KNDocument(frames[cols.length * 2]);
+    navdoc.open();
+    navdoc.write('<body topmargin="0" leftmargin="0" bgcolor="white" text="black"' +
+                 ' link="#eeeeee" vlink="#eeeeee" alink="#eeeeee">\n' +
+                 '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
+                 '<tr>');
+
+    // Back button.
+    navdoc.write('<form action="javascript:void null//" onsubmit="parent.scrollLeft(1);return false">');
+    navdoc.write('<td bgcolor="#cccccc">');
+    if (! voffset)
+        navdoc.write('<font color="gray">');
+    navdoc.write('<input type="submit"');
+    if (! voffset)
+        navdoc.write(' disabled');
+    navdoc.write(' value="&#' + icons.left + ';" />');
+    if (! voffset)
+        navdoc.write('<' + '/font>');
+    navdoc.write('<' + '/td>');
+    navdoc.write('<' + '/form>');
+
+    // "Scroll bar" effect.
+    var max = vcols.length;
+    if (voffset + cols.length > max)
+        max = voffset + cols.length;
+    for (var i = 0; i < max; i ++)
+    {
+        if (i == voffset)
+        {
+            i += cols.length - 1;
+            navdoc.write('<td width="' + (cols.length * (100 / max)) + '%" bgcolor="#cccccc">');
+            navdoc.write('<table border width="100%" cellpadding="0" cellspacing="0"><tr><td>&nbsp;<' + '/td><' + '/tr><' + '/table>');
+            navdoc.write('<' + '/td>');
+        }
+        else
+        {
+            var scrollAction = "parent.";
+            if (i < voffset)
+                scrollAction += 'scrollLeft(' + (voffset - i) + ')';
+            else
+                scrollAction += 'scrollRight(' + (i + 1 - (voffset + cols.length)) + ')';
+            navdoc.write('<td width="' + (100 / max) + '%"' +
+                         ' onclick="' + scrollAction + '; return false"' +
+                         ' bgcolor="#eeeeee" align="center">');
+            navdoc.write('<a style="width:100%;display:block" href="javascript:');
+            navdoc.write(scrollAction);
+            navdoc.write(';void null">');
+            navdoc.write('&nbsp;');
+            navdoc.write('<' + '/a>');
+            navdoc.write('<' + '/td>');
+        }
+    }
+
+    // Forward button.
+    navdoc.write('<form action="javascript:void null//" onsubmit="parent.scrollRight(1);return false">');
+    navdoc.write('<td bgcolor="#cccccc">');
+    if ((voffset + cols.length) >= vcols.length)
+        navdoc.write('<font color="gray">');
+    navdoc.write('<input type="submit"');
+    if ((voffset + cols.length) >= vcols.length)
+        navdoc.write(' disabled');
+    navdoc.write(' value="&#' + icons.right + ';" />');
+    if ((voffset + cols.length) >= vcols.length)
+        navdoc.write('<' + '/font>');
+    navdoc.write('<' + '/td>');
+    navdoc.write('<' + '/form>');
+
+    navdoc.write('<' + '/tr>' +
+                 '<' + '/table>\n' +
+                 '<' + '/body>\n');
+    navdoc.close();
+}
+
+// View an attribute in a virtual column.
+function viewName(vcol, name)
+{
+    view(name, vcols[vcol].object[name], vcol + 1);
+}
+
+// View an object.
+function view(name, object, vcol, col)
+{
+    if (name == null)
+        return;
+    if (vcol == null)
+        vcol = 0;
+    if ((col != null) && ((vcol - voffset) != col))
+    {
+        voffset = vcol - col;
+        redraw();
+    }
+    vcols[vcol] = {
+        object: object,
+        name: name
+    };
+    vcols.length = vcol + 1;
+    viewVcol(vcol);
+    for (var theCol = vcol - voffset + 1; theCol < cols.length; theCol ++)
+        drawCol(theCol);
+}
+
+// View a virtual column.
+function viewVcol(vcol) {
+    var old = current;
+    current = vcol;
+    drawColName(old - voffset);
+    var object = vcols[vcol].object;
+    vcols[vcol].view = '<table width="100%">\n';
+
+    if (((typeof object) != 'object') ||
+        (object.toString().indexOf("[object") == -1))
+    {
+        vcols[vcol].view += '  <tr>';
+        vcols[vcol].view += '<th align="left">' +
+            visibleEscape(typeof object) +
+            '<' + '/th>\n';
+        vcols[vcol].view += '  <' + '/tr>';
+        vcols[vcol].view += '  <tr>';
+        vcols[vcol].view += '<td>' +
+            ((typeof object == 'string') ?
+             visibleEscape :
+             kn_htmlEscape)('' + object) +
+            '<' + '/td>\n';
+        vcols[vcol].view += '<' + '/tr>\n';
+    }
+
+    if (((typeof object) == 'object') && (object != null))
+    {
+        for (var attr in object)
+        {
+            if (attr == "$_KN_Explorer_kn_subtopics")
+            {
+                if (object[attr]) {
+                    // time to subscribe
+                    init(object[attr], object);
+                    delete object[attr];
+                }
+                continue;
+            }
+            if (attr == "$_KN_Explorer_html")
+            {
+                continue;
+            }
+            vcols[vcol].view += '  <tr>';
+            vcols[vcol].view += '<td width="100%" valign="top">';
+            // Ick... IE thinks it knows way too much about URLs, and
+            // terminates them even at *encoded* nuls, so we double-encode.
+            vcols[vcol].view += '<a href="javascript:void(parent.viewName(' + vcol +
+                ',parent.kn_unescape(\'' +
+                kn_escape(attr).replace(/%/g, '\\x25') +
+                '\')))" title="' +
+                kn_htmlEscape(attr) +
+                '">';
+            vcols[vcol].view += visibleEscape(attr);
+            vcols[vcol].view += '<' + '/a>';
+            vcols[vcol].view += '<' + '/td>';
+            if (((typeof object[attr]) == 'object') && (object[attr] != null))
+                vcols[vcol].view += '<td valign="top" align="right">&#' +
+                    icons.drill +
+                    ';&nbsp;<' + '/td>';
+            vcols[vcol].view += '<' + '/tr>\n';
+        }
+    }
+
+    vcols[vcol].view += '<' + '/table>\n';
+
+    if (object.$_KN_Explorer_html != null)
+    {
+        vcols[vcol].view += '<hr />\n';
+        vcols[vcol].view += object.$_KN_Explorer_html;
+    }
+
+    if (vcol < voffset)
+    {
+        voffset = vcol;
+        redraw();
+    }
+    else if ((vcol - voffset) >= cols.length)
+    {
+        voffset = vcol - cols.length + 1;
+        redraw();
+    }
+    else
+        drawCol(vcol - voffset);
+    drawScrollbar();
+}
+
+// -->
+</script>
+</head>
+
+<body text="black" bgcolor="white">
+
+<h1 align="center">JavaScript 1.1 and Frames Required</h1>
+
+<p><strong>PubSub Introspect</strong> requires JavaScript 1.1 support,
+which may be either missing or not enabled. If your browser has such
+support, but that support is disabled, it is suggested that you enable
+it and reload.</p>
+
+<p><strong>PubSub Introspect</strong> also requires frames support,
+which may be either missing or not enabled. If your browser has such
+support, but that support is disabled, it is suggested that you enable
+it and reload.</p>
+
+</body>
+</html>

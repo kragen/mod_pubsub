@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: exhibitionist.html,v 1.1 2002/11/07 07:08:27 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub oogle</title>
+
+<!-- The PubSub JavaScript Library, Including PubSub Forms -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=libform"></script>
+
+<!-- The JavaScript Document Helper Library -->
+<script src="../kn_lib/document.js"></script>
+
+<script type="text/javascript"><!--
+this.listDoc = null;
+
+folded = false;
+
+foldOK = false;
+
+function doLoad()
+{
+  if (parent.document.body &&
+      navigator.appVersion.indexOf("MSIE") != -1)
+    foldOK = true;
+  if (foldOK)
+    {
+      folded = true;
+      parent.document.body.cols = "100%,*";
+      parent.frames[2].location.replace(kn_blank);
+    }
+  listDoc = new KNDocument(parent.frames[1]);
+  document.forms[0].elements.kn_payload.focus();
+}
+
+function unfold(query)
+{
+  if (query) document.forms[0].elements.kn_payload.value = query;
+  if (foldOK)
+    {
+      if (folded) parent.document.body.cols = "150,*";
+    }
+}
+
+// -->
+</script>
+
+<style>
+<!--
+
+.submit {
+  font-size: 10px;
+}
+
+-->
+</style>
+
+</head>
+<body onload="doLoad()" text="black" alink="black" vlink="black" link="black" bgcolor="white">
+
+<script type="text/javascript"><!--
+
+lucky = false;
+
+function oogle() 
+{
+    unfold();
+    document.forms[0].rss_title.value = document.forms[0].elements.kn_payload.value;
+    document.forms[0].rss_link.value = 'search.html?query='+
+      kn_escape(document.forms[0].elements.kn_payload.value);
+    document.forms[0].elements.kn_payload.focus();
+    parent.frames[2].location.
+      replace(document.forms[0].rss_link.value+
+	      (lucky ?
+	       (';append=' +
+		kn_escape(
+			  '&btnI=' +
+			  kn_escape("I'm Feeling Lucky"))
+		) :
+	       ""));
+    lucky = false;
+}
+// -->
+</script>
+
+<div align="center">
+<font face="sans-serif" size="1">
+<form action="kn:/what/oogle" method="POST" onsubmit="oogle()">
+<a
+href="http://www.google.com/"
+target="_top"
+title="Google"
+><img
+src="http://www.google.com/logos/Logo_40wht.gif" border="0"
+alt="Google"
+align="absmiddle"></a>
+<input type="text" name="kn_payload" value="" size="15" />
+<input type="hidden" name="rss_link" />
+<input type="hidden" name="rss_title" />
+<input class="submit" type="submit" value="Google Search" />
+<input class="submit" type="submit" value="I'm Feeling Lucky"
+onclick="lucky=true"
+/>
+</form>
+</font>
+</div>
+
+<script type="text/javascript"><!--
+var qlist=new Object();
+
+kn__form2way = false;
+
+function newquery() 
+{
+    var htext="";
+
+    qlist[document.forms[1].rss_title.value] = 
+        document.forms[1].rss_link.value;
+    for (var i in qlist) 
+    {
+      htext = '<'+'a href="'+ kn_htmlEscape(qlist[i]) +'" target="results" ' +
+	'onclick="parent.frames[0].unfold(unescape(\'' +
+	escape(i) +
+	'\'));parent.frames[2].location.replace(href);return false">'+
+	kn_htmlEscape(i)+
+	'<'+'/a><'+'br />\n'+
+	htext;
+    }
+    htext = '<'+'body text="black" alink="black" vlink="black" link="black" bgcolor="white">'
+           +'<div align="center"><table border="0" cellpadding="0" cellspacing="0"><tr><td><'+'font face="sans-serif" size="1">'
+           + htext + '<'+'/font></td></tr></table></div>';
+    listDoc.open();
+    listDoc.write(htext);
+    listDoc.close();
+}
+// -->
+</script>
+
+<form action="kn:/what/oogle" method="GET" onsubmit="newquery()">
+<input type="hidden" name="rss_link" />
+<input type="hidden" name="rss_title" />
+</form>
+
+</body>
+</html>
+

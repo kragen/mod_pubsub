@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:26 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub tictactoe</title>
+
+<!-- This is a tiny tutorial in PubSub web page development.
+
+We set up a user interface, a 3x3 FORM, using a global variable to store
+which spot the user clicked on.  The dash in each button value has two
+roles: it ensures the buttons are the right size, and the winner()
+function uses - as an unused spot. -->
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+</head>
+<body>
+<center>
+
+<!-- FIXME: We need to synchronize arrival at a new game. -->
+
+<h1>tic-tac-toe</h1>
+
+<form name=grid method=GET onSubmit="sendMove();return false;">
+<table>
+<tr>
+<td><input type=submit value="-" onClick="s=this.name" name=a1>
+<td><input type=submit value="-" onClick="s=this.name" name=a2>
+<td><input type=submit value="-" onClick="s=this.name" name=a3>
+<tr>
+<td><input type=submit value="-" onClick="s=this.name" name=a4>
+<td><input type=submit value="-" onClick="s=this.name" name=a5>
+<td><input type=submit value="-" onClick="s=this.name" name=a6>
+<tr>
+<td><input type=submit value="-" onClick="s=this.name" name=a7>
+<td><input type=submit value="-" onClick="s=this.name" name=a8>
+<td><input type=submit value="-" onClick="s=this.name" name=a9>
+</table>
+Playing Xs: <input name=X type=text size=15><BR>
+Playing Os: <input name=O type=text size=15><BR>
+</form>
+
+</center>
+
+<script><!--
+
+// Let's keep that FORM object handy.
+
+var grid = document.forms.grid;
+
+// We try to go first -- and whoever moves first is Xs.
+
+var gameStarted = false;
+var isMyTurn = true;
+var ourMark = "X";
+
+// Let's subscribe to our game's moves.
+// We have a default topic, but always check the URL arguments first.
+
+var gameTopic = (kn_argv.kn_topic) ? kn_argv.kn_topic : "/what/games/tictactoe";
+kn.subscribe(gameTopic, makeMove);
+
+
+// We specified this callback function for that subscription.
+
+function makeMove(e) 
+{
+    if (!gameStarted)  
+    {   
+        // Remember, the other player may be the first to move!
+        // If they claim to be Xs, we have to be Os...
+        if (e.mark == 'X') 
+            ourMark = 'O';
+        gameStarted = true;
+    }
+
+    // This displays the move on screen.
+    grid[e.spot].value = e.mark;
+
+    // And this identifies who moved.
+    grid[e.mark].value = e.displayname;
+
+    // And this rule alternates turns.
+    isMyTurn = (e.mark != ourMark); 
+
+    setTimeout("checkWinner()",1);
+}
+
+
+// We delayed the continuation of this function because it's a bad idea
+// to spend too much time in an event handler, much less waiting for an 
+// indefinite user modal loop. setTimeout() neatly reschedules the work.
+
+function checkWinner() {
+    // Check if someone won.
+    var w = winner();
+    if (w)
+    {
+        alert((w == ourMark) ? "You won!!!" :
+          (w == true) ? "You tied." : "You lost...");
+        // alert('Player '+w+' ['+grid[w].value+'] won.');
+
+        // Reset the playing field.
+        gameStarted = false;
+        isMyTurn = true;
+        ourMark = "X";
+        grid.reset();
+    }
+}
+
+
+// The other half of the program is publishing our own moves.
+
+// The trickiest part is figuring out which button the user pressed.
+// See http://developer.irt.org/script/619.htm
+
+var s=null; 
+function sendMove() {
+    // Only make moves if it's our turn.
+    if (isMyTurn) 
+    {
+        // Because of network latency, we need to immediately disable moving.
+        isMyTurn = false;
+        gameStarted = true;
+        kn.publish(gameTopic, {mark : ourMark, spot: s});
+    }
+}
+
+function winner() 
+{
+    if ((grid['a1'].value != '-') &&
+        (
+            ((grid['a1'].value == grid['a2'].value) && 
+             (grid['a1'].value == grid['a3'].value)) ||
+            ((grid['a1'].value == grid['a4'].value) && 
+             (grid['a1'].value == grid['a7'].value)) ||
+            ((grid['a1'].value == grid['a5'].value) && 
+             (grid['a1'].value == grid['a9'].value))))
+    {
+        return grid['a1'].value;
+    }
+    if ((grid['a5'].value != '-') &&
+        (
+            ((grid['a5'].value == grid['a3'].value) && 
+             (grid['a5'].value == grid['a7'].value)) ||
+            ((grid['a5'].value == grid['a2'].value) && 
+             (grid['a5'].value == grid['a8'].value)) ||
+            ((grid['a5'].value == grid['a4'].value) && 
+             (grid['a5'].value == grid['a6'].value))))
+    {
+        return grid['a5'].value;
+    }
+    if ((grid['a9'].value != '-') &&
+        (
+            ((grid['a9'].value == grid['a3'].value) && 
+             (grid['a9'].value == grid['a6'].value)) ||
+            ((grid['a9'].value == grid['a7'].value) && 
+             (grid['a9'].value == grid['a8'].value))))
+    {
+        return grid['a9'].value;
+    }
+    var draw=true;
+    for (var i=1; i<=9; i++) { 
+        draw &= (grid['a'+i].value != '-');
+    }
+    return draw; 
+}
+// -->
+</script>
+
+</body>
+</html>

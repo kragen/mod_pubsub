@@ -1,0 +1,466 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: javascript_reference.html,v 1.1 2002/11/07 07:09:22 troutgirl Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PubSub JavaScript Library Reference</title>
+<link type="text/css" rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>PubSub JavaScript Library Reference</h1>
+
+<p>This document briefly outlines the <a href="#1">PubSub JavaScript
+Library</a> and several JavaScript <a href="#2">helper libraries</a>
+in this distribution.</p>
+
+<h2><a name="1" id="1">1. The PubSub JavaScript Library</a></h2>
+
+<p>This section describes the PubSub JavaScript Library
+provided by <a href=".">mod_pubsub</a>.
+
+The library must be included at the very beginning of your DHTML
+application:</p>
+
+<pre>
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;MyApp&lt;/title&gt;
+    &lt;script src="../../cgi-bin/pubsub.cgi?do_method=lib"&gt;&lt;/script&gt;
+</pre>
+
+<p>None of the HTML or SCRIPT after this line will be executed in the
+hidden wrapper frameset, only in a visible nested copy of the page.</p>
+
+<p>Three primary functions are provided by the system:</p>
+
+<div class="dl">
+<dl>
+<dt><code><var>kn_id</var> = kn.publish("<var>topic</var>",
+<var>event</var>, <var>[status-handlers]</var>)</code></dt>
+
+<dd>
+<p>Publishes an <var>event</var> to a <var>topic</var>, and
+optionally provides <var>status-handlers</var> to be called after
+the event is published. Returns the <var>kn_id</var> of the newly
+published event.</p>
+</dd>
+
+<dt><code><var>kn_route_location</var> =
+kn.subscribe("<var>topic</var>", <var>destination</var>,
+<var>[options]</var>, <var>[status-handlers]</var>)</code></dt>
+
+<dd>
+<p>Subscribes a <var>destination</var> to a <var>topic</var>, and
+optionally provides <var>status-handlers</var> to be called after
+the subscription is complete. Returns the
+<var>kn_route_location</var> of the newly completed subscription.
+Extra CGI parameters may be set using <var>options</var>. The
+<var>destination</var> may be:</p>
+
+<ul>
+<li>a topic, e.g. <samp>/postit</samp>,</li>
+
+<li>a "<samp>javascript:</samp>" URL, e.g.
+<samp>javascript:alert('OK')</samp>,</li>
+
+<li>a function or closure accepting an <var>event</var> parameter,
+e.g. <samp>function (e) { alert(e.kn_payload) }</samp>, or</li>
+
+<li>an object with an <code>onMessage</code> method accepting an
+<var>event</var> parameter, e.g. <samp>{ onMessage: function (e) {
+alert(e.kn_id) } }</samp></li>
+</ul>
+
+<p>Possible CGI parameters for the <var>options</var> argument are
+described in the <a href="pubsub_protocol.html">PubSub Protocol</a>
+documentation. A very common value for <var>options</var> is
+<samp>{ do_max_age: "infinity" }</samp>, which requests that all
+past events on the <var>topic</var> be replayed before the
+subscription is completed.</p>
+</dd>
+
+<dt><code>kn.unsubscribe(<var>kn_route_location</var>,
+<var>[status-handlers]</var>)</code></dt>
+
+<dd>
+<p>Cancels the subscription corresponding to a particular
+<var>kn_route_location</var>, and optionally provides
+<var>status-handlers</var> to be called after the subscription is
+canceled.</p>
+</dd>
+</dl>
+</div>
+
+<p>The <var>event</var> parameters are JavaScript objects with event
+element names as property names and corresponding event element values as
+the corresponding property values. Note that this event format differs
+from the one used by the lower-level <code>parent.kn_sendCallback</code>
+callback described in the
+<a href="pubsub_protocol.html#sendCallback">PubSub Protocol</a>
+documentation.</p>
+
+<p>The <var>status-handlers</var> argument, if present, is an object
+with three methods, all optional. If it is present, an
+<code>onStatus</code> method accepting an <var>event</var> parameter
+will be called for any <a href="pubsub_protocol.html#2.2.3">status
+event</a>.  If no <code>onStatus</code> method is present, then an
+optional <code>onSuccess</code> method accepting an <var>event</var>
+parameter is called for any successful status event, and an optional
+<code>onError</code> method accepting an <var>event</var> parameter is
+called for any unsuccessful status event.</p>
+
+<p>Command-line arguments can be passed in as well. Names starting
+with "<samp>kn_</samp>" are reserved. These are available as
+properties of the <code>kn_argv</code> object (e.g.
+<samp>.../MyApp.esp?topic/subtopic;kn_debug;myParam=foo</samp> will
+set <samp>kn_argv.kn_debug</samp>, <samp>kn_argv.kn_topic</samp>,
+and <samp>kn_argv.myParam</samp>.)</p>
+
+<p>A few details of the particular mod_pubsub instance and the library
+are made available as global variables or properties of the
+<code>kn</code> object:</p>
+
+<div class="dl">
+<dl>
+<dt><code>kn.ownerWindow</code></dt>
+
+<dd>
+<p>This contains the browser window handle corresponding to the
+outermost containing frame which uses the PubSub JavaScript Library.</p>
+</dd>
+
+<dt><code>kn.leaderWindow</code></dt>
+
+<dd>
+<p>This contains the browser window handle corresponding to the current
+session leader. When several PubSub-enabled DHTML applications are
+active in different windows of the same web browser session, only the
+session leader maintains a persistent connection with the web
+server. Closing the session leader window can cause a temporary
+disruption in event notification while a new window is chosen to lead
+the session.</p> </dd>
+
+<dt><code>kn.tunnelURI</code></dt>
+
+<dd>
+<p>This string contains a URL of the topic corresponding to the session
+leader's persistent connection to web server.  Subscribing a handler in
+the web browser to a topic will automatically cause events to be routed
+to this URL.</p> </dd>
+
+<dt><code>kn.lastError</code></dt>
+
+<dd>
+<p>When an error occurs in a JavaScript application using the PubSub
+JavaScript Library, the library attempts to suppress the browser's
+normal error-handling behavior and record the error message in this
+string. Replacing the <code>onerror</code> handler or supplying the
+<code>kn_debug</code> command-line argument will allow the browser to
+handle the error normally.</p> </dd>
+
+<dt><code>kn.userid</code></dt>
+
+<dd>
+<p>This string identifies the user in the context of the PubSub DHTML
+application. This may be a value supplied by mod_pubsub,
+a value given for the <code>kn_userid</code> command-line argument, or
+a default value such as <code>guest</code> or <code>anonymous</code>.
+</p>
+</dd>
+
+<dt><code>kn.displayname</code></dt>
+
+<dd>
+<p>This string describes the user identified by
+<code>kn.userid</code>. This may be a value supplied by mod_pubsub,
+a value given for the <code>kn_displayname</code> command-line argument,
+or a default value such as <code>Guest User</code> or <code>Anonymous
+User</code>.
+</p>
+</dd>
+
+<dt><code>kn_blank</code></dt>
+
+<dd>
+<p>This is a string holding the URL of a blank page which can be used
+in your application (for instance, as the initial source for a frame
+in a frameset.) It will be in the same JavaScript browser security
+domain as the <code>kn_server</code> URL.</p>
+</dd>
+
+<dt><code>kn_server</code></dt>
+
+<dd>
+<p>This is a string holding the URL of the mod_pubsub instance that
+provided the PubSub JavaScript Library (that is, the URL of the server
+that satisfied the request for the <code>do_method=lib</code>
+script.)</p>
+</dd>
+
+<dt><code>KN</code></dt>
+
+<dd>
+<p>This object is a holder for a wide variety of constants useful in
+JavaScript string and character processing. The most useful values:</p>
+
+<div class="dl">
+<dl>
+<dt><code>KN.ucsNoChar</code></dt>
+
+<dd>
+<p>The number <code>0xFFFD</code>. Unrecognized and unrepresentable
+characters are replaced by this character code in Unicode and
+UCS strings. <code>U+FFFD</code> is the UCS and Unicode replacement
+character. The <code>kn_stringFromCharCode</code> function described
+below performs this mapping automatically when given UCS character
+codes larger than <code>KN.utf16max</code> to encode in a UTF-16
+string. Similarly, the <code>kn_unescape</code> function described
+below produces this character in the UTF-16 output string for each
+illegal or unrepresentable URL-encoded UTF-8 sequence in the input
+string.</p>
+</dd>
+
+<dt><code>KN.utf16max</code></dt>
+
+<dd>
+<p>The number <code>0x10FFFF</code>, corresponding to the UCS and
+Unicode character <code>U+10FFFF</code>. This is the largest character
+code for which a UTF-16 encoding exists. Character codes larger than
+this must be replaced by the <code>KN.ucsNoChar</code> value in UTF-16
+strings, as described above.</p>
+</dd>
+
+<dt><code>KN.hexDigits</code></dt>
+
+<dd>
+<p>The string <code>0123456789ABCDEFabcdef</code>. All valid
+hexadecimal digits are contained in this string, and the first 16
+character positions contain the sixteen uppercase hexadecimal digits
+in ascending order.</p>
+</dd>
+
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+
+<p>Several useful utility functions are also provided:</p>
+
+<div class="dl">
+<dl>
+<dt><code><var>kn_id</var> = kn.publishForm("<var>topic</var>",
+<var>form</var>, <var>[status-handlers]</var>)</code></dt>
+
+<dd>
+<p>This function copies element names and values from the specified
+<var>form</var> into a new <var>event</var> object, and uses
+<code>kn.publish</code> to publish it to the specified
+<var>topic</var>. See <code>kn.publish</code> for more
+information on the parameters and return value.</p>
+</dd>
+
+<dt><code><var>escaped</var> =
+kn_escape(<var>string</var>)</code></dt>
+
+<dd>
+<p>Returns an <var>escaped</var> version of a <var>string</var>
+suitable for inclusion in a URL. This is a portable and correct
+re-implementation of the JavaScript <code>escape</code>
+primitive.</p>
+</dd>
+
+<dt><code><var>string</var> =
+kn_unescape(<var>escaped</var>)</code></dt>
+
+<dd>
+<p>Given an <var>escaped</var> string (as produced by
+<code>kn_escape</code>,) returns the original <var>string</var>.
+This is a portable and correct re-implementation of the JavaScript
+<code>unescape</code> primitive.</p>
+</dd>
+
+<dt><code><var>escaped</var> =
+kn_htmlEscape(<var>string</var>)</code></dt>
+
+<dd>
+<p>Returns an HTML/XML-style <var>escaped</var> copy of a
+<var>string</var>, with unsafe characters encoded as named or
+numeric character references. For characters outside the Unicode or UCS
+Basic Multilingual Plane, this decodes UTF-16 surrogate
+pairs in the <var>string</var> to produce single UCS numeric
+character references in the <var>escaped</var> copy.</p>
+</dd>
+
+<dt><code><var>string</var> =
+kn_stringFromCharCode(<var>codes ...</var>)</code></dt>
+
+<dd>
+<p>Given zero or more Unicode or UCS character codes as arguments,
+this function returns the corresponding
+UTF-16 string. This is a portable and correct re-implementation of
+<code>String.fromCharCode(<var>codes ...</var>)</code>.</p>
+</dd>
+
+<dt><code><var>array</var> =
+kn_charCodesFromString(<var>string</var>)</code></dt>
+
+<dd>
+<p>Given a UTF-16 string, this function returns an array containing
+the corresponding UCS character codes.</p>
+</dd>
+
+<dt><code><var>absolute</var> = kn_resolvePath(<var>base</var>,
+<var>relative</var>)</code></dt>
+
+<dd>
+<p>Given an absolute base pathname (e.g.
+<samp>location.pathname</samp>) and a pathname relative to that
+base (e.g. <samp>../../images/foo.gif</samp>,)
+<code>kn_resolvePath</code> returns an absolute pathname
+identifying the same resource the relative pathname does.</p>
+</dd>
+
+<dt><code>if (kn_isReady(<var>w</var>)) <var>...</var></code></dt>
+
+<dd>
+<p>Given a window <var>w</var>, <code>kn_isReady</code> returns
+true only when the window is open and ready to use.</p>
+</dd>
+
+<dt><code>kn_inspectInWindow(<var>object</var>, <var>depth</var>)<br />
+iw(<var>object</var>, <var>depth</var>)</code></dt>
+
+<dd><p>Given a JavaScript <var>object</var>,
+<code>kn_inspectInWindow</code> opens a new browser window containing
+a recursive dump of the contents of <var>object</var> up to
+<var>depth</var> levels deep.  <code>iw</code> is just an alias for
+<code>kn_inspectInWindow</code>.  It's useful during
+debugging.</p></dd>
+
+<dt><code>kn_inspectAsHTML(<var>object</var>, <var>depth</var>)</code></dt>
+
+<dd><p>Same as <code>kn_inspectInWindow</code>, except that it simply
+returns the HTML dump of the <var>object</var> instead of opening a
+new window to display it.</p></dd>
+
+<dt><code>kn_inspectAsText(<var>object</var>, <var>depth</var>)</code></dt>
+
+<dd><p>Analogous to <code>kn_inspectAsHTML</code>, but produces text
+output.</p></dd>
+
+<dt><code>debug(<var>flags</var>)</code></dt>
+
+<dd><p>This changes the value of the
+<code>kn_debug=</code><var>...</var> parameter to the specified value;
+an omitted value or true enables general debugging; an empty string or
+false disables all debugging; any other string enables general
+debugging and is treated as a comma-separated list of specific
+debugging options to enable (the special debugging option
+<samp>all</samp> enables all debugging); additionally,
+<code>debug()</code> hides or unhides the tunnel and post frames to
+reflect the value of general debugging (but only in Windows
+MSIE.)</p></dd>
+
+<dt><code>hacks(<var>flags</var>)</code></dt>
+
+<dd><p>This changes the value of the
+<code>kn_hacks=</code><var>...</var> parameter to the specified value;
+an omitted value or true enables general speed hacks; an empty string
+or false disables all speed hacks; any other string enables general
+speed hacks and is treated as a comma-separated list of specific speed
+hacks to enable (the special option <samp>all</samp> enables all speed
+hacks.)</p></dd>
+
+
+</dl>
+</div>
+
+<h2><a name="2" id="2">2. Helper Libraries</a></h2>
+
+<p>This distribution provides several JavaScript helper libraries to
+make writing PubSub DHTML applications easier. You'll find these
+libraries used in the various sample applications provided with this
+kit. Below are links to documentation on these libraries and an overview
+of the functionality provided by each one.</p>
+
+<table cellpadding="5" border="1">
+<tr>
+<th align="center" nowrap="nowrap">Library Name</th>
+<th align="center" nowrap="nowrap">Description</th>
+</tr>
+
+<tr>
+<td><a href="document_js.html">Document.js</a></td>
+<td>Drop in replacement for most simple uses of JavaScript Document
+object</td>
+</tr>
+
+<tr>
+<td><a href="htmlsafe_js.html">Htmlsafe.js</a></td>
+<td>Sanitize html to allow arbitrary html snippets (input by user)
+to execute safely on all subscribed clients</td>
+</tr>
+
+<tr>
+<td><a href="kn_xml_js.html">kn_xml.js</a></td>
+<td>Convenience include which loads all KN XML support
+libraries</td>
+</tr>
+
+<tr>
+<td>xmljs/xml.js</td>
+<td><a href="http://www.idle.org/experimental/" target="_blank">xml
+for &lt;SCRIPT&gt;</a> version 0.22, an XML parser by Michael
+Houghton</td>
+</tr>
+</table>
+
+<hr />
+
+<p>
+$Id: javascript_reference.html,v 1.1 2002/11/07 07:09:22 troutgirl Exp $</p>
+
+</body>
+</html>

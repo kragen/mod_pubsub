@@ -1,0 +1,120 @@
+---------------------------------
+mod_pubsub Release November, 2002
+---------------------------------
+
+Installing the mod_pubsub release is simple.  You'll need a web server
+with which to run the pubsub engine -- instructions for configuring
+Apache 1.3 are below.  Other web servers may work but have not been
+tested with this release.
+
+
+------------
+Installation
+------------
+
+0. You will need Perl and the libwww-perl module installed to be able to
+use this distribution.
+
+1. Extract the tar file someplace Apache can find it and serve its
+contents; it will create a directory named mod_pubsub.
+
+2. In the <Directory> section containing the mod_pubsub instance
+in your httpd.conf, be sure to include
+
+   AllowOverride Options
+
+This allows .htaccess in that directory to work.
+
+3. You can do this step by running the Makefile in this directory.
+You need to create a subdirectory mod_pubsub/kn_events and make
+it writable by the user that will be running the event router code,
+typically "nobody" or "httpd".  The easiest way to do this is to make
+the directory world-writable; do not do this if you share your web
+server with people you don't trust:
+
+      $ cd mod_pubsub
+      $ mkdir kn_events
+      $ chmod a+w kn_events
+
+If you don't do this, none of the apps will work, the test suite will
+fail, your server error log will rapidly fill with "Uncaught
+exception" messages, and apps run with debugging turned on will
+display "500 Internal Server Error" messages.
+
+4. If you don't have mod_perl (see http://perl.apache.org/) installed,
+you'll need to run pubsub.cgi as a CGI script, at a tremendous cost to
+performance; to do this, you'll need to remove
+mod_pubsub/cgi-bin/.htaccess, and possibly reconfigure the
+mod_pubsub/cgi-bin directory to add Options ExecCGI.
+
+If you DO have mod_perl, make sure it's enabled in the httpd.conf file,
+using a line similar to:
+
+   LoadModule perl_module /usr/lib/apache/1.3/mod_perl.so
+
+In either case, you now have a PubSub-enabled Apache running, and you're
+ready to try some PubSub-enabled weblications...
+
+5. Open the tiny chat app in kn_apps (in your browser, use something
+like http://www.yourdomain.com/~username/mod_pubsub/kn_apps/chat1/) and
+try it. You should be able to type messages in the lower frame and see
+them in the upper frame. Feel free to play with other apps in the
+kn_apps sample code directory as well.
+
+6. Next, visit the start page and click the Server Test link near the
+bottom of the rightmost column; all 45 tests should say "OK", with the
+possible exception of the "replay" tests, which are flaky.
+
+NOTE: This will fail if you have required HTTP authentication (as
+described below.) To make it work, you should append a valid HTTP
+username and password to the URL in index.html:
+
+      cgi-bin/kn_test.cgi?user=knguest;password=knguest
+
+7. At this point, all the Dynamic HTML apps listed in the index should
+work.  However, chatroom, stocksoap, and vote determine usernames from
+HTTP authentication; to take advantage of this (so not everybody is
+"Anonymous User") requires configuring Apache to require password
+authentication for access to the mod_pubsub instance.  You can do this
+by adding something like the following to your Apache httpd.conf:
+
+      <Directory "/wherever/you/installed/mod_pubsub">
+          AuthType Basic
+          AuthName "knownow-auth"
+          AuthUserFile /wherever/you/installed/kn/sample.passwd
+          Require valid-user
+      </Directory>
+
+WARNING: The included sample.passwd file contains a username and
+password entry for user 'knguest' with the password 'knguest'.
+
+
+--------------------
+Setting Up Newsfeeds
+--------------------
+
+The newsticker app works fine when set up as above, but there's no news
+for it to display; you'll need to run a newsfeed script.  There's a
+simple one provided in mod_pubsub/kn_sense/rss.plx; you can run it as
+follows:
+
+      $ cd mod_pubsub/kn_sense
+      $ ./rss.plx -url http://www.yourserver.com/whatever/mod_pubsub/cgi-bin/kn.cgi
+
+This fetches a large number of RSS files and posts their contents as
+stories to the server; when you do this, you should start seeing
+headlines show up in NewsTicker almost immediately.
+
+It will eventually finish; if you want a continuous newsfeed, you
+should run rss.plx periodically.
+
+
+--------------------
+For More Information
+--------------------
+
+Read TODO to see all the things we want to add and improve.
+Read README for a list of credits.
+
+And: Join the mailing lists to work with the community on making this
+project much better.

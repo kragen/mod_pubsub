@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>KN Form Component</title>
+<link type="text/css" rel="stylesheet" href="doc_style.css" />
+</head>
+
+<body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
+
+<p><img src="images/logo.gif"></p>
+
+
+<h1>KN Form Component</h1>
+
+<hr>
+
+<p>This document covers the following topics:</p>
+<blockquote>
+<ul>
+  <li><a href="#Overview">Overview</a></li>
+  <li><a href="#Installing">Installing KN Form</a></li>
+  <li><a href="#Configuring">Configuring KN Form</a></li>
+  <li><a href="#Publishing">Publishing Events From Forms With KN Form</a></li>
+  <li><a href="#Subscribing">Subscribing Events From Forms With KN Form</a></li>
+</ul>
+</blockquote>
+
+<hr>
+
+<h2><a name="Overview"></a>Overview</h2>
+<blockquote>
+
+<p>KN Form is a JavaScript utility library that allows HTML forms to automatically publish and subscribe to KnowNow event topics. The KN Form library only works with form input elements that have both a <code>name</code> and <code>value</code> attribute, such as <b>text</b>, <b>textarea</b>, <b>password</b> and <b>hidden</b>.</p> 
+
+</blockquote>
+	 
+<h2><a name="Installing"></a>Installing KN Form</h2>
+<blockquote>
+
+<p><b>To install KN Form:</b></p>
+
+<ol>
+   <li>Locate the <code>&lt;script&gt;</code> tag that calls the KnowNow JavaScript Microserver, near the top of your HTML page.</li>
+   <li>Add a new <code>&lt;script&gt;</code> tag, just below the <code>&lt;script&gt;</code> tag that calls the microserver.</li>
+   <li>Specify that the new <code>&lt;script&gt;</code> tag call the <b>kn_form.js</b> file.</li>
+</ol>
+<p>After installing KN Form, your code should resemble the following:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+      <tr> 
+        <td valign="top">
+<pre>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;MyApp&lt;/title&gt;
+    &lt;script src="/kn/?do_method=lib"&gt;&lt;/script&gt;
+    <b>&lt;script src="kn_form.js"&gt;&lt;/script&gt;</b>
+</pre></td>
+      </tr>
+</table>
+</blockquote>
+
+<h2><a name="Configuring"></a>Configuring KN Form</h2>  
+<blockquote>
+
+<p>After you install KN Form, you must specify the KN topic that a form uses to send or receive events.</p>
+
+<p><b>To specify a KN topic:</b></p>
+
+<ol>
+   <li>Add a &lt;form&gt; tag to your HTML page.</li>
+   <li>Add an <code>action</code> attribute to the &lt;form&gt; tag you just added.</li>
+
+</ol>
+<p><b>Important:</b> the "kn:" prefix is required to signify that the form you are editing is associated with a specific KN topic.</p>
+<p>The following example shows you how to specify a KN topic:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+      <tr> 
+        <td valign="top">
+<pre>&lt;form <b>action="kn:/what/news/sports"</b>&gt;
+...
+&lt;/form&gt;
+</pre></td>
+	  </tr>
+</table>
+
+<p>Now that a KN topic has been selected, you must set the form's <code>method</code> attribute to specify whether to publish or subscribe to events from the selected topic. A form that uses the  <b>POST</b> method only publishes events to a KN topic, while a form that uses the <b>GET</b> method only receives events from a KN topic.</p>
+
+<p><b>To specify whether a form publishes or subscribes to a specified KN topic event:</b></p>
+<ol>
+  <li>Select the form you want to modify.</li>
+  <li>Add the <code>method</code> attribute.</li>
+  <li>Specify either "POST" to publish KN topic events or "GET" to subscribe to KN topic events.</li>
+</ol>
+
+<p>The following sample code shows how you can specify whether a form publishes or subscribes to a specified KN topic event:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+      <tr> 
+        <td valign="top">
+<pre>&lt;!-- this form will publish new events when submitted -->
+&lt;form action="kn:/what/tests/knform" <b>method="POST"</b>>
+...
+&lt;/form>
+
+&lt;!-- this form will subscribe to events from it's topic -->
+&lt;form action="kn:/what/tests/knform" <b>method="GET"</b>>
+...
+&lt;/form>
+</pre></td>
+	  </tr>
+</table>
+</blockquote>
+
+<h2><a name="Publishing">Publishing Events From Forms With KN Form</a></h2>
+<blockquote>
+
+<p>As stated above, specifying the POST method causes the form to automatically publish the values of its elements as an event to the topic specified when the form is submitted. The libform library does this by looking at the name and value of each element within the form and creating a JavaScript object with identical name and value properties. The following code sample shows how the POST method is implemented.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+      <tr> 
+        <td valign="top">
+<pre>&lt;form action="kn:/what/tests/libform" method="POST"&gt;
+First Name: &lt;input type="text" name="firstName" /&gt;
+Last Name: &lt;input type="text" name="lastName" /&gt;
+Email: &lt;input type="text" name="email" /&gt;
+&lt;/form&gt;
+</pre></td>
+	  </tr>
+</table>
+
+<p>When the above form is submitted, the KN Form library creates an event with the following structure:</p>
+
+<table width="550" bgcolor="#EEEEEE">
+      <tr> 
+        <td valign="top">
+<pre>event.firstName
+event.lastName
+event.email
+</pre></td>
+	  </tr>
+</table>
+
+<p>The values of these event properties are identical to the values of the form elements. This new event is then published to the topic router defined in the form's <code>action</code> attribute.  No further JavaScript code is needed to publish events from the form.</p>
+</blockquote>
+
+<h2><a name="Subscribing">Subscribing Events From Forms With KN Form</a></h2>
+<blockquote>
+
+<p>A form that uses the GET method receives events posted to the KN topic that is specified in the form's <code>action</code> attribute. When the form receives an event with elements that have a <code>name</code> attribute value that matches the name of an event property, the values are reset to match the new event values.</p>
+</p>For example, if the form receives an event with a property named "firstName" and a value of "Larry", the form element with the matching <code>name</code> attribute is automatically set to "Larry". The sample code below shows how the GET method is implemented.</p>
+
+<table width="550" bgcolor="#EEEEEE">
+      <tr> 
+        <td valign="top">
+		<pre>&lt;form action="kn:/what/tests/libform" method="GET"&gt;
+First Name: &lt;input type="text" name="firstName" /&gt;
+Last Name: &lt;input type="text" name="lastName" /&gt;
+Email: &lt;input type="text" name="email" /&gt;
+&lt;/form&gt;</pre>
+</td>
+	  </tr>
+</table>
+</blockquote>
+
+<hr>
+<p><font size="-2">
+ All brand names and product names used in this document are trade
+ names, service marks, trademarks or registered trademarks of their
+ respective owners.
+<br>
+ Copyright &copy; <a href="http://www.KnowNow.com">KnowNow, Inc.</a>
+ All rights reserved.
+<br>
+ Printed in the U.S.A.
+<br>
+ Last updated: July 9, 2001
+</font></p>
+</body>
+</html>
+

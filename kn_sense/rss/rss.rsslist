@@ -1,0 +1,379 @@
+# rss.rsslist
+
+# $Id: rss.rsslist,v 1.1 2002/11/07 07:09:31 troutgirl Exp $
+
+# FIXME: This and the other rsslists are from 2000; they need
+# to be scrubbed (remove ones that don't work, add new interesting
+# ones) when someone has the time...
+
+# eGroups.
+
+http://www.egroups.com/messages/fork?rss=1&viscount=30
+http://www.egroups.com/messages/decentralization?rss=1&viscount=30
+
+# theinfo.org includes New York Times feeds in RSS.  Thanks Aaron!
+
+http://my.theinfo.org/rss/register.tcl
+http://my.theinfo.org/rss/nytimes.tcl?category=tech
+http://my.theinfo.org/rss/nytimes.tcl?category=world
+http://my.theinfo.org/rss/nytimes.tcl?category=national
+http://my.theinfo.org/rss/nytimes.tcl?category=business
+http://my.theinfo.org/rss/nytimes.tcl?category=sports
+http://my.theinfo.org/rss/nytimes.tcl?category=editorial
+http://my.theinfo.org/rss/nytimes.tcl?category=style
+http://my.theinfo.org/rss/nytimes.tcl?category=artleisure
+http://my.theinfo.org/rss/nytimes.tcl?category=travel
+http://my.theinfo.org/rss/sightings.tcl
+http://my.theinfo.org/rss/robotwisdom.tcl
+
+# Singletons; send them to their own topicnames.
+
+http://www.tomalak.org/recentTodaysLinks.xml                  tomalak.org
+http://www.w3.org/2000/08/w3c-synd/home.rss                   w3.org
+http://cnn.com/cnn.rss                                        cnn.com
+http://www.tbtf.com/roving_reporter/r_r.rdf                   tbtf.com
+http://tbtf.com/tbtf-SN2.xml                                  tbtf.com
+http://www.fool.com/xml/foolnews_rss091.xml                   fool.com
+http://www.salon.com/feed/RDF/salon_use.rdf                   salon.com
+http://www.wired.com/news_drop/netcenter/netcenter.rdf        wired.com
+http://www.herring.com/cgi-bin/edit/harvest.pl?id=userland    herring.com
+http://www.wiredfool.com/xml/scriptingnews2.xml               wiredfool.com
+http://slashdot.org/slashdot.rdf                              slashdot.org
+http://www.advogato.org/rss/articles.xml                      advogato.org
+http://freshmeat.net/backend/fm.rdf                           freshmeat.net
+http://scriptingnews.userland.com/xml/scriptingnews2.xml      scripting.com
+http://lwn.net/headlines/rss                                  lwn.net
+http://technocrat.net/rdf                                     technocrat.net
+http://xml.com/xml/scriptingnews.rdf                          xml.com
+http://www.xmlhack.com/rsscat.php                             xmlhack.com
+http://www.cert.org/channels/certcc.rdf                       cert.org
+http://www.pokemon-hq.com/rolling_stone/feed.cfm              pokemon-hq.com
+http://www.dnspolicy.com/backend/dnspolicy.rdf                dnspolicy.com
+http://www.filmindustry.com/feed/feed.php?format=rss          filmindustry.com
+http://www.gamedev.net/xml/                                   gamedev.net
+http://www.hackernews.com/misc/hnn.xml                        hackernews.com
+http://www.jabber.org/rss/articles.xml                        jabber.org
+http://jabbercentral.com/rss.php                              jabbercentral.com
+http://x42.com/rss/rfc.rss                                    x42.com
+http://www.linux-mag.com/lm.rss                               linux-mag.com
+http://macweek.zdnet.com/macweek.xml                          macweek.zdnet.com
+http://monkeyfist.com/rdf.php3                                monkeyfist.com
+http://www.whump.com/moreLikeThis/moreRSS.php3                whump.com
+http://www.worldnewyork.com/worldnewyork.rdf                  worldnewyork.com
+http://www.morons.org/morons.rss                              morons.org
+http://www.mozilla.org/news.rdf                               mozilla.org
+http://my.marijuana.com/backend.php3                          marijuana.com
+http://www.musi-cal.com/mojamnews.rdf                         musi-cal.com
+http://newsblip.com/xml/latestrss.php3                        newsbliprss.com
+http://newstrolls.com/newstrolls.rdf                          newstrolls.com
+http://www.oreillynet.com/rss.csp                             oreillynet.com
+http://www.news.perl.org/perl-news-short.rdf                  perl.org
+http://www.prophezine.com/headlines/pzn_headlines.rss         prophezine.com
+http://punknews.org/backend/punknews.txt                      punknews.org
+http://www.razzberry.com/include/xml/ratings-rdf.asp          razzberry.com
+http://www.researchbuzz.com/researchbuzz.rss                  researchbuzz.com
+http://www.reutershealth.com/eline.rss                        reutershealth.com
+http://www.riffola.com/headlines.xml                          riffola.com
+http://riposte.org/riposte.rss                                riposte.org
+http://catless.ncl.ac.uk/rdigest.rdf                          catless.ncl.ac.uk
+http://www.rootprompt.org/rss/                                rootprompt.org
+http://andrew.house8.net/slave_admin/slave.rss                andrew.house8.net
+http://sd.znet.com/~dwlarson/Channels/San_Diego_Dons_News.xml sd.znet.com
+http://www.sanemagazine.com/rdf/sanemagazine.rdf              sanemagazine.com
+http://www.technopagan.org/sf-news/rdf.php                    technopagan.org
+http://www.sffworld.com/sffworld.rdf                          sffworld.com
+http://www.sciencefriday.com/scifri.rdf                       sciencefriday.com
+http://screaming-penguin.com/screamRDF.txt                    screaming-penguin.com
+http://www.securityfocus.com/topnews-rss.html                 securityfocus.com
+http://shellcity.net/citynews.xml                             shellcity.net
+http://sitereview.org/rss/                                    sitereview.org
+http://www.sitescour.com/news/feed.cfm                        sitescour.com
+http://www.smartmac.com/smartmac.rss                          smartmac.com
+http://www.sflare.com/solarflare.rdf                          sflare.com
+http://sourceforge.net/export/rss_sfnewreleases.php           sourceforge.net
+http://sourceforge.net/export/rss_sfnews.php                  sourceforge.net
+http://squishdot.org/rdf                                      squishdot.org
+http://www.datanation.com/fallacies/downes.rdf                datanation.com
+http://www.stockcharts.com/stockcharts.rss                    stockcharts.com
+http://www.stockwisdom.com/netscapechannel.asp                stockwisdom.com
+http://www.studiob.com/cafenews/studiobrss.rss                studiob.com
+http://synz.com/dir/synz.rdf                                  synz.com
+http://www.radio4all.net/ainfos_rp.rdf                        radio4all.net
+http://www.thebesite.com/3/about/headlines.php3?type=rss&limit=7 thebesite.com
+http://www.brunching.com/brunching.rdf                        brunching.com
+http://happypenguin.org/html/news.rdf                         happypenguin.org
+http://www.listology.com/recent.rdf                           listology.com
+http://www.the-election.com/newsview.rss                      the-election.com
+http://www.webcomics.com/mynetscape.rdf                       webcomics.com
+http://www.webcomics.com/cgi-bin/webcom/rdfnews               webcomics.com
+http://www.ultimatechaos.com/news/rss-1.xml                   ultimatechaos.com
+http://usableweb.com/usableweb.xml                            usableweb.com
+http://www.usefulinc.com/usefulThings/xml                     usefulinc.com
+http://www.webreference.com/webreference.rdf                  webreference.com
+http://www.groksoup.com/Site/WebSnot/WebSnot.xml              groksoup.com
+http://www.wideopen.com/wideopen.rdf                          wideopen.com
+http://www.wirelessdevnet.com/wirelessnews/rss/dailynews.rss  wirelessdevnet.com
+http://www.perl.com/pace/perlnews.rdf                         perl.com
+http://www.wc.cc.va.us/news/rss.asp                           wc.cc.va.us
+http://www.parc.xerox.com/current/parc-events.rdf             parc.xerox.com
+http://yabel.com/backends/index.php3                          yabel.com
+http://www.yourmom.com/ym/include/ym-rdf.asp                  yourmom.com
+http://www.zope.org/Members/plewis/job_board/rss              zope.org
+http://weblogs.userland.com/zopeNewbies/xml/rss.xml           zope.org
+http://www.zope.org/SiteIndex/news.rss                        zope.org
+http://zzt.org/news.cdf                                       zzt.org
+http://myhome.mystuff.net/myweblog/search.news.yahoo.com.cgi?netgravity mystuff.net
+http://myhome.mystuff.net/myweblog/search.news.yahoo.com.cgi?xml        mystuff.net
+http://myhome.mystuff.net/myweblog/search.news.yahoo.com.cgi?userland   mystuff.net
+http://myhome.mystuff.net/myweblog/search.news.yahoo.com.cgi?soap+xml   mystuff.net
+http://www.internetstockreport.com.au/backend/vc.jsp    internetstockreport.com.au
+http://www.internetstockreport.com.au/backend/isr.jsp   internetstockreport.com.au
+http://www.internetstockreport.com.au/backend/ipo.jsp   internetstockreport.com.au
+http://cvs-mirror.mozilla.org/webtools/tinderbox/showbuilds.cgi?rdf=1&tree=SeaMonkey mozilla.org
+
+# UserLand aggregates numerous RSS feeds into this, updated hourly:
+#     http://static.userland.com/myUserLandMisc/currentStories.xml
+# Unfortunately, as of 2000, it's not in RSS format, so we can't read it.
+
+# They do have manilaNewbies, though.  Thanks, Dave!
+
+http://weblogs.userland.com/manilaNewbies/xml/rss.xml        
+
+# ePinions.  Thanks, Joyce!
+
+http://channels.epinions.com/rss_channels/newautoreviews.rdf
+http://channels.epinions.com/rss_channels/newcmdreviews.rdf
+http://channels.epinions.com/rss_channels/newelecreviews.rdf
+http://channels.epinions.com/rss_channels/newbookreviews.rdf
+http://channels.epinions.com/rss_channels/newmviereviews.rdf
+http://channels.epinions.com/rss_channels/newmuscreviews.rdf
+http://channels.epinions.com/rss_channels/newotdrreviews.rdf
+http://channels.epinions.com/rss_channels/newsprtreviews.rdf
+http://channels.epinions.com/rss_channels/newtrvlreviews.rdf
+
+# From Moreover's Technology page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+http://p.moreover.com/cgi-local/page?index_commsequipment+rss  
+http://p.moreover.com/cgi-local/page?index_computergames+rss  
+http://p.moreover.com/cgi-local/page?index_computersecurity+rss  
+http://p.moreover.com/cgi-local/page?index_computerservices+rss  
+http://p.moreover.com/cgi-local/page?index_databaseindustry+rss  
+http://p.moreover.com/cgi-local/page?index_developer+rss  
+http://p.moreover.com/cgi-local/page?index_digitaltelevision+rss  
+http://p.moreover.com/cgi-local/page?index_enterprisecomputing+rss  
+http://p.moreover.com/cgi-local/page?index_graphics+rss  
+http://p.moreover.com/cgi-local/page?index_handhelds+rss  
+http://p.moreover.com/cgi-local/page?index_imagingequipment+rss  
+http://p.moreover.com/cgi-local/page?index_java+rss  
+http://p.moreover.com/cgi-local/page?index_linux+rss  
+http://p.moreover.com/cgi-local/page?index_motorola+rss  
+http://p.moreover.com/cgi-local/page?index_os+rss  
+http://p.moreover.com/cgi-local/page?index_opensource+rss  
+http://p.moreover.com/cgi-local/page?index_pcindustry+rss  
+http://p.moreover.com/cgi-local/page?index_pcsoftware+rss  
+http://p.moreover.com/cgi-local/page?index_robotics+rss  
+http://p.moreover.com/cgi-local/page?index_semiconductorindustry+rss  
+http://p.moreover.com/cgi-local/page?index_techevents+rss  
+http://p.moreover.com/cgi-local/page?index_techlatest+rss  
+http://p.moreover.com/cgi-local/page?index_techfeatures+rss  
+http://p.moreover.com/cgi-local/page?index_techpolicy+rss  
+http://p.moreover.com/cgi-local/page?index_telecom+rss  
+http://p.moreover.com/cgi-local/page?index_toptechnology+rss  
+http://p.moreover.com/cgi-local/page?index_viruswarning+rss  
+http://p.moreover.com/cgi-local/page?index_wap+rss  
+http://p.moreover.com/cgi-local/page?index_windows+rss  
+http://p.moreover.com/cgi-local/page?index_wireless+rss  
+http://p.moreover.com/cgi-local/page?index_xml+rss  
+
+# From Moreover's Internet page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+http://p.moreover.com/cgi-local/page?index_cyberculture+rss  
+http://p.moreover.com/cgi-local/page?index_domainname+rss  
+http://p.moreover.com/cgi-local/page?index_dotcomdoom+rss  
+http://p.moreover.com/cgi-local/page?index_e-commerce+rss  
+http://p.moreover.com/cgi-local/page?index_interneteurope+rss  
+http://p.moreover.com/cgi-local/page?index_internetgermany+rss
+http://p.moreover.com/cgi-local/page?index_internetconsult+rss  
+http://p.moreover.com/cgi-local/page?index_internetlatinamerica+rss  
+http://p.moreover.com/cgi-local/page?index_internetfeatures+rss  
+http://p.moreover.com/cgi-local/page?index_internetinternational+rss  
+http://p.moreover.com/cgi-local/page?index_onlineaccess+rss  
+http://p.moreover.com/cgi-local/page?index_onlineauction+rss  
+http://p.moreover.com/cgi-local/page?index_onlinecontent+rss  
+http://p.moreover.com/cgi-local/page?index_onlineinformation+rss  
+http://p.moreover.com/cgi-local/page?index_onlinelegalissues+rss  
+http://p.moreover.com/cgi-local/page?index_onlinemarketing+rss  
+http://p.moreover.com/cgi-local/page?index_onlineportals+rss  
+http://p.moreover.com/cgi-local/page?index_searchengines+rss  
+http://p.moreover.com/cgi-local/page?index_topinternet+rss  
+http://p.moreover.com/cgi-local/page?index_verticalportals+rss  
+http://p.moreover.com/cgi-local/page?index_webdeveloper+rss  
+http://p.moreover.com/cgi-local/page?index_webmastertips+rss  
+http://p.moreover.com/cgi-local/page?index_websiteowner+rss 
+
+# From Moreover's Consumer page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+http://p.moreover.com/cgi-local/page?index_bookreviews+rss 
+http://p.moreover.com/cgi-local/page?index_fitness+rss 
+http://p.moreover.com/cgi-local/page?index_foodanddrink+rss 
+http://p.moreover.com/cgi-local/page?index_consumertravel+rss 
+http://p.moreover.com/cgi-local/page?index_health+rss 
+http://p.moreover.com/cgi-local/page?index_naturalhealth+rss 
+http://p.moreover.com/cgi-local/page?index_parenting+rss 
+http://p.moreover.com/cgi-local/page?index_womens+rss 
+http://p.moreover.com/cgi-local/page?index_coolsites+rss 
+http://p.moreover.com/cgi-local/page?index_entertainmenttvshows+rss
+http://p.moreover.com/cgi-local/page?index_entertainmentgeneral+rss
+http://p.moreover.com/cgi-local/page?index_homeandgarden+rss 
+http://p.moreover.com/cgi-local/page?index_jokes+rss 
+http://p.moreover.com/cgi-local/page?index_mp3+rss
+http://p.moreover.com/cgi-local/page?index_moviereviews+rss  
+http://p.moreover.com/cgi-local/page?index_mutualfunds+rss  
+http://p.moreover.com/cgi-local/page?index_outdoorrecreation+rss  
+http://p.moreover.com/cgi-local/page?index_personalfinance+rss  
+http://p.moreover.com/cgi-local/page?index_personaltech+rss  
+http://p.moreover.com/cgi-local/page?index_popmusic+rss 
+http://p.moreover.com/cgi-local/page?index_popmusicreviews+rss 
+http://p.moreover.com/cgi-local/page?index_retailinvestor+rss 
+http://p.moreover.com/cgi-local/page?index_softwaredownloads+rss 
+http://p.moreover.com/cgi-local/page?index_topconsumer+rss 
+       
+# From Moreover's U.S. page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+http://p.moreover.com/cgi-local/page?index_atlanta+rss  
+http://p.moreover.com/cgi-local/page?index_bayarea+rss
+http://p.moreover.com/cgi-local/page?index_boston+rss
+http://p.moreover.com/cgi-local/page?index_chicago+rss  
+http://p.moreover.com/cgi-local/page?index_clevelandakron+rss  
+http://p.moreover.com/cgi-local/page?index_dcarea+rss  
+http://p.moreover.com/cgi-local/page?index_dallasfortworth+rss  
+http://p.moreover.com/cgi-local/page?index_detroit+rss  
+http://p.moreover.com/cgi-local/page?index_election2000+rss  
+http://p.moreover.com/cgi-local/page?index_election2000gore+rss  
+http://p.moreover.com/cgi-local/page?index_election2000bush+rss  
+http://p.moreover.com/cgi-local/page?index_election2000candidates+rss  
+http://p.moreover.com/cgi-local/page?index_election2000hottopics+rss  
+http://p.moreover.com/cgi-local/page?index_houston+rss  
+http://p.moreover.com/cgi-local/page?index_la+rss  
+http://p.moreover.com/cgi-local/page?index_miamifortlauderdale+rss  
+http://p.moreover.com/cgi-local/page?index_minneapolisstpaul+rss  
+http://p.moreover.com/cgi-local/page?index_newyork+rss  
+http://p.moreover.com/cgi-local/page?index_philadelphia+rss  
+http://p.moreover.com/cgi-local/page?index_phoenix+rss  
+http://p.moreover.com/cgi-local/page?index_pittsburgh+rss  
+http://p.moreover.com/cgi-local/page?index_sandiego+rss  
+http://p.moreover.com/cgi-local/page?index_seattletacoma+rss  
+http://p.moreover.com/cgi-local/page?index_siliconvalley+rss  
+http://p.moreover.com/cgi-local/page?index_tampastpetersburg+rss  
+http://p.moreover.com/cgi-local/page?index_useducation+rss  
+http://p.moreover.com/cgi-local/page?index_usimmigration+rss  
+http://p.moreover.com/cgi-local/page?index_uspolitics+rss  
+http://p.moreover.com/cgi-local/page?index_ussecurity+rss  
+
+# From Moreover's Dow 30 page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+http://p.moreover.com/cgi-local/page?index_3m+rss 
+http://p.moreover.com/cgi-local/page?index_att+rss 
+http://p.moreover.com/cgi-local/page?index_alcoa+rss  
+http://p.moreover.com/cgi-local/page?index_americanexpress+rss 
+http://p.moreover.com/cgi-local/page?index_boeing+rss  
+http://p.moreover.com/cgi-local/page?index_caterpillar+rss  
+http://p.moreover.com/cgi-local/page?index_citigroup+rss  
+http://p.moreover.com/cgi-local/page?index_cocacola+rss  
+http://p.moreover.com/cgi-local/page?index_dupont+rss  
+http://p.moreover.com/cgi-local/page?index_eastmankodak+rss  
+http://p.moreover.com/cgi-local/page?index_exxon+rss  
+http://p.moreover.com/cgi-local/page?index_gec+rss  
+http://p.moreover.com/cgi-local/page?index_generalmotors+rss  
+http://p.moreover.com/cgi-local/page?index_hewlettpackard+rss  
+http://p.moreover.com/cgi-local/page?index_homedepot+rss  
+http://p.moreover.com/cgi-local/page?index_honeywell+rss  
+http://p.moreover.com/cgi-local/page?index_ibm+rss  
+http://p.moreover.com/cgi-local/page?index_intel+rss  
+http://p.moreover.com/cgi-local/page?index_internationalpaper+rss  
+http://p.moreover.com/cgi-local/page?index_jpmorgan+rss  
+http://p.moreover.com/cgi-local/page?index_johnsonandjohnson+rss  
+http://p.moreover.com/cgi-local/page?index_mcdonalds+rss  
+http://p.moreover.com/cgi-local/page?index_merck+rss  
+http://p.moreover.com/cgi-local/page?index_microsoft+rss  
+http://p.moreover.com/cgi-local/page?index_philipmorris+rss  
+http://p.moreover.com/cgi-local/page?index_procterandgamble+rss  
+http://p.moreover.com/cgi-local/page?index_sbccommunications+rss  
+http://p.moreover.com/cgi-local/page?index_unitedtechnologies+rss  
+http://p.moreover.com/cgi-local/page?index_walmart+rss  
+http://p.moreover.com/cgi-local/page?index_waltdisney+rss  
+
+# From Moreover's Finance page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+http://p.moreover.com/cgi-local/page?index_accounting+rss  
+http://p.moreover.com/cgi-local/page?index_banking+rss  
+http://p.moreover.com/cgi-local/page?index_usbanking+rss  
+http://p.moreover.com/cgi-local/page?index_commodities+rss  
+http://p.moreover.com/cgi-local/page?index_corporatefinance+rss  
+http://p.moreover.com/cgi-local/page?index_derivatives+rss  
+http://p.moreover.com/cgi-local/page?index_emergingmarkets+rss  
+http://p.moreover.com/cgi-local/page?index_equity+rss  
+http://p.moreover.com/cgi-local/page?index_fedwatch+rss  
+http://p.moreover.com/cgi-local/page?index_financefeatures+rss  
+http://p.moreover.com/cgi-local/page?index_fixedincome+rss  
+http://p.moreover.com/cgi-local/page?index_forex+rss  
+http://p.moreover.com/cgi-local/page?index_fundmanagement+rss  
+http://p.moreover.com/cgi-local/page?index_IPO+rss  
+http://p.moreover.com/cgi-local/page?index_insurance+rss  
+http://p.moreover.com/cgi-local/page?index_mergersacquisitions+rss  
+http://p.moreover.com/cgi-local/page?index_mortgage+rss  
+http://p.moreover.com/cgi-local/page?index_onlinebanking+rss  
+http://p.moreover.com/cgi-local/page?index_onlinebroker+rss  
+http://p.moreover.com/cgi-local/page?index_securitiesindustry+rss  
+http://p.moreover.com/cgi-local/page?index_stockexchanges+rss  
+http://p.moreover.com/cgi-local/page?index_stockwatch+rss  
+http://p.moreover.com/cgi-local/page?index_techstocks+rss  
+http://p.moreover.com/cgi-local/page?index_topfinance+rss  
+http://p.moreover.com/cgi-local/page?index_venturecapital+rss  
+
+# From Moreover's Sports page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+http://p.moreover.com/cgi-local/page?index_artsandculture+rss  
+http://p.moreover.com/cgi-local/page?index_baseball+rss  
+http://p.moreover.com/cgi-local/page?index_basketball+rss  
+http://p.moreover.com/cgi-local/page?index_boxing+rss  
+http://p.moreover.com/cgi-local/page?index_cricket+rss  
+http://p.moreover.com/cgi-local/page?index_cycling+rss  
+http://p.moreover.com/cgi-local/page?index_americanfootball+rss  
+http://p.moreover.com/cgi-local/page?index_soccer+rss  
+http://p.moreover.com/cgi-local/page?index_golf+rss  
+http://p.moreover.com/cgi-local/page?index_horseracing+rss  
+http://p.moreover.com/cgi-local/page?index_icehockey+rss  
+http://p.moreover.com/cgi-local/page?index_jewish+rss  
+http://p.moreover.com/cgi-local/page?index_majorleaguesoccer+rss  
+http://p.moreover.com/cgi-local/page?index_motorsports+rss  
+http://p.moreover.com/cgi-local/page?index_olympicgames+rss  
+http://p.moreover.com/cgi-local/page?index_olympics+rss  
+http://p.moreover.com/cgi-local/page?index_religion+rss  
+http://p.moreover.com/cgi-local/page?index_rugby+rss  
+http://p.moreover.com/cgi-local/page?index_tennis+rss  
+http://p.moreover.com/cgi-local/page?index_topsports+rss  
+http://p.moreover.com/cgi-local/page?index_wrestling+rss  
+http://p.moreover.com/cgi-local/page?index_yachting+rss  
+
+# I keep meaning to add these topics but haven't had time.  -- Adam
+
+# From Moreover's General page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+# From Moreover's Industry page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+# From Moreover's Regional page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+# Mama told me not to come.  That ain't the way to have fun, son.
+
+# End of rss.rsslist

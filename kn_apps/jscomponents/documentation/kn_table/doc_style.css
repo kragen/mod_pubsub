@@ -1,0 +1,100 @@
+body {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+
+ul {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+ol {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+
+li {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+dl {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+dt {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+
+}
+
+dd {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+h1 {
+	font-family: arial, sans-serif;
+	font-size: 20 px;
+	font-weight: bold;
+}
+	
+h2 {
+	font-family: arial, sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+h3 {
+	font-family: arial, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+h5 {
+	font-family: arial, sans-serif;
+	font-size: 10 px;
+	font-weight: bold;
+}
+
+
+
+p {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+td {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+pre {
+	font-family: courier, monospaced;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+code {
+	font-family: courier, monospaced;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+blockquote {
+	font-family: arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+}

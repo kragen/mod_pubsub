@@ -1,0 +1,413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:05 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub zack demo</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<script><!--
+var timesent = 0;
+var topic = (kn_argv.kn_topic ? kn_argv.kn_topic : "/what/zack/");
+
+var rid = null;
+var tp_rid = null;
+var randStr = Math.random().toString().substr(2,8);
+
+
+function test_latency() {
+    NMAX = 
+parseInt(document.outform.NMAX.value);
+    cntr = 0;
+    N = 0;
+ 
+total_delay = 0;
+    total_square_delay = 0;
+     zackInit();
+    setTimeout("sendping()", 500);
+}
+
+function 
+sendping() {
+   timesent = new Date();
+   kn.publish(topic, 
+{kn_payload: timesent.getTime().toString(),
+					  zackback : zbtop, session : 
+randStr});
+}
+
+NMAX=100;
+cntr=0;
+N = 0;
+total_delay = 
+0;
+total_square_delay = 0;
+function notelatency(ev) {
+	var now = new Date();
+	var diff = now.getTime() - new 
+Date(parseInt(ev.kn_payload));
+	var of = document.outform;
+ 
+	of.N.value = ++N;
+	of.LAST.value = diff;
+	if 
+((of.MIN.value == "") ||
+		(of.MIN.value > diff))
+ 
+	of.MIN.value = diff;
+	if ((of.MAX.value == "") ||
+ 
+	(of.MAX.value < diff))
+		of.MAX.value = diff;
+ 
+	total_delay += diff;
+	total_square_delay += diff*diff;
+ 
+	of.AVG.value = Math.round(total_delay/N);
+	of.DEV.value 
+= Math.round(Math.sqrt(total_square_delay/N 
+ 
+- (total_delay/N)*(total_delay/N)));
+
+	if (ev.zackback) 
+kn.publish(ev.zackback, {kn_payload : ev.kn_route_location, zacking : 
+ev.kn_id});
+	
+	if ((ev.session == randStr) && (++cntr < NMAX))
+
+       setTimeout("sendping()",5);
+
+}
+
+var zackRows = new Object();
+var zackCols = new Object();
+var zackRowLabels = new Array();
+var zackColLabels = new Array();
+var zacks = new Array();
+
+function zackInit(){
+	var zackRows = new Object();
+	var zackCols = new Object();
+	var zackRowLabels = new 
+Array();
+	var zackColLabels = new Array();
+	var zacks = new Array();
+}
+
+
+
+function redrawConsole() {
+
+	var s="";
+
+	for (i=0; i<zacks.length; i++)
+
+		 s += zackRowLabels[i] + ": " + zacks[i].join('.') + "\n";
+
+	document.outform.console.value = s;
+
+}
+
+
+// returns true iff object is non-null or has a type other than "undefined"
+
+function defined(object)
+{
+    if (object != null)
+    {
+        return true;
+    }
+    if (typeof object != "undefined")
+    {
+        return true;
+    }
+    return false;
+}
+
+
+function zackback(e) {
+
+// if row does not exist, alloc
+// if col does not exist, alloc
+// tick mark to indicate receipt
+
+	var k=zackRows[e.kn_payload];
+
+	if (! defined(k)) {
+
+		k = zackRowLabels.length;
+
+		zackRows[e.kn_payload] = k;
+
+		zackRowLabels[k] = 
+e.kn_payload.substr(e.kn_payload.lastIndexOf("/")+1);
+
+		zacks[k] = new Array();
+
+	}
+
+	var n=zackCols[e.zacking];
+
+	if (! defined(n)) {
+
+		n = zackColLabels.length
+
+		zackCols[e.zacking] = n;
+
+		zackColLabels[n] = e.zacking;
+
+	}
+
+	zacks[k][n] = "O";
+
+	redrawConsole();
+
+}
+
+
+
+function myOnLoad() {
+	rid = kn.subscribe(topic, notelatency, {zack : "true"});
+
+	zbtop = topic + "zackback"
+
+	z_rid = kn.subscribe(zbtop, zackback);
+
+}
+
+// -->
+</script>
+
+</head>
+
+<body text="navy" bgcolor="white" link="blue" alink="#ffcccc" vlink="#ccccff"
+
+      onload="myOnLoad();" >
+
+<table width="100%" cellspacing=10>
+
+<tr valign=top><td valign=top>
+
+<form name="outform" action="javascript:void 0//">
+
+
+
+<table border=6 bordercolor="navy" cellpadding=4 rules="none" cellspacing=0 >
+
+<tr><td align="middle" colspan=2 bgcolor="navy"><font color="white" 
+size="+3"><b><i>mod_pubsub</i><br>Guaranteed 
+Delivery</b></font></td></tr>
+
+<tr><td align="left"><input type=submit onclick="test_latency()" 
+value="Run Tests"></td><td align="right"> <input size=5 name=NMAX 
+value="10">&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+
+<tr><td align="middle" colspan="2" bgcolor="navy">
+
+      <p><font color="white" size="+1"><b>Zacking Listeners</b></font></P>
+
+<tr><td align="middle" colspan="2" bgcolor=lightsteelblue><TEXTAREA 
+name=console rows=10 cols=35>Monitoring console...</TEXTAREA>
+
+<tr><td align="middle" colspan="2" bgcolor="navy">
+
+      <p><FONT color=white size=+1><B>Round-Trip 
+Latency</B></FONT></TH></P></td>
+
+<tr><td align="left" bgcolor=lightsteelblue><b>Number of Pings: 
+</b></td><td align="right" bgcolor=lightsteelblue> <input size=5 
+name=N
+
+      disabled>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+
+<tr><td align="left" bgcolor=lightsteelblue><b>Last Ping Time: 
+</b></td><td align="right" bgcolor=lightsteelblue> <input size=5 
+name=LAST
+
+     disabled>ms</td></tr>
+
+<tr><td align="left" bgcolor=lightsteelblue><b>Minimum Time: 
+</b></td><td align="right" bgcolor=lightsteelblue> <input size=5 
+name=MIN
+
+     disabled>ms</td></tr>
+
+<tr><td align="left" bgcolor=lightsteelblue><b>Maximum Time: 
+</b></td><td align="right" bgcolor=lightsteelblue> <input size=5 
+name=MAX
+
+     >ms</td></tr>
+
+<tr><td align="left" bgcolor=lightsteelblue><b>Average Ping Time: 
+</b></td><td align="right" bgcolor=lightsteelblue> <input size=5 
+name=AVG
+
+     >ms</td></tr>
+
+<tr><td align="left" bgcolor=lightsteelblue><b>Standard 
+Deviation:</b></td><td align="right" bgcolor=lightsteelblue> <input 
+size=5 name=DEV
+
+     >ms</td></tr>
+
+</table>
+
+
+
+</form>
+
+</td>
+
+<td>
+
+<h3 align=left>How to Demo</h3>
+
+<p align=left>Open up copies of this PubSub page on several computers
+and/or several browser windows simultaneously. Then, for every N events
+and K peers, N*K*K acknowledgement events will be sent around so each
+one can track which other peers have accepted delivery of each
+event. </p>
+
+<h3 align=left>Explanation</h3>
+
+<p align=left>This sample demonstrates how to provide
+guaranteed-delivery facilities at the application layer using
+mod_pubsub. The point of a publish-and-subscribe system is to loosen the
+coupling between the varied moving parts of&nbsp;a distributed,
+decentralized process.&nbsp;The key to&nbsp;the scalability and
+extensibility of event-based programming is that publisher
+cannot&nbsp;know in advance all&nbsp;of the&nbsp;ways&nbsp;an event
+might be&nbsp;delivered.
+
+<blockquote align="left"><em>A useful analogy at this point is to
+consider email. By sending a message to a mailing list, you can't
+practically enumerate the set of people who will receive it. After all,
+some of the "subscribers" may be other mailing lists, or even a
+newspaper that prints a million copies on Sunday. There may be issues of
+copyright, privacy, and economics deterring this (social, or
+application-layer, conventions), but it's not SMTP's problem to chase
+down every eventual recipient -- otherwise email wouldn't have scaled up
+as far as it has.</em>
+
+</blockquote>
+
+<p align=left>However, it is important for some&nbsp;cooperating
+applications to readily confirm delivery amongst themselves. Here, we
+have modified Ping to allow multiple concurrent instances of the
+application to require every connected peer to acknowledge each ping by
+publishing a reply event.
+
+<p align=left>Zack works as follows: first, every peer subscribes to a
+common ping topic, but with a special Zack attribute indicating that it
+complies with this new convention:
+
+<pRE align="left">kn.subscribe(topic, handler, {zack : "true"});</pre>
+
+<p align=left> The publisher of each event to be guaranteed also needs
+to designate a call-back topic which it is monitoring to collect Zacks
+at. Second, every peer needs to publish a Zack back to that collection
+point. In this demo, it happens to be the same Zack-back topic for all,
+so everyone sees every acknowledgement.
+
+<pre>zackTopic = topic + "/zackback";
+
+..
+
+kn.publish(topic, {kn_payload... zackback: zackTopic});
+
+..
+
+function handler(e) {
+
+    ...
+
+    if (e.zackback)
+
+        kn.publish(e.zackback, {zacking : e.kn_id});
+
+}
+
+</pre>
+
+<p> All that's left to do is to modify the user interface to "count up"
+which peers have acknowledged before proceeding. "View Source" if you
+want to see the complete modifications.</P>
+
+<p>Finally, it is an exercise for the reader to modify the application
+to A) discover dynamically which subscribers of a topic support the Zack
+protocol and B) require that <b>every</b> subscriber reply affirmatively
+before proceeding to the next ping. Right now, the publisher races away
+while the Zacks trickle in after the fact. Of course, such an exercise
+will be complicated by the arrival and departure of "Zacking" listeners
+during the test run &amp;c; these are well-known theoretical barriers to
+offering meaningful "guaranteed-delivery" semantics over any pub-sub
+system.
+
+<!-- <p align=left> Then we also need to discover what other peers are
+currently watch and support Zack. By subscribing to "topic/kn_routes" we
+get a series of events describing each new subscription created; we
+simply ignore any that don't include the Zack header:
+
+<pre>
+
+		kn.subscribe(topic + "/kn_routes/", watchers, 
+{do_max_age : "infinity"});
+
+		...
+
+		function watchers(e) {
+
+			if (e.zack) w[w.length] = e.kn_to;
+
+		}
+
+</pre> --></p>
+
+</td>
+
+</tr>
+
+</table>
+</body>
+</html>

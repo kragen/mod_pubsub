@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>KN FlashGraph Component</title>
+<link type="text/css" rel="stylesheet" href="doc_style.css" />
+</head>
+
+<body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
+
+<p><img src="images/logo.gif"></p>
+
+<h1>KN FlashGraph Component</h1>
+
+<hr>
+<p>This document contains information about KN FlashGraph.</p>
+
+<blockquote>
+
+<ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#installing">Installing KN FlashGraph</a></li>
+  <li><a href="#axis">Axis Properties</a></li>
+  <li><a href="#bar">Bar Properties</a></li>
+  <li><a href="#size">Resizing the FlashGraph</a></li>
+  <li><a href="#jstocontrol">Using JavaScript to Control the Flash Movie</a></li>
+  <li><a href="#buildaxis">Building the X and Y Axis</a></li>
+  <li><a href="#buildbars">Building Bars</a></li>
+  </ul>
+</blockquote>
+
+<hr>
+
+<h2><a name="overview"></a>Overview</h2>
+<blockquote>
+
+<p>The <em>KN FlashGraph</em> component is a Flash Movie that allows you to use JavaScript to dynamically control the position and size of a bar graph. Updates to the graph take place in realtime. To see an example of how this works with KnowNow technology, see the example in  <code>examples/kn_flashgraph</code> which was downloaded with the KnowNow component libraries.
+</p>
+</blockquote>
+
+<h2><a name="installing"></a>Installing KN FlashGraph</h2>
+<blockquote>
+
+<p><b>To install KN FlashGraph:</b></p>
+<ul>
+<li>Include the following object code segment in your application.  Make sure that you put your application in the same folder as <code>kn_bargraph.swf</code>.</li>
+</ul>
+
+<table width="550" bgcolor="#EEEEEE">
+  <tr>
+      <td valign="top">
+<pre><font size="-1">&lt;OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+codebase="http://active.macromedia.com/flash2/cabs/swflash.cab#version=5,0,41,0"
+ID=movie1 WIDTH=520 HEIGHT=340&gt;
+&lt;PARAM NAME=movie VALUE="kn_bargraph.swf"&gt;
+&lt;PARAM NAME=quality VALUE=high&gt;
+&lt;PARAM NAME=bgcolor VALUE=#FFFFFF&gt; 
+&lt;EMBED NAME="movie1" src="kn_bargraph.swf" SWLiveConnect="true" quality=high bgcolor=#FFFFFF
+WIDTH=520 HEIGHT=340 TYPE="application/x-shockwave-flash" 
+PLUGINSPAGE=
+"http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash"&gt;
+&lt;/EMBED&gt;
+&lt;/OBJECT&gt;</font></pre>
+    </td>
+  </tr>
+</table>
+
+</blockquote>
+
+<h2><a name="axis">Axis Properties</a></h2>
+<blockquote>
+
+  <p>The following table provides a list of x-axis properties.</p>
+  <table border="1" cellpadding="1" cellspacing="0" width="550">
+  <tr>
+      <td valign="top"><b> Axis Properties</b></td>
+      <td valign="top"><b>Description</b></td>
+  </tr>
+
+  <tr>
+      <td valign="top">X Axis Label</td>
+      <td valign="top">The text label to put on the x-axis.
+        </td>
+  </tr>
+
+  <tr>
+      <td valign="top">X Axis Length</td>
+      <td valign="top">Length of the axis in pixels.
+        </td>
+  </tr>
+
+  <tr>
+      <td valign="top">X Axis Min</td>
+      <td valign="top">The minimum coordinate on the x-axis.
+        </td>
+  </tr>
+
+  <tr>
+      <td valign="top">X Axis Max</td>
+      <td valign="top">The maximum coordinate on the x-axis.
+        </td>
+  </tr>
+
+  <tr>
+      <td valign="top">X Axis SubDivisions</td>
+      <td valign="top">The number of sections that the x-axis is divided into.
+        </td>
+  </tr>
+  </table>
+
+  <p>The following table provides a list of y-axis properties.</p>
+  <table border="1" cellpadding="1" cellspacing="0" width="550">
+  <tr>
+      <td valign="top"><b>Axis Properties</b></td>
+      <td valign="top"><b>Description</b></td>
+  </tr>
+
+  <tr>
+      <td valign="top">Y Axis Label</td>
+      <td valign="top">The text label to put on the y-axis.
+        </td>
+  </tr>
+
+  <tr>
+      <td valign="top">Y Axis Length</td>
+      <td valign="top">Length of the axis in pixels.
+        </td>
+  </tr>
+
+  <tr>
+      <td valign="top">Y Axis Min</td>
+      <td valign="top">The minimum coordinate on the y-axis.
+        </td>
+  </tr>
+
+  <tr>
+      <td valign="top">Y Axis Max</td>
+      <td valign="top">The maximum coordinate on the y-axis.
+        </td>
+  </tr>
+
+  <tr>
+      <td valign="top">Y Axis SubDivisions</td>
+      <td valign="top">The number of sections that the y-axis is divided into.
+        </td>
+  </tr>
+  </table>
+  </blockquote>
+
+<h2><a name="bar">Bar Properties</a></h2>
+  <blockquote>
+  
+  <p>The following table provides a list of bar properties.</p>
+  <table border="1" cellpadding="1" cellspacing="0" width="550">
+  <tr>
+      <td valign="top"><b> Properties</b></td>
+      <td valign="top"><b>Description</b></td>
+  </tr>
+
+  <tr>
+      <td valign="top">Bar Label</td>
+      <td valign="top">The text label to put on the bar.</td>
+  </tr>
+
+  <tr>
+      <td valign="top">Bar X</td>
+      <td valign="top">The X coordinate of the bar from the left edge.</td>
+  </tr>
+
+  <tr>
+      <td valign="top">Bar Y</td>
+      <td valign="top">The height of the bar.</td>
+  </tr>
+
+  <tr>
+      <td valign="top">Bar Width</td>
+      <td valign="top">The width of the bar in pixels.</td>
+  </tr>
+
+  <tr>
+      <td valign="top">Bar Color</td>
+      <td valign="top">Hex color of the bar. For example: &quot;FFCCOO&quot;</td>
+  </tr>
+
+  <tr> 
+      <td valign="top">Bar State</td>
+      <td valign="top">Specifies whether or not to use a frame in the bar symbol.
+	  <blockquote><p>1 = labeled bars<br>
+	  2 = unlabeled bars</p></blockquote></td>
+  </tr>
+  
+  </table>
+
+
+
+
+</blockquote>
+  
+<h2><a name="size">Resizing the FlashGraph Movie</a></h2>
+
+<blockquote>
+
+<p><strong>To change the size of the flash movie:</strong></p>
+
+<ol>
+  <li>Edit the FLA included in the <code>source</code> folder in your jscomponents download.</li>
+  <li>Export the re-sized movie.</li>
+  <li>Change the <code>width</code> and <code>height</code> attributes in both the <strong>object</strong> and <strong>embed</strong> tags to match the new size of the graphic or movie.</li>
+</ol>
+</blockquote>
+<h2><a name="jstocontrol">Using JavaScript to Control the Flash Movie</a></h2>
+<blockquote>
+<p>The constructors for the <strong>build_x_scale</strong>, <strong>build_y_scale</strong>, and <strong>build_bar</strong> functions are provided below. Examples of how to implement each function are also provided. In the implementation examples, use a &quot;null&quot; string to pass a null parameter.</p>
+</blockquote>
+<h2><a name="buildaxis">Building the X and Y Axis</a></h2>
+<blockquote>
+<p>You can position a bar to match the x-axis coordinate system or side-by-side another bar.</p>
+
+<ul>
+  <li>To position a bar to match the x axis coordinate system, specify the min and max values of the x-axis. When the <strong>min</strong> and <strong>max</strong> values have been specified, the <strong>x</strong> and <strong>width</strong> values of the <strong>build_bar</strong> command match the x-axis coordinate system and the bar is placed accordingly.</li>
+  <li>To position a bar side-by-side another bar, use the <strong>subDivisions</strong> parameter to create a <em>slot</em> for each bar. When the subDivision parameter is specified, the <strong>x</strong> value of the <strong>build_bar</strong> command refers to the index of the slot you want to use. The index value begins at zero.</li>
+</ul>
+
+<p><strong>build_x_scale (label, length, min, max, subDivisions)</strong></p>
+
+<p>Implementation examples:</p>
+<ul>
+  <li>flash_command(&quot;build_x_scale&quot;, &quot;x-axis&quot;, 300, 0, 100, 200)</li>
+  <li>flash_command(&quot;build_x_scale&quot;, &quot;x-axis&quot;, 300, &quot;null&quot;, &quot;null&quot;, 100, 200)</li>
+</ul>
+
+<p><strong>build_y_scale (label, length, min, max, subDivisions)</strong></p>
+
+<p>Implementation examples:</p>
+<ul>
+  <li>flash_command(&quot;build_y_scale&quot;, &quot;y-axis&quot;, 300, 0, 100, 200)</li>
+  <li>flash_command(&quot;build_y_scale&quot;, &quot;y-axis&quot;, 300, &quot;null&quot;, &quot;null&quot;, 100, 200)</li>
+</ul>
+</blockquote>
+<h2><a name="buildbars">Building Bars</a></h2>
+<blockquote>
+<p><strong>build_bar (label, x, y, width, color, state)</strong></p>
+
+<p>Implementation examples:</p>
+<ul>
+  <li>flash_command(&quot;build_bar&quot;, &quot;bar1&quot;, 0, 50, 10, &quot;FFCCOO&quot;, 2)</li>
+  <li>flash_command(&quot;build_bar&quot;, &quot;bar1&quot;, 0, 50, &quot;null&quot;, &quot;FFCCOO&quot;, 2)</li>
+</ul>
+
+</blockquote>
+<hr>
+
+<p><font size="-2">
+ All brand names and product names used in this document are trade
+ names, service marks, trademarks or registered trademarks of their
+ respective owners.
+<br>
+ Copyright &copy; <a href="http://www.KnowNow.com">KnowNow, Inc.</a>
+ All rights reserved.
+<br>
+ Printed in the U.S.A.
+<br>
+ Last updated: July 9, 2001
+</font></p>
+
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!--
+ Copyright (c) 2001 KnowNow, Inc. All rights reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+ -->
+<HTML>
+<HEAD>
+<TITLE>Chart - 1</TITLE>
+
+<script src="/kn/?do_method=lib"></script>
+
+<SCRIPT LANGUAGE="VBScript">
+<!-- 
+//  Catch FS Commands in IE, and pass them to the corresponding JavaScript function.
+
+Sub movie1_FSCommand(ByVal command, ByVal args)
+	call movie1_DoFSCommand (command, args)
+end sub
+
+//-->
+</SCRIPT>
+
+
+<SCRIPT language="JavaScript">
+//----------ARRAY FUNCTIONS ------------
+
+// Array Extensions
+// http://www.dithered.com/javascript/array/index.html
+// code by Chris Nott (chris@dithered.com)
+
+// Join two arrays
+function _Array_concat(secondArray) {
+	var firstArray = this.copy();
+	for (var i = 0; i < secondArray.length; i++) {
+		firstArray[firstArray.length] = secondArray[i];
+	}
+	return firstArray;
+}
+
+// Copy an array
+function _Array_copy() {
+	var copy = new Array();
+	for (var i = 0; i < this.length; i++) {
+		copy[i] = this[i];
+	}
+	return copy;
+}
+
+// Remove the last element of an array and return it
+function _Array_pop() {
+	var lastItem = this[this.length - 1];
+	this.length--;
+	return lastItem;
+}
+
+// Add an element to the end of an array
+function _Array_push() {
+	var currentLength = this.length;
+	for (var i = 0; i < arguments.length; i++) {
+		this[currentLength + i] = arguments[i];
+	}
+	return arguments[arguments.length - 1];
+}
+
+// Remove the first element of an array and return it
+function _Array_shift() {
+	var firstItem = this[0];
+	for (var i = 0; i < this.length - 1; i++) {
+		this[i] = this[i + 1];
+	}
+	this.length--;
+	return firstItem;
+}
+
+// Copy several elements of an array and return them
+function _Array_slice(start, end) {
+	var temp;
+	
+	if (end == null || end == '') end = this.length;
+	
+	// negative arguments measure from the end of the array
+	else if (end < 0) end = this.length + end;
+	if (start < 0) start = this.length + start;
+	
+	// swap limits if they are backwards
+	if (end < start) {
+		temp  = end;
+		end   = start;
+		start = temp;
+	}
+	
+	// copy elements from array to a new array and return the new array
+	var newArray = new Array();
+	for (var i = 0; i < end - start; i++) {
+		newArray[i] = this[start + i];
+	}
+	return newArray;
+}
+
+// Splice out and / or replace several elements of an array and return any deleted elements
+function _Array_splice(start, deleteCount) {
+	if (deleteCount == null || deleteCount == '') deleteCount = this.length - start;
+	
+	// create a temporary copy of the array
+	var tempArray = this.copy();
+	
+	// Copy new elements into array (over-writing old entries)
+	for (var i = start; i < start + arguments.length - 2; i++) {
+		this[i] = arguments[i - start + 2];
+	}
+	
+	// Copy old entries after the end of the splice back into array and return
+	for (var i = start + arguments.length - 2; i < this.length - deleteCount + arguments.length - 2; i++) {
+		this[i] = tempArray[i + deleteCount - arguments.length + 2];
+	}
+	this.length = this.length - deleteCount + (arguments.length - 2);
+	return tempArray.slice(start, start + deleteCount);
+}
+
+// Add an element to the beginning of an array
+function _Array_unshift(the_item) {
+	for (loop = this.length-1 ; loop >= 0; loop--) {
+		this[loop+1] = this[loop];
+	}
+	this[0] = the_item;
+	return this.length;
+}
+
+// For those browsers that don't define these Array methods, make functions Array instance methods
+var agent = navigator.userAgent.toLowerCase(); 
+
+if (Array && !((agent.indexOf('mozilla')!=-1) && (agent.indexOf('spoofer')==-1) && (agent.indexOf('compatible') == -1) && (agent.indexOf('opera')==-1) && (agent.indexOf('webtv')==-1) && parseInt(navigator.appVersion) > 4)) {
+	Array.prototype.pop     = _Array_pop;
+	Array.prototype.push    = _Array_push;
+	Array.prototype.shift   = _Array_shift;
+	Array.prototype.splice  = _Array_splice;
+	Array.prototype.unshift = _Array_unshift;
+	
+	if (agent.indexOf("msie") != -1 && parseInt(navigator.appVersion) < 4) {
+		Array.prototype.concat = _Array_concat;
+		Array.prototype.slice  = _Array_slice;
+	}
+}
+Array.prototype.copy = _Array_copy;
+
+//-----------------------------------------
+
+
+function movie1_DoFSCommand(command, args) {
+	if (command == "ioJS_init_callback") {
+		ioJS_init_callback(args)
+	}
+	if (command == "ioJS_unlock") {
+		ioJS_unlock()
+	}
+}
+
+//initialize JS_Flash environment 
+var moviename ="movie1"
+var flashActions = new Array()
+var flashReady = false
+var delim=""
+
+//flash movie object functions
+function movieobject (moviename) {
+if (navigator.appName.indexOf("Microsoft")!=-1) {
+	return window[moviename]
+	}
+	else {
+	return document[moviename]
+	}
+}
+
+function setVariable() {
+movieobject(moviename).SetVariable(arguments[0],unescape(arguments[1]))
+}
+
+function getVariable() {
+	var tmp=movieobject(moviename).GetVariable(arguments[0])
+	return escape(tmp)
+}
+
+function callFlash() {
+	movieobject(moviename).TCallLabel(arguments[0],arguments[1])
+}
+
+function gotoFrame() {
+	movieobject(moviename).TGotoLabel(arguments[0],arguments[1])
+}
+
+function play() {
+	movieobject(moviename).Play()
+}
+
+//tell the movie it's safe to play
+function init() {
+	gotoFrame("/ioJS","ready")
+}
+
+function ioJS_init_callback(delimArg) {
+	flashReady=true
+
+	delim = delimArg
+
+	// added for example
+	go();
+	subscribeGraph();
+	// end added for example		
+}
+
+function flash_command () {
+	var flashArg= arguments[0]
+	for (var i=1; i < arguments.length; i++ ) {
+		flashArg += delim
+		flashArg += arguments[i] 
+	}
+	flashActions[flashActions.length] = flashArg
+	processFlashQ()
+}
+
+function processFlashQ() {
+	if (flashReady) {
+		flashReady = false
+		setVariable("/ioJS:vars",flashActions.shift())
+		callFlash ("/ioJS","process")
+	}
+}
+
+function ioJS_unlock() {
+	flashReady = true
+	if (flashActions.length > 0) {
+		processFlashQ()
+	}
+}
+
+function go() {
+
+// pre-builds chart for example purposes
+
+//build_x_scale (label, length, min, max, subDivisions)
+
+flash_command("build_x_scale", "x-axis", 150, null, null , 5)
+flash_command("build_y_scale", "y-axis", 150, 0, 100 , 5)
+
+//build_bar (label, x, y, width, color, state)
+flash_command("build_bar", "bar1", 0, 60, null, "00FF00", 1)
+flash_command("build_bar", "bar2", 1, 70, null, "FFCC00", 1)
+flash_command("build_bar", "bar3", 2, 60, null, "00FF00", 1)
+flash_command("build_bar", "bar4", 3, 50, null, "00FF00", 1)
+flash_command("build_bar", "bar5", 4, 40, null, "00FF00", 1)
+
+flash_command("refreshChart")
+
+}
+
+function buildBar (barname,slotnum,formnum) {
+	formfield = eval("document.barForm.height" + formnum + ".value");
+	flash_command("build_bar", barname, slotnum, formfield, null, "FFCC00", 1)
+	flash_command("refreshChart")
+}
+
+/*
+MD_random() 
+This function returns a random integer between two numbers. 
+
+Source: Webmonkey Code Library
+(http://www.hotwired.com/webmonkey/javascript/code_library/)
+
+Author: Michael Daines
+Author Email: mdaines@shaw.wave.ca
+
+Usage: MD_random(number1, number2) returns a random integer between the values specified.
+*/
+
+function MD_random(r1, r2) {
+  if (r2 > r1) return (Math.round(Math.random()*(r2-r1))+r1);
+  else return (Math.round(Math.random()*(r1-r2))+r2);
+}
+
+//---------------------------------
+// commands to KN-enable flash graph
+
+// define the topic that events will be published to
+var topic = "/flashgraph/random";
+
+// this function will publish random events so that 
+// we can read them in and simulate graph activity
+
+var cyclesLeft = 0;
+
+function publishNumber(bar,value) {
+	e = new Object();
+
+	if (!bar && !value) {
+		e.bar = MD_random(1,5);
+		e.kn_payload = MD_random(0,100);
+	} else {
+		e.bar = bar;
+		e.kn_payload = document.forms[0].elements["height"+bar].value;
+	}
+
+	kn.publish(topic,e);
+	
+	if (cyclesLeft > 0) {
+		cyclesLeft = cyclesLeft -1;
+		setTimeout("publishNumber()",500);	
+	}
+}
+
+// subscribe to the topic so we get our dummy data
+function subscribeGraph() {
+	kn.subscribe(topic, handleEvent);
+}
+
+// when we receive an event, do some processing and then
+// change the graph to represent the update
+function handleEvent(e) {
+
+	// this if statement will check the value of the kn_payload
+	// and then change the color of the graph depending on how 
+	// high or low it is. basically, if you have some sort of
+	// monitor app and you want the bars to show state as well as
+	// value, this is how you would do it.
+	
+	barcolor = "00FF00";
+
+	if (parseInt(e.kn_payload) >= 90) {
+		barcolor = "FF0000";
+	} else if (parseInt(e.kn_payload) >= 80) {
+		barcolor = "FFCC00";
+	} else if (parseInt(e.kn_payload) >= 70) {
+		barcolor = "FFFF00";
+	}
+	
+	// now use the flash hooks and tell the graph to draw out the new bar
+	document.forms[0].elements["height"+e.bar].value = e.kn_payload;
+	flash_command("build_bar", "bar"+e.bar, parseInt(e.bar-1), e.kn_payload, null, barcolor, 1)
+	flash_command("refreshChart")
+}
+
+</script>
+</HEAD>
+<BODY bgcolor="#cccccc" onload="init()">
+
+
+<h1>FlashGraph 1.0</h1>
+
+<b>Bar values can be 0-100. Clicking "Update Bar" will update the value of the bar in the Flash Bar Graph below.</b>
+
+<table cellpadding=2 cellspacing=10>
+<form name="barForm">
+
+<tr>
+<td>Bar #1 Height</td>
+<td><input type="text" name="height1" value="60" maxlength=3> <input type="button" onclick="publishNumber(1)" value="Update Bar"></td>
+</tr>
+
+<tr>
+<td>Bar #2 Height</td>
+<td><input type="text" name="height2" value="70" maxlength=3> <input type="button" onclick="publishNumber(2)" value="Update Bar"></td>
+</tr>
+
+<tr>
+<td>Bar #3 Height</td>
+<td><input type="text" name="height3" value="60" maxlength=3> <input type="button" onclick="publishNumber(3)" value="Update Bar"></td>
+</tr>
+
+<tr>
+<td>Bar #4 Height</td>
+<td><input type="text" name="height4" value="50" maxlength=3> <input type="button" onclick="publishNumber(4)" value="Update Bar"></td>
+</tr>
+
+<tr>
+<td>Bar #5 Height</td>
+<td><input type="text" name="height5" value="40" maxlength=3> <input type="button" onclick="publishNumber(5)" value="Update Bar"></td>
+</tr>
+
+</form>
+</table>
+
+
+<form>
+<input type="button" onclick="publishNumber()" value="Publish random event">
+&nbsp;&nbsp;
+<input type="button" onclick="cyclesLeft=4;publishNumber();" value="Publish 5 random events">
+</form>
+
+<table>
+<tr><td>
+<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+codebase="http://active.macromedia.com/flash2/cabs/swflash.cab#version=5,0,41,0"
+ID=movie1 WIDTH=280 HEIGHT=280>
+<PARAM NAME=movie VALUE="../../kn_bargraph.swf"> <PARAM NAME=quality VALUE=high> <PARAM NAME=bgcolor VALUE=#FFFFFF> 
+<EMBED NAME="movie1" src="../../kn_bargraph.swf" SWLiveConnect="true" quality=high bgcolor=#FFFFFF  WIDTH=280 HEIGHT=280 TYPE="application/x-shockwave-flash" PLUGINSPAGE="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash"></EMBED>
+</OBJECT>
+</td><td>
+
+<table cellspacing="7" border="0" cellpadding="0">
+<tr><td>90-100</td><td>Red</td></tr>
+<tr><td>80-89</td><td>Orange</td></tr>
+<tr><td>70-79</td><td>Yellow</td></tr>
+<tr><td>0-69</td><td>Green</td></tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+</BODY>
+</HTML>

@@ -1,0 +1,64 @@
+This is push_manager, the Rickety, Unstable Thttpd Hack.  It's a version
+of the thttpd server with support for direct delivery of events from
+event repositories (.../kn_events) maintained by pubsub.cgi, with the
+kn_journal_log file hack.
+
+The thttpd server itself has been hacked so that URLs which start
+'/magic?' are sent to thttpd event-delivery logic.  (The value of
+$ENV{KN_MAGIC} is 'magic' for scripts running under push_manager).  Note
+that the query-strings of the URLs have a nonstandard format, as given
+above, to make them easy to parse in C code.  (The event-sending logic
+presently ignores any throttles you set, and also doesn't support the
+MIN_WOULDBLOCK_DELAY workaroud for buggy systems which always report
+that O_NDELAY sockets are writable --- SunOS 4.1.x is the only
+documented instance).
+
+This also includes the 'pthttpd' patches, to include an embedded Perl
+interpreter.  See the thttpd.conf.sample to see how this expects to
+be configured --- note that the startup script in this directory has
+been hacked to preload one CGI script at 'cgi-bin/pubsub.cgi' in its
+directory, to eliminate runtime parsing overhead.  This should be made
+more general...
+
+----------------------------------------------------------------
+
+push_manager needs to be told where the kn_event files live in order to
+start up; see thttpd.conf.sample to see what parameters you might want
+to set, and what the values should look like.  (Run as
+
+  "./thttpd -C my_conf_file"
+
+to get it to read a config file).
+
+push_manager is hooked into the Perl code by putting a variation on this:
+
+      if (exists $ENV{KN_MAGIC}) {
+	  my $phony_url =
+	    "http://$ENV{SERVER_NAME}:$ENV{SERVER_PORT}/$ENV{KN_MAGIC}?" .
+	    join ("\01", $src, $callback, $init, $onload, $onerror, $max_age);
+			
+	  print "Location: $phony_url\n\n";
+	  return;
+      }
+
+at the top of route_to_javascript in pubsub.cgi.  You might want to
+vary; the above assumes that the CGI script is being run out of
+push_manager itself, as opposed to, say, running pubsub.cgi under
+Apache/mod_perl, and running push_manager on another port (which, BTW,
+works, and is the fastest thing to do until pubsub.cgi is restructured
+so that the bulk of it can be preloaded).
+
+----------------------------------------------------------------
+
+Most of the new logic is in two new files --- evdispatch.c, which
+contains low-level support for the mechanics of queueing data to be
+sent to a client, and ev_pubsub.c, which contains code to monitor the
+kn_journal_log, and to format event data for delivery.  Each has an
+associated header file, which gives an overview of the exported
+interfaces.
+
+thttpd.c and libhttpd.c have some glue routines added at the end to
+invoke the ev_pubsub routines; also, thttpd.c runs some maintenance
+functions (including event dispatch and sending keepalive bytes) out
+of a timer.
+

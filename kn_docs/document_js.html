@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: document_js.html,v 1.1 2002/11/07 07:09:24 troutgirl Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>document.js Helper Library</title>
+<link type="text/css" rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+
+<h1>document.js Helper Library</h1>
+
+<p>KNDocument (the JavaScript class in document.js) is a workaround for
+several JavaScript problems:</p>
+
+<ul>
+<li>insufficient DOM implementation in Netscape 4.x <i>(Netscape
+doesn't allow the document to be modified after it's finished
+loading.)</i></li>
+
+<li>poor Unicode support in Netscape 4.x <i>(Netscape only recognizes
+Unicode numeric character references when sent <code>content-type:
+text/plain; charset=utf-8</code>.)</i></li>
+
+<li>poor reload and redraw handling <i>(Normally, reloading or [in
+Netscape 4.x] redrawing a dynamically-generated document causes it to be
+reloaded from the last <strong>static</strong> location, or causes
+entities to be erroneously re-interpreted.)</i></li>
+
+<li>history-list pollution <i>(<code>document.open</code> adds an
+entry to the history list.)</i></li>
+
+<li>slow <code>document.write</code> <i>(lots of small writes bring
+a browser to a crawl)</i></li>
+</ul>
+
+<h2>Usage of KNDocument</h2>
+
+<p>KNDocument manages a frame for you, and keeps a string with an
+image of that frame's contents. You clear the image (with the
+<code>open</code> method,) add strings to it (with the
+<code>write</code> and <code>writeln</code> methods,) and flush it
+to the managed frame when you're done (with the <code>close</code>
+method.) In other words, it's a drop-in replacement for most simple
+uses of the JavaScript Document object. To use it, include
+<code>kn_lib/document.js</code> from the <code>kn_apps</code> directory
+right after the PubSub JavaScript Libary:</p>
+
+<pre>
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="content-type" content="text/html; charset=utf-8" /&gt;
+    &lt;script src="../../cgi-bin/kn.cgi?do_method=lib"&gt;&lt;/script&gt;
+    <b>&lt;script src="../kn_lib/document.js"&gt;&lt;/script&gt;</b>
+</pre>
+
+<p>Here's how to create and use a KNDocument:</p>
+
+<pre>
+<i>d</i> = new KNDocument(<var>frame</var>) <i>// constructor (renames</i> frame<i>)</i>
+<i>d</i>.open() <i>// clear the cached document image</i>
+<i>d</i>.write(<i>string</i>) <i>// append to the cached document image</i>
+<i>d</i>.writeln(<i>string</i>) <i>// same, but appends '\n' also</i>
+<i>d</i>.close() <i>// replace the frame and draw the cached document image</i>
+
+<i>// The isReady() method is analogous to IE5's readyState property;
+// the window property is a reference to the managed</i> frame
+if (<i>d</i>.isReady()) <i>d</i>.window.bgColor="maroon"
+</pre>
+
+<h2>Implementation</h2>
+
+<p>KNDocument is actually implemented using <code>kn.cgi</code>'s
+<code>do_method=blank</code>, which contains a call to
+<code>parent.kn_redrawCallback</code>. The actual document strings are
+stored in the global <code>kn</code> object provided by the KnowNow
+library, and are indexed by window name (KNDocument renames the
+frames it manages!) When you use the <code>close</code> method,
+your KNDocument's frame is replaced with the blank page, and when
+the blank page calls <code>parent.kn_redrawCallback</code>, the document
+string is written into the managed frame using a regular
+<code>document.write</code>. Part of the KNDocument implementation
+is now in kn.js, and KNDocument and kn.js communicate through
+the <code>kn.documents</code> table.</p>
+
+<hr />
+
+<p>
+$Id: document_js.html,v 1.1 2002/11/07 07:09:24 troutgirl Exp $</p>
+
+</body>
+</html>

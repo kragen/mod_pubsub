@@ -1,0 +1,23 @@
+# linux.rsslist
+
+# $Id: linux.rsslist,v 1.1 2002/11/07 07:09:28 troutgirl Exp $
+
+# Everybody loves slashdot
+http://slashdot.org/slashdot.rdf                              slashdot.org
+
+# Advogato: a community site for free software developers
+http://www.advogato.org/rss/articles.xml                      advogato.org
+
+# Freshmeat: where new code goes to live
+http://freshmeat.net/backend/fm.rdf                           freshmeat.net
+
+# Linux Weekly News
+http://lwn.net/headlines/rss                                  lwn.net
+
+# Technocrat.net: encouraging techies to be political
+http://technocrat.net/rdf                                     technocrat.net
+
+# Linux Mag
+http://www.linux-mag.com/lm.rss                               linux-mag.com
+
+# End of linux.rsslist

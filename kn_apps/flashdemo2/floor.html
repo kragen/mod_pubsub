@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: floor.html,v 1.1 2002/11/07 07:09:11 troutgirl Exp $
+
+-->
+
+<!--
+
+ To do:
+   - Add some sort of keep-alive
+   - Add some sort of idle timer
+
+ Note: this demo only works on IE 4+ for Windows.
+
+-->
+
+<html>
+<head>
+<title>pubsub floor</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<script><!--
+
+var topic = "/what/apps/robots";
+
+function init(){
+	kn.subscribe(topic, handleEvent, { do_max_age : "infinity" });
+}
+
+var moviename = "testcommand";
+
+function movieobject(moviename){
+
+    //IE and Netscape refer to the movie object differently.
+    //This function returns the appropriate syntax depending on the browser.
+
+    if (navigator.appName.indexOf ("Microsoft") !=-1) {
+        return window[moviename];
+    } else {
+        return document[moviename];
+    }
+}
+
+function set_robot_status(x){
+
+    room_number = document.forms[0].elements[1].value;
+
+    var status = new Object();
+    status.kn_payload = "text message goes here";
+    status.where = room_number;
+
+    // Make sure there's only one message for each user.
+    status.kn_id = kn.userid;
+    kn.publish(topic,status);
+}
+
+function testcommand_DoFSCommand(func,args){
+    alert(args);
+    if (func == "robot_fu"){
+        document.forms[0].elements[1].value = args;
+        set_robot_status();    
+    }
+}
+
+robot_roster = new Array();
+
+function handleEvent(event){
+    show_yourself_robot(event.where,event.userid);
+}
+
+var first = "nope";
+
+function show_yourself_robot(num,name){
+    movieobject(moviename).TSetProperty("/spot" + num,6,100);
+    movieobject(moviename).SetVariable("spot" + num + "_name", name);
+    
+    // Rip through and clear out the old robot location.
+    for (i=0; i < robot_roster.length; i++){
+       if (robot_roster[i] == name){
+          hide_yourself_robot(i);
+          robot_roster[i] = null;
+       }
+    }
+    
+    // Set new robot location.
+    robot_roster[num] = name;
+}
+        
+function hide_yourself_robot(num){
+    movieobject(moviename).TSetProperty("/spot" + num,6,30);
+    movieobject(moviename).SetVariable("spot" + num + "_name", "");
+}
+
+function depart_robot(){
+    // Rip through and clear out the old robot location.
+    for (i=0; i < robot_roster.length; i++){
+        if (robot_roster[i] == kn.userid){
+            hide_yourself_robot(i);
+            robot_roster[i] = null;
+        }
+    }
+}
+
+function set_var(x,y){
+        movieobject(moviename).SetVariable("spot" + document.forms[0].bob.value + "_name", document.forms[0].joe.value);
+}
+
+// -->
+</script>
+
+<script language=VBScript><!-- 
+
+//  Catch FS Commands in IE, and pass them to the corresponding JavaScript function.
+
+Sub testcommand_FSCommand(ByVal command, ByVal args)
+    call testcommand_DoFSCommand(command, args)
+end sub
+
+//-->
+</script>
+
+<meta content="MSHTML 5.00.2920.0" name=generator></head>
+
+<body bgColor=#ffffff onload=init()>
+
+<table>
+<tbody>
+<tr>
+<td>
+
+<object classid=clsid:d27cdb6e-ae6d-11cf-96b8-444553540000 height="600" width="350"
+    codeBase="http://active.macromedia.com/flash3/cabs/" id=testcommand>
+
+<param name="movie" value="in_out2.swf">
+<param name="play" value="false">
+<param name="loop" value="true">
+<param name="quality" value="high">
+<param name="scale" value="showall">
+
+<embed name="testcommand" src="in_out2.swf" width="350" height="600"
+    play="false" loop="true" quality="high" scale="showall" swLiveConnect="true"
+    pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash">
+</embed>
+
+</object>
+
+</td>
+<td>
+
+<form><input onclick=set_robot_status() type=button value="Check me in"> 
+at spot #<input name=spot>
+<!--<input type="button" value="show robot" onclick="hide_yourself_robot()"><br>-->
+<br><br><input onclick=depart_robot() type=button value="Log out"> 
+</form>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: htmlsafe_js.html,v 1.1 2002/11/07 07:09:24 troutgirl Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>htmlsafe.js Helper Library</title>
+<link type="text/css" rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+
+<h1>htmlsafe.js Helper Library</h1>
+
+<h2>Motivation</h2>
+
+<p>We wanted to allow people using the chat client to post little
+snippets of <small>HTML</small>. But we were afraid that allowing
+unrestricted <small>HTML</small> posting would pose threats to
+users: bits of user-posted JavaScript being run inadvertently by
+other users. So we wrote an <small>HTML</small> parser which leaves
+in ``safe'' <small>HTML</small> tags and removes potentially
+dangerous tags.</p>
+
+<h2>Usage synopsis</h2>
+
+<blockquote>
+<pre>
+document.write(
+    entifyUTF16(
+        htmlSanitize(
+            some_possibly_malicious_string_of_HTML_received_over_the_network,
+            1)));
+</pre>
+</blockquote>
+
+<h2>External interfaces</h2>
+
+<h3><code>htmlSanitize(<em>string</em>,
+<em>autohtml</em>)</code></h3>
+
+<p>Given an <small>HTML</small> <code><em>string</em></code>, returns a
+string that can occur in a well-formed and valid <small>XHTML</small>
+document, doesn't contain any active JavaScript, and subject to these
+constraints, is as similar to the original string as possible. The
+optional <code><em>autohtml</em></code> parameter, if true, specifies
+that <small>URL</small>s should be turned into their
+<small>XHTML</small> equivalents.</p>
+
+<h3><code>entifyUTF16(<em>string</em>)</code></h3>
+
+<p>Given a Unicode string in <small>UTF</small>-16 or
+<small>UCS</small>, this returns a string with non-<small>ASCII</small>
+characters represented with <small>SGML</small> numeric character
+entities. The resulting string is strictly <small>ASCII</small>, and so
+it can be passed around safely through any 7-bit clean channel; you
+don't have to worry about what character set it's assumed to be encoded
+in, as long as it's a superset of <small>ASCII</small>. When the string
+is rendereed in a Latin-1-capable browser, the numeric entities for
+Latin-1 characters will be rendered as the correct characters; when
+passed to a Unicode-capable browser, all the numeric entities will be
+rendered as the correct characters.</p>
+
+<h2>Internal definitions</h2>
+
+<h3><code>urlstrings</code></h3>
+
+<p>These are regular expressions used by <code>htmlSanitize</code>
+to recognize <small>URL</small>s in order to automatically turn
+them into links.</p>
+
+<h3><code>tokenize(<em>tokenPatterns</em>,
+<em>string</em>)</code></h3>
+
+<p>This returns an array of ``tokens'' made from a chunk of text.
+<code><em>tokenPatterns</em></code> specifies how to tokenize ---
+it's an array of ^-anchored regular expressions that specify, in
+order of preference, what kinds of things are desired as tokens. It
+breaks chunks off the string using
+<code><em>tokenPatterns</em></code> until the string is all gone;
+then it returns the array of string chunks. We're almost pretending
+that the chunks of text are opaque token objects, and we usually
+use functions like <code>htmlTagName</code> and
+<code>isHtmlOpenTag</code> to examine them.</p>
+
+<p><code>htmlSanitize</code> uses this function to break up its
+input text into ``safe'' <small>HTML</small> tags,
+<small>SGML</small> entities, <small>URL</small>s, and individual
+characters of text, not part of any of the above.</p>
+
+<h3><code>htmlemptytags</code></h3>
+
+<p>This regular expression matches the ``safe'' tags that don't
+have any content, and therefore don't need closing tags, except for
+<code>img</code>.</p>
+
+<h3><code>htmlimgtags</code></h3>
+
+<p>This regular expression matches ``safe'' <code>img</code>
+tags.</p>
+
+<h3><code>entities</code></h3>
+
+<p>This regular expression matches <small>SGML</small>
+entities.</p>
+
+<h3><code>htmltokens</code></h3>
+
+<p>This array of regular expressions gets passed as
+<code><em>tokenPatterns</em></code> to <code>tokenize</code> by
+<code>htmlSanitize</code>; it specifies the kinds of tokens we're
+interested in, including a detailed list of the <small>HTML</small>
+tags considered safe.</p>
+
+<h3><code>htmlTagName(<em>string</em>)</code></h3>
+
+<p>Given an <small>HTML</small> start tag token, this function
+returns the lowercased name of the tag.</p>
+
+<h3><code>isHtmlOpenTag(<em>string</em>)</code></h3>
+
+<p>This function returns true if the token passed to it is an
+<small>HTML</small> open tag.</p>
+
+<h3><code>isHtmlCloseTag(<em>string</em>)</code></h3>
+
+<p>Likewise, but for close tags.</p>
+
+<h3><code>isHtmlCloseLastTag(<em>string</em>)</code></h3>
+
+<p>Likewise, but for <small>SGML</small> empty close tags
+&lt;/&gt;.</p>
+
+<h3><code>htmlOpenTag(<em>tagname</em>)</code></h3>
+
+<p>Returns an <small>HTML</small> open tag with the specified tag
+name. Only useful because JavaScript doesn't have any kind of
+string quasiquotation.</p>
+
+<h3><code>htmlCloseTag(<em>tagname</em>)</code></h3>
+
+<p>Likewise, but for a close tag.</p>
+
+<h3><code>htmlEmptyTag(<em>tagname</em>)</code></h3>
+
+<p>Likewise, but generates an <small>XHTML</small> &lt;empty /&gt;
+tag.</p>
+
+<h3><code>closeElement(<em>stack</em>)</code></h3>
+
+<p>Pops the top tagname off the end of the
+<code><em>stack</em></code> (an Array, with the top of the stack at
+the end) and returns an <small>HTML</small> close tag for it.</p>
+
+<h3><code>findTagInStack(<em>tag</em>, <em>stack</em>)</code></h3>
+
+<p>Given a tagname, searches in the stack for an instance of that
+tag, and returns its index. To comply with <small>HTML</small>
+specifications, &lt;a&gt; elements can't be nested, so whenever
+we're going to generate an &lt;a&gt; start tag, we use this
+function to find any enclosing &lt;a&gt; elements and close
+them.</p>
+
+<hr />
+
+<p>
+$Id: htmlsafe_js.html,v 1.1 2002/11/07 07:09:24 troutgirl Exp $</p>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+#!/usr/bin/perl -w
+use strict;
+require 'sys/syscall.ph';
+use LWP::UserAgent;
+use HTTP::Request::Common "GET", "POST";
+$|=1;
+
+my $TIMEVAL_T = "LL";
+
+sub marktime {
+	my $start = pack($TIMEVAL_T, ());
+	syscall(&SYS_gettimeofday, $start, 0) != -1
+			   or die "gettimeofday: $!";
+	my @start = unpack($TIMEVAL_T, $start);
+	return $start[0] + $start[1] / 1_000_000;
+}
+
+my ($url, $startnum, $speed) = @ARGV;
+
+die "Usage: $0 url startnum speed" unless defined $speed;
+
+my $ua = LWP::UserAgent->new;
+# dummy request to make sure LWP::UserAgent is initialized.
+my $result = $ua->request(GET $url);
+
+my $start = marktime;
+my $nrequests = 0;
+
+for (;;) {
+	$result = $ua->request(POST $url, [ kn_id => $startnum + $nrequests ] );
+	print "sent request " . ($startnum + $nrequests) . "\n";
+	my $now = marktime;
+	$nrequests++;
+	my $wait = ($nrequests / $speed) + $start - $now;
+	if ($wait < 0) {
+		my $problem = -$wait;
+		warn "Fell $problem seconds behind on request $nrequests\n";
+	} else {
+		select(undef, undef, undef, $wait);
+	}
+}

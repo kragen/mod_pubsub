@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: old_index.html,v 1.1 2002/11/07 07:08:50 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub spot market rates -- old user interface</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!-- Note: This application uses sensed data from kn_sense/forex.plx -->
+
+<script><!--
+
+var watchList = new Object();
+watchList["usd"] = 0.0;
+watchList["eur"] = 0.0;
+watchList["jpy"] = 0.0;
+watchList["gbp"] = 0.0;
+
+function init() {
+  last_update = new Date();
+  setInterval("update_clock()", 750);
+  for (var i in watchList) {
+    for (var j in watchList) {
+      var topic = "/what/currencies/" + i + "/rate/" + j + "/spot";
+      kn_subscribe(topic , update_rate, { do_max_n: 1 } );
+    }
+  }
+}
+
+function find_ele(name) {
+    for (var i=0; i < document.all.length; i++) {
+        n = document.all[i].name;
+        if (n && (n == name)) {
+	    return document.all[i];
+        }
+    }
+    return void null;
+}
+
+window.seq = 0;
+
+var last_update;
+
+function update_clock() {
+  var now = new Date();
+
+  document.getElementById("lastupdate").innerHTML =
+    $_("%{0}; last trade %{1} seconds ago.",
+       kn_htmlEscape(now.toLocaleString()),
+       Math.round((now - last_update) / 1000).toString().substring(0, 8));
+}
+
+function update_rate(e) {
+  last_update = new Date();
+  var tloc = e.fromcurr + "-" + e.tocurr;
+  var cur = find_ele(tloc);
+  if (cur) {
+    var num = parseFloat(e.kn_payload).toString().substring(0, 8);
+        if (! cur.id) cur.id = "bold_" + ++window.seq;
+        var s = "document.all." + cur.id;
+        if (cur.timer) {
+          window.clearTimeout(cur.timer);
+        }
+        cur.timer = window.setTimeout(
+                     s +
+                     ".timer=null;" + s +
+                     ".innerHTML=kn_unescape('" +
+                     kn_htmlEscape(num) +
+                     "')",
+	               1500
+                  );
+        cur.innerHTML =
+	  "<font color=blue>" +
+	  kn_htmlEscape(num) +
+	  "</font>";
+  }
+  watchList[tloc] = e.kn_payload;
+}
+
+// -->
+</script>
+</head>
+<body onload='init()'>
+<center>
+<h1><font face="Verdana" size="-1">Foreign Exchange Rates on the Spot Market</font></h1>
+<table border=0 cellpadding=1 cellspacing=0 bgcolor=#999999><tr><td>
+<table border=0 cellspacing=0 cellpadding=0 bgcolor=white width=100%>
+<tr><td bgcolor=#ffffff>
+<table width="100%" bgcolor="white" cellpadding=0 cellspacing=1>
+<tr>
+  <td bgcolor="#eeeeee">&nbsp;</td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<img alt="" src="usd.gif">&nbsp;USD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<img alt="" src="eur.gif">&nbsp;EUR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<img alt="" src="jpy.gif">&nbsp;JPY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<img alt="" src="gbp.gif">&nbsp;GBP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></td>
+</tr>
+
+<tr>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<img alt="USD" src="usd.gif">&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<font color="#999999">1</font>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="U.S. Dollar-Euro"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="U.S. Dollar-Japanese Yen"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="U.S. Dollar-British Pound"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>  
+</tr>
+
+<tr>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<img alt="EUR" src="eur.gif">&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="Euro-U.S. Dollar"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<font color="#999999">1</font>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="Euro-Japanese Yen"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="Euro-British Pound"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>  
+</tr>
+
+<tr>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<img alt="JPY" src="jpy.gif">&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="Japanese Yen-U.S. Dollar"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="Japanese Yen-Euro"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<font color="#999999">1</font>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="Japanese Yen-British Pound"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>  
+</tr>
+
+<tr>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<img alt="GBP" src="gbp.gif">&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="British Pound-U.S. Dollar"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="British Pound-Euro"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<span name="British Pound-Japanese Yen"><font color="#999999">-</font></span>&nbsp;&nbsp;</font></td>
+  <td bgcolor="#eeeeee"><font face="Verdana" size="-1">&nbsp;&nbsp;<font color="#999999">1</font>&nbsp;&nbsp;</font></td>  
+</tr>
+
+</table>
+</td></tr></table>
+<font face="Verdana" color=white size="1">&nbsp;&nbsp;<i><span id="lastupdate"></span></i></font><br></td>
+</tr>
+</table>
+</body>
+</html>
+
+
+

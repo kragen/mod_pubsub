@@ -1,0 +1,75 @@
+This distribution contains a set of files that add publish-and-subscribe
+to the web for users of Perl, Python, JavaScript, and web pages.
+
+This is an early snapshot that includes the PubSub server as Perl CGI
+scripts that are called from Apache (or run inside mod_perl in Apache),
+a reference Python standalone pubsub server that uses the same PubSub
+Protocol, a push_manager that helps with additional connection pooling,
+and many sample apps in various states of usability.  (Perl works,
+Python is somewhat broken, push_manager needs a lot of work, and the
+apps are all in different states of needing work.)
+
+Please have a look at the file INSTALL for installation instructions for
+the current Perl PubSub server.
+
+We plan to subsume the best of the Perl and Python servers into an
+Apache module, mod_pubsub.  Other plans are in the TODO file.
+
+KnowNow is making this code freely available, to encourage adoption and
+unfettered experimentation.  The Apache-based license is available in
+the LICENSE file; its purpose is to indemnify KnowNow of legal liability
+while promoting free use of this set of code, tools, and documentation.
+Enjoy!
+
+  -- Adam Rifkin, November 5, 2002
+
+
+-------
+Credits
+-------
+
+A hearty thank-you goes out to all KnowNow employees and contractors
+who wrote the code and documentation that has been included in this
+distribution.
+
+In the kn_apps directory, jscomponents is version 1.5.10 of KnowNow's
+JavaScript Components libraries, released in January 2002.  We found
+these on http://developer.knownow.com/ and since they use the KnowNow
+license we're including them with this distribution.
+
+Jef Poskanzer's excellent thttpd is used for the push_manager; these
+parts are copyright <A9> 1995,1998,1999,2000 by Jef Poskanzer
+<jef@acme.com>, distributed under a separate license.  See the file
+LICENSE in the push_manager directory for full details.
+
+Michael Houghton's nice 'xml for <SCRIPT>' JavaScript XML parser in
+kn_apps/KN/xmljs is distributed under a separate license.  See the
+file LICENSE in that directory for full details.
+
+Kudos to Scott Thomason for the RSSLite.pm we use in our RSS sensor
+in the kn_sense/rss directory.
+
+Many thanks go to Dave Winer who showed us many of the RSS feeds we
+use in the kn_sense/rss directory.
+
+We also thank Dieter Bungers for the table widget we use in the
+kn_apps/rsstable application.
+
+StockSoap uses an xmethods.com SOAP service.  Thanks, xmethods!
+
+In the python_pubsub directory, the following files are distributed
+under the same license as Python: asyncore.py, cgi.py, cgitb.py,
+inspect.py, pydoc.py . Refer to the file LICENSE in the Python source
+distribution (http://www.python.org/) for details.  Note that we made
+some minor modifications to these files to support pubsub.py .  It is
+our goal to get pubsub.py working out-of-the-box with a Python release
+without using the modified versions of these files.
+
+Regarding that python_pubsub directory, we thank the many authors who
+have contributed to the files included in that distribution, including
+but not limited to Sam Rushing, Ka-Ping Yee, Guido van Rossum, Michael
+McLay, Steve Majewski, Andreas Paepcke, Greg Burd, and Kragen Sitaker.
+
+If this distribution gets far, it is because we are standing on the
+shoulders of the giants who came before us.  Thank you all.
+

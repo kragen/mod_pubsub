@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>KN ActivePanels</title>
+<link type="text/css" rel="stylesheet" href="doc_style.css" />
+</head>
+
+<body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
+
+<p><img src="images/logo.gif"></p>
+
+
+<h1>KN ActivePanels</h1>
+
+<hr>
+
+<p>This document covers the following topics:</p>
+<blockquote>
+<ul>
+  <li><a href="#Overview">Overview</a></li>
+  <li><a href="#Installing">Installing KN ActivePanels</a></li>
+  <li><a href="#Configuring">Configuring KN ActivePanels</a></li>
+  <li><a href="#Creating">Creating ActivePanels</a></li>
+  <li><a href="#Working">Working With ActivePanels</a></li>
+</ul>
+</blockquote>
+
+<hr>
+
+<h2><a name="Overview"></a>Overview</h2>
+<blockquote>
+
+<p>KN ActivePanels is a component that allows you to create dynamic content areas in a webpage that can be updated in realtime. Features include:</p>
+<ul>
+<li>no requirement for extra HTML or CSS needs to be written</li>
+<li>support for Netscape 4 and Internet Explorer 5 (Win 32)</li>
+<li>usable anywhere in your page layout</li>
+<li>your dynamic content is read/write capable</li>
+<li>solves the problem of dynamic content in Netscape 4</li>
+</ul>
+<p>ActivePanels are completely JavaScript-based and do not require any special components or plug-ins on the client.</p>
+</blockquote>
+	 
+<h2><a name="Installing"></a>Installing KN ActivePanels</h2>
+<blockquote>
+<p>You must have the KnowNow Event Router and KnowNow JavaScript Microserver installed prior to installing KN ActivePanels. If you do not have them installed, download them from <a href="http://developer.knownow.com">developer.knownow.com</a>.</p>
+
+<p><b>To install KN ActivePanels:</b></p>
+
+<p>1) Include a &lt;SCRIPT&gt; tag to include the kn_activepanels.js file in the header of your HTML document:</p>
+
+<xmp>
+<script type="text/javascript" src="kn_activepanels.js"></script>
+</xmp>
+
+<p>2) Place the accompanying <code>blank.html</code> file in the same directory that contains the HTML file to which you're adding KN ActivePanels.  This page is specifically for Netscape 4 support.</p>
+
+</blockquote>
+
+<h2><a name="Configuring"></a>Configuring KN ActivePanels</h2>  
+<blockquote>
+
+<p>Configuring KN ActivePanels is a two-step process.  The first step is to generate the HTML used to create a KN ActivePanel, using the <code>ActivePanel.create()</code> method.  The second step is to initialize the ActivePanel objects.</p>
+
+<h2><a name="Creating">Creating an ActivePanel</a></h2>
+<blockquote>
+
+<p>The following steps outline how to create an ActivePanel in a webpage.</p>
+<h3>Generate the ActivePanel HTML</h3>
+<p><code>ActivePanel.create()</code> is a static method that generates the necessary HTML and CSS to create the visible ActivePanel components.  After you use <code>ActivePanel.create()</code>, you need to initalize the components by creating new <code>ActivePanel</code> JavaScript objects to control them.</p>
+<p><strong>To create an ActivePanel:</strong></p>
+<ol>
+<li>Determine the location and dimensions of the ActivePanel within the webpage. Note that the ActivePanel can be located within a table, a line of text, etc.</li>
+<li>Place a &lt;SCRIPT&gt; tag at the place in the webpage where you want the ActivePanel located.</li>
+<li>Within the &lt;SCRIPT&gt; tag, call the <code>ActivePanel.create()</code> method to define the appearance of the ActivePanel, with the following parameters:
+<pre>
+ActivePanel.create(String ID, Int width, Int height [, String color]);
+</pre>
+<p>where:</p>
+<p><code>ID</code> is a string ID that uniquely identifies this ActivePanel<br>
+<code>width</code> is the width of the ActivePanel in pixels<br>
+<code>height</code> is the height of the ActivePanel in pixels<br>
+<code>color</code> (optional) is the background color of the ActivePanel
+</p>
+<p>For example:</p>
+
+<pre>
+&lt;script&gt;ActivePanel.create("panelOne", 200, 100, "red");&lt;/script&gt;
+</pre>
+
+</li>
+<li>Repeat the steps above for each ActivePanel you want to create.</li>
+</ol>
+
+<h3>Initializing your ActivePanels</h3>
+<p>Now that you've created the HTML for the ActivePanels, you need to initialize them by assigning new ActivePanel JavaScript objects to control them.</p>
+<p><strong>To initialize the ActivePanel:</strong></p>
+<ol>
+<li>Create an empty JavaScript function called <code>initActivePanels</code> (or whatever you like).</li>
+<li>Within this function, create a new <code>ActivePanel</code> JavaScript object for each ActivePanel. Pass the ID you declared in <code>ActivePanel.create()</code> to the <code>ActivePanel</code> constructor function.</li>
+<p>For example:</p>
+<pre>
+function initActivePanels(){
+   var myActivePanel = new ActivePanel("panelOne");
+}
+</pre>
+<p>Note: The IDs passed to the ActivePanel must match the IDs you assigned in <code>ActivePanel.create()</code> or an error will occur.</p>
+<li>Execute the <code>initActivePanels</code> function from the <code>onload</code> event handler of the document.</li>
+</ol>
+</blockquote>
+
+<h2><a name="Working">Working with ActivePanels</a></h2>
+<blockquote>
+
+<p>KN ActivePanel provides several methods which allow you to dynamically update ActivePanel content. They are:</p>
+<ul>
+<li><code>write(String html)</code></li>
+<li><code>update()</code></li>
+<li><code>clear()</code></li>
+<li><code>getHTML()</code></li>
+</ul>
+<dl>
+<dt><code>write(String html)</code></dt>
+<dd>appends a string of HTML or text to the ActivePanel content. The string is not immediately displayed; instead, it is stored until the <code>update()</code> method is called.</dd>
+<dt><code>update()</code></dt>
+<dd>updates the display of new content in the ActivePanel.
+For example:</dd>
+<pre>
+function initActivePanels(){
+  var myActivePanel = new ActivePanel("panelOne");
+  var msg = "This panel is live!"'
+  myActivePanel.write(msg);
+  myActivePanel.update();
+}
+</pre>
+
+<dt><code>clear()</code></dt>
+<dd>erases the stored content of the ActivePanel. This action does not "blank" the ActivePanel; to do that, you must call the <code>update()</code> method after calling <code>clear()</code>.</dd>
+<dt><code>getHTML()</code></dt>
+<dd>returns a string containing the HTML content of the ActivePanel. You can use this to examine the content. For example:</dd>
+<pre>
+var content = myActivePanel.getHTML();
+alert(content);
+</dl>
+</pre>
+
+<h3>Suggested Usage</h3>
+<p>You can use KN ActivePanels to update areas of a webpage with data from a KnowNow Event Router subscription without relying on frames or browser-specific functionality. Since an ActivePanel accepts a string of HTML, the data can be preformatted with tables or style information before being displayed.</p>
+
+<p>The following example uses KN ActivePanels to update the cells inside an HTML table.  A KN ActivePanel is placed within each table cell and initialized in the <code>onload</code> event. The content is updated by publishing the content of the text box as a KN event to a KN topic to which the page is subscribed.  The callback function <code>updateActivePanel</code> is used to receive the event and pass the text of the kn_payload of the event to the <code>write()</code> method of the proper ActivePanel object.</p>
+
+<xmp>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>KN ActivePanels Demo</title>
+  <script type="text/javascript" src="/kn/?do_method=lib"></script>
+  <script type="text/javascript" src="kn_activepanels.js"></script>
+  
+  <script type="text/javascript">
+  
+  function init(){
+    ActivePanel1 = new ActivePanel("one");
+    ActivePanel2 = new ActivePanel("two");
+    ActivePanel3 = new ActivePanel("three");
+    ActivePanel4 = new ActivePanel("four");
+    
+    kn.subscribe("/what/tests/activepanel",updateActivePanel);
+  
+  }
+  
+  onload = init;
+  
+  function writeNewContent(){
+    var newcontent = document.forms[0].elements["content"].value;
+    document.forms[0].elements["content"].value = "";
+    var f = document.forms[0].elements["ActivePanels"]
+    var LP = f.options[f.selectedIndex].value;
+    var evt = {};
+    evt.kn_payload = newcontent;
+    evt.LP = LP
+    kn.publish("/what/tests/activepanel",evt);
+  }
+  
+  function updateActivePanel(evt){
+    var LPObj =  eval(evt.LP);
+    LPObj.clear();
+    LPObj.write(evt.kn_payload);
+    LPObj.update();
+  }
+  
+  </script>
+  <style>
+  body {
+    font-family:verdana;
+    font-size:12px;
+  }
+  textarea {
+    font-family:courier, monospace;
+  }
+  </style>
+  
+</head>
+
+<body>
+<table border="1">
+<tr>
+<td><script>ActivePanel.create("one",150,100,"#33ff99");</script></td>
+<td><script>ActivePanel.create("two",150,100,"#ff9999");</script></td>
+</tr>
+<tr>
+<td><script>ActivePanel.create("three",150,100,"#ccffff");</script></td>
+<td><script>ActivePanel.create("four",150,100,"#cc99ff");</script></td>
+</tr>
+</table>
+
+<form action="#">
+<p>Select A ActivePanel to update: <select name="ActivePanels">
+  <option value="ActivePanel1" SELECTED>Green</option>
+  <option value="ActivePanel2">Pink</option>
+  <option value="ActivePanel3">Blue</option>
+  <option value="ActivePanel4">Purple</option>
+</select></p>
+<p>Enter new HTML content to update the ActivePanel with:</p>
+<p><textarea name="content" cols="20" rows="10"></textarea></p>
+<p><input type="button" value="Update ActivePanel" onclick="writeNewContent();"></p>
+
+</form>
+
+
+</body>
+</html>
+
+</xmp>
+
+<hr>
+<p><font size="-2">
+ All brand names and product names used in this document are trade
+ names, service marks, trademarks or registered trademarks of their
+ respective owners.
+<br>
+ Copyright &copy; <a href="http://www.knownow.com">KnowNow, Inc.</a>
+ All rights reserved.
+<br>
+ Printed in the U.S.A.
+<br>
+ Last updated: July 18, 2001
+</font></p>
+
+</body>
+</html>
+

@@ -1,0 +1,744 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: developer_guide.html,v 1.1 2002/11/07 07:09:24 troutgirl Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PubSub Developer Guide</title>
+<link type="text/css" rel="stylesheet" href="style.css" />
+</head>
+<body>
+<h1>PubSub Developer Guide</h1>
+
+<p class="subhead">How to write live web apps with mod_pubsub</p>
+
+<h2><a id="1" name="1">1. Summary</a></h2>
+
+<p>Using mod_pubsub with existing web tools and browsers, web pages can
+now respond to incoming events from the network - in real-time; with
+plain text, HTML, XML, and/or SOAP; and without relying on Java or
+ActiveX. It works with Mozilla, Netscape, and Microsoft browsers.</p>
+
+<h2><a id="2" name="2">2. Overview</a></h2>
+
+<p>The ability for people to exchange information is at the heart of the
+World Wide Web, but this exchange has always been one-sided -- the
+browser asks the server for the information. With mod_pubsub, the
+browser can receive information without continually asking the web
+server for the information. Instead, the server notifies the browser
+when new information becomes available.</p>
+
+<h3><a id="2.1" name="2.1">2.1. What can I do with this?</a></h3>
+
+<p>By writing pages that receive messages you can make your pages
+come to life. You decide what messages to receive, what messages to
+send, and even what a message looks like. Your page can listen to
+chat messages and display them in the browser. You can create pages
+that monitor the status of remote services. Writing a stock ticker
+that is fed live updates becomes trivial - if you can write HTML,
+you can write this.</p>
+
+<h3><a id="2.2" name="2.2">2.2. How do I use it?</a></h3>
+
+<p>mod_pubsub contains a <a href="javascript_reference.html">PubSub
+JavaScript Library</a>. To use it, you include this library near the
+beginning of your DHTML page.  With the toolkit you can subscribe to
+topics and publish messages to topics. Subscribing is like listening -
+when a message occurs on a topic, your page will hear it.</p>
+
+<p>The three main functions in the PubSub JavaScript Library are:</p>
+
+<dl>
+<dt><code>kn_subscribe</code></dt>
+
+<dd>specify the topic to listen to and a JavaScript function that
+is called when a message occurs on the topic.</dd>
+
+<dt><code>kn_unsubscribe</code></dt>
+
+<dd>specify which subscription to stop listening to.</dd>
+
+<dt><code>kn_publish</code></dt>
+
+<dd>specify a topic and a message. The mod_pubsub system delivers the
+message to all subscribers, in their browsers, anywhere on the planet,
+in real time.</dd> </dl>
+
+<p>See section <a href="#3.2">3.2</a> for more details</p>
+
+<h3><a id="2.3" name="2.3">2.3. What does the code look
+like?</a></h3>
+
+<p>Here is a sample of code that listens for messages on a specific
+topic:</p>
+
+<blockquote>
+<pre>
+&lt;script type="text/javascript"&gt;&lt;!--
+
+topic = "/foo/bar";
+kn_subscribe(topic,onMessage);
+
+function onMessage(event)
+{
+    alert(event.kn_payload);
+}
+
+// --&gt;
+&lt;/script&gt;
+</pre>
+</blockquote>
+
+<p>See section <a href="#3.3">3.3</a> for examples using SOAP.</p>
+
+<h3><a id="2.4" name="2.4">2.4. Are there any samples?</a></h3>
+
+<p>This distribution provides several sample applications.</p>
+
+<h3><a id="2.5" name="2.5">2.5. What if I don't want to use a
+browser?</a></h3>
+
+<p>The mod_pubsub system is accessed via HTTP. Everything that can be
+done from within a Web browser can be done with software that sends and
+receives HTTP messages. See the <a href="pubsub_protocol.html">PubSub
+Protocol</a> document for details.</p>
+
+<h2><a id="3" name="3">3. Details</a></h2>
+
+<p>The mod_pubsub system consists of a client and a server. The client
+is an extension of a standard Web browser and is implemented as a
+JavaScript library. The server is an extension of a standard Web
+server and is implemented in the Perl programming language. See <a
+href="http://httpd.apache.org/">http://httpd.apache.org/</a> for
+information on Apache, a freely available Web server capable of
+hosting mod_pubsub; see <a
+href="http://language.perl.com/">http://language.perl.com/</a> for
+more information on Perl.</p>
+
+<p>In order to use the system, both the client and the server must
+be hosted within the same domain. The Perl programming language was
+chosen as the initial language for the server because it is
+supported by many site hosting services. Perl is freely available,
+easy to install and works with all the major Web servers.</p>
+
+<p>Sites that use mod_pubsub can publish to and subscribe to other
+mod_pubsub instances, creating a constellation of servers that route
+messages to all subscribers. If one were so inclined, one could host a
+central site for exchanging messages and subscribing to common topics
+such as RSS based news and stock feeds.</p>
+
+<h3><a id="3.1" name="3.1">3.1. Topics and Events</a></h3>
+
+<p>mod_pubsub creates a system of <em>topics</em>, <em>events</em> and
+<em>routes</em>. Topics contain events and routes. Events are sent to a
+topic and the topic will forward that event along all of its routes. A
+route can point to another topic or to a generic <em>listener</em>.</p>
+
+<p>A topic is identified by a Uniform Resource Identifier - for
+example: <samp>/chat/technology/xml</samp>. To avoid name
+conflicts, the topic name should start with your domain name - for
+example: <samp>/tempuri.org/chat/technology/xml</samp>. A topic
+name may contain only roman letters
+(<code>U+0041</code>-<code>U+005A</code> and
+<code>U+0061</code>-<code>U+007A</code>,) digits
+(<code>U+0030</code>-<code>U+0039</code>,) slashes
+(<code>U+002F</code>,) underscores (<code>U+005F</code>,) dashes
+(<code>U+002D</code>,) periods (<code>U+002E</code>,) and non-ASCII
+characters (<code>U+0080</code>-<code>U+10FFFF</code>) however,
+periods cannot appear at the beginning or end of any
+slash-separated part of a topic name.</p>
+
+<p>(To do: topic naming constraints should be updated to conform to the
+<a href="http://www.w3.org/TR/charmod/">Character Model for the World
+Wide Web 1.0</a>.)</p>
+
+<h3><a id="3.2" name="3.2">3.2. Using the PubSub JavaScript Library</a></h3>
+
+<p>mod_pubsub provides a set of JavaScript libraries that can be
+included in DHTML pages. These files make available a set of objects and
+functions that you use to subscribe, unsubscribe and send events. In
+addition, these scripts have support for identifying the current
+user. Getting the current user's identity requires both that the
+mod_pubsub instance is hosted on a password protected site and
+that the JavaScript files are generated by mod_pubsub. All this can be
+done with a single <code>&lt;script&gt;</code> tag which points to the
+mod_pubsub instance:</p>
+
+<pre>
+&lt;script type="text/javascript" src="../../cgi-bin/pubsub.cgi?do_method=lib"&gt;&lt;/script&gt;
+</pre>
+
+<p>The location of the pubsub.cgi file needs to be adjusted to match
+the location on your server.</p>
+
+<h3><a id="3.3" name="3.3">3.3. JavaScript API Overview</a></h3>
+
+<p>There are several functions provided by the library. See <a
+href="javascript_reference.html">the library
+reference</a> for full details.</p>
+
+<dl>
+<dt><code>kn_subscribe</code></dt>
+
+<dd>begin listening</dd>
+
+<dt><code>kn_publish</code></dt>
+
+<dd>send a message</dd>
+
+<dt><code>kn_unsubscribe</code></dt>
+
+<dd>stop listening</dd>
+
+<dt><code>kn_publishAsSoap</code></dt>
+
+<dd>send a SOAP message</dd>
+</dl>
+
+<h4><a id="3.3.1" name="3.3.1">3.3.1 kn_subscribe</a></h4>
+
+<p>The kn_subscribe function creates a route between a topic and
+your Web page, between two topics on the server or between a topic
+on the server and a different server.</p>
+
+<h5>Syntax</h5>
+
+<p><code>function kn_subscribe(from, to [, options [,
+handler]])</code></p>
+
+<dl>
+<dt><var>from</var></dt>
+
+<dd>the topic to listen to. For example: <samp>/what/chat</samp>.
+See <a href="#3.1">section 3.1</a> for a discussion of topic
+naming.</dd>
+
+<dt><var>to</var></dt>
+
+<dd>The destination listener. The type of the parameter determines
+its meaning: 
+
+<dl>
+<dt>string</dt>
+
+<dd>A url that represents the topic that receives messages. The url
+can be relative to the server, or can be absolute and point to
+another server. For example, "/chat/hobbies/sailing" identifies a
+topic on the same server, and
+"<samp>http://www.other.com/cgi-bin/pubsub.cgi/topicname</samp>"
+identifies a topic on another server.</dd>
+
+<dt>function</dt>
+
+<dd>name of function in the Web page that receives messages.</dd>
+
+<dt>object</dt>
+
+<dd>object in the Web page that receives messages via its onMessage
+method.</dd>
+</dl>
+</dd>
+
+<dt>options</dt>
+
+<dd>Optional. Extra options for the subscription. This is a
+JavaScript object whose properties are the extra options. Valid
+options are: 
+
+<dl>
+<dt><code>do_max_age</code></dt>
+
+<dd>Requests the delivery of events that have occurred in the past
+and are younger than the specified max age in seconds. Also,
+"<samp>infinity</samp>" can be used to specify all previous events.
+If not specified, only events that occur after the subscription is
+established will be delivered. For example, to receive events that
+have occurred in the past five minutes, use
+"<samp>300</samp>".</dd>
+
+<dt><code>do_max_n</code></dt>
+
+<dd>Maximum number of recent events to be delivered. These events,
+and all future events, will be delivered to the specified
+destination. Default is 0</dd>
+
+<dt><code>kn_id</code></dt>
+
+<dd>Optional. ID of the route. This can be used to change options
+of an existing subscription. If a subscription is changed, events
+might be re-sent based on the value of do_max_age. If a
+subscription is changed, the 'from' parameter must match the
+original subscription. The id should be a globally unique id. If
+not specified, the server will generate a unique id.</dd>
+</dl>
+</dd>
+
+<dt>handler</dt>
+
+<dd>
+<p>An optional event-handler object; use it to be notified when the
+subscription completes (either successfully, implying that any
+archived events you requested have been delivered, or with an
+error.)</p>
+
+<p>A simple handler object might be <code>{ onError: function(e) {
+alert("Error on subscription: " + e.kn_payload) } }</code>.</p>
+</dd>
+</dl>
+
+<h5>Return value</h5>
+
+<p>The route location for the subscription. See kn_unsubscribe. The
+route location is a text string generated by mod_pubsub that combines
+the source topic and the id of the route. For example:
+"<samp>/chat/kn_routes/46165443</samp>".</p>
+
+<h5>Notes</h5>
+
+<p>The PubSub JavaScript Library will call the specified function or
+object when a message occurs on the specified topic. The function will
+be passed in one parameter - the event object. When using kn_subscribe
+with an object, the "onMessage" method will be called by the mod_pubsub
+system and will be passed one parameter - the event.</p>
+
+<p>When the kn_subscribe function is used to establish a route between
+two topics on the server, there are additional options available - see
+the <a href="pubsub_protocol.html">PubSub Protocol</a> document.</p>
+
+<h5>Example</h5>
+
+<p><samp>kn_subscribe("/chat",onChatMessage,{ do_max_age : 300
+});</samp></p>
+
+<h4><a id="3.3.2" name="3.3.2">3.3.2 kn_unsubscribe</a></h4>
+
+<p>The kn_unsubscribe function is used to stop listening to events.
+This is used for both messages being sent to a Web page as well as
+messages being sent between topics on the server.</p>
+
+<h5>Syntax</h5>
+
+<p><code>function kn_unsubscribe(route)</code></p>
+
+<dl>
+<dt>route</dt>
+
+<dd>The route URI returned from kn_subscribe.</dd>
+</dl>
+
+<h5>Return Value</h5>
+
+<p>None</p>
+
+<h5>Example</h5>
+
+<blockquote>
+<pre>
+var route;
+
+route = kn_subscribe("/chat", onChatMessage);
+// route == "/chat/kn_routes/46165443"
+kn_unsubscribe(route);
+</pre>
+</blockquote>
+
+<h4><a id="3.3.3" name="3.3.3">3.3.3 kn_publish</a></h4>
+
+<p>The kn_publish function is used to send a message to a topic,
+and hence to all interested subscribers. The subscribers might be
+in the same Web page, in other Web pages, on the same server, or on
+other servers.</p>
+
+<h5>Syntax</h5>
+
+<p><code>function kn_publish(<var>topic</var>,
+<var>event</var>)</code></p>
+
+<dl>
+<dt><var>topic</var></dt>
+
+<dd>The destination topic. For example: "<samp>/chat</samp>".</dd>
+
+<dt><var>event</var></dt>
+
+<dd>The event object to publish. Properties of the event are: 
+
+<dl>
+<dt>kn_payload</dt>
+
+<dd>text string to send.</dd>
+
+<dt>kn_id</dt>
+
+<dd>globally unique identifier of the event. Optional. If not
+specified, the server will generate a unique id. An event can be
+modified by re-publishing an event with the same id. An event can
+be removed by re-publishing an event with the same id and an empty
+payload.</dd>
+
+<dt>kn_expires</dt>
+
+<dd>The time at which the event expires and is removed from the
+system. Specified as the number of seconds since Thu Jan 1 00:00:00
+1970 UTC (default: event creation time, e.g. <samp>979273892</samp>
+for an event created at Fri Jan 12 04:31:32 2001 UTC). Use "+nnn"
+format to specify a time in seconds relative to when the server
+initially receives the message.</dd>
+
+<dt><i>other</i></dt>
+
+<dd>Custom value.</dd>
+</dl>
+</dd>
+</dl>
+
+<h5>Return Value</h5>
+
+<p><code>kn_id</code> of the event.</p>
+
+<h5>Notes</h5>
+
+<p>The event object represents a message that is sent to all
+listeners. All properties of <var>event</var> represent elements of
+the message. We recommend that elements follow the naming and
+meaning of HTTP headers when appropriate, using
+<code>kn_payload</code> for message bodies. For example, a property
+named "<code>content-type</code>" whose value is
+"<samp>text/plain</samp>" would indicate to a receiver that the
+<code>kn_payload</code> property is a text string.</p>
+
+<p>However, since element names are case-sensitive, we recommend using
+lowercase equivalents of the analogous HTTP header names.</p>
+
+<p>Each event property has a name and a value. Both are strings.
+While the names of event properties are most convenient to use when
+they consist of lower-case letters, numbers, and underscores, they
+may include any Unicode character. The values of event properties
+are similarly unrestricted.</p>
+
+<p>Event property names beginning with '<samp>kn_</samp>' are reserved
+for future use by the PubSub Protocol. In addition, the name
+'<code>do_method</code>' is reserved for mod_pubsub commands.</p>
+
+<h4><a id="3.3.4" name="3.3.4">3.3.4 kn_publishAsSoap</a></h4>
+
+<p>The <code>kn_publishAsSoap</code> function, provided by the <a
+href="libdocs/kn_xml.js.html">kn_xml.js</a> library, sends
+a JavaScript object as a SOAP message.</p>
+
+<p>See section <a href="#3.5">3.5</a></p>
+
+<h5>Syntax</h5>
+
+<p><code>function kn_publishAsSoap(<var>topic</var>,
+<var>name</var>, <var>object</var> [,
+<var>elements</var>])</code></p>
+
+<dl>
+<dt><var>topic</var></dt>
+
+<dd>The destination topic. For example: "<samp>/chat</samp>".</dd>
+
+<dt><var>name</var></dt>
+
+<dd>The name of the object. This is used as the name of the only
+element inside the SOAP Body tag.</dd>
+
+<dt><var>object</var></dt>
+
+<dd>The object to send.</dd>
+
+<dt><var>elements</var></dt>
+
+<dd>Extra elements to be sent with the message. These elements are
+required for a SOAP message to be properly routed to a SOAP server.
+See section <a href="#3.4">3.4</a> for a list of valid and required
+elements.</dd>
+</dl>
+
+<p><strong>Note</strong>: This function will send a new event with
+'<code>kn_payload</code>', '<code>content-type</code>' and
+'<code>soapaction</code>' elements, in addition to the elements
+always present in a new event.</p>
+
+<h5>Example</h5>
+
+<blockquote>
+<pre>
+function postStatus()
+{
+    kn_publishAsSoap("/mike/status", "status", 
+                     {userid: "mike", status: "On Vacation"});
+}
+</pre>
+</blockquote>
+
+<h4><a id="3.3.5" name="3.3.5">3.3.5 filter_message</a></h4>
+
+<p>The <code>filter_message</code> function will convert SOAP
+messages in the format produced by <code>kn_publishAsSoap</code>
+into JavaScript objects.</p>
+
+<p>See section <a href="#3.5">3.5</a>.</p>
+
+<h5>Syntax</h5>
+
+<p><code>function filter_message(event)</code></p>
+
+<dl>
+<dt><var>event</var></dt>
+
+<dd>The event received.</dd>
+</dl>
+
+<h5>Return value</h5>
+
+<p>This function modifies its input parameter and returns it; it
+adds a '<code>body</code>' property whose value is a copy of the
+structure that was serialized to produce the SOAP Body element.</p>
+
+<h5>Example</h5>
+
+<blockquote>
+<pre>
+function onMessage(event)
+{
+    var msg = filter_message(event);
+    if (msg.body.offer.kind == "buy" &amp;&amp;
+        msg.body.offer.price &gt; 800)
+    {
+        alert("We've got a live one!");
+    }
+} 
+</pre>
+</blockquote>
+
+<h3><a id="3.4" name="3.4">3.4. mod_pubsub message properties</a></h3>
+
+<p>Messages delivered by mod_pubsub contain the same information that
+was initially published, plus additional properties added by mod_pubsub.
+Some properties are always present, while other are only present if
+applicable.</p>
+
+<h4>Message properties defined by mod_pubsub</h4>
+
+<dl>
+<dt><code>kn_id</code></dt>
+
+<dd>Globally unique identifier of the event.</dd>
+
+<dt><code>kn_time_t</code></dt>
+
+<dd>Time the event occurred. Specified in standard C
+<code>time_t</code> notation: seconds since the end of 1969 UTC.
+Added by mod_pubsub if not initially present.</dd>
+
+<dt><code>kn_payload</code></dt>
+
+<dd>By convention, the body of the message.</dd>
+
+<dt><code>kn_expires</code></dt>
+
+<dd>Time the event expires, in the same format as
+<code>kn_time_t</code>. Only present if <code>kn_expires</code> was
+specified when the event was originally published.</dd>
+
+<dt><code>kn_route_location</code></dt>
+
+<dd>The route the message traveled through. This will not be
+present if the event was published directly to the topic being
+listened to.</dd>
+</dl>
+
+<h4>Suggested message properties</h4>
+
+<dl>
+<dt><code>userid</code></dt>
+
+<dd>Identifier for the user that generated the event. This comes
+from the login name specified during authentication. If no
+authentication takes place, this will be 'anonymous'. This property
+is set by the JavaScript library.</dd>
+
+<dt><code>displayname</code></dt>
+
+<dd>Human-readable name for the user that generated the event.
+Currently used by the Chat client.</dd>
+
+<dt><code>content-type</code></dt>
+
+<dd>Specifies the format of <code>kn_payload</code>. Use standard MIME
+format names such as <samp>text/plain</samp> and
+<samp>text/xml</samp>. This property is set by the
+<code>kn_publishAsSoap</code> function from the PubSub JavaScript
+Library.</dd> </dl>
+
+<h3><a id="3.5" name="3.5">3.5. Using SOAP</a></h3>
+
+<p>The PubSub JavaScript helper libraries include support for sending
+and receiving SOAP-formatted XML messages. There is also support for
+converting received SOAP-formatted XML messages into JavaScript
+objects. Once these messages are objects, accessing the properties
+within the SOAP message becomes extremely simple.</p>
+
+<p>Include the JavaScript SOAP and XML support in your application
+using the following tag:</p>
+
+<p><code>&lt;script
+src="../KN/kn_xml.js"&gt;&lt;/script&gt;</code></p>
+
+<h4><a id="3.5.1" name="3.5.1">3.5.1 Sending messages</a></h4>
+
+<p>(Note: SOAP connections to third party services are not
+currently implemented.)</p>
+
+<p>Sending SOAP messages is as simple as sending a JavaScript object via
+the <code>kn_publishAsSoap</code> function. For a message to be
+published to a third-party SOAP service, the following elements must be
+added:</p>
+
+<dl>
+<dt><code>soap_uri</code></dt>
+
+<dd>Used to indicate the URI header in a SOAP request.</dd>
+
+<dt><code>soap_method</code></dt>
+
+<dd>The remote method to invoke with the SOAP request.</dd>
+
+<dt><code>soap_endpoint</code></dt>
+
+<dd>The remote endpoint URL to publish the SOAP event to.</dd>
+
+<dt><code>kn_next_hop</code></dt>
+
+<dd>Where the SOAP response should be published to. If the original
+topic subscribed to was <samp>/soap</samp>, then the response
+should be another distinct topic such as
+<samp>/soap/response</samp>.</dd>
+</dl>
+
+<h5>Example</h5>
+
+<blockquote>
+<pre>
+function postOffer()
+{
+    var obj = new Object();
+    obj.kind = "buy";
+    obj.price = "1000";
+    kn_publishAsSoap("/auction", "offer", obj);
+}
+
+function postStatus()
+{
+    var obj = new Object();
+    var elements = new Object();
+    obj.userid = "mike";
+    obj.status = "On Vacation";
+    elements.soap_uri = "urn:mikes-user-status";
+    elements.soap_method = "GetUser";
+    elements.soap_endpoint = "http://my-example.com/soap";
+    kn_publishAsSoap("/mike/status", "status", obj, elements);
+}
+</pre>
+</blockquote>
+
+<p>When a page receives this message, the object that was sent can
+be accessed via the "<code>body</code>" property of the message.
+Sub-properties are accessed via the same names as in the original
+object. For example: <samp>msg.body.offer.price</samp> and
+<samp>msg.body.offer.kind</samp>.</p>
+
+<p>When publishing an object as SOAP, you need to provide the name
+of the object. This will become an element inside the SOAP Body.</p>
+
+<h4><a id="3.5.2" name="3.5.2">3.5.2 Receiving messages</a></h4>
+
+<p>Each message handler should translate messages into objects with
+the <code>filter_message</code> function. Once translated, the
+"<code>body</code>" property will hold a JavaScript object that was
+created from the SOAP of the incoming event.</p>
+
+<p>For example:</p>
+
+<blockquote>
+<pre>
+function onMessage(event)
+{
+    var msg = filter_message(event);
+    alert("The offer price is "+msg.body.offer.price);
+}
+</pre>
+</blockquote>
+
+<p>The "<code>body</code>" property corresponds to the Body element
+within the Envelope element of a SOAP message.</p>
+
+<p>Given the event described in <a href="#3.5.1">the previous
+section</a>, you could access its contents via the properties
+<code>msg.body.offer.kind</code> and
+<code>msg.body.offer.price</code>.</p>
+
+<p>For example:</p>
+
+<blockquote>
+<pre>
+function onMessage(event)
+{
+    var msg = filter_message(event);
+    if (msg.body.offer.kind == "buy" &amp;&amp;
+        msg.body.offer.price &gt; 800)
+    {
+        alert("We've got a live one!");
+    }
+}
+</pre>
+</blockquote>
+
+<hr />
+
+<p>
+$Id: developer_guide.html,v 1.1 2002/11/07 07:09:24 troutgirl Exp $</p>
+
+</body>
+</html>

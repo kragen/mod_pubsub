@@ -1,0 +1,227 @@
+EditThisPage ... differently.
+   
+An in-situ HTML editing experimental farm
+   
+   shorter:
+   short2:
+   shorter:
+   short2:
+   shorter:
+   short2:
+   shorter:
+   short2:
+   shorter:
+   short2:
+   shorter:
+   onebrain:
+   
+[Macro error: There is no glossary entry named "They Laughed When I Sat
+Down to Play the Accordion"]
+
+This page is intended to serve as a public forum for exploring and
+extending my in-situ WYSIWYG web editor, written in JavaScript for the
+Internet Explorer 5 browser and DOM (though apparently only under MS
+Windows - reports are that IE 5.5 on the Mac won't fly, sorry about
+that). An earlier version was featured in this article by internet
+groupware guru Jon Udell. (Thanks Jon!)
+   
+Here you'll find the latest incarnation of the editor script and the JS
+bookmarklets to enable anyone using IE 5 to outfit their browser for
+instant, as-you-surf, rich content editing of any HTML document on the
+Web. The editor is embedded in this page, so you can Try It Now! - go
+ahead, give it a spin! - but only if you're viewing the page with IE
+5. Apologies to Netscape users; as NS 6 oozes its way into beta, I'm
+hoping to create a Mozilla & W3C-friendly cross-browser version.
+   
+You can use the usual editing keys - CTRL-C to copy a selection, CTRL-X
+to cut, CTRL-V to paste. Text can be formatted with CTRL-B (bold),
+CTRL-I (italic), CTRL-U (underline). The left and right arrow keys move
+the cursor as you'd expect.  (There's a bug I haven't squished yet that
+sometimes shows up when you start typing after using the arrow keys.)
+The up and down arrows don't move the insertion point vertically (they
+scroll the page), but I've been looking into the IE DOM's TextRectangle
+object and might add this feature one of these days.
+   
+Text selection follows the Windows model - left-click once to position
+the cursor for insertion, click again to select the surrounding word,
+click three times to select the enclosing block element. Holding down
+the left mouse button while moving the cursor to a new position selects
+everything in-between. (Ranges beyond a screen's length can be selected
+with the help of the SHIFT key.) BACKSPACE and DELETE behave in the
+usual way, and I've faked TAB with a string of HTML non-breaking spaces.
+   
+You'll notice you don't see the little blinking upright line that marks
+an insertion point between two characters - it's simply not available in
+HTML outside a TEXTAREA, but I'm toying with the idea of inserting a
+glyph to mark the spot. If it's not too annoying it might be an okay
+expedient until something better turns up. (Opinions, anyone?)
+   
+A very cool - and completely unanticipated - feature is the ability to
+copy rich content (images, styled text, tables, links, anything swipable
+by left-mouse-button-depress-drag-release-CTRL-C) from any page on the
+Web, then paste it into "your" page. Just open another browser window
+and find something to swipe! Why not Try It Now! (And they thought
+Napster was grand larceny ...)
+   
+The one thing you can't do is upload the changes you've made to this
+site (not yet at any rate) since the editing only takes place
+dynamically in your computer's RAM. This page is strictly demo; for
+practical use, copy the following pair of anchors to the Link bar
+(located directly above the browser window) by holding down the mouse
+button while the cursor is on top of a link, then dragging the anchor
+into the Link bar and releasing the button. (IE may attempt to warn you
+that the link is "unsafe" - you bet!)
+   
+   EDIT 
+   SAVE
+   
+IMPORTANT: By default, the EDIT bookmarklet looks for editor.js in
+"c:/windows/desktop". If you put the script in a different directory
+then you must change the pathname in EDIT's source to that directory's
+(full) pathname. And be careful with the back-quotes. The correct form is:
+   
+         '<script src=\'c:\/some\/path\/editor.js\'>'
+   
+EDIT and SAVE are examples of JavaScript Bookmarklets. EDIT invokes the
+in-situ editor when clicked and applies it to the web page currently
+being viewed. Once the page has been debauched to your satisfaction,
+click the SAVE link to pop open a new window containing the doctored
+doc. From here save the file via the browser's drop-down file menu, just
+like you'd do "Save As" to copy any other web page to your files.
+   
+Here's the JavaScript source for editor.js. Copy it, paste into your
+preferred text editor, and save the file as "editor.js". And make sure
+the EDIT bookmarklet knows the file's whereabouts.
+   
+     nn=''; ch='character'; tab='&nbsp;&nbsp;&nbsp;';
+     
+     document.attachEvent('onmouseup', do_MouseUp);
+     document.attachEvent('onkeydown', do_funKey);
+     document.attachEvent('onkeypress', do_Key);
+     
+     function do_MouseUp()
+     { xE=document.selection.createRange();
+       here = xE.duplicate(); here.collapse();
+       etype='mouse';
+     }
+     
+     function do_funKey()
+     { var which = event.keyCode;
+       switch(which)
+       { case 9 : // TAB
+         for(var i=0;i<5;i++) here.pasteHTML(tab);
+         event.returnValue=false; break
+         case 67: // CTRL-C
+         if (event.ctrlKey)
+           { xE.execCommand("copy"); event.returnValue=false }
+         break
+         case 86: // CTRL-V
+         if (event.ctrlKey)
+           { here.execCommand("paste"); event.returnValue=false }
+         break
+         case 88: // CTRL-X
+         if (event.ctrlKey)
+           { xE.execCommand("cut"); event.returnValue=false }
+         break
+         case 66: // CTRL-B
+         if (event.ctrlKey)
+           { xE.execCommand("bold"); event.returnValue=false }
+         break
+         case 73: // CTRL-I
+         if (event.ctrlKey)
+           { xE.execCommand("italic"); event.returnValue=false }
+         break
+         case 85: // CTRL-U
+         if (event.ctrlKey)
+           { xE.execCommand("underline"); event.returnValue=false }     break
+         case 37: // LEFT ARROW
+         here.moveStart(ch,-1);
+         here.select(); here.collapse(); break
+         case 39: // RIGHT ARROW
+         here.moveEnd(ch,1);
+         here.select(); here.collapse(false); break
+         case 8: // BACKSPACE
+         if (xE.htmlText.length > 0)
+           { xE.pasteHTML(nn) }
+           else { here.moveStart(ch,-1); here.pasteHTML(nn) }
+         event.returnValue=false; break
+         case 46: // DELETE
+         if (xE.htmlText.length > 0)
+           { xE.pasteHTML(nn) }
+           else { here.expand(ch,1); here.pasteHTML(nn) }
+         here.collapse(); break
+         case 32: // SPACE
+         here.moveStart(ch,-1);
+         here.pasteHTML(here.text.substr(0,1)+"&#032;");
+         here.expand(ch,1); here.collapse();
+         event.returnValue=false; break
+         case 13: // ENTER
+         xE.pasteHTML(xE.htmlText+"<br>");
+         here.setEndPoint("StartToEnd",xE); break
+         default:
+       }
+     }
+     
+     function do_Key()
+     { var which = event.keyCode;
+       switch(which)
+       { case 38: kS="&amp;"; break
+         case 60: kS="&lt;"; break
+         default: kS=String.fromCharCode(which)
+       }
+       if (etype=='mouse') here = xE.duplicate();
+       here.pasteHTML(kS); etype='key';
+       here.collapse(false);
+       xE=here.duplicate();
+     }
+     
+The original motive for cobbling up the editor was my frustration at
+having to tediously edit the HTML of downloaded web pages by hand in a
+text editor just to render them humanly readable - expunging ads, menus,
+broken image links, ugly fonts and colors and general clutter. Yes, I
+realize that Netscape has its Composer, and Microsoft its Front Page,
+but the HTML they produce is godawful. So no, I wouldn't even consider
+using them. And please don't get me going about Word 2000! The stuff
+bears virtually no resemblance to any HTML I've seen, living or dead.
+   
+Understand that this is a work in progress, and that I'm no kind of
+programmer. But I like to solve problems - if possible,
+deviantly. JavaScript appeals to me for the same reason that awk and
+Perl do; it's very much tied to a particular problem domain, i.e. the
+browser. Of course, it's a tissue of version- and browser-specific
+quirks and gotchas; despite the relative simplicity of the language (as
+against C++, say) the divergent object models of the big two browsers
+make for a pretty steep learning curve. No doubt this is why WYSIWYG
+rich-content editors written in JavaScript have been conspicuous mostly
+by their absence.
+   
+Microsoft came out with a DHTML Editing Control for IE 4 and 5, to be
+used in what was termed 'design mode'. This is replaced in IE 5.5 by an
+'editor mode' and a revised DHTML Edit Control included with the
+browser's MSHTML component. It seems that very little use has been made
+of these MS editing controls, probably on two counts: (1) a lack of
+documentation and examples of their use; and (2) Microsoft's bad habit
+of introducing cool new technologies that (2a) demand a big investment
+of your time to learn how to use, and (2b) stand a good chance of being
+dropped, radically altered or superceded a year or two hence ... exactly
+what happened to the DHTML Edit Control. In contrast, my in-situ editor
+uses only the IE DOM's innerHTML and TextRange objects. Mozilla's latest
+milestones include an innerHTML object, appeasing the many web designers
+who found CreateNode clumsy and verbose. As for TextRange, the DOM2 spec
+includes a DOM Range object for manipulating document selections that
+will enable (at this time, still hypothetical) W3C-compliant browsers to
+accomplish most of what IE's TextRange does.
+   
+Some 85 per cent of us have Internet Explorer as our primary means of
+surfing the web. There's some incredibly smart technology buried in IE
+that for various reasons remains under-exploited. This page is my small
+effort to advertise some lesser-known features of the IE DOM, and to
+help the similarly inclined hack the browser, blow up the desktop, and,
+in general, contribute to this planet's portion of fun.
+   
+   (Stay tuned, more soon ...)
+
+This message has been brought to you by Derek Robinson for Standard Brains.
+http://standardbrains.editthispage.com/
+   
+Last update: Sunday, October 8, 2000 at 4:37:57 PM.

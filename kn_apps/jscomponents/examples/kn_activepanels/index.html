@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>KN ActivePanels</title>
+  <script type="text/javascript" src="/kn/?do_method=lib"></script>
+  <script type="text/javascript" src="../../kn_activepanels.js"></script>
+  
+  <script type="text/javascript">
+  
+  var rt;
+  
+  function init(){
+  
+    ActivePanel1 = new ActivePanel("one");
+    ActivePanel2 = new ActivePanel("two");
+    ActivePanel3 = new ActivePanel("three");
+    ActivePanel4 = new ActivePanel("four");
+    
+    rt = kn.subscribe("/what/tests/activepanel",updateActivePanel);
+  }
+  
+  function updateActivePanel(evt){
+    var APObj =  eval(evt.AP);
+    if (!evt.append) APObj.clear();
+    APObj.write(evt.kn_payload);
+    APObj.update();
+    
+  }
+  
+  onload = init;
+  
+  onunload = function(){
+    kn.unsubscribe(rt);
+  }
+  
+  
+  </script>
+  <style>
+  body {
+    font-family:verdana;
+    font-size:12px;
+  }
+  textarea {
+    font-family:courier, monospace;
+  }
+  </style>
+  
+</head>
+
+<body>
+<table border="1">
+<tr>
+<td colspan="3">
+<h2>Your Header Here</h2>
+</td>
+</tr>
+<tr>
+<td rowspan="2">
+Navigation<br />Here
+</td>
+<td><script>ActivePanel.create("one",150,100,"#33ff99");</script></td>
+<td><script>ActivePanel.create("two",150,100,"#ff9999");</script></td>
+</tr>
+<tr>
+<td><script>ActivePanel.create("three",150,100,"#ccffff");</script></td>
+<td><script>ActivePanel.create("four",150,100,"#cc99ff");</script></td>
+</tr>
+</table>
+
+<a href="#" onclick="window.open('control.html','control','width=300,height=400'); return false;">Launch Control</a>
+<a href="control.html?kn_debug" target="_blank">Launch Control (debug)</a> 
+</body>
+</html>

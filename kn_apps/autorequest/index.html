@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:54 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub autorequest message exchange</title>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- XML and SOAP Helper JavaScript Libraries -->
+<script src="../kn_lib/kn_xml.js"></script>
+
+<script><!--
+function doLoad()
+{
+    kn.subscribe("/what/auto-request", onMessage, {do_max_age : "86400"}); // 1 day.
+    redraw();
+}
+
+function doUnload() {}
+
+function replaceEntities(text,entities)
+{
+    var entity;
+    var result = text;
+    var re;
+    for (var name in entities)
+    {
+        entity = "&"+name+";";
+        re = new RegExp(entity,"gi");
+        result = result.replace(re,entities[name]);
+    }
+    return result;
+}
+  
+var htmlHeader = "<html>"+"<body topmargin='0' leftmargin='0' >"+
+"<basefont face='arial'/>";
+
+var auctionTemplate = "<table width='100%' cellpadding='0' cellspacing='0' >" +
+"<tr bgcolor='#dcdcdc' >" +
+"<td colspan='2'><b>&nbsp;&make;</b></td>" +
+"</tr>" +
+"</table>" +
+"<table border=0 width=100%>" +
+"<tr>" +
+"<td nowrap>Bids to Buy </td>" +
+"<td ><input name='num_buyers' size=2 value='&numBuyers;'/></td>" +
+"<td width=100% >" +
+"    <table border=0 width=100% >" +
+"        <td name='buyers' bgColor='#ffa070' width=&buy_width;>&nbsp;<td>&nbsp;" +
+"    </table>" +
+"</td>" +
+"</tr>" +
+"<tr>" +
+"<td >Bids to Sell</td>" +
+"<td ><input name='num_sellers' size=2 value='&numSellers;'/></td>" +
+"<td width=60% >" +
+"    <table border=0 width=100%>" +
+"        <td name='sellers' bgColor=gray width=&sell_width;>&nbsp;<td>&nbsp;" +
+"    </table>" +
+"</td>" +
+"</tr>" +
+"</table><br/>";
+
+var htmlFooter = "</body>"+"</html>";
+
+var numBuyers=0;
+var numSellers=0;
+var auctions = new Object();
+
+function computeWidth(value,total)
+{
+    var n;
+    
+    n = 100 * (value/total);
+    if ((total == 0) || (n < 1))
+        return "1";
+
+    return( n + "%");
+}
+
+var bIsDrawing=false;
+function redraw()
+{
+    if (!bIsDrawing)
+    {
+        var doc = document.frames.stats.document;
+        var entities = new Object;
+        var text=htmlHeader;
+        var sellers;
+        var buyers;
+        
+        for (var make in auctions)
+        {
+            sellers = auctions[make].sellers;
+            buyers = auctions[make].buyers;
+            
+            entities.make = make;
+            entities.numSellers = sellers;
+            entities.numBuyers = buyers;
+            entities.sell_width = computeWidth(sellers,buyers+sellers);
+            entities.buy_width = computeWidth(buyers,buyers+sellers);
+            text += replaceEntities(auctionTemplate,entities);
+        }
+        text += htmlFooter;
+        
+        bIsDrawing=true;
+        doc.open();
+        doc.writeln(text);
+        doc.close();
+        bIsDrawing=false;
+    }
+}
+
+function onMessage(e)
+{
+    var msg = filter_message(e);
+    var doc = document.frames.stats.document;
+    if (msg.body && msg.body.offer)
+    {
+        var auction;
+        auction = auctions[msg.body.offer.make];
+        if (!auction)
+        {
+            auction = new Object();
+            auctions[msg.body.offer.make] = auction;
+            auction.buyers = 0;
+            auction.sellers = 0;
+        }
+        
+        if (msg.body.offer.type == 'sell')
+            auction.sellers++;
+        else
+        if (msg.body.offer.type == 'buy')
+            auction.buyers++;
+    
+        redraw();
+    }
+}
+
+// -->
+</script>
+
+</head>
+
+<frameset rows='220,*' onLoad='doLoad()'>
+<frame name='ui' src='auto_ui.html'></frame>
+<frame name='stats'></frame>
+</frameset>
+
+</html>  

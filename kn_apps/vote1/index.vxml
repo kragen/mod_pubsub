@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.vxml,v 1.1 2002/11/07 07:09:10 troutgirl Exp $
+
+-->
+
+<!DOCTYPE vxml PUBLIC "-//Tellme Networks//Voice Markup Language 1.0//EN"
+"http://resources.tellme.com/toolbox/vxml-tellme.dtd">
+
+<vxml application="http://resources.tellme.com/lib/universals.vxml">
+
+<form id="get_vote">
+
+  <field name="application.vote.candidate">
+    <grammar>
+    <![CDATA[ 
+    [ 
+      nobody {<option "nobody">} 
+      gore {<option "gore">} 
+      al {<option "gore">} 
+      albert {<option "gore">} 
+      nader {<option "nader">} 
+      bush {<option "bush">} 
+      w {<option "bush">} 
+      george {<option "bush">} 
+      vinod {<option "khosla">} 
+      khosla {<option "khosla">} 
+      khare {<option "khare">} 
+      rohit {<option "khare">} 
+    ] 
+    ]]>
+    </grammar>
+
+    <prompt>
+      <audio>Welcome to the Election 2000 Voting Booth. Please speak the name of a candidate:</audio>
+    </prompt>
+
+    <default>
+      <audio>Sorry, that sounds like a dimple. Try punching again.</audio>
+      <reprompt/>
+    </default>
+   
+    <filled>
+      <audio>I heard you vote for</audio>
+      <pause>200</pause>
+      <audio>{application.vote.candidate}</audio>
+      <goto next="#call_cgi"/>
+    </filled>
+
+  </field>
+</form>
+
+<!--
+
+ There are two ways to pass parameters to the CGI script: HTTP POST
+ and HTTP GET (also known as the URL querystring). This example uses the GET
+ method. The general way to use the GET method is to construct a querystring
+ and append it to the URL using a "?". URLs with querystrings tyically look
+ something like this:
+
+ http://webserver/script.pl?input1=value1&input2=value2&input3=value3
+
+ Note that this example first constructs the entire querystring and stores
+ the string into the "application.ex-105.alldata" application variable. 
+ The application variable is in turn passed to the CGI script.
+
+-->
+
+<form id="call_cgi">
+  <block>
+    <audio>I am punching out the chad from your virtual ballot.</audio>
+    <script type='Javascript'>
+    <![CDATA[
+      var kn_payload = vxmldata.get("application.vote.candidate");
+      var kn_debug = "true";
+    ]]>
+    </script>
+  
+    <submit next="http://superdupervotecounter.com/cgi-bin/pubsub.cgi/what/election-2000" method="POST" namelist="kn_payload kn_debug"/>
+    
+<!-- For submitting variables via HTTP GET try: 
+
+ <submit next="http://studio.tellme.com/library/code/ex-105/ex-105a.cgi" method="GET" namelist="month day"/>
+ 
+--> 
+        
+  </block>
+</form>
+
+</vxml>

@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: demo.html,v 1.1 2002/11/07 07:09:15 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>flash javascript demo for ie 5+</title>
+
+<script language="VBScript"><!-- 
+
+//  Catch FS Commands in IE, and pass them to the corresponding JavaScript function.
+
+Sub testcommand_FSCommand(ByVal command, ByVal args)
+    call testcommand_DoFSCommand(command, args)
+end sub
+
+//-->
+</script>
+
+<script language="JavaScript"><!--  
+// Moock code!
+
+var moviename = "testcommand";
+
+function movieobject(moviename){
+
+    // IE and Netscape refer to the movie object differently.
+    // This function returns the appropriate syntax depending on the browser.
+
+    if (navigator.appName.indexOf ("Microsoft") !=-1) {
+        return window[moviename];
+    } else {
+        return document[moviename];
+    }
+}
+
+function goTest(){
+    var dogs = movieobject(moviename).GetVariable("payload");
+    alert(dogs);
+}
+
+function goTest2(){
+        movieobject(moviename).SetVariable("payload","what am I, a squeeze toy?");
+}
+
+n = 0;
+
+function testcommand_DoFSCommand(func,args) {
+    n++;
+    if (func == "setForm"){
+        document.forms[0].elements[2].value = args;
+    } else {
+        window.status = ("Unknown function fired: " + func + "with arguments: " + args + n);
+    }
+}
+
+// --> 
+</script> 
+
+</head>
+<body bgcolor="#ffffff">
+
+<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="300" height="300"
+    codebase="http://active.macromedia.com/flash3/cabs/" id=testcommand>
+
+<param name="movie" value="var_test.swf">
+<param name="play" value="false">
+<param name="loop" value="true">    
+<param name="quality" value="high">
+<param name="scale" value="showall">
+
+<embed name="testcommand" src="var_test.swf" width="300" height="300"
+    play="false" loop="true" quality="high" scale="showall" swLiveConnect="true"
+    pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash">
+</embed>
+
+</object>
+
+<form>
+<input type="button" value="Get" onclick="goTest()">
+<input type="button" value="Set" onclick="goTest2()">
+<input type="text" name="bob">
+</form>
+
+<ul>
+<li> "Get" uses JavaScript to query flash and find out the value of its
+textarea. 
+<li> "Set" uses JavaScript to set the value of the flash app's textarea
+(even though it's an editable text field and it kind of looks like html
+it's actually flash). 
+<li> Every 100 milliseonds, Flash is making a JavaScript call to set the
+value of the HTML text input to match that of its own textarea.
+</ul>
+
+<ul>
+<li> Tested in IE 5.0 for PC
+</ul>
+
+</body>
+</html>

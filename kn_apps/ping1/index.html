@@ -1,0 +1,736 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:26 troutgirl Exp $
+
+-->
+
+<!--
+
+    Ping tests connectivity between a web browser and a mod_pubsub
+    instance.  It repeatedly publishes events with payloads of a given
+    *size* to a given *topic*, pausing at least *wait* seconds and no
+    more than *maxwait* seconds between publications. Optionally, the
+    event stream can be stopped after the number of events has reached a
+    given *limit*.
+
+    Parameters
+    ==========
+
+    Several parameters control the behavior of Ping. Default values for
+    most parameters can be given using URL parameters, and values for
+    most parameters can be changed between test runs by updating HTML
+    form fields. URL parameters are appended to the URL of the
+    application, with ? before the first parameter and ; separating
+    successive parameters. Values for URL parameters are separated from
+    the corresponding names by = and should be converted to UTF-8 and
+    then URL-encoded (ASCII alphanumeric characters do not need to be
+    escaped.)
+
+    URL:     [kn_topic=]TOPIC
+    HTML:    topic: TOPIC
+    Default: TOPIC=/what/ping/3453425 (actual number chosen at random)
+
+         Chooses a TOPIC to publish events to. The default TOPIC is a
+         randomly chosen subtopic of /what/ping.
+
+    HTML:    ENABLED really subscribe
+
+         When this option is enabled (which is the default,) a
+         subscription to the publish topic is maintained, and
+         round-trip time is measured from the time an event is
+         published to the time it is received.
+
+    HTML:    DISABLED really subscribe
+
+         When this option is disabled (which is not the default,) no
+         subscription to the publish topic is maintained, and
+         round-trip time is measured from the time an event is
+         published to the time the server acknowledges its
+         publication.
+
+    HTML:    ENABLED quiet output
+
+         When quiet output is enabled (which is not the default)
+         nothing is displayed except the summary at startup and
+         when finished.
+
+    HTML:    DISABLED quiet output
+
+         When quiet output is disabled (which is the default)
+         a message is displayed for each event received.
+
+    URL:     limit=NUM
+    HTML:    limit: ENABLED NUM events
+    Default: ENABLED, NUM=15
+
+         When the limit is ENABLED, the event stream is stopped after
+         the number of events has reached NUM (15, by default.) The
+         limit is ENABLED by default.
+
+    URL:     limit=0
+    HTML:    limit: DISABLED
+    Default: ENABLED
+
+         When the limit is DISABLED, the event stream is not stopped
+         until the Stop button is pressed. The limit is ENABLED by
+         default.
+
+    URL:     size=NUM
+    HTML:    size: NUM chars
+    Default: NUM=32
+
+         Selects a payload size for sent events of NUM characters. The
+         default size is 32 characters. The payload is constructed by
+         appending the pattern string (see below) to the payload until
+         the payload contains at least NUM characters, then truncating
+         it to NUM characters.
+
+    URL:     pattern=STRING
+    Default: STRING=%00 (NUL, Unicode/UCS character U+0000.)
+
+         Specifies a payload pattern. The payload is constructed by
+         appending the pattern STRING to the payload until the payload
+         reaches or exceeds a particular size (see above), then
+         truncating it to that size. The default STRING contains a
+         single %00 (NUL, Unicode/UCS character U+0000.)
+
+    URL:     wait=NUM
+    HTML:    wait: NUM s
+    Default: NUM=1.1
+
+         NUM is the minimum number of seconds to wait between event
+         publications (1.1 seconds is the default.)
+
+    URL:     maxwait=NUM
+    HTML:    maxwait: NUM s
+    Default: NUM=10
+
+         NUM is the maximum number of seconds to wait for a response
+         before publishing the next event (10 seconds is the default.)
+
+    URL:     kn_autostart
+
+         Normally, no events are published until the Go button is
+         pressed. When the kn_autostart URL parameter is present,
+         though, event publication starts as soon as the subscription
+         is active.
+
+ -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>pubsub ping 1</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<script type="text/javascript">
+<!--
+
+topic = (kn_argv.kn_topic ?
+         kn_argv.kn_topic :
+         ("/what/ping/" + Math.random().toString().substr(2,8)));
+subscription = null;
+payload = null;
+sid = 0;
+// We only correctly handle round trips inside a +- SEQ_FIELD/2 window.
+SEQ_BITS = 16;
+SEQ_FIELD = 1 << SEQ_BITS;
+seq = 0;
+last_seq = SEQ_FIELD - 1;
+limit = (kn_argv.limit ?
+         new Number(kn_argv.limit) :
+         15);
+limitEnabled = limit >= 1;
+size = (kn_argv.size ?
+        parseInt(kn_argv.size) :
+        32);
+wait = (kn_argv.wait ?
+        new Number(kn_argv.wait) :
+        1.1);
+maxwait = (kn_argv.maxwait ?
+           new Number(kn_argv.maxwait) :
+           10);
+autostart = kn_argv.kn_autostart;
+pattern = (kn_argv.pattern ?
+           kn_argv.pattern :
+           "");
+transmitted = 0;
+received = 0;
+received_ok = 0;
+rt_min = 0;
+rt_max = 0;
+rt_sum = 0;
+rt_squared_sum = 0;
+waitingFor = null;
+timer = null;
+log_data = "";
+running = false;
+
+// Clear the output log in preparation for a new test run.
+function clear_log()
+{
+    log_data = "";
+    log("");
+}
+
+// Append *message* (a message line) to the output log.
+function log(message)
+{
+    if (message)
+        log_data += message + "\n";
+    document.forms[0].elements.log.value = log_data ? log_data : " ";
+}
+
+// Handle *e* (a received event).
+function onPing(e)
+{
+    if (! running)
+        return;
+    if (e.sid != sid)
+        return;
+    received ++;
+    var rtt = new Date - new Date(1000 * new Number(e.kn_time_t));
+    rt_sum += rtt;
+    rt_squared_sum += rtt * rtt;
+    if (received == 1)
+        rt_min = rt_max = rtt;
+    else if (rtt < rt_min)
+        rt_min = rtt;
+    else if (rtt > rt_max)
+        rt_max = rtt;
+    if (! document.forms[0].elements.quiet.checked)
+    {
+        log($_("%{0} chars from %{1}: seq=%{2} time=%{3} ms",
+               e.kn_payload ? e.kn_payload.length : 0,
+               e.kn_routed_from,
+               e.seq,
+               Math.round(1000 * rtt) / 1000
+            ));
+    }
+    if (e.kn_payload == null)
+        log($("Warning: payload lost"));
+    else if (e.kn_payload != payload)
+        log($("Warning: payload data corruption detected"));
+    // Calculate the sequence field distance between this ping
+    // and the last one we got back.
+    var seq_diff =
+        ((parseInt(e.seq) - parseInt(last_seq) + SEQ_FIELD) %
+         SEQ_FIELD + SEQ_FIELD / 2) %
+        SEQ_FIELD -
+        SEQ_FIELD / 2;
+    if (seq_diff <= 0)
+        log($("Warning: received duplicate event"));
+    else if (seq_diff > 0)
+    {
+        last_seq = parseInt(e.seq);
+        received_ok ++;
+    }
+    else
+        log($("Warning: sequence number corruption detected"));
+    nextPing(e);
+    if (limitEnabled && (received_ok >= limit))
+    {
+        stopAndRun(null);
+    }
+}
+
+// Schedule the next ping.
+function nextPing(e)
+{
+    var rtt = new Date - new Date(1000 * new Number(e.kn_time_t));
+
+    if (timer && (e.kn_id == waitingFor))
+    {
+        clearTimeout(timer);
+        timer = null;
+        if (rtt < (1000 * wait))
+        {
+            timer = setTimeout("doPing()", (1000 * wait) - rtt);
+        }
+        else
+        {
+            doPing();
+        }
+    }
+}
+
+// Subscribe to our topic, then run *closure* (an optional function)
+// when the subscription is ready.
+function subscribeAndRun(closure)
+{
+    var onSuccess = function (e) { if (closure) closure(); };
+    var onError = function (e)
+    {
+        log($_("Error: Subscription to %{0} failed: %{1}\n%{2}",
+               topic,
+               e.status,
+               e.kn_payload));
+        subscription = null;
+    }
+    subscription = kn.subscribe(topic, onPing, { kn_expires: 'infinity' },
+                                ({ onError: onError, onSuccess: onSuccess }));
+}
+
+// Start sending events.
+function reallyStart()
+{
+    payload = "";
+    var template = pattern ? pattern : "\0";
+    for (var i = 0; i < size; i ++)
+        payload += template.charAt(i % template.length);
+    clear_log();
+    log($_("PING %{0} from %{1} : %{2} character payload",
+           topic,
+           kn.tunnelURI,
+           payload.length));
+    running = true;
+    sid = Math.random().toString().substring(2);
+    seq = 0;
+    last_seq = -1;
+    transmitted = 0;
+    received = 0;
+    received_ok = 0;
+    rt_min = 0;
+    rt_max = 0;
+    rt_sum = 0;
+    rt_squared_sum = 0;
+    waitingFor = null;
+    timer = null;
+    doPing();
+}
+
+// Send an event.
+function doPing()
+{
+    waitingFor = null;
+    timer = null;
+    if (! running)
+        return;
+    if (limitEnabled && (transmitted >= limit))
+    {
+        if (! received_ok)
+        {
+            // No packet received after *limit* packets sent -- time to give up.
+            stopAndRun(null);
+        }
+        return;
+    }
+    var e = {
+        sid: sid,
+        seq: seq,
+        kn_expires: "+" + 2 * maxwait,
+        kn_payload: payload
+    };
+    seq = (seq + 1) % SEQ_FIELD;
+    // FIXME: These closures leak memory when status events take
+    //        longer than *maxwait* seconds.
+    var onSuccess = function (e2)
+    {
+        for (var i in e)
+        {
+            e2[i] = e[i];
+        }
+        e2.kn_routed_from = $_("virtual %{0}", topic);
+        if (! document.forms[0].elements.reallySubscribe.checked)
+        {
+            onPing(e2);
+        }
+    };
+    var onError = function (e2)
+    {
+        log($_("Error: failed to publish to %{0}: %{1}\n%{2}",
+               topic,
+               e2.status,
+               e2.kn_payload));
+        nextPing(e);
+    };
+    transmitted ++;
+    e.kn_time_t = '' + ((new Date()).getTime() / 1000);
+    e.kn_id = kn.publish(topic, e,
+                         ({ onSuccess: onSuccess, onError: onError }));
+    waitingFor = e.kn_id;
+    timer = setTimeout("doPing()", maxwait * 1000);
+}
+
+// Prepare to send events.
+function start()
+{
+    if (running)
+    {
+        stopAndRun(start);
+        return;
+    }
+    if ((subscription == null) && document.forms[0].elements.reallySubscribe.checked)
+    {
+        subscribeAndRun(reallyStart);
+        return;
+    }
+    else if (subscription && ! document.forms[0].elements.reallySubscribe.checked)
+    {
+        unsubscribeAndRun(reallyStart);
+        return;
+    }
+    reallyStart();
+}
+
+// Stop publishing and subscribing, then run *closure* (an optional function).
+function stopAndRun(closure)
+{
+    if (! running)
+    {
+        if (closure) closure();
+        return;
+    }
+    running = false;
+    waitingFor = null;
+    timer = null;
+    log($_("-" + "-" + "- %{0} ping statistics -" + "-" + "-",
+           topic
+        ));
+    var msg;
+    msg = $_("%{0} events transmitted, ",
+             transmitted);
+    msg += $_("%{0} events received, ",
+              received_ok);
+    if (received > received_ok)
+    {
+        msg += $_("+%{0} duplicates, ",
+                  received - received_ok);
+    }
+    msg += $_("%{0}%% event loss",
+              ('' + (100 * (transmitted - received_ok) / transmitted)).substring(0, 5));
+    log(msg);
+    if (received)
+    {
+        var mean = rt_sum / received;
+        var standard_deviation = Math.sqrt(rt_squared_sum / received - mean * mean);
+        log($_("round-trip min/avg/max = %{0}/%{1}/%{2} ms, std. dev. = %{3} ms",
+               rt_min,
+               Math.round(1000 * mean) / 1000,
+               rt_max,
+               Math.round(1000 * standard_deviation) / 1000
+            ));
+    }
+    unsubscribeAndRun(closure);
+}
+
+// Stop subscribing, then run *closure* (an optional function).
+function unsubscribeAndRun(closure)
+{
+    if (subscription)
+    {
+        var old_subscription = subscription;
+        subscription = null;
+        var onSuccess = function (e) { if (closure) closure(); };
+        var onError = function (e)
+        {
+            log($_("Error: Unsubscription from %{0} failed: %{1}\n%{2}",
+                   old_subscription,
+                   e.status,
+                   e.kn_payload));
+            onSuccess();
+        };
+        kn.unsubscribe(old_subscription,
+                       ({ onSuccess: onSuccess, onError: onError }));
+    }
+    else
+    {
+        if (closure) closure();
+    }
+}
+
+// Prepare the application for the first test run.
+function doLoad()
+{
+    tag();
+    clear_log();
+    document.forms[0].elements.topic.value = topic;
+    document.forms[0].elements.topic.disabled = false;
+    subscribeAndRun(reallyLoad);
+}
+
+// Synchronize with the HTML user interface, and start the first test
+// run if autostart is enabled.
+function reallyLoad()
+{
+    update();
+    if (autostart)
+        start();
+}
+
+// Synchronize JavaScript variables with corresponding HTML UI
+// elements, and perform basic sanity checks on the UI state.
+function update()
+{
+    var elements = document.forms[0].elements;
+    for (var i = 0; i < elements.length; i ++)
+        if (elements[i].onchange)
+            elements[i].onchange();
+    if (limitEnabled && ! (limit >= 1))
+        limitEnabled = false;
+    document.forms[0].elements.limitEnabled.checked = limitEnabled;
+    document.forms[0].elements.limit.disabled = ! limitEnabled;
+}
+
+// Documentation strings for the HTML user interface, indexed by input
+// element name.
+var docs = {
+    go:
+    $("Normally, no events are published until the Go button is pressed. When the kn_autostart URL parameter is present, though, event publication starts as soon as the subscription is active."),
+    stop:
+    $("When the limit is DISABLED, the event stream is not stopped until the Stop button is pressed."),
+    topic:
+    $("Chooses a TOPIC to publish events to."),
+    reallySubscribe:
+    $("When this option is enabled, a subscription to the publish topic is maintained, and round-trip time is measured from the time an event is published to the time it is received.\n\nWhen this option is disabled, no subscription to the publish topic is maintained, and round-trip time is measured from the time an event is published to the time the server acknowledges its publication."),
+    quiet:
+    $("When quiet output is enabled nothing is displayed except the summary at startup and when finished.\n\nWhen quiet output is disabled a message is displayed for each event received."),
+    log:
+    $("Test progress and results are displayed in this text field."),
+    limitEnabled:
+    $("When the limit is ENABLED, the event stream is stopped after the number of events has reached NUM events.\n\nWhen the limit is DISABLED, the event stream is not stopped until the Stop button is pressed."),
+    limit:
+    $("When the limit is ENABLED, the event stream is stopped after the number of events has reached NUM."),
+    size:
+    $("Selects a payload size for sent events of NUM characters. The payload is constructed by appending a pattern string to the payload until the payload contains at least NUM characters, then truncating it to NUM characters."),
+    wait:
+    $("NUM is the minimum number of seconds to wait between event publications"),
+    maxwait:
+    $("NUM is the maximum number of seconds to wait for a response before publishing the next event"),
+    DEFAULT:
+    $("Sorry, there is no help for this item. View the HTML source for full documentation.")
+};
+
+// Annotate the HTML user interface for TITLE-aware clients.
+function tag()
+{
+    var e = document.forms[0].elements;
+    for (var i = 0; i < e.length; i ++)
+    {
+        var desc = docs[e[i].name];
+        if (! desc) desc = docs.DEFAULT;
+        e[i].title = desc;
+    }
+}
+
+// -->
+</script>
+
+<style>
+<!--
+
+body, p, th, td, textarea {
+    font-family: verdana, arial, sans-serif, helvetica;
+}
+
+em {
+    font-style: normal;
+    color: #ff9900;
+}
+
+var {
+    font-style: normal;
+    color: #3366cc;
+}
+
+-->
+</style>
+
+</head>
+<body text="black" bgcolor="white" link="navy" alink="blue"
+title="Leave your mouse over an input element for a few seconds to get a description. View the HTML source for full documentation."
+vlink="navy" onload="doLoad()">
+<center>
+<form action="javascript:void 0//"
+onsubmit="update();start();return false">
+<table border="0" bgcolor="#dddddd" cellpadding="4"
+cellspacing="0">
+<tr>
+<td>
+<table border="0">
+<tr>
+<td><input type="submit" name="go" value="Go" /></td>
+<td><input type="submit" name="stop" value="Stop" onclick="stopAndRun(null);return false" /></td>
+<th align="right">topic:</th>
+<td><input name="topic" value="" size="40" onchange="window.topic=value"
+disabled="disabled" /></td>
+<td><input type="checkbox" name="reallySubscribe" checked="checked"
+onclick="if (checked) subscribeAndRun(null); else unsubscribeAndRun(null)" />
+really subscribe</td>
+<td><input type="checkbox" name="quiet" />
+quiet output</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td><textarea rows="20" cols="100" name="log"
+wrap="virtual" readonly="readonly">This application requires script
+support. If this message remains visible for more than a few seconds,
+you may need to enable script support in your browser and reload.
+</textarea></td>
+</tr>
+
+<tr>
+<td>
+<table border="0">
+<tr>
+<th valign="middle" align="right">limit:</th>
+<td valign="middle">
+<script type="text/javascript">
+<!--
+
+function enableLimit()
+{
+    if (! limitEnabled)
+    {
+        limitEnabled = true;
+        if (! (limit >= 1))
+        {
+            if (limit <= -1)
+            {
+                limit = -limit;
+            }
+            else
+            {
+                limit = 15;
+            }
+            document.forms[0].elements.limit.value = "" + limit;
+        }
+        update();
+    }
+}
+
+function disableLimit()
+{
+    if (limitEnabled)
+    {
+        limitEnabled = false;
+        update();
+    }
+}
+
+document.write(
+    '<input type="checkbox" name="limitEnabled"' +
+    ' onclick="if (checked) enableLimit(); else disableLimit(); return true" ' +
+    (limitEnabled ? ' checked="checked"' : '') +
+    ' />');
+
+// -->
+</script>
+
+ </td>
+<td>
+<script type="text/javascript">
+<!--
+
+
+document.write(
+    '<input onfocus="enableLimit()" onclick="enableLimit(); this.focus()" name="limit" value="' +
+    kn_htmlEscape(limit) +
+    '" size="5" onchange="window.limit=parseInt(value)" /> events');
+
+// -->
+</script>
+
+ </td>
+<td>&nbsp;</td>
+<th valign="middle" align="right">size:</th>
+<td valign="middle">
+<script type="text/javascript">
+<!--
+
+document.write('<input name="size" value="' +
+               kn_htmlEscape(size) +
+               '" size="5" onchange="window.size=parseInt(value)" /> chars');
+
+// -->
+</script>
+
+ </td>
+<td>&nbsp;</td>
+<th valign="middle" align="right">wait:</th>
+<td valign="middle">
+<script type="text/javascript">
+<!--
+
+document.write('<input name="wait" value="' +
+               kn_htmlEscape(wait) +
+               '" size="5" onchange="window.wait=new Number(value)" />s');
+
+// -->
+</script>
+
+ </td>
+<td>&nbsp;</td>
+<th valign="middle" align="right">maxwait:</th>
+<td valign="middle">
+<script type="text/javascript">
+<!--
+
+document.write('<input name="maxwait" value="' +
+               kn_htmlEscape(maxwait) +
+               '" size="5" onchange="window.maxwait=new Number(value)" />s');
+
+// -->
+</script>
+
+ </td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</form>
+</center>
+
+<p><strong>Ping</strong> tests connectivity between a web browser and a
+mod_pubsub instance. It repeatedly publishes events with payloads of a
+given <var>size</var> to a given <var>topic</var>, pausing at least
+<var>wait</var> seconds and no more than <var>maxwait</var> seconds
+between publications. Optionally, the event stream can be stopped after
+the number of events has reached a given <var>limit</var>. Documentation
+is included in the HTML source for this page.</p>
+
+</body>
+</html>

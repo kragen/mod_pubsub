@@ -1,0 +1,7 @@
+#!/usr/bin/perl -w
+use strict;
+$|=1;
+while (<>) {
+	my ($time, $ns, $rest) = /^\@4([a-f0-9]{15})([a-f0-9]{8}) (.*)/; 
+	print((hex($time) + hex($ns)/1000000000.0), " $rest\n");
+}

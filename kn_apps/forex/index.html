@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:50 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub spot market rates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<style>
+<!--
+
+td.knownow, th {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+h1 {
+  font-size: 18pt;
+  font-weight: normal;
+}
+
+input.clock {
+  border: 0px;
+  background: white;
+  color: black;
+  font-size: 10pt;
+  text-align: right;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+body, td {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+.rule {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: #ff9900; 
+  margin: 0px 0%;
+}
+
+a:link, a:hover, a:active, a:visited {
+  color: #3366cc;
+}
+
+a:link, a:visited, a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.forex { font-family: verdana, helvetica, sans-serif; font-size: 12pt; }
+input.date, input.output { font-family: verdana, helvetica, sans-serif; border: 0px; background: #eeeeee; color: #999999; font-size: 12pt; }
+input.date { background: #999999; color: white; font-style: italic; font-size: inherit; }
+p.small { text-align: center; font-family: arial, helvetica, sans-serif; font-size: 10pt; }
+
+-->
+</style>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!-- Note: This application uses sensed data from kn_sense/forex.plx -->
+
+<script type="text/javascript"><!--
+
+// Apply a CSS style to a form element ("node"). Works in the
+// Netscape6 DOM and the MSIE DOM. The name of the stylesheet
+// property in CSS syntax ("property") is automatically converted
+// to the MSIE syntax when necessary. The value ("value") should
+// be in CSS syntax.
+
+function setStyle(node, property, value)
+{
+    var ieproperty = "";
+    for (var i = 0; i < property.length; i ++)
+    {
+        if (property.charAt(i) == "-" && i < property.length)
+            ieproperty += property.charAt(++ i).toUpperCase();
+        else
+            ieproperty += property.charAt(i);
+    }
+    if (node.style)
+    {
+        if (node.style[ieproperty] != null)
+            node.style[ieproperty] = value;
+        else
+            node.style = property + ': ' + value;
+    }
+}
+
+// make sure we start getting updates soon
+kn_hacks("single");
+
+var watchList = new Object();
+watchList["usd"] = 0.0;
+watchList["eur"] = 0.0;
+watchList["jpy"] = 0.0;
+watchList["gbp"] = 0.0;
+
+if (kn_argv.sym) watchList[kn_argv.sym.toLowerCase()] = 0.0;
+
+if (kn_argv.sym2) watchList[kn_argv.sym2.toLowerCase()] = 0.0;
+
+function init() {
+    last_update = new Date();
+    last_trade = null;
+    setInterval("update_clock2()", 500);
+    for (var i in watchList) {
+        for (var j in watchList) {
+            var topic = "/what/currencies/" + i + "/rate/" + j + "/spot";
+            kn_subscribe(topic ,
+                         { onMessage: update_curr, from_cursym: i, to_cursym: j },
+                         { do_max_n: 1, kn_expires: "infinity" });
+        }
+    }
+}
+
+function find_ele(name) {
+  return document.forms.forex.elements[name];
+}
+
+window.seq = 0;
+
+var last_update;
+
+var last_trade;
+
+function update_clock2() {
+    var now = new Date();
+
+    var ele = find_ele("lastupdate");
+
+    var late = Math.round((now - last_update) / 1000);
+
+    var msg = "";
+    if (last_trade)
+      {
+	msg =
+	  $_("%{3} bought %{2} %{1} %{4} %{0} seconds ago.",
+	     late.toString().substring(0, 8),
+	     last_trade.from_cursym.toUpperCase(),
+	     last_trade.rate.substring(0, 8),
+	     last_trade.to_cursym.toUpperCase(),
+	     "--");
+      }
+    if (ele)
+      {
+        if (ele.value != msg)
+	  ele.value = msg;
+      }
+    if (kn_argv.oldest && (late > kn_argv.oldest))
+      {
+	((parent == kn.ownerWindow) ?
+	 parent :
+	 window).
+	  location.replace(location.href);
+      }
+}
+
+function update_curr(e) {
+    last_update = new Date();
+    last_trade = {
+      from_cursym: this.from_cursym,
+      to_cursym: this.to_cursym,
+      rate: e.kn_payload
+    };
+    var tloc = (this.from_cursym + "-" + this.to_cursym).toLowerCase();
+    var cur = find_ele(tloc);
+    if (cur) {
+        var num = parseFloat(e.kn_payload).toString().substring(0, 8);
+	if (! (num <= 0 || num >= 0))
+	  {
+	    num = e.kn_payload;
+	    last_trade = null;
+	  }
+        var s = 'find_ele(kn_unescape("' + kn_escape(tloc) + '"))';
+        if (cur.timer) {
+            window.clearTimeout(cur.timer);
+        }
+        cur.timer = window.setTimeout(
+            s +
+            ".timer=null;" +
+            "setStyle(" + s + ", 'color', 'black');" +
+            "setStyle(" + s + ", 'background', '#eeeeee')",
+            1500
+            );
+//        if (cur.value != num)
+//        {
+            cur.value = num;
+            setStyle(cur, 'color', 'blue');
+            setStyle(cur, 'background', 'white');
+//        }
+    }
+    watchList[tloc] = e.kn_payload;
+}
+
+function start_clock() {
+  setInterval("update_clock()", 500);
+  if (document.all && ! document.getElementById)
+    {
+      for (var i = 0; i < document.all.length; i ++)
+	{
+	  var node = document.all[i];
+	  if (node.className == "rule")
+	    {
+	      node.outerHTML = '<hr size="1" color="#ff9900" />';
+	    }
+	}
+    }
+}
+
+function update_clock() {
+  var now = new Date();
+  var form = document.forms.clock;
+  if (form)
+    { 
+      var ele = form.elements.clock;
+      if (ele) {
+	var msg = now.toUTCString ? now.toUTCString() : now.toGMTString();
+	if (ele.value != msg) ele.value = msg;
+      }
+    }
+}
+
+// -->
+</script>
+</head>
+
+<body bgcolor="#ffffff" link="#3366cc" vlink="#3366cc" alink="#3366cc" text="#000000"
+      leftmargin="10" topmargin="15" marginwidth="10" marginheight="15"
+      onload="start_clock();init()"> 
+<base target="_top" />
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+
+   <td align="left" valign="top">&nbsp;&nbsp;
+   <h1>mod_pubsub Spot Market Rates</h1> &nbsp;&nbsp; </td>
+
+   <form action="javascript://" name="clock">
+   <td align="right" bgcolor="white" class="pubsub">
+   <input readonly="readonly" size="48" name="clock" class="clock" onfocus="blur()" /> &nbsp;
+   </td>
+   </form>
+
+</tr>
+</table>
+
+<div class="rule"></div>
+
+<br /><br />
+
+<center>
+<table border=0 cellpadding=1 cellspacing=0 bgcolor=#999999><tr><td>
+<form action="javascript://" name="forex">
+<table border=0 cellspacing=0 cellpadding=0 bgcolor=white width=100%>
+<tr><td bgcolor=#ffffff><script type="text/javascript"><!--
+
+// currencies we have local images for
+var local_flags = { usd: true, eur: true, jpy: true, gbp: true };
+
+function flag2html(symbol, alt)
+{
+    if (local_flags[symbol])
+    {
+        return (
+            '<img width="16" height="11" alt="' +
+            kn_htmlEscape(alt) +
+            '" title="' +
+            kn_htmlEscape(alt) +
+            '" src="' +
+            kn_htmlEscape(symbol) +
+            '.gif" />');
+    }
+    // ugly rescaled off-site flag images
+    return (
+        '<img width="16" height="11" alt="' +
+        kn_htmlEscape(alt) +
+        '" title="' +
+        kn_htmlEscape(alt) +
+        '" src="http://www.xe.com/gen/flags/XEcom-illegal2copy-' +
+        kn_htmlEscape(symbol.substring(0, 2)) +
+        '-16.gif" />');
+//    return (
+//  	  '<img width="22" height="16" alt="' +
+//  	  kn_htmlEscape(alt) +
+//  	  '" title="' +
+//  	  kn_htmlEscape(alt) +
+//  	  '" src="http://www.xe.com/gen/flags/XEcom-illegal2copy-' +
+//  	  kn_htmlEscape(symbol.substring(0, 2)) +
+//  	  '-16.gif" />');
+}
+
+{
+    var html = [];
+
+    html[html.length] =
+        '<table width="100%" bgcolor="white" cellpadding=0 cellspacing=1>' +
+        '<tr>' +
+        '<td class="forex" bgcolor="#eeeeee">&nbsp;<' + '/td>';
+
+    for (var to_cursym in watchList)
+    {
+        html[html.length] =
+	    '<td class="forex" bgcolor="#eeeeee">' +
+	    '<font size="-1">' +
+	    '&nbsp;&nbsp;' +
+	    flag2html(to_cursym, '') +
+	    '&nbsp;' +
+	    kn_htmlEscape(to_cursym.toUpperCase()) +
+	    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<' + '/font><' + '/td>';
+    }
+
+    html[html.length] =
+        '<' + '/tr>';
+
+    for (var from_cursym in watchList)
+    {
+        html[html.length] =
+	    '<tr>' +
+	    '<td class="forex" bgcolor="#eeeeee">' +
+	    '<font size="-1">' +
+	    '&nbsp;&nbsp;' +
+	    flag2html(from_cursym, from_cursym.toUpperCase()) +
+	    '&nbsp;&nbsp;' +
+	    '<' + '/font><' + '/td>';
+
+        for (var to_cursym in watchList)
+        {
+            if (from_cursym == to_cursym)
+            {
+                html[html.length] =
+                    '<td class="forex" bgcolor="#eeeeee">' +
+                    '<font size="-1">' +
+                    '&nbsp;&nbsp;' +
+                    '<input class="output" size="10" readonly="readonly" onfocus="blur()" value="1" />' +
+                    '&nbsp;&nbsp;' +
+                    '<' + '/font>' +
+                    '<' + '/td>';
+            }
+            else
+            {
+                html[html.length] =
+                    '<td class="forex" bgcolor="#eeeeee">' +
+                    '<font size="-1">' +
+                    '&nbsp;&nbsp;' +
+                    '<input class="output" size="10" readonly="readonly" onfocus="blur()" name="' +
+                    kn_htmlEscape(from_cursym) +
+                    '-' +
+                    kn_htmlEscape(to_cursym) +
+                    '" value="-" />' +
+                    '&nbsp;&nbsp;' +
+                    '<' + '/font>' +
+                    '<' + '/td>';
+            }
+        }
+
+        html[html.length] =
+            '<' + '/tr>';
+    }
+
+    html[html.length] =
+        '<' + '/table>';
+
+    html[html.length] =
+        '<' + '/td><' + '/tr><' + '/table>' +
+        '<font color=white size="-1">&nbsp;&nbsp;<i><input class="date" size="72" readonly="readonly" onfocus="blur()" name="lastupdate" class="date" /><' + '/span><' + '/i><' + '/font><br /><' + '/td>' +
+        '<' + '/tr>' +
+        '<' + '/form>' +
+        '<' + '/table>';
+    html[html.length] =
+        '<p class="small">' +
+        $_("This page uses the foreign exchange rate SOAP service from %{0}.",
+           '<a target="_blank"' +
+           ' href="http://www.xmethods.net">' +
+           $("XMethods")
+           + '<' + '/a>'
+           ) +
+        '<' + '/p>';
+
+    document.write(html.join("\n"));
+}
+
+// -->
+</script>
+</center>
+
+<noscript>
+
+<h1 align="center">JavaScript 1.2 Required</h1>
+
+<p>This page requires JavaScript 1.2 support, which may be either
+missing or not enabled. If your browser has such support, but that
+support is disabled, it is suggested that you enable it and reload.</p>
+
+</noscript>
+
+<br /><br />
+
+<div class="rule"></div>
+
+</body>
+</html>

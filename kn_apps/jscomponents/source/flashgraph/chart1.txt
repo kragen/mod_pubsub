@@ -1,0 +1,206 @@
+//
+// Copyright (c) 2001 KnowNow, Inc. All rights reserved.
+//
+// @KNOWNOW_LICENSE_START@
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 
+// 1. Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in
+// the documentation and/or other materials provided with the
+// distribution.
+// 
+// 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+// be used to endorse or promote any product without prior written
+// permission from KnowNow, Inc.
+// 
+// THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+// GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+// IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
+// @KNOWNOW_LICENSE_END@
+//
+function scale(name,parent,x,y,px,rotation,min,max,subdivs,labelState, exists) {
+
+	if (! exists) {
+		parent.attachMovie ("empty", name, parent.attachDepth++)
+		var mc = parent[name]
+		mc.attachMovie ("line", "scale", mc.attachDepth++)
+		mc.attachMovie ("label", "label", mc.attachDepth++)
+	}
+	else {
+		var mc = parent[name]
+	}
+
+	
+	mc._x = x
+	mc._y = y
+	mc._rotation = rotation
+
+	if (exists) {
+		for (var i =0; i<=mc.attachDepth;i++) {
+			mc["tic"+i].removeMovieClip()
+		}
+	}
+	
+	mc["scale"]._width = px
+	mc["scale"]._height = 0
+
+	mc["label"].value = name
+	mc["label"]._x = px / 2
+	mc["label"].labelState = labelState
+	
+	if (subdivs >0) {
+		var subLength = px / subdivs
+	}
+	else {
+		subLength = px
+		subdivs = 1
+	}
+
+	this.min = min
+	this.max = max
+	this.subdivs = subdivs
+	this.x = x
+	this.y = y
+	this.length = px
+
+	this.scaleRatio = px / (max-min)
+		
+	for (var i=0; i <= subdivs; i++) {
+		mc.attachMovie ("ticMark", "tic"+i, mc.attachDepth++)
+		var tic =	mc["tic"+i]
+		tic.labelState = labelState
+		tic._x = i * subLength
+		if (typeof(min) !="number" || typeof(max) !="number") {
+			tic.value = ""
+		}
+		else {
+			tic.value = min + (((max-min)*i) / subdivs)
+		}
+	}
+	return mc
+}
+
+function yaxis (mc,name,length,min,max,subdivs) {
+	if (mc != null) {
+		var exists = true
+	}
+	else {
+		var exists = false
+	}
+
+	mc = new scale(name, this, 100,200,length,-90,min,max,subdivs,"reverse", exists)
+
+	return mc
+}
+
+function xaxis (mc,name,length,min,max,subdivs) {
+	if (mc != null) {
+		var exists = true
+	}
+	else {
+		var exists = false
+	}
+
+	mc = new scale(name, this, 100,200,length,0,min,max,subdivs,"normal", exists)
+
+	return mc
+}
+
+//
+
+function bar(name,parent,x,y,width,color,labelState) {
+	if (parent[name] != null) {
+		var update = true
+	}
+	else {
+		parent.attachmovie("bar",name,parent.attachDepth++)
+		if (_root.bars ==null) {
+			_root.bars = new Array()
+		}
+		_root.bars[name] = this
+	}
+
+	this.name = name
+	this.x = x
+	this.y = y
+	this.width = width
+	this.color = color
+	this.labelState = labelState
+
+	parent[name].gotoAndStop (labelState)
+	parent[name].value = name
+	parent[name].bar.color.ioSetHex(color)
+	parent[name]._y = _root.mcY.y
+	parent[name].bar._height = y * _root.mcY.scaleRatio
+	
+	if (typeof (_root.mcX.max) =="number") {
+		parent[name]._x = (x-_root.mcX.min) * _root.mcX.scaleRatio + _root.mcX.x
+		parent[name].bar._width = width * _root.mcX.scaleRatio
+	}
+	else {
+		var subWidth = _root.mcX.length / _root.mcX.subdivs
+		if (width != null) {
+			subwidth = width
+		}
+		parent[name]._x = _root.mcX.x + (x * subWidth)
+		parent[name].bar._width = subWidth
+	}
+
+	if (update) {
+		_root.bars[name] = this
+	}
+}
+
+function refreshChart () {
+	var barList = _root.bars
+	for (var i in barList) {
+		var mc = barList[i] 
+		new bar (mc.name, this, mc.x,mc.y,mc.width,mc.color,mc.labelState)
+	}
+}
+
+/*
+
+//scale(name,parent,x,y,px,rotation,min,max,subdivs,labelState)
+
+
+mcX = xaxis (mcX, "x-axis",100,null,null,4) 
+mcY = yaxis (mcY, "y-axis",100,0,200,2)
+
+
+//bar(name,parent,x,y,width,color,labelState)
+new bar ("bar1", this, 0,50,null,"FFCC00",1)
+new bar ("bar2", this, 1,150,null,"FFCC00",1)
+new bar ("bar3", this, 2,20,null,"FFCC00",1)
+new bar ("bar4", this, 3,75,null,"FFCC00",1)
+
+*/
+
+//WRAPER FUNCTIONS
+
+function build_x_scale (inArgs) {
+	mcX = xaxis (mcX, inArgs[0],inArgs[1],inArgs[2],inArgs[3],inArgs[4]) 
+}
+
+function build_y_scale (inArgs) {
+	mcY = yaxis (mcY, inArgs[0],inArgs[1],inArgs[2],inArgs[3],inArgs[4]) 
+}
+
+function build_bar (inArgs) {
+	new bar (inArgs[0],this,inArgs[1],inArgs[2],inArgs[3],inArgs[4],inArgs[5])
+}

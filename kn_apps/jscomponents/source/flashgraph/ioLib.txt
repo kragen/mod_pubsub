@@ -1,0 +1,1716 @@
+//
+// Copyright (c) 2001 KnowNow, Inc. All rights reserved.
+//
+// @KNOWNOW_LICENSE_START@
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 
+// 1. Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in
+// the documentation and/or other materials provided with the
+// distribution.
+// 
+// 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+// be used to endorse or promote any product without prior written
+// permission from KnowNow, Inc.
+// 
+// THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+// GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+// IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
+// @KNOWNOW_LICENSE_END@
+//
+//-----------------------------------------------------------------
+//ioLib
+//-----------------------------------------------------------------
+
+
+
+//-----------------------------------------------------------------
+
+_root.ioAuthors = function () {
+	trace ("special thanks to everyone who has contributed to the ioLib project")
+	trace ("jon williams - - jon@ioResearch.com")
+	trace ("branden hall - - bhall@figleaf.com")
+	trace ("damien morton - - morton@dennisinter.com")
+	trace ("michael grundvig - - mike@grundvig.com")
+}
+_root.ioFrameLoops = new Array()
+
+_root.ioFrameLoop = function () {
+	this.isIoFrameLoop = true
+
+	this.obj=new Array()
+	this.command=new Array()
+	this.argObj=new Array()
+	this.argProperty=new Array()
+	this.count = 0
+	this.time = 0
+	this.frames = 0
+
+	this.index = _root.ioFrameLoops.length
+	_root.ioFrameLoops[_root.ioFrameLoops.length] = this
+
+	this.running = true
+}
+
+_root.ioFrameLoop.prototype.loop = function () {
+	
+	if ( this.argProperty[this.count] != null) {
+		this.obj[this.count][this.command[this.count]]( this.argObj[this.count][this.argProperty[this.count]] )
+	}
+	else {
+		this.obj[this.count][this.command[this.count]]( this.argObj[this.count] )
+	}
+
+	this.count++
+	if (this.count == this.command.length) {
+		this.count = 0
+		if (this.lifetime != null) {
+			this.time++
+			if (this.time>this.lifetime) {
+				this.end()
+			}
+		}
+	}
+}
+
+_root.ioFrameLoop.prototype.addFrame = function (objArg, commandArg, argObjArg, argPropertyArg) {
+	this.obj[this.frames] = objArg
+	this.command[this.frames] = commandArg
+	this.argObj[this.frames] = argObjArg
+	this.argProperty[this.frames] = argPropertyArg
+
+	this.frames++
+}
+
+_root.ioFrameLoop.prototype.setDone = function (objArg, commandArg, argObjArg, argPropertyArg) {
+	this.doneObj = objArg
+	this.doneCommand = commandArg
+	this.doneArgObj = argObjArg
+	this.doneArgProperty = argPropertyArg
+}
+
+_root.ioFrameLoop.prototype.setLifetime = function (time) {
+	this.lifetime = time
+}
+
+_root.ioFrameLoop.prototype.setMc = function(mc) {
+	this.mc = mc
+}
+
+_root.ioFrameLoop.prototype.reset = function () {
+	if (this.running) {
+		this.end()
+	}
+}
+_root.ioFrameLoop.prototype.end = function () {
+	//call cleanUp fn
+	if (this.doneObj!=null) {
+		if (this.doneArgProperty != null) {
+			this.doneObj[this.doneCommand]( this.doneArgObj[this.doneArgProperty] )
+		}
+		else {
+			this.doneObj[this.doneCommand]( this.doneArgObj )
+		}
+	}
+
+	this.running = false
+}
+
+_root.ioStepLoops = function () {
+	for (var i=0; i<_root.ioFrameLoops.length; i++) {
+		if (_root.ioFrameLoops[i].running) {
+			_root.ioFrameLoops[i].loop()
+		}
+	}
+}
+
+_root.ioCleanLoops = function () {
+	var j=0
+
+	for (var i=0; i < _root.ioFrameLoops.length; i++) {
+		if (_root.ioFrameLoops[i].running) {
+			_root.ioFrameLoops[j] = _root.ioFrameLoops[i]
+			_root.ioFrameLoops[j].index = j
+			j++
+		}
+	}	
+		//purge the rest
+		_root.ioFrameLoops.splice(j)
+}
+
+_root.ioClutch = function (inObj, inProperty, outObj, outProperty) {
+	
+	this.isIoClutch = true
+	this.inObj = inObj
+	this.outObj = outObj
+
+	this.inProperty = inProperty
+	this.outProperty = outProperty
+
+	this.ratio = 1
+
+	this.transformSet = false
+}
+
+_root.ioClutch.prototype.setTransform = function (fn) {
+	this.transform = fn
+	this.transformSet = true
+}
+
+_root.ioClutch.prototype.setLinger = function (int) {
+	this.linger = int
+}
+
+_root.ioClutch.prototype.engage = function () {
+	if (!this.loop.running) {
+		this.loop = new _root.ioFrameLoop()
+		this.loop.addFrame (this, "update")
+	}
+}
+
+_root.ioClutch.prototype.disengage = function () {
+	this.loop.end()
+
+	if (this.linger > 0) {
+		this.endloop = new _root.ioFrameLoop()
+
+		for (var i=0; i<this.linger; i++) {
+			this.endloop.addFrame (this, "update")
+		}
+		this.endloop.addFrame (this.endloop, "end")
+	}
+}
+
+_root.ioClutch.prototype.pull = function () {
+	this.buffer = this.inObj[this.inProperty]
+}
+
+_root.ioClutch.prototype.push = function () {
+	if (this.transformSet) {
+		this.outObj[this.outProperty] = this.transform(this.inObj, this.outObj, this.buffer)
+	}
+	else {
+		this.outObj[this.outProperty] = this.buffer * this.ratio
+	}
+}
+
+_root.ioClutch.prototype.update = function () {
+	this.pull()
+	this.push()
+}
+
+
+_root.ioBufferedClutch = function (inObj, inProperty, outObj, outProperty) {
+	this.superClass (inObj, inProperty, outObj, outProperty) 
+}
+
+_root.ioBufferedClutch.prototype.superclass = _root.ioClutch.prototype.constructor
+_root.ioBufferedClutch.prototype.__proto__ = _root.ioClutch.prototype
+
+_root.ioBufferedClutch.prototype.setBufferLength = function (len) {
+	this.bufferLength = len
+	if (this.buffer == null) {
+		this.buffer = new Array()
+	}
+
+	for (var i=this.buffer.length; i<len; i++) {
+		this.buffer[this.buffer.length] = this.pull()
+	}
+}
+
+_root.ioBufferedClutch.prototype.update = function () {
+	var temp2 = this.pull()
+	this.buffer.push(temp2)
+	var temp1 = this.buffer.shift()
+	this.push(temp1)
+}
+
+_root.ioBufferedClutch.prototype.updateNoDelay = function () {
+	var temp2 = this.pull()
+	this.buffer.push(temp2)
+	this.buffer.shift()
+	this.push(temp2)
+}
+
+_root.ioBufferedClutch.prototype.updateSomeDelay = function () {
+	var temp2 = this.pull()
+	this.buffer.push(temp2)
+	this.buffer.shift()
+	this.push( this.buffer [(this.buffer.length-1) - this.delay] )
+}
+
+_root.ioBufferedClutch.prototype.setDelay = function (delay) {
+	this.delay = delay
+	this.update = this.upDateSomeDelay
+}
+
+_root.ioBufferedClutch.prototype.setNoDelay = function () {
+	this.update = this.upDateNoDelay
+}
+
+_root.ioBufferedClutch.prototype.pull = function () {
+	return this.inObj[this.inProperty]
+}
+
+_root.ioBufferedClutch.prototype.push = function (val) {
+	if (this.transformSet) {
+		this.outObj[this.outProperty] = this.transform(this.inObj, this.outObj, val)
+	}
+	else {
+		this.outObj[this.outProperty] = val * this.ratio
+	}
+}
+
+
+/* TRANSFORM FUNCTION TEMPLATES
+//
+
+
+
+//LINEAR
+
+xform1 = function (inObj, outObj, inValue) {
+	
+		var inLow = 10
+		var inHi =20
+		var outLow = 100
+		var outHi = 200
+
+		var outValue = (((inValue-inLow)/(inHi - inLow)) * (outHi - outLow)) + outLow
+		
+		return outValue
+}
+
+*/
+
+//----
+function ioObjToXml (ObjName, mc) {
+	var x = new XML;
+	var xdata = x.createElement(ObjName);
+	for (var i in mc ) {
+		xdata.attributes[i] = mc[i]
+	}
+	x.appendChild(xdata)
+
+	return x
+}
+
+function ioXmlToObj (doc) {
+	var returnObj = new Object ()
+
+	for (var i in doc.attributes) {
+		returnObj[i] =  doc.attributes[i]
+	}
+
+	return returnObj
+}
+
+//----
+MovieClip.prototype.ioCheckLoaded = function (name) {
+
+	if (this.getBytesTotal > 0) {
+		this.ioLoadedPercent = int(100*(this.getBytesLoaded() / this.getBytesTotal()))
+	}
+	else {
+		this.ioLoadedPercent = 0
+	}
+
+	this._visible = false
+
+	if (this.getBytesLoaded() > 0 && this.getBytesLoaded() >= this.getBytesTotal() && this.ioLoaded == null) {
+		this.ioLoaded = true
+		this.ioSetVars(this._parent[name+"vars"])
+		this._parent[name].end()
+		delete (this._parent[name])
+		delete (this._parent[name+"vars"])
+	}
+}
+
+
+MovieClip.prototype.ioLoadMovie = function (path, vars, obj, command, argObj, argProperty) {
+
+	//trace ("ioLoadMovie")
+		
+	this.ioRemoveFrameLoopsRecursive()
+	this.loadMovie (path)
+	
+	this.ioLoaded = false
+	if (this._parent.ioLoaderCount != null) {
+		this._parent.ioLoaderCount++
+	}
+	else {
+		this._parent.ioLoaderCount = 0
+	}
+
+	var name = "ioLoader" + this._parent.ioLoaderCount
+
+	this._parent[name+"vars"] = vars
+
+	var name = "ioLoader" + this._parent.ioLoaderCount
+	this._parent[name] = new _root.ioFrameLoop()
+	this._parent[name].addFrame (this, "ioCheckLoaded", name)
+
+	this._parent[name].setDone (obj, command, argObj, argProperty)
+}
+
+MovieClip.prototype.ioSetVars = function (vars) {
+	for (var i in vars) {
+		this[i] = vars[i]
+	}
+}
+
+MovieClip.prototype.ioSetRGB = function (r,g,b) {
+	var myColor = new Color(this)
+	myColor.setRGB(r<<16|g<<8|b)
+}
+
+MovieClip.prototype.ioSetHex = function (hex) {
+	var myColor = new Color(this)
+	myColor.setRGB(parseInt(hex,16))
+}
+
+MovieClip.prototype.ioRemoveFrameLoops = function () {
+	for (var i in this) {
+		if (this[i].isIoFrameLoop) {
+			if (this[i].running) {
+				this[i].end()
+			}
+		}
+	}
+}
+
+MovieClip.prototype.ioRemoveFrameLoopsRecursive = function () {
+	for (var i in this) {
+		if (this[i].isIoFrameLoop) {
+			if (this[i].running) {
+				this[i].end()
+			}
+		}
+		if (typeof(this[i])=="movieclip") {
+			this[i].ioRemoveFrameLoopsRecursive()
+		}
+		if (this[i].isIoClutch) {
+			this[i].disengage()
+		}
+	}
+}
+
+MovieClip.prototype.ioRemoveMovieClip = function () {	
+	this.ioRemoveFrameLoops()//Recursive()
+	this.removeMovieClip()
+}
+
+MovieClip.prototype.ioUnloadMovie = function () {	
+	this.ioRemoveFrameLoopsRecursive()
+	this.unloadMovie()
+}
+
+//----------------------------------------------
+
+//Forces
+
+MovieClip.prototype.ioAddForce = function (fn) {
+	if (this.ioForces == null) {
+		this.ioForces = new Array()
+		this.ioForceRunning = new Array()
+		this.ioForceParams = new Array()
+		this.ioForceData = new Array()
+		this.ioForceIds = new Array()
+	}
+		this.ioForceRunning[this.ioForces.length] = true
+		this.ioForceParams[this.ioForces.length] = new Array()
+		var params = this.ioForceParams[this.ioForces.length]
+
+		this.ioForceIds[this.ioForces.length] = this.ioForces.length
+
+	for (var i=1; i < arguments.length; i++) {
+		params[params.length] = arguments[i]
+	}
+
+	this.ioForces[this.ioForces.length] = fn
+	
+	if (this.ioMover.running!=true) {
+		this.ioMover = new _root.ioFrameLoop()
+		this.ioMover.addFrame(this, "ioMove")
+	}
+
+	return this.ioForceIds[this.ioForceIds.length - 1]
+}
+
+MovieClip.prototype.ioKillForce = function (ioForceId) {
+	this.ioForces[ioForceId] = null
+	this.ioForceParams[ioForceId] = null
+
+	var empty = true
+	for (var i in this.ioForces) {
+		if (this.ioForces[i] != null) {
+			empty = false
+			break;
+		}
+	}
+
+	if (empty) {
+		//trace ("ioMove killed")
+		this.ioMover.reset()
+	}
+}
+
+MovieClip.prototype.ioGetForceIds = function () {
+	var returnArray = new Array()
+	for (var i in this.ioForces) {
+		if (this.ioForces[i] != null) {
+			returnArray[returnArray.length] = ioForceIds[i]
+		}
+	}
+	return returnArray
+}
+
+MovieClip.prototype.ioPauseForce = function (ioForceId) {
+	this.ioForceRunning[ioForceId] = false
+}
+
+MovieClip.prototype.ioUnPauseForce = function (ioForceId) {
+	this.ioForceRunning[ioForceId] = true
+}
+
+MovieClip.prototype.ioMove = function () {
+	this.ioSetMove()
+
+	this._x += this.ioDx
+	this._y += this.ioDy
+
+	this.ioVx = ioDx
+	this.ioVy = ioDy
+
+	this.ioDx = 0
+	this.ioDy = 0
+}
+
+MovieClip.prototype.ioSetMove = function () {
+	var returnData = new Object()
+	for (var i in this.ioForces) {
+		if (this.ioForceRunning[i]) {
+			returnData = this[this.ioForces[i]](this, this.ioForceParams[i], this.ioForceData[i], this.ioForceIds[i])
+			this.ioForceData[i] = returnData
+		}
+	}
+}
+
+MovieClip.prototype.ioGetForceState = function ( ioForceId ) {
+	if (this.ioForceRunning[ioForceId]) {
+		return true
+	}
+	else {
+		return false
+	}
+}
+
+MovieClip.prototype.ioPointAttraction = function (mc, args, data, ioForceId) {
+	//x, y, accel, accelUnits, friction, range, killFlag
+	var x = args[0]
+	var y = args[1]
+	var accel = args[2]
+	var accelUnits = args[3]
+	var friction = args[4]
+	var range = args[5]
+	var killFlag = args[6]
+	if (killFlag == null) {
+		killFlag = true
+	}
+
+	var dx = data.dx * friction
+	var dy = data.dy * friction
+
+	var distX = x - mc._x
+	var distY = y - mc._y
+
+	var dist = Math.sqrt(distX*distX + distY*distY)
+
+	var rangeTest = false
+	if (accel > 0) {
+		if (dist > range) {
+			rangeTest = true
+		}
+	}
+	else {
+		if (dist < range) {
+			rangeTest = true
+		}
+	}
+	if (rangeTest || range == null) {
+
+		if (accelUnits=="pc") {
+			dx += accel * distX
+			dy += accel * distY
+		}
+		else {
+			var mul = 0
+			if (distX<0) {
+				mul = -1
+			}
+			if (distX>0) {
+				mul = 1
+			}
+			dx += accel * mul
+			
+			mul = 0
+			if (distY<0) {
+				mul = -1
+			}
+			if (distY>0) {
+				mul = 1
+			}
+			dy += accel * mul
+		}
+	}
+
+	if (range!=null) {
+		if (Math.abs(distX) < Math.abs(accel) || Math.abs(distX) < 1) {
+			var killFlagX = true
+		}
+		if (Math.abs(distY) < Math.abs(accel) || Math.abs(distY) < 1) {
+			var killFlagY = true
+		}
+	}
+	if (Math.abs(dx) < Math.abs(accel)) {
+		var killFlagDx = true
+	}
+	if (Math.abs(dy) < Math.abs(accel)) {
+		var killFlagDy = true
+	}
+
+	if (killFlag && killFlagX && killFlagY && killFlagDx && killFlagDy) {
+		dx = distX
+		dy = distY
+		mc.ioKillForce(ioForceId)
+	}
+	if (killFlag && killFlagDx && killFlagDy && accel<0) {
+		mc.ioKillForce(ioForceId)
+	}
+
+	mc.ioDx += dx
+	mc.ioDy += dy
+
+	var returnObj = new Object()
+	returnObj.dx = dx
+	returnObj.dy = dy
+
+	return returnObj
+}
+
+MovieClip.prototype.ioObjAttraction = function (mc, args, data, ioForceId) {
+	//mc, accel, units, friction, range, killFlag
+	
+	var x = args[0]._x
+	var y = args[0]._y
+	var accel = args[1]
+	var accelUnits = args[2]
+	var friction = args[3]
+	var range = args[4]
+	var killFlag = args[5]
+	if (killFlag == null) {
+		killFlag = true
+	}
+
+	var dx = data.dx * friction
+	var dy = data.dy * friction
+
+	var distX = x - mc._x
+	var distY = y - mc._y
+
+	var dist = Math.sqrt(distX*distX + distY*distY)
+
+	var rangeTest = false
+	if (accel > 0) {
+		if (dist > range) {
+			rangeTest = true
+		}
+	}
+	else {
+		if (dist < range) {
+			rangeTest = true
+		}
+	}
+	if (rangeTest || range == null) {
+
+		if (accelUnits=="pc") {
+			dx += accel * distX
+			dy += accel * distY
+		}
+		else {
+			var mul = 0
+			if (distX<0) {
+				mul = -1
+			}
+			if (distX>0) {
+				mul = 1
+			}
+			dx += accel * mul
+			
+			mul = 0
+			if (distY<0) {
+				mul = -1
+			}
+			if (distY>0) {
+				mul = 1
+			}
+			dy += accel * mul
+		}
+	}
+	if (range!=null) {
+		if (Math.abs(distX) < Math.abs(accel) || Math.abs(distX) < 1) {
+			var killFlagX = true
+		}
+		if (Math.abs(distY) < Math.abs(accel) || Math.abs(distY) < 1) {
+			var killFlagY = true
+		}
+	}
+	if (Math.abs(dx) < Math.abs(accel)) {
+		var killFlagDx = true
+	}
+	if (Math.abs(dy) < Math.abs(accel)) {
+		var killFlagDy = true
+	}
+
+	if (killFlag && killFlagX && killFlagY && killFlagDx && killFlagDy) {
+		dx = distX
+		dy = distY
+		mc.ioKillForce(ioForceId)
+	}
+	if (killFlag && killFlagDx && killFlagDy && accel<0) {
+		mc.ioKillForce(ioForceId)
+	}
+
+	mc.ioDx += dx
+	mc.ioDy += dy
+
+	var returnObj = new Object()
+	returnObj.dx = dx
+	returnObj.dy = dy
+
+	return returnObj
+}
+
+MovieClip.prototype.ioTotalDeltaAttraction = function (mc, args, data, ioForceId) {
+	//x, y, percent, friction
+	var totalDx = args[0]
+	var totalDy = args[1]
+	var accel = args[2]
+	var accelUnits = args[3]
+	var friction = args[4]
+	var range = args[5]
+
+	var dx = data.dx * friction
+	var dy = data.dy * friction
+
+	var totalX = data.totalX
+	var totalY = data.totalY
+
+	var distX = totalDx - totalX
+	var distY = totalDy - totalY
+
+	var dist = Math.sqrt(distX*distX + distY*distY)
+
+	var rangeTest = false
+	if (accel > 0) {
+		if (dist > range) {
+			rangeTest = true
+		}
+	}
+	else {
+		if (dist < range) {
+			rangeTest = true
+		}
+	}
+	if (rangeTest || range == null) {
+
+		if (accelUnits=="pc") {
+			dx += accel * distX
+			dy += accel * distY
+		}
+		else {
+			var mul = 0
+			if (distX<0) {
+				mul = -1
+			}
+			if (distX>0) {
+				mul = 1
+			}
+			dx += accel * mul
+			
+			mul = 0
+			if (distY<0) {
+				mul = -1
+			}
+			if (distY>0) {
+				mul = 1
+			}
+			dy += accel * mul
+		}
+	}
+	
+	if (range!=null) {
+		if (Math.abs(distX) < Math.abs(accel)) {
+			var killFlagX = true
+		}
+		if (Math.abs(distY) < Math.abs(accel)) {
+			var killFlagY = true
+		}
+	}
+	if (Math.abs(dx) < Math.abs(accel)) {
+		var killFlagDx = true
+	}
+	if (Math.abs(dy) < Math.abs(accel)) {
+		var killFlagDy = true
+	}
+
+	if (killFlagX && killFlagY && killFlagDx && killFlagDy) {
+		dx = distX
+		dy = distY
+		mc.ioKillForce(ioForceId)
+	}
+	if (killFlagDx && killFlagDy && accel<0) {
+		mc.ioKillForce(ioForceId)
+	}
+
+	totalX += dx
+	totalY += dy
+	mc.ioDx += dx
+	mc.ioDy += dy
+
+	var returnObj = new Object()
+	returnObj.totalX = totalX
+	returnObj.totalY = totalY
+	returnObj.dx = dx
+	returnObj.dy = dy
+
+	return returnObj
+}
+
+MovieClip.prototype.ioAngleAttraction = function (mc, args, data, ioForceId) {
+	//theta, totalDist, accel, accelUnits, frictionPercent
+	var theta = args[0]
+	var totalDist = args[1]
+	var accel = args[2]
+	var accelUnits = args[3]
+	var friction = args[4]
+	var range = args[5]
+
+	var dx = data.dx * friction
+	var dy = data.dy * friction
+
+	var totalX = data.totalX
+	var totalY = data.totalY
+
+	var distX = int((Math.sin (Math.PI/180 * theta)) * totalDist) - totalX
+	var distY = int((Math.cos (Math.PI/180 * theta)) *-1* totalDist) - totalY
+
+	var dist = Math.sqrt(distX*distX + distY*distY)
+
+	var rangeTest = false
+	if (accel > 0) {
+		if (dist > range) {
+			rangeTest = true
+		}
+	}
+	else {
+		if (dist < range) {
+			rangeTest = true
+		}
+	}
+	if (rangeTest || range == null) {
+
+		if (accelUnits=="pc") {
+			dx += accel * distX
+			dy += accel * distY
+		}
+		else {
+			var mul = 0
+			if (distX<0) {
+				mul = -1
+			}
+			if (distX>0) {
+				mul = 1
+			}
+			dx += accel * mul
+			
+			mul = 0
+			if (distY<0) {
+				mul = -1
+			}
+			if (distY>0) {
+				mul = 1
+			}
+			dy += accel * mul
+		}
+	}
+
+	if (range!=null) {
+		if (Math.abs(distX) < Math.abs(accel)) {
+			var killFlagX = true
+		}
+		if (Math.abs(distY) < Math.abs(accel)) {
+			var killFlagY = true
+		}
+	}
+	if (Math.abs(dx) < Math.abs(accel)) {
+		var killFlagDx = true
+	}
+	if (Math.abs(dy) < Math.abs(accel)) {
+		var killFlagDy = true
+	}
+
+	if (killFlagX && killFlagY && killFlagDx && killFlagDy) {
+		dx = distX
+		dy = distY
+		mc.ioKillForce(ioForceId)
+	}
+	if (killFlagDx && killFlagDy && accel<0) {
+		mc.ioKillForce(ioForceId)
+	}
+
+	totalX += dx
+	totalY += dy
+	mc.ioDx += dx
+	mc.ioDy += dy
+
+	var returnObj = new Object()
+	returnObj.totalX = totalX
+	returnObj.totalY = totalY
+	returnObj.dx = dx
+	returnObj.dy = dy
+
+	return returnObj
+}
+
+MovieClip.prototype.ioAccelBy = function (mc, args, data, ioForceId) {
+	//rateX, rateY, friction, lifetime
+	var rateX = args[0]
+	var rateY = args[1]
+	var friction = args[2]
+	var lifetime = args[3]
+
+	if (data.lifetime++>lifetime-1 && lifetime!=null) {
+		var dx = (data.dx * friction)
+		var dy = (data.dy * friction)
+
+		if ((Math.abs(dx) < 1) && (Math.abs(dy) < 1)) {
+			this.ioKillForce (ioForceId)
+		}
+	}
+	else {
+		var dx = (data.dx * friction)+rateX
+		var dy = (data.dy * friction)+rateY
+	}
+
+	mc.ioDx += dx
+	mc.ioDy += dy
+	
+	returnObj = new Object()
+	returnObj.dx = dx
+	returnObj.dy = dy
+	returnObj.lifetime = data.lifetime
+	return returnObj
+}
+
+MovieClip.prototype.ioAccelAt = function (mc, args, data, ioForceId) {
+	//theta, rate, friction, lifetime
+	var theta = args[0]
+	var rate = args[1]
+	var friction = args[2]
+	var lifetime = args[3]
+
+	var rateX = ((Math.sin (Math.PI/180 * theta))) * rate
+	var rateY = ((Math.cos (Math.PI/180 * theta))) *-1* rate
+
+	if (data.lifetime++>lifetime-1 && lifetime!=null) {
+		var dx = (data.dx * friction)
+		var dy = (data.dy * friction)
+
+		if ((Math.abs(dx) < 1) && (Math.abs(dy) < 1)) {
+			this.ioKillForce (ioForceId)
+		}
+	}
+	else {
+		var dx = (data.dx * friction)+rateX
+		var dy = (data.dy * friction)+rateY
+	}
+
+	mc.ioDx += dx
+	mc.ioDy += dy
+	
+	returnObj = new Object()
+	returnObj.dx = dx
+	returnObj.dy = dy
+	returnObj.lifetime = data.lifetime
+	return returnObj
+}
+
+MovieClip.prototype.ioMoveTo = function (mc, args, data, ioForceId) {
+	//x, y, percent, friction
+	var x = args[0]
+	var y = args[1]
+	var delta = args[2]
+
+	var distX = x - mc._x
+	var distY = y - mc._y
+
+	var dist = Math.sqrt(distX*distX + distY*distY)
+
+	if (dist > delta) {
+		var dx = (distX/dist) * delta
+		var dy = (distY/dist) * delta
+	}
+	else {
+		var dx = distX
+		var dy = distY
+		var killFlag = true
+	}
+
+	if (killFlag) {
+		mc.ioKillForce(ioForceId)
+	}
+
+	mc.ioDx += dx
+	mc.ioDy += dy
+}
+
+MovieClip.prototype.ioMoveBy = function (mc, args, data, ioForceId) {
+	//x, y, percent, friction
+	var totalDx = args[0]
+	var totalDy = args[1]
+	var delta = args[2]
+
+	var totalX = data.totalX
+	var totalY = data.totalY
+
+	var distX = totalDx - totalX
+	var distY = totalDy - totalY
+
+	var dist = Math.sqrt(distX*distX + distY*distY)
+
+	if (dist > delta) {
+		var dx = (distX/dist) * delta
+		var dy = (distY/dist) * delta
+	}
+	else {
+		var dx = distX
+		var dy = distY
+		var killFlag = true
+	}
+
+	if (killFlag) {
+		mc.ioKillForce(ioForceId)
+	}
+
+	mc.ioDx += dx
+	mc.ioDy += dy
+
+	returnObj = new Object()
+	returnObj.totalX = totalX + dx
+	returnObj.totalY = totalY + dy
+	return returnObj
+}
+
+MovieClip.prototype.ioMoveAt = function (mc, args, data, ioForceId) {
+	//theta, totalDist, delta
+	var theta = args[0]
+	var totalDist = args[1]
+	var delta = args[2]
+
+	var totalX = data.totalX
+	var totalY = data.totalY
+
+	var distX = int((Math.sin (Math.PI/180 * theta)) * totalDist) - totalX
+	var distY = int((Math.cos (Math.PI/180 * theta)) *-1* totalDist) - totalY
+
+	var dist = Math.sqrt(distX*distX + distY*distY)
+
+	if (dist > delta) {
+		var dx = (distX/dist) * delta
+		var dy = (distY/dist) * delta
+	}
+	else {
+		var dx = distX
+		var dy = distY
+		var killFlag = true
+	}
+
+	if (killFlag) {
+		mc.ioKillForce(ioForceId)
+	}
+
+	mc.ioDx += dx
+	mc.ioDy += dy
+
+	returnObj = new Object()
+	returnObj.totalX = totalX + dx
+	returnObj.totalY = totalY + dy
+	return returnObj
+}
+
+//--------------------------------------------------------------------------
+_root.ioListItem = function (mc) {
+	this.children = new _root.ioHashTable()
+	this.mc = mc
+	this.indent = 10
+	this.itemHeight = 16
+}
+
+_root.ioListItem.prototype.addChild = function (property, obj) {
+
+	//old: function (name, value, staticFlag, obj)
+
+	var name = property
+	var value = ""
+	var staticFlag = true
+
+	var childObj = obj[property]
+	var type = typeof (childObj)
+
+	if (type != "function") {
+
+		if (type == "object") {
+			if (childObj.isIoFrameLoop) {
+				value = "ioFrameLoop"
+			}
+			else {
+				value = "object"
+			}
+			staticFlag = false
+		}
+		if (type == "movieclip") {
+			value = childObj._target
+			staticFlag = false
+		}
+		if (type == "number" || type == "string" || type == "boolean") {
+			value = childObj
+			staticFlag = true
+		}
+
+		var size = this.children.size()
+		var itemCount = this.mc.itemCount++
+		this.mc.attachMovie ("item" , "item" + itemCount, itemCount)
+		var myMc = this.mc["item" + itemCount]
+
+		myMc.staticFlag = staticFlag
+		myMc.name = name
+		myMc.value = value
+		myMc.obj = obj[property]
+
+		myMc.parent = this
+		myMc.index = size
+
+		var oldMcAtIndex = this.children.remove (name)
+		this.children.put (name, myMc)
+		if (myMc._y == null) {
+			trace ("ERROR--addchild-- " + "new mc")
+		}
+		
+		if (oldMcAtIndex._y != null) {
+			if (oldMcAtIndex._y == null) {
+				trace ("ERROR--addchild-- " + "old mc")
+			}
+			var newIndex = this.children.getNewKey()
+			var error = this.children.put (newIndex, oldMcAtIndex)
+			if (error != null) {
+				trace ("AddChildError " + error + "  " + "  oldIndex" + name + "  newIndex" + newIndex)
+			}
+			oldMcAtIndex.name = newIndex
+		}
+
+		myMc._x = this.indent
+	}
+}
+
+_root.ioListItem.prototype.open = function (obj) {
+	this.isOpen = true
+
+	for (var j in obj) {
+		if (typeof (obj[j]) != "function") {
+			this.addChild (j, obj)
+		}
+	}
+
+	var prev = null
+
+	var myChildren = this.children.getValues()
+	myChildren[0]._visible = true
+	myChildren[0]._y = this.itemHeight 
+	for (var i=1; i < myChildren.length; i++) {
+		myChildren[i]._visible = true
+		prev = myChildren[i-1]
+		myChildren[i]._y = prev._y + prev._height
+	}
+	this.reflowChildren(this.mc.index)
+	this.reflow(this.mc.index)
+}
+
+_root.ioListItem.prototype.close = function () {
+	this.isOpen = false
+	var prev = null
+
+	if (this.updater.running) {
+		this.autoUpdateOff()
+	}
+
+	var myChildren = this.children.getValues()
+	if (myChildren.length ==0) {
+		trace ("CLOSE ERROR:  this item has no children")
+	}
+	for (var i=0; i < myChildren.length; i++) {
+		myChildren[i].ioList.updater.reset()
+		//if (myChildren[i].ioList.isOpen) {
+			if (myChildren[i]._y ==null) {
+				trace ("ERROR " + "close")
+			}
+			if (myChildren[i].ioList.isOpen) {
+				myChildren[i]._x += 100
+				myChildren[i].ioList.close()
+			}
+		//}
+		myChildren[i].removeMovieClip()
+	}
+	this.children.clear()
+}
+
+
+_root.ioListItem.prototype.reflowChildren = function () {
+	var size = this.children.size()
+	for (var i = 0; i<size; i++) {
+		var myMc = this.children.getByIndex(i)
+		if (i > 0) {
+			var prev = this.children.getByIndex(i-1)
+			if (prev._y == null) {
+				trace ("ERROR--reflowChildren-- " + "prev mc")
+			}
+			myMc._y = prev._height + prev._y 
+		}
+		else {
+			//var prev = this.mc
+			myMc._y = this.itemHeight//prev._height
+		}
+	}
+}
+
+_root.ioListItem.prototype.reflow = function (index) {
+	//if (index == null) {
+		index = 1
+	//}
+
+	var mySiblings = this.mc.parent.children.getValues()
+	mySiblings[0]._y = this.itemHeight
+	for (var j=index; j< mySiblings.length; j++) {
+		var prev = mySiblings[j-1]
+
+		if (prev._y==null) {
+			trace ("ERROR" + " null sibling")
+		}
+
+
+		if (prev.ioList.isOpen) {
+			mySiblings[j]._y = prev._y + prev._height
+		}
+		else {
+			mySiblings[j]._y = prev._y + this.itemHeight
+		}
+	}
+	this.mc.parent.reflow(this.mc.parent.mc.index)
+}
+
+_root.ioListItem.prototype.refreshItem = function () {
+	this.mc.value = this.mc.parent.mc.obj[this.mc.name]
+}
+_root.ioListItem.prototype.refresh = function () {
+	var changeFlag = false
+	if (this.isOpen) {  
+		var exist = new Array()
+		var existList = this.children.getValues()
+		if (existList.length < 0) {
+			trace ("REFRESH ERROR: NO CHILDREN")
+		}
+		for (var n in existList) {
+			existList[n].exists = false
+		}
+	
+		for (var j in this.mc.obj) {
+			//trace ("-")
+			var childExists = false
+			var typeOfObjJ = typeof (this.mc.obj[j])
+			if (typeOfObjJ == "number" || typeOfObjJ == "string" || typeOfObjJ == "boolean") {
+			//trace (">property")
+				if (this.children.containsKey(j)) {
+					var myChild = this.children.get(j)
+					myChild.value = this.mc.obj[j]
+					childExists = true
+					myChild.exists = true
+				}
+			}
+			else {
+				if (typeOfObjJ != "function") {
+					
+					//trace (">obj")
+					var myChildren = this.children.getValues()
+					for (var i in myChildren) {
+						if (myChildren[i].obj == this.mc.obj[j]) {
+							//
+							if (childExists) {
+								var foundAlready = true
+							}
+							childExists = true
+							myChildren[i].exists = true	
+														
+							var currentMc = this.children.get(j)
+							if (myChildren[i] != currentMc) {
+							//if the index has changed
+								changeFlag = true
+								var oldMcAtIndex = this.children.remove (j)
+								var oldIndex = this.children.removeValue (myChildren[i])
+
+								this.children.put (j, myChildren[i])
+								
+								if (oldMcAtIndex != null) {
+									var newIndex = this.children.getNewKey()
+									var error = this.children.put (newIndex, oldMcAtIndex)
+									//trace ("error " + error + "  " + j + "  oldIndex" + oldIndex + "  newIndex" + newIndex)
+									oldMcAtIndex.name = newIndex
+								}
+								myChildren[i].name = j
+							}
+							break;
+						}
+					}
+				}
+			}
+			if (!childExists && typeOfObjJ != "function") {
+				changeFlag = true
+				this.addChild (j, this.mc.obj)
+				var myChild = this.children.get(j)
+				myChild.exists = true
+			}
+		}
+
+		var existList = this.children.getValues()
+
+		for (var l in existList) {
+			var myChild = null
+			if (!existList[l].exists) {
+				changeFlag = true
+				myChild = existList[l]
+				if (myChild._y != null) {
+					if (myChild.ioList.isOpen) {
+						myChild.ioList.close()
+					}
+					this.children.removeValue (myChild)
+					myChild.removeMovieClip()
+				}
+			}
+		}
+
+	}
+	if (changeFlag) {
+		this.reflowChildren(this.mc.index)
+		this.reflow(this.mc.index)
+		_root.ioCleanLoops()
+	}
+	
+}
+
+_root.ioListItem.prototype.autoUpdateOn = function (fn) {
+	this.autoUpdateFlag = true
+
+	this.mc.autoUpdateIndicator.ioSetHex ("00FF00")
+
+	this.updater.reset()
+	this.updater= new _root.ioFrameLoop()
+	this.updater.addFrame(this, fn)
+	if (!this.isOpen) {
+		this.open()
+	}
+}
+
+_root.ioListItem.prototype.autoUpdateOff = function () {
+	this.autoUpdateFlag = false
+
+	this.mc.autoUpdateIndicator.ioSetHex ("FF0000")
+	this.updater.end()
+}
+
+_root.ioListItem.prototype.toggle = function (obj) {
+	_root.ioCleanLoops()
+	if (this.isOpen) {
+		this.close()
+		//this.reflowChildren(this.mc.index)
+		this.reflow(this.mc.index)
+	}
+	else {
+		this.open(obj)
+	}
+	_root.ioCleanLoops()
+}
+
+_root.ioListItem.prototype.autoUpdateToggle = function (obj) {
+	_root.ioCleanLoops()
+	if (this.mc.obj!=null) {
+		if (this.autoUpdateFlag) {
+			this.autoUpdateOff()
+		}
+		else {
+			if (!this.mc.staticFlag)	 { 
+				this.autoUpdateOn("refresh")
+			}
+			else {
+				this.autoUpdateOn("refreshItem")
+			}
+		}
+	}
+	_root.ioCleanLoops()
+}
+
+//---------------------------------------------------------------------------
+// String object rewrite v1.3
+//    Branden J. Hall
+//    Fig Leaf Software
+//
+//    Thanks to Damien Morton for the indexOf code
+//	  Thanks to Steven Yi for the *great* idea for the split code
+//---------------------------------------------------------------------------
+String.prototype.charAt = function(index){
+	return(substring(this, index+1, 1));
+}
+
+String.prototype.concat = function(){
+	var r = this.toString();
+	for (var i=0; i<arguments.length; ++i){
+		r += arguments[i];
+	}
+	return (r);
+}
+
+String.prototype.indexOf = function(sub, i){
+ 	if (i == null) i = 0;
+ 	var size = sub.length;
+ 	var last = this.length - size + 1;
+ 	while ((i <= last) && (substring(this, 1+i++, size) != sub));
+	return (i <= last ? (i-1) : -1);
+}
+
+String.prototype.lastIndexOf = function(sub, i){
+	size = sub.length;
+	i == null ? i = this.length - size + 1 : ++i;
+	if (sub.length == 0) return i-1;
+	while ((i >= 0) && (substring(this, i--, size) != sub));
+	return (i == -1 ? -1 : (i));
+}
+
+String.prototype.slice = function(s, e){
+	return(substring(this, s+1, e-s));
+}
+
+String.prototype.split = function(d){
+	if (d != null){
+		var r = new Array();
+		var s = this.length;
+		var buf;
+		var c;
+		var n = 0;
+		if (d != ""){
+			for (var i=0; i<s; ++i){
+				c = substring(this, i+1, 1);
+				if (c == d){
+					r[n] = buf;
+					buf = "";
+					++n;
+				}else{
+					buf += c;
+				}
+			}
+			if (buf != ""){
+				r[n] = buf;
+			}
+		}else{
+			for (var i=0; i<s; ++i){
+					r[i] = substring(this, i+1, 1);
+			}		
+		}
+	}else{
+		r = new Array(this.toString());
+	}
+	return (r);
+}
+
+String.prototype.substr = function(s, l){
+	if (l == null){
+		l = this.length - s;
+	}
+	return(substring(this, s+1, l));
+}
+//---------------------------------------------------------------------------
+
+function Array_quickSort(){
+	//Figure out if any arguments were passed in
+	//If there weren't set bot and top to default values
+	if (arguments[0]==null){
+		var bot = 0;
+	}else{
+		var bot = arguments[0];
+	}
+	if (arguments[1]==null){
+		var top = this.length-1;
+	}else{
+		var top = arguments[1];
+	}
+	if (top-bot == 1){
+		if (this[top] < this[bot]){
+			temp = this[top];
+			this[top] = this[bot];
+			this[bot] = temp;
+		}
+	}else{
+		//Set up loop for tail recursion
+		while (bot<top){
+			var i = bot;
+			var j = top;
+
+			//Pick the pivot
+			pivot = this[bot];
+
+			//Partition the array around the pivot
+			while(i<j){
+				while(this[j]>pivot){
+					--j;
+				}
+				this[i] = this[j];
+				while (i<j && (this[i]<=pivot)){
+					++i;
+				}
+				this[j]=this[i];
+			}
+
+			//Replace the pivot
+			this[i]=pivot;
+
+			//Sort the left sub array
+			this.quickSort(bot,i-1);
+
+			//Sort the right sub array via tail recursion
+			bot = i+1;
+		}
+	}
+}
+//Array.prototype.quickSort = Array_quickSort;
+//----------------------------------------------------------------
+
+
+
+
+
+// Designed to simulate the java hashtable class
+// Read the javadocs for specific information about usage.
+// Please do not remove or modify the author method.
+_root.ioHashTable = function () {
+	this._keys = new Array();
+	this._values = new Array();
+}
+
+// Returns author junk ;)
+_root.ioHashTable.prototype.author=function() {
+	var _results = new String();
+	_results += "ioHashTable is heavily based upon:"
+	_results += "Flash HashTable Object \n"
+	_results += "Created by Michael Grundvig \n"
+	_results += "E-mail: mike@grundvig.com \n"
+	_results += "ICQ: 3488062 \n\n"
+	_results += "Copyright 2001 Michael Grundvig \n"
+	
+	return _results;
+}
+
+// Cleans out the entire hash
+_root.ioHashTable.prototype.clear=function() {
+	this._keys = new Array();
+	this._values = new Array();
+}
+
+// Provides shallow hashtable clone
+_root.ioHashTable.prototype.clone=function() {
+	var _tempHash = new _root.ioHashTable()
+	return _tempHash;
+}
+
+// Returns true/false based on the keys existance
+_root.ioHashTable.prototype.containsKey=function(keyName) {
+	var _results = false;
+	for(var i = 0;i < this._keys.length; i++) {
+		if(this._keys[i] == keyName) {
+			_results = true;
+			break;
+		}
+	}
+	return _results;
+}
+
+// Returns true/false based on the values existance
+_root.ioHashTable.prototype.containsValue=function(value) {
+	var _results = false;
+	for(var i = 0;i < this._values.length; i++) {
+		if(this._values[i] == value) {
+			_results = true;
+			break;
+		}
+	}
+	return _results;
+}
+
+// Returns the key array
+_root.ioHashTable.prototype.getKeys=function() {
+	return this._keys
+}
+
+// Returns the value array
+_root.ioHashTable.prototype.getValues=function() {
+	var returnList = new Array()
+	
+	for (var i=0; i < this._values.length; i++) {
+		returnList[i] = this._values[i]
+	}
+	return returnList
+}
+
+_root.ioHashTable.prototype.getIndex=function(keyName) {
+	var _result = null
+	for(var i = 0;i < this._keys.length; i++) {
+		if(this._keys[i] == keyName) {
+			_results = i
+			break;
+		}
+	}
+	return _result;
+}
+
+// Returns a value based on the key
+_root.ioHashTable.prototype.get=function(keyName) {
+	var _results = null;
+	for(var i = 0;i < this._keys.length; i++) {
+		if(this._keys[i] == keyName) {
+			_results = this._values[i];
+			break;
+		}
+	}
+	return _results;
+}
+
+// Returns a value based on the index
+_root.ioHashTable.prototype.getByIndex=function(i) {
+	var _results = this._values[i];
+	return _results;
+}
+
+// Returns true/false based on length
+_root.ioHashTable.prototype.isEmpty=function() {
+	var _results = true;
+	if(this._values.length > 0) {
+		_results = false;
+	}
+	return _results;
+}
+
+// Inserts a key/value into the hash
+_root.ioHashTable.prototype.put=function(key, value) {
+	var _results = null;
+	var _foundSomething = false
+
+	for(var i = 0;i < this._keys.length; i++) {
+		if(this._keys[i] == key) {
+			_results = this._values[i];
+			this._values[i] = value;
+			_foundSomething = true;
+			break;
+		}
+	}
+	if (!_foundSomething) {
+		this._keys.push(key)
+		this._values.push(value)
+	}
+	return _results;
+}
+
+// Removes the key and its coresponding value
+_root.ioHashTable.prototype.remove=function(keyName) {
+	var _results = null;
+	for(var i = 0;i < this._keys.length; i++) {
+		if(this._keys[i] == keyName) {
+			_results = this._values[i];
+			this._keys.splice(i,1);
+			this._values.splice(i,1);
+			break
+		}
+	}
+	return _results;
+}
+
+_root.ioHashTable.prototype.removeValue=function(removeVal) {
+	var _results = null;
+	for(var i = 0;i < this._values.length; i++) {
+		if(this._values[i] == removeVal) {
+			_results = this._keys[i];
+			this._keys.splice(i,1);
+			this._values.splice(i,1);
+			break
+		}
+	}
+	return _results;
+}
+
+_root.ioHashTable.prototype.getNewKey = function () {
+	var returnVal = this.size()
+	while (this.get(returnVal) != null) {
+		returnVal++
+	}
+	return returnVal+""
+}
+
+// Returns the size of the hashtable
+_root.ioHashTable.prototype.size=function() {
+	return this._keys.length
+}
+
+// Returns all elements in a delimited list
+_root.ioHashTable.prototype.toString=function() {
+	var _output = new String();
+	if(this._keys.length > 0) {
+		for(var i = 0;i < this._keys.length; i++) {
+			_output += "[" + this._keys[i] + ","
+			_output += this._values[i] + "]";
+			if(i+1 != this._keys.length) {
+				_output += " - ";
+			}
+		}
+	} else {
+		_output = " empty ";
+	}
+	return _output;
+}
+//--------------------------------------------------------------------------
+
+trace ("-----------------------------------");
+trace ("ioLib installed");
+trace ("-----------------------------------");
+trace ("CopyLeft 2001 - - ioResearch - - contact: jon@ioResearch.com - - for a list of contributors call _root.ioAuthors()");
+trace ("This module is covered by: the GNU LIMITED GENERAL PUBLIC LICENSE - see LGPL.txt for details - - NO WARRANTY - - Do not remove this notice"); 
+trace ("-----------------------------------");

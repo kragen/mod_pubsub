@@ -1,0 +1,31 @@
+CharAt - JavaScript character set browser 
+
+This test was written to explore Unicode/UCS support in JavaScript. 
+
+This code generates an HTML table on-the-fly and displays a 'page' of
+256 characters; a selected character is displayed in the corner, and
+cells are hyperlinked to allow character selection.
+
+The only portable way to dynamically update the table seems to be to
+re-write the whole thing (ick!). Caching pieces of the document would
+likely improve the update speed, as would generating more compact HTML. 
+
+TODO: This still does not handle 'U+' notation for surrogate pairs. It
+should also handle '0x' notation for UTF-8 sequences. Furthermore, all
+three notations should be printed for each character. UTF-7 and/or
+quoted-printable notation might be useful, but it seems like too much
+complexity for such a useless and fluffy transformation... UTF-16 and
+UTF-8 sequences should be printed space-separated; '0x' codes outside
+the 8-bit range should be treated just like 'U+' codes; a decoded string
+should only be used if it is completely decoded; '0x' codes should
+always be displayed padded to two digits.
+
+TODO: There should be an obvious way to select group/plane numbers (two
+more tracks sounds really complicated, but a pair of up/down hex-entry
+boxes might work well).  Once this is done, the left track can be
+changed to only show four digits.
+
+TODO: This still has no history, nor can it decode strings representing
+more than one character, nor can it accumulate selected characters into
+a string/textarea for copy'n'paste convenience (that is, act as a
+'virtual keyboard'.)

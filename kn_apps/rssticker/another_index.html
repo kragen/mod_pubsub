@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: another_index.html,v 1.1 2002/11/07 07:09:10 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub rss: another ticker</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!--
+
+ FIXME: Not sure what this weblication does or even whether it
+ works, but it looks like someone spent considerable time developing it
+ so we're putting it out there.
+
+-->
+
+<script><!--
+
+topic = (kn_argv.kn_topic ? kn_argv.kn_topic  : "/what/rss/all");
+
+var ticker_length = 100;
+var ticker_interval = 50;
+var ticker_ready = false;
+var ticker_dirty = true;
+
+ticker = {
+  text: [],
+  getLength: function ()
+  {
+    return this.text.length;
+  },
+  advance: function ()
+  {
+    if (this.text.length)
+    { 
+      for (var i = 1; i < this.text.length; i ++)
+      {
+	this.text[i - 1] = this.text[i];
+      }
+      this.text.length = this.text.length - 1;
+    }
+  },
+  write: function (string, title, link)
+  {
+    for (var i = 0; i < string.length; i ++)
+    {
+      this.text[this.text.length] = {
+	string: string.charAt(i),
+	link: link,
+	title: title
+      };
+    }
+  },
+  toString: function ()
+  {
+    var picture = [];
+    var link = null;
+    var title = null;
+    for (var i = 0; (i < ticker_length) && (i < this.text.length); i ++)
+    {
+      var cell = this.text[i];
+      var new_link = (link != cell.link);
+      var new_title = new_link || (title != cell.title);
+      if (new_title)
+	{
+	  if (title)
+	    {
+	      picture[picture.length] = '<' + '/span>';
+	    }
+	}
+      if (new_link)
+	{
+	  if (link)
+	    {
+	      picture[picture.length] = '<' + '/a>';
+	    }
+	  link = cell.link;
+	  if (link)
+	    {
+	      picture[picture.length] =
+		'<a' +
+		' href="' +
+		kn_htmlEscape(link) +
+		'" target="_blank">';
+	    }
+	}
+      if (new_title)
+	{
+	  title = cell.title;
+	  if (title)
+	    {
+	      picture[picture.length] =
+		'<span title="' +
+		kn_htmlEscape(title) +
+		'">';
+	    }
+	}
+      picture[picture.length] = kn_htmlEscape(cell.string);
+    }
+    if (link)
+    {
+      picture[picture.length] = '<' + '/a>';
+    }
+    if (title)
+    {
+      picture[picture.length] = '<' + '/span>';
+    }
+    return picture.join('');
+  }
+};
+
+{
+  // Makes results start showing up quicker.
+  var hacks = "single";
+  if ((navigator.platform == "MacPPC") &&
+      (navigator.userAgent.indexOf("MSIE") != -1))
+    {
+      // Prevents occasional browser failures in Mac IE.
+      hacks += ",noforward";
+    }
+  kn_hacks(hacks);
+}
+
+function on_load()
+{
+  ticker.write(topic);
+  kn.subscribe(topic, write_headline, { kn_expires: 'infinity', do_max_n: 5 });
+  setInterval('draw_ticker()', ticker_interval);
+}
+
+queues = [ [], [], [], [], [] ];
+
+function draw_ticker()
+{
+  if (ticker.getLength() >= ticker_length)
+    {
+      ticker.advance();
+      ticker_dirty = true;
+    }
+  if (feed_ticker())
+    {
+      ticker_dirty = true;
+    }
+  if (ticker_dirty)
+    {
+      ticker_dirty = false;
+      var html =
+	'<style><' + '!-' + '-\n' +
+	'a { text-decoration: none; }\n' +
+	'a:hover { text-decoration: underline; }\n' +
+	'body { border: 0px; }\n' +
+	'tt {' +
+	$('font-family: courier; font-size: 10px;') +
+	'}\n' +
+	'-' + '-><' + '/style>' +
+	'<' + '/head>' +
+	'<body' +
+	' bgcolor="#eeeeee" text="black" link="blue" alink="red" vlink="blue"' +
+	' topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0"' +
+	' marginwidth="0" marginheight="0"' +
+	' scroll="no" onload="parent.ticker_ready=true">' +
+	'<nobr><tt>' +
+	ticker +
+	'<' + '/tt><' + '/nobr>';
+      var doc = frames.tickerframe.document;
+      if (ticker_ready && doc.body && (navigator.platform != "MacPPC"))
+	{
+	  doc.body.innerHTML = html;
+	}
+      else
+	{
+	  doc.open();
+	  doc.write(html);
+	  doc.close();
+	}
+    }
+}
+
+function feed_ticker()
+{
+  var ticker_dirty = false;
+  while (ticker.getLength() < ticker_length)
+    {
+      var found = false;
+      for (var priority = 0;
+	   (priority < queues.length) && ! found;
+	   priority ++)
+	{
+	  var queue = queues[priority];
+	  for (var slot = 0;
+	       (slot < queue.length) && ! found;
+	       slot ++)
+	    {
+	      var msg = queue[slot];
+	      if (msg)
+		{
+		  found = true;
+		  ticker_dirty = true;
+		  ticker.write(" . . . ");
+		  var string = msg.rss_title || msg.kn_payload || "KnowNow";
+		  ticker.write(
+			       string,
+			       string,
+			       msg.rss_link
+			       );
+		  queue[slot] = null;
+		}
+	    }
+	}
+      if (! found)
+	{
+	  return ticker_dirty;
+	}
+    }
+  return ticker_dirty;
+}
+
+function write_headline(m) {
+  var priority = 2;
+  if (m.priority)
+    {
+      if (m.priority.toLowerCase() == "urgent")
+	{
+	  priority = 0;
+	}
+      else if (m.priority.toLowerCase() == "high")
+	{
+	  priority = 1;
+	}
+      else if (m.priority.toLowerCase() == "low")
+	{
+	  priority = 3;
+	}
+      else if (m.priority.toLowerCase() == "bulk")
+	{
+	  priority = 4;
+	}
+    }
+  var queue = queues[priority];
+  queue[queue.length] = m;
+  if (topic.indexOf("egroups.com") != -1)
+    { m.rss_title += " : " + m.rss_description.substring(0,30); }
+  feed_ticker();
+}
+
+// -->
+</script>
+</head>
+
+<frameset rows="*,16" onLoad="on_load()" border="0">
+<frame name="devframe" src="../../cgi-bin/pubsub.cgi?do_method=blank" scrolling="no" />
+<frame name="tickerframe" src="../../cgi-bin/pubsub.cgi?do_method=blank" scrolling="no" />
+</frameset>
+
+</html>

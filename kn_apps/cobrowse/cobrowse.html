@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: cobrowse.html,v 1.1 2002/11/07 07:09:03 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub cobrowse weblication</title>
+</head>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<script><!--
+topic = (parent.kn_argv.kn_topic)? parent.kn_argv.kn_topic : "/what/cobrowse";
+kn_subscribe(topic, turnPage);
+
+var CoBrowserWindowLocation = "";
+var NextCoBrowserWindowLocation = "";
+var CoBrowserWindow;
+
+function turnPage(e){
+   NextCoBrowserWindowLocation = e.kn_payload;
+   CoBrowserWindow = window.open(NextCoBrowserWindowLocation,"CoBrowserTarget");
+   document.forms.syncLocation.kn_payload.value = NextCoBrowserWindowLocation;
+}
+// -->
+</script>
+
+<body onLoad="setTimeout('kn.postFrame.name=\'CoPoster\'',2000)">
+<form name="syncLocation" action="javascript:void 0" 
+      onSubmit="kn_publishForm(topic,syncLocation);return false">
+<input type=submit name=foo value="Sync Location">
+<input type=text name=kn_payload value="http://www.google.com/" size=80>
+</form>
+
+<p> Type URLs onto this field to share them and cobrowse with
+anyone else tuned into this topic.
+
+<p> Use <a href="../../kn_tools/bookmarklets.html">bookmarklets</a>?
+Bookmark this link to
+<script><!--
+document.write(
+    "<a href='javascript:open(\"" + kn_server +
+    "?do_method=notify&kn_to=/what/cobrowse&kn_debug=1" +
+    "&kn_payload=\"+escape(document.URL) ,\"CoPoster\");void 0'>"
+    +"Sync Cobrowsers</A>");
+// -->
+</script>.<br>
+
+<p> You can also
+<a href='javascript:kn.postFrame.name="CoPoster";return false'>rename
+the hidden co-poster frame</a>.
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: plain.html,v 1.1 2002/11/07 07:09:14 troutgirl Exp $
+
+-->
+
+<!--
+
+ To do:
+   - Add some sort of keep-alive
+   - Add some sort of idle timer
+
+ Note: this demo only works on IE 4+ for Windows.
+
+-->
+
+<html>
+<head>
+<title>pubsub flash demo 2: robots</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!-- The JavaScript Document Helper Library -->
+<script src="../kn_lib/document.js"></script>
+
+<script><!--
+
+var topic = "/what/apps/robots";
+var page;
+
+function init(){
+    page = new KNDocument(frames[0]);
+    kn.subscribe(topic, handleEvent, { do_max_age : "infinity" });
+    // Start up the chat listener.
+    // init_chat();
+}
+
+// This should be called whenever a robot is clicked on.
+
+function robo_click(this_robot){
+//    if (robot exists){
+//        // If you're logged in, open a chat window when you click on the robot
+//        // instead of moving your robot to a new location.
+//        if (robot_roster[this_robot] != null && robot_roster[this_robot] != "undefined" && robot_roster[this_robot] != kn.userid){
+//            handleMessage({userid:robot_roster[this_robot],kn_payload:""});
+//        }
+//    } else {
+//        set_robot_status(this_robot);    
+//    }
+}
+
+function log_me_out(){
+//    change_button("h");
+//    depart_robot(kn.userid,true)
+}
+
+function change_button(){
+//    We fear change.
+}
+
+function set_robot_status(room_number){
+    var status = new Object();
+    status.kn_payload = "text message goes here";
+    status.where = room_number;
+    // Make sure there's only one message for each user.
+    status.kn_id = kn.userid;
+    kn.publish(topic,status);
+}
+
+var robot_roster = new Array();
+
+function handleEvent(event){
+    if (event.where != "hide"){
+        show_yourself_robot(event.where,event.userid);
+    } else {
+        depart_robot(event.userid);
+    }
+}
+
+function show_yourself_robot(num,name){
+
+        // Rip through and clear out the old robot location.
+        found = false;
+        for (i=0; i < robot_roster.length; i++){
+            if (robot_roster[i] == name){
+                hide_yourself_robot(i);
+                robot_roster[i] = null;
+                found = true;
+            }
+        }
+    
+        // Set new robot location.
+        robot_roster[num] = name;
+
+        // Reveal the logout button if the robot is the user.
+        if (name == kn.userid){
+        //    change_button("v");
+        }
+
+        page.open()
+        page.write("<head><title>test</title></head><body bgcolor=#ffccff text=#000066>");
+        page.write("<table cellspacing=5 cellpadding=5 border=1>");
+        page.write(write_entire_list());    
+        page.write("</table></body></html>");
+        page.close();
+
+
+}
+        
+function hide_yourself_robot(num2){
+//        movieobject(moviename).TSetProperty("/spot" + num2,6,30);
+//        movieobject(moviename).SetVariable("spot" + num2 + "_name", "");
+}
+
+function depart_robot(who,me){
+    // Rip through and clear out the old robot location.
+    for (i=0; i < robot_roster.length; i++){
+        if (robot_roster[i] == who){
+            hide_yourself_robot(i);
+            robot_roster[i] = null;
+
+            // Do it rockafella. If the user is calling depart_robot it
+            // will publish the event so that other people know too. 
+//          if (me == true || who == kn.userid){                
+//              change_button("h");
+//              set_robot_status("hide");
+//          }
+        }
+    }
+}
+
+var me = "";
+var list = "";
+
+function write_entire_list(){
+    for (i=0; i < robot_roster.length; i++){
+        if (robot_roster[i] == kn.userid){
+            list += add_me_to_list(robot_roster[i]);
+        } else if (robot_roster[i] != "undefined" && robot_roster[i] != null){
+            list += add_other_user_to_list(robot_roster[i]);
+        }
+    }    
+    
+    return list;
+}
+
+function add_other_user_to_list(who){
+    me = "<tr><td>" + who + "</td></tr>";
+    return me;
+}
+
+function add_me_to_list(who){
+    me = "<tr><td><b>" + who + "</b></td></tr>";
+    return me;
+}
+
+// -->
+</script>
+
+<!--
+
+<body bgcolor="cccccc" onload="init()" marginheight="0" marginwidth="2" topmargin="0" leftmargin="2">
+
+Happy fun debug form
+<br><br><br>
+<form name="jojo">
+<input size="15"><input type="button" onclick="eval(document.forms[0].elements[0].value)" value="eval!">
+</form>
+
+Happy fun non-flash
+
+</body>
+
+-->
+
+<frameset rows="100%,*" onload="init()">
+    <!-- This we will overwrite using KNDocument -->
+    <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" noresize></frame>
+    <!-- the second (hidden) frame is to keep Netscape happy -->
+    <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" noresize></frame>
+</frameset>
+
+</html>

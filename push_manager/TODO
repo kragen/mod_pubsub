@@ -1,0 +1,118 @@
+- - - - - - - - - - high priority - - - - - - - - - -
+
+Add something about throttling to the hourly stats syslog.
+
+Fetches with numeric IP addresses and no Host: header are screwing up the
+vhost code?
+143.90.193.229 - - [06/Apr/2000:09:21:34 -0700] "GET /209.133.38.22/software/thttpd/ HTTP/1.0" 200 12093 "http://www.dbphotography.demon.co.uk/index.html" "Mozilla/1.22 (compatible; MSIE 2.0; Windows 95)"
+143.90.193.229 - - [06/Apr/2000:09:21:37 -0700] "GET /143.90.193.229/software/thttpd/anvil_thttpd.gif HTTP/1.0" 403 - "http://www.acme.com/software/thttpd/" "Mozilla/1.22 (compatible; MSIE 2.0; Windows 95)"
+
+Have directory indexing skip files that start with dot?  Except ..?
+In libhttpd.c:
++               if (*(de->d_name) == '.' && *(de->d_name+1) != '.')
++                   continue;
+                namlen = NAMLEN(de);
+
+Add -p to mkdir commands?
+
+Add comment on INDEX_NAMES that it should be simple filenames only.
+
+Got some shouldn't-happen errors:
+    throttle sending count was negative!
+    write - Bad address
+This are probably not new bugs, but rather existing bugs now being
+noticed and repaired due to the centralization of hc initialization.
+
+Weird thing - when thttpd got its nightly SIGUSR1 at midnight to exit
+and let the wrapper restart, it did exit and a new thttpd started,
+but the new thttpd sort of half-exited immediately.  The script
+thought it had exited, and therefore tried to start up another
+new thttpd.  But the process still existed and still has port 80
+bound, so the other new thttpds couldn't run.  And the stalled thttpd
+was not serving requests.  If this happens again, use gdb to find
+out what the stalled process is doing.  Possibly stuck due to child
+processes still running?
+
+The error page generated for non-local referers should include the
+original URL as an active link.
+
+Does the initgroups() call work?  Or does it need to be moved to
+before the chroot()?
+
+Make open in mmc.c use O_NONBLOCK flag, to prevent DOS attack via
+a named pipe?
+
+Sites that clog with lots of TCP connections in CLOSING (not CLOSE_WAIT).
+Related to throttling, and timers?
+
+On A SIGUSR1, thttpd sometimes gives 'fdwatch - Bad file descriptor'
+instead of the usual exit message.  Looks like we have to do any closes
+in the main loop, and only set flags in the signal routines.  And once
+we got a CPU-bound loop.
+
+Switch all signal handling to use sigaction.
+
+Make log entry at end of transfer instead of start, so it has the
+correct number of bytes actually sent.  Likewise with adding to stats_bytes.
+
+- - - - - - - - - - later - - - - - - - - - -
+
+Document how symlinks interact with .htpasswd - authorization is checked
+on the result of the symlink, and not the origin.
+
+SIGHUP log re-opening doesn't work if you started as root.
+
+Change redirect to put the Refresh command in the HTTP headers, instead of
+a META tag.
+
+Add TCP_NODELAY, but after CGIs get spawned.
+
+Add stat cache?  1 minute expiry?
+
+Ifdef the un-close-on-exec CGI thing for Linux only.
+
+Add hash table to mmap cache.
+
+Try using shutdown(2) in lingering close.
+
+Check whether phf can still syslog from within chroot (probably not).
+
+Can we remove the "if ( errno == EINTR )" check on the select()?
+
+Add keep-alives, via a new state in thttpd.c.
+
+- - - - - - - - - - someday - - - - - - - - - -
+
+The special world-permissions checking is probably bogus.  For one
+thing, it doesn't handle restrictive permissions on parent directories
+properly.  It should probably just go away.
+
+redirect should interpret a path with a trailing / as /index.html
+
+ssi should change $cwd to the source document's location.
+
+Allow .throttle files in individual directories.
+
+Log-digesting scripts.
+
+Config web page.
+    Common errors:
+	Not realizing that -c overrides CGI_PATTERN instead of augmenting it.
+	Using a directory name for the -c pattern.
+
+Throttling web article.
+
+- - - - - - - - - - 3.x - - - - - - - - - -
+
+CServlets re-write.
+
+- - - - - - - - - - general - - - - - - - - - -
+
+Release process:
+  - update version number in version.h README INSTALL and
+    contrib/redhat-rpm/thttpd.spec
+  - do an rcstreeinfo, and check in all files
+  - do a tdiff and update the local installation
+  - make tar
+  - mv it to ~/acmeweb/software/thttpd
+  - update version number in ~/acmeweb/software/thttpd/thttpd.html

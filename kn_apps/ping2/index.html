@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:24 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub ping 2</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<script><!--
+var timesent = 0;
+var topic = (kn_argv.kn_topic ?
+             kn_argv.kn_topic :
+             ("/what/ping/" + Math.random().toString().substr(2,8)));
+
+var rid = null;
+var tp_rid = null;
+
+function test_latency() {
+    if (rid == null) {
+        kn.unsubscribe(tp_rid);
+        tp_rid = null;
+        rid = kn.subscribe(topic, notelatency);
+    }
+    NMAX = parseInt(document.outform.NMAX.value);
+    cntr = 0;
+    N = 0;
+    total_delay = 0;
+    total_square_delay = 0;
+    setTimeout("sendping()", 500);
+}
+
+function sendping() {
+   timesent = new Date();
+   kn.publish(topic, {kn_payload: timesent.getTime().toString()});
+}
+
+NMAX=100;
+cntr=0;
+N = 0;
+total_delay = 0;
+total_square_delay = 0;
+function notelatency(ev) {
+   var now = new Date();
+   var diff = now.getTime() - new Date(parseInt(ev.kn_payload));
+   var of = document.outform;
+   of.N.value = ++N;
+   of.LAST.value = diff;
+   if ((of.MIN.value == "") ||
+       (of.MIN.value > diff))
+       of.MIN.value = diff;
+   if ((of.MAX.value == "") ||
+       (of.MAX.value < diff))
+       of.MAX.value = diff;
+   total_delay += diff;
+   total_square_delay += diff*diff;
+   of.AVG.value = Math.round(total_delay/N);
+   of.DEV.value = Math.round(Math.sqrt(total_square_delay/N 
+                                      - (total_delay/N)*(total_delay/N)));
+   if(++cntr < NMAX) setTimeout("sendping()",
+			       Math.abs(diff - 9));
+   else
+       test_throughput();
+}
+// -->
+</script>
+
+<script><!--
+var first_event_received = 0;
+var non_first_events_received = 0;
+
+function test_throughput() {
+    if (tp_rid == null) {
+        kn.unsubscribe(rid);
+        rid = null;
+        tp_rid = kn.subscribe(topic, receive_event,
+            {do_max_age: 'infinity'})
+    }
+    first_event_received = 0;
+    non_first_events_received = 0;
+}
+
+function receive_event(ev) {
+    var now = new Date();
+    if (!first_event_received) {
+        first_event_received = now;
+    } else {
+        non_first_events_received ++;
+    }
+    var duration = now.getTime() - first_event_received.getTime();
+    var rate = "";
+    if (non_first_events_received) {
+        rate = (" -- " + (duration/non_first_events_received) + 
+            " ms per event");
+        document.outform.RATE.value = Math.round(10000 * (non_first_events_received/duration))/10;
+    }
+    document.outform.M.value = non_first_events_received;
+    document.outform.DURATION.value = duration;
+}
+
+// -->
+</script>
+
+</head>
+
+<body text="navy" bgcolor="white" link="blue" alink="#ffcccc" vlink="#ccccff"
+      onload="rid=kn.subscribe(topic, notelatency)" bgcolor="white">
+<center>
+
+<form name="outform" action="javascript:void 0//">
+
+<table border=6 bordercolor="navy" cellpadding=4 rules="none" cellspacing=0 >
+<tr><td align="center" colspan=2 bgcolor="navy"><font color="white" size="+3">
+<b><I>PubSub Ping</I><br>Performance Monitor</b></font></td></tr>
+<tr><td align="left"><input type=submit onclick="test_latency()" value="Run Tests"></td><td align="right"> <input size=5 name=NMAX value="100">&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr><td align="center" colspan="2" bgcolor="navy"><font color="white" size="+1"><b>Round-Trip Latency</b></font></th></tr>
+<tr><td align="left"><b>Number of Pings:   </b></td><td align="right"> <input size=5 name=N value="">&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr><td align="left"><b>Last Ping Time:    </b></td><td align="right"> <input size=5 name=LAST value="">ms</td></tr>
+<tr><td align="left"><b>Minimum Time:      </b></td><td align="right"> <input size=5 name=MIN value="">ms</td></tr>
+<tr><td align="left"><b>Maximum Time:      </b></td><td align="right"> <input size=5 name=MAX value="">ms</td></tr>
+<tr><td align="left"><b>Average Ping Time: </b></td><td align="right"> <input size=5 name=AVG value="">ms</td></tr>
+<tr><td align="left"><b>Standard Deviation:</b></td><td align="right"> <input size=5 name=DEV value="">ms</td></tr>
+<tr><td align="center" colspan="2" bgcolor="navy"><font color="white" size="+1"><b>Throughput</b></font></th></tr>
+<tr><td align="left"><b>Number of Events:  </b></td><td align="right"> <input size=5 name=M value="">&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>
+<tr><td align="left"><b>Total Duration:          </b></td><td align="right"> <input size=5 name=DURATION value="">ms</td></tr>
+<tr><td align="left"><b>Rate:              </b></td><td align="right"> <input size=5 name=RATE value="">Hz</td></tr>
+</table>
+
+</form>
+
+</center>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:50 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub who</title>
+
+<!--
+
+ "Who" is an old app (circa 2000) that never really worked properly.
+ More recent presence weblications such as "presence1" do presence
+ detection properly.
+
+ FIXME: Clean up this weblication and have it use that weblication's
+ presence detection algorithm.  The reason we're including this
+ weblication with the distribution is to show how the "chatroom"
+ weblication could be built.
+
+-->
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- The PubSub Document Helper Library -->
+<script src="../kn_lib/document.js" /></script> 
+
+<script><!--
+var buddies = new Object;
+// Used to prevent redrawing on message reception until we have all
+// the old messages.
+var suppress_redraw = true;
+
+args = kn_argv;
+if (args.kn_topic){
+        topic = args.kn_topic;
+} else {
+        topic = "/what/chat";
+}
+topic += "/kn_routes";
+
+kn.subscribe(topic, onMessage, {do_max_age: "infinity"}, {onSuccess: redraw});
+
+function onMessage(m){
+	if (m.kn_payload != ""){
+		buddies[m.kn_id] = m;
+	} else {
+		delete buddies[m.kn_id];
+	}
+
+        if (! suppress_redraw) redraw();
+}
+
+var d = null;
+
+function redraw(){
+suppress_redraw = false;
+if (! d)
+{
+    d = new KNDocument(frames[0]);
+}
+d.open();
+
+// Write the header.
+
+d.writeln('<html>');
+d.writeln('<style type="text/css">')
+d.writeln('p {font-family:verdana, sans-serif; font-size:11px; line-height:140%;}');
+d.writeln('</style>');
+d.writeln('<body bgcolor="#fffff4" leftmargin="4" marginwidth="4">');
+var buddyCount = 0;
+
+for (var i in buddies){
+	if (buddies[i]){ buddyCount++; }
+}
+
+d.writeln('<p>' + buddyCount + ' User(s) online:</p>');
+
+d.writeln('<table cellpadding="0" cellspacing="0" border="0" width="150">');
+d.writeln('<tr>');
+d.writeln('<td align="left" valign="top" bgcolor="#fffff4">&nbsp;</td>');
+d.writeln('<td align="left" valign="top" bgcolor="#fffff4" width="140"><p>');
+
+// Write the names.
+
+for (var i in buddies){
+	if (buddies[i]){
+		d.writeln(buddies[i].displayname + '<br>');
+	}
+}
+
+// Write the footer.
+
+d.writeln('</p></td>');
+d.writeln('<td align="left" valign="top" bgcolor="#fffff4">&nbsp;</td>');
+d.writeln('</tr>');
+d.writeln('</table>');
+
+d.writeln('</body>');
+d.writeln('</html>');
+
+d.close();
+}
+// -->
+</script>
+
+<frameset rows="100%,*" onload="redraw();suppress_redraw=true" frameborder="no" border="0" framespacing="0">
+<frame src="../../cgi-bin/pubsub.cgi?do_method=blank" name="output">
+</frameset>
+            
+</html>

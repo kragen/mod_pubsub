@@ -1,0 +1,1316 @@
+# userland.rsslist
+
+# Note: As of September 2000, this file will not work with rss.plx
+# because every line with a URL also needs a topicname.
+
+# We mainly use this file for skulking new feeds. Mucho thanks, Dave!  :)
+
+# From Userland page http://my.userland.com/viewChannel$1863:
+http://www.007sdomain.com/cgi/newspro/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$3474:
+http://www.3dgamers.com/news/3dgamers.rss
+
+# From Userland page http://my.userland.com/viewChannel$1820:
+http://www.benefitslink.com/rdf/benefitslink-401kplans.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1821:
+http://www.benefitslink.com/rdf/benefitslink-403bannuities.rdf
+
+# From Userland page http://my.userland.com/viewChannel$92:
+http://www.hungry.com/~rjrjr/shoppingdays.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3496:
+http://www.tbtf.com/roving_reporter/r_r.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1101:
+http://tbtf.com/tbtf-SN2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1704:
+http://caughtinbetween.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$789:
+http://aaronland.net/xml/abhb.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1979:
+http://interactfiction.about.com/library/news/ifnews.rss
+
+# From Userland page http://my.userland.com/viewChannel$281:
+http://files.gameaholic.com/agfa.rdf
+
+# From Userland page http://my.userland.com/viewChannel$2598:
+http://infographie.ca.edu/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1822:
+http://www.benefitslink.com/rdf/benefitslink-actuarialissues.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1223:
+http://www.adobegallery.com/ns-channel.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1826:
+http://www.benefitslink.com/rdf/benefitslink-benefitslinkadvertisers.rdf
+
+# From Userland page http://my.userland.com/viewChannel$2005:
+http://www.advogato.org/rss/articles.xml
+
+# From Userland page http://my.userland.com/viewChannel$1875:
+http://arieldolan.com/adrss.rss
+
+# From Userland page http://my.userland.com/viewChannel$1496:
+http://www.conservation.state.mo.us/cgi-bin/news/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$1258:
+http://almoeda.eth.pt/almoeda-rdf.html
+
+# From Userland page http://my.userland.com/viewChannel$1616:
+http://www.robertprice.co.uk/news/includes/RSS.xml
+
+# From Userland page http://my.userland.com/viewChannel$1603:
+http://metalab.unc.edu/ch-scene/RSS/amchguide.rss
+
+# From Userland page http://my.userland.com/viewChannel$3475:
+http://www.ambitweb.com/sfprogs/sfhiliteul2.pl
+
+# From Userland page http://my.userland.com/viewChannel$1469:
+http://www.animalrights.net/rdf/animalrightsnews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1356:
+http://community.animearchive.org/acrdf.html
+
+# From Userland page http://my.userland.com/viewChannel$1453:
+http://dilbert.vk.net/ajh/anthonyjhicks.xml
+
+# From Userland page http://my.userland.com/viewChannel$871:
+http://www.myapplemenu.com/cgi-bin/surfView.cgi?category=applesurf&mainfull=1000&fmt=scripting&template=scripting
+
+# From Userland page http://my.userland.com/viewChannel$3533:
+http://www.nwfusion.com:8080/rss/asp/query.html?col=archive1&col=edge&qt=%2BASP&qm=0&nh=10&rf=1
+
+# From Userland page http://my.userland.com/viewChannel$1730:
+http://archipelago.phrasewise.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1702:
+http://array.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1959:
+http://www.apmforum.com/channel.xml
+
+# From Userland page http://my.userland.com/viewChannel$1151:
+http://www.astrazeneca-us.com/channel.asp
+
+# From Userland page http://my.userland.com/viewChannel$1375:
+http://kwark.penguinpowered.com/XML/rss/astronet.rss
+
+# From Userland page http://my.userland.com/viewChannel$1725:
+http://209.185.187.55/cgi-local/page?index_att+rss
+
+# From Userland page http://my.userland.com/viewChannel$1906:
+http://209.92.32.150/as/audiosurge.xml
+
+# From Userland page http://my.userland.com/viewChannel$1823:
+http://www.benefitslink.com/rdf/benefitslink-audits.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1008:
+http://www.radwin.org/awalt/summary.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1705:
+http://awehdemdeh.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1985:
+http://www.portalez.com/cgi-bin/b2b.pl?chnl=B2B_SC
+
+# From Userland page http://my.userland.com/viewChannel$1828:
+http://www.benefitslink.com/rdf/benefitslink-benefitstechnology.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1819:
+http://www.benefitslink.com/benefitslink.rdf
+
+# From Userland page http://my.userland.com/viewChannel$52:
+http://homepage.iprolink.ch/~bioneel/beo/beorss.xml
+
+# From Userland page http://my.userland.com/viewChannel$1245:
+http://betanews.com/mnn.php3
+
+# From Userland page http://my.userland.com/viewChannel$1990:
+http://www.beyond2000.com/news/b2k.rdf
+
+# From Userland page http://my.userland.com/viewChannel$251:
+http://www.bixworld.com/backend.rss
+
+# From Userland page http://my.userland.com/viewChannel$1693:
+http://blackholebrain.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1971:
+http://blibs.com/b/mynetscape
+
+# From Userland page http://my.userland.com/viewChannel$1579:
+http://www.blogthis.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$12:
+http://www.brainsausage.com/cgi-bin/syndicate.cgi
+
+# From Userland page http://my.userland.com/viewChannel$3513:
+http://www.nwfusion.com:8080/rss/query.html?col=&qp=&qs=&qc=&ws=0&la=&fs=&qt=%2BCisco&qm=0&ql=&st=1&nh=10&lk=1&rf=1
+
+# From Userland page http://my.userland.com/viewChannel$1907:
+http://www.brewsandcues.com/mb/news/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$1267:
+http://sparky.dyn.cheapnet.net/~slash/bricknews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1930:
+http://www.britlinks.co.uk/news/britlinks.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1756:
+http://bc.tensegrity.net/copy_of_SyndXML
+
+# From Userland page http://my.userland.com/viewChannel$1794:
+http://c-est-tout.com/include/index.rss
+
+# From Userland page http://my.userland.com/viewChannel$3199:
+http://news.cadfu.com/cadfu.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1829:
+http://www.benefitslink.com/rdf/benefitslink-cafeteriaplans.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1876:
+http://www.canadagaming.com/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$1741:
+http://www.carsurvey.org/carsurvey.rss
+
+# From Userland page http://my.userland.com/viewChannel$1800:
+http://www.catherinehennessey.com/rss/rssnews.php3
+
+# From Userland page http://my.userland.com/viewChannel$1878:
+http://www.cert.org/channels/certcc.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1740:
+http://qw.qwe.as/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1961:
+http://www.l5s1.com/newspro/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$1817:
+http://www.ontosys.com/iCalendar/events.rss
+
+# From Userland page http://my.userland.com/viewChannel$3504:
+http://cms.filsa.net/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1908:
+http://www.cha.com/cgibin/newspro/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$1818:
+http://195.211.25.180/comicgallery/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1457:
+http://www.cosource.com/whatsnew.rss
+
+# From Userland page http://my.userland.com/viewChannel$1833:
+http://www.benefitslink.com/rdf/benefitslink-courtcases.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1186:
+http://www.cpaonline.com/channels/rss091.asp
+
+# From Userland page http://my.userland.com/viewChannel$3487:
+http://www.ctdata.com/syndication/CTDATA.xml
+
+# From Userland page http://my.userland.com/viewChannel$2362:
+http://www.autosinfo.com/news/feed/news.cfm
+
+# From Userland page http://my.userland.com/viewChannel$1547:
+http://daily.daemonnews.org/ddn.rdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$2589:
+http://www.pokemon-hq.com/jazz/feed.cfm
+
+# From Userland page http://my.userland.com/viewChannel$2590:
+http://www.pokemon-hq.com/rolling_stone/feed.cfm
+
+# From Userland page http://my.userland.com/viewChannel$1869:
+http://www.dailyf1news.com/newspro/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$1968:
+http://heroes.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3534:
+http://www.dcguide.co.uk/scripts/includes/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$2171:
+http://dss.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1836:
+http://www.benefitslink.com/rdf/benefitslink-dolrulings.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1662:
+http://desktopian.org/includes/headlines.xml
+
+# From Userland page http://my.userland.com/viewChannel$1303:
+http://www.newhomemaker.com/diary/mostRecentNews
+
+# From Userland page http://my.userland.com/viewChannel$596:
+http://www.dpreview.com/news/dpr.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1518:
+http://dtheatre.com/backend.php3?rss=y
+
+# From Userland page http://my.userland.com/viewChannel$3523:
+http://www.digitalrunway.net/newserv/scape.html
+
+# From Userland page http://my.userland.com/viewChannel$1626:
+http://dijest.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1386:
+http://www.director-online.com/scripts/generateRDF.cfm
+
+# From Userland page http://my.userland.com/viewChannel$1835:
+http://www.benefitslink.com/rdf/benefitslink-distributions.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1241:
+http://www.dnspolicy.com/backend/dnspolicy.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1945:
+http://hammer.prohosting.com/~domains/cgi-bin/news.rdf
+
+# From Userland page http://my.userland.com/viewChannel$626:
+http://www.dominopower.com/shares/userland-rss/channeldata.xml
+
+# From Userland page http://my.userland.com/viewChannel$1696:
+http://dreadnet.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3531:
+http://www.nwfusion.com:8080/rss/dsl/query.html?col=archive1&col=edge&qp=&qs=&qc=&pw=455&ws=0&la=&fs=&qt=%2BDSL&qm=0&ql=&st=1&nh=10&lk=1&rf=1
+
+# From Userland page http://my.userland.com/viewChannel$1639:
+http://www.dvdreview.com/rss/newschannel.rss
+
+# From Userland page http://my.userland.com/viewChannel$55:
+http://www.smartnetworks.net/~rosso/notes/dwelling.rss
+
+# From Userland page http://my.userland.com/viewChannel$1789:
+http://dzine.ds.fh-koeln.de/rss/
+
+# From Userland page http://my.userland.com/viewChannel$1667:
+http://www.hiram.net/links/New/rss.xml
+
+# From Userland page http://my.userland.com/viewChannel$1975:
+http://www.e-mediamarketer.com.au/backend/emm.jsp
+
+# From Userland page http://my.userland.com/viewChannel$1938:
+http://www.eastsidejournal.com/index.rss
+
+# From Userland page http://my.userland.com/viewChannel$1678:
+http://www.ecolinks.org/ecolinks.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1810:
+http://weblogs.oreillynet.com/edd/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$556:
+http://filmink-online.com/fo.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1192:
+http://www.ekolist.cz/mnn-ekolist.xml
+
+# From Userland page http://my.userland.com/viewChannel$1452:
+http://www.electricnews.net/index.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1941:
+http://www.dp.f2s.com/showrss.php3
+
+# From Userland page http://my.userland.com/viewChannel$129:
+http://www.emusphere.com/mynet/channel.dat
+
+# From Userland page http://my.userland.com/viewChannel$2595:
+http://p.moreover.com/cgi-local/page?index_engineering+rss
+
+# From Userland page http://my.userland.com/viewChannel$1838:
+http://www.benefitslink.com/rdf/benefitslink-executivecomp.rdf
+
+# From Userland page http://my.userland.com/viewChannel$113:
+http://exosci.com/exosci.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1672:
+http://www.fuk.co.uk/fukNewsRSS.xml
+
+# From Userland page http://my.userland.com/viewChannel$2565:
+http://football.weblogs.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1827:
+http://www.benefitslink.com/rdf/benefitslink-benefitslinkfeatures.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1795:
+http://www.fileflash.com/mnn.asp
+
+# From Userland page http://my.userland.com/viewChannel$1697:
+http://www.filmunlimited.co.uk/rss/1,,,00.xml
+
+# From Userland page http://my.userland.com/viewChannel$3529:
+http://www.filmindustry.com/feed/feed.php?format=rss
+
+# From Userland page http://my.userland.com/viewChannel$964:
+http://www.filmposter.ch/filmplakate/mynetscapechannel.asp
+
+# From Userland page http://my.userland.com/viewChannel$17:
+http://www.flutterby.com/main.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1840:
+http://www.benefitslink.com/rdf/benefitslink-forms.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1271:
+http://freshmeat.net/backend/fm.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1212:
+http://frontier.userland.com/news/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1049:
+http://www.gamedev.net/xml/
+
+# From Userland page http://my.userland.com/viewChannel$1812:
+http://www.gardenlife.co.nz/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3494:
+http://frontier.mcn.org/gbdiscussion/xml/rss.xml
+
+# From Userland page http://my.userland.com/viewChannel$1635:
+http://www.geeknik.net/newsdata/rss-1.xml
+
+# From Userland page http://my.userland.com/viewChannel$2224:
+http://geoff.weblogs.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3515:
+http://www.nwfusion.com:8080/rss/gigabit/query.html?col=archive1&col=edge&ws=0&qt=%2B%22Gigabit+Ethernet%22&qm=0&st=1&nh=10&rf=1
+
+# From Userland page http://my.userland.com/viewChannel$2601:
+http://www.gohogs.org/backend/weblog.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3471:
+http://www.gotzespace.dk/weblog/rss.xml
+
+# From Userland page http://my.userland.com/viewChannel$1841:
+http://www.benefitslink.com/rdf/benefitslink-governmentplans.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1995:
+http://gowm.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$2278:
+http://gulliver.weblogs.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1537:
+http://hack-the-planet.felter.org/rss.xml
+
+# From Userland page http://my.userland.com/viewChannel$1230:
+http://www.hackernews.com/misc/hnn.xml
+
+# From Userland page http://my.userland.com/viewChannel$69:
+http://www.haddock.org/directory/HaddockDirectory.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1749:
+http://www.halfbakery.com/index-rss091.xml
+
+# From Userland page http://my.userland.com/viewChannel$1927:
+http://www.handsnet.org/content2155/content.htm
+
+# From Userland page http://my.userland.com/viewChannel$1364:
+http://www.libertysearch.com/rdf/libertysearch.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1842:
+http://www.benefitslink.com/rdf/benefitslink-healthplanadministration.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1843:
+http://www.benefitslink.com/rdf/benefitslink-healthplaninfoforemployees.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1844:
+http://www.benefitslink.com/rdf/benefitslink-healthplanpolicy.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3480:
+http://HeritageLakeNEWS.editthispage.com/xml/rss.xml
+
+# From Userland page http://my.userland.com/viewChannel$1928:
+http://www.hit-or-miss.org/rss/
+
+# From Userland page http://my.userland.com/viewChannel$2597:
+http://hitplay.com/hitplay.xml
+
+# From Userland page http://my.userland.com/viewChannel$554:
+http://hollywoodbitchslap.com/hbs.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3502:
+http://www.hoteljobresource.com/ticker/jobs.rss
+
+# From Userland page http://my.userland.com/viewChannel$3518:
+http://www.hotelrealtyresource.com/ticker/realty.rss
+
+# From Userland page http://my.userland.com/viewChannel$3503:
+http://www.hotelnewsresource.com/ticker/news.rss
+
+# From Userland page http://my.userland.com/viewChannel$1373:
+http://www.hotnutz.com/cgi-bin/nph-cgiwrap/ftp2hotn/rssgen.pl
+
+# From Userland page http://my.userland.com/viewChannel$1035:
+http://i-want-a-website.com/about-linux/headlines.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3510:
+http://www.igolotto.com/news/rss-1.xml
+
+# From Userland page http://my.userland.com/viewChannel$2000:
+http://www.imedecin.com/imedecincom.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1845:
+http://www.benefitslink.com/rdf/benefitslink-iras.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1751:
+http://www.infolets.com/infolets.rss
+
+# From Userland page http://my.userland.com/viewChannel$1729:
+http://news.ipm.iastate.edu/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1977:
+http://www.internetstockreport.com.au/backend/isr.jsp
+
+# From Userland page http://my.userland.com/viewChannel$3530:
+http://www.iowaoutdoors.org/backend/geeklog.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1976:
+http://www.internetstockreport.com.au/backend/ipo.jsp
+
+# From Userland page http://my.userland.com/viewChannel$1651:
+http://irights.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1955:
+http://www.itn.co.uk/itn.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1967:
+http://www.jabber.org/rss/articles.xml
+
+# From Userland page http://my.userland.com/viewChannel$1718:
+http://jake.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1752:
+http://www.webreference.com/js/tips/channels/last1512.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1781:
+http://ksdsdashfmdotorg.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1371:
+http://kwark.penguinpowered.com/XML/rss/jip.links.rss
+
+# From Userland page http://my.userland.com/viewChannel$1456:
+http://udell.roninhouse.com/udell.rdf
+
+# From Userland page http://my.userland.com/viewChannel$906:
+http://www.kde.org/news/kdenews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1625:
+http://KensDigest.Com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1998:
+http://keeganbrothers.weblogs.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1592:
+http://www.kellyjeanne.org/chadprogramming/rss.php3
+
+# From Userland page http://my.userland.com/viewChannel$1676:
+http://www.kst.com/headlines.rss
+
+# From Userland page http://my.userland.com/viewChannel$1982:
+http://kwark.yi.org/XML/rss/kwark.bord.rss
+
+# From Userland page http://my.userland.com/viewChannel$864:
+http://kwark.penguinpowered.com/XML/kwark.whend.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3507:
+http://lambda.weblogs.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3476:
+http://www.lansystems.com/backend/gazette_news_backend.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1497:
+http://www.larkfarm.com/larkfarm.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1488:
+http://channels.epinions.com/rss_channels/newautoreviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1485:
+http://channels.epinions.com/rss_channels/newcmdreviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1487:
+http://channels.epinions.com/rss_channels/newelecreviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1489:
+http://channels.epinions.com/rss_channels/newbookreviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1491:
+http://channels.epinions.com/rss_channels/newmviereviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1490:
+http://channels.epinions.com/rss_channels/newmuscreviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1492:
+http://channels.epinions.com/rss_channels/newotdrreviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1797:
+http://x42.com/rss/rfc.rss
+
+# From Userland page http://my.userland.com/viewChannel$1486:
+http://channels.epinions.com/rss_channels/newsprtreviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1493:
+http://channels.epinions.com/rss_channels/newtrvlreviews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$74:
+http://ibex.co.nz/channels/lava_mnn.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1847:
+http://www.benefitslink.com/rdf/benefitslink-lawsbills.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3511:
+http://layer3.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3488:
+http://www.sendung.de/ldap/rss.php3
+
+# From Userland page http://my.userland.com/viewChannel$1502:
+http://www.lesproviders.com/archives/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$3525:
+http://www.paradym.co.uk/cgi/lgd/news/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$51:
+http://www.francophonie.org/liaison/rss/Lftorss.xml
+
+# From Userland page http://my.userland.com/viewChannel$2225:
+http://librenix.com/rss/
+
+# From Userland page http://my.userland.com/viewChannel$1577:
+http://www.linkwatcher.com/rdf/metalog_rdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$1957:
+http://portalux.com/nnl/lc-en.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3514:
+http://www.nwfusion.com:8080/rss/linux/query.html?col=archive1&col=edge&qt=%2BLinux&rf=1&nh=10
+
+# From Userland page http://my.userland.com/viewChannel$1924:
+http://www.linux-mag.com/lm.rss
+
+# From Userland page http://my.userland.com/viewChannel$1792:
+http://www.netnews.opensrc.org/index.rdf
+
+# From Userland page http://my.userland.com/viewChannel$855:
+http://linuxtoday.com/backend/my-netscape.rdf
+
+# From Userland page http://my.userland.com/viewChannel$78:
+http://www.linux.hu/linuxhu_rdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$1764:
+http://linuxcentral.com/backend/lcspecial.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1762:
+http://linuxcentral.com/backend/lcnew.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1960:
+http://www.linuxfocus.org/Nederlands/lfnews_channel.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3490:
+http://www.LinuxNews.com/backend/weblog.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1358:
+http://www.linuxplanet.com/rss
+
+# From Userland page http://my.userland.com/viewChannel$1948:
+http://www.linuxtoday.com.au/backend/linuxtoday.jsp
+
+# From Userland page http://my.userland.com/viewChannel$3353:
+http://www.LinuxWebDevNews.com/lwdn.xml
+
+# From Userland page http://my.userland.com/viewChannel$3527:
+http://www.llrx.com/llrx.rss
+
+# From Userland page http://my.userland.com/viewChannel$1879:
+http://www.davidchess.com/words/log.rss
+
+# From Userland page http://my.userland.com/viewChannel$1750:
+http://accettura.com/macpr/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$613:
+http://macweek.zdnet.com/macweek.xml
+
+# From Userland page http://my.userland.com/viewChannel$1848:
+http://www.benefitslink.com/rdf/benefitslink-managedcare.rdf
+
+# From Userland page http://my.userland.com/viewChannel$369:
+http://www.manifestation.com/msdcrdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$1883:
+http://weblogs.userland.com/manilaNewbies/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1454:
+http://www.mausnews.de/rdf
+
+# From Userland page http://my.userland.com/viewChannel$1481:
+http://osler.med.und.nodak.edu/medEdNews/mostRecentNews.xml
+
+# From Userland page http://my.userland.com/viewChannel$1581:
+http://memepool.com/memepool.rss
+
+# From Userland page http://my.userland.com/viewChannel$3351:
+http://zelotes.ent.iastate.edu/metadata/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$2002:
+http://www.mjifc.com/rss/mnn.html
+
+# From Userland page http://my.userland.com/viewChannel$1641:
+http://zajac.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1554:
+http://my.mediacentre.com/mike/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1379:
+http://www.miscmedia.com/channel.xml
+
+# From Userland page http://my.userland.com/viewChannel$2008:
+http://mn-politics.com/channels/mynetscape.xml
+
+# From Userland page http://my.userland.com/viewChannel$1460:
+http://www.worldnewyork.com/worldnewyork.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1360:
+http://kwark.penguinpowered.com/XML/momus.thoughts.rss
+
+# From Userland page http://my.userland.com/viewChannel$1619:
+http://monkeyfist.com/rdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$46:
+http://www.whump.com/moreLikeThis/moreRSS.php3
+
+# From Userland page http://my.userland.com/viewChannel$1915:
+http://p.moreover.com/cgi-local/page?c=Arts+and+culture+news&o=rss
+
+# From Userland page http://my.userland.com/viewChannel$3472:
+http://www.morons.org/morons.rss
+
+# From Userland page http://my.userland.com/viewChannel$1655:
+http://www.morrissey-solo.com/morrissey-solo.rss
+
+# From Userland page http://my.userland.com/viewChannel$22:
+http://www.mozilla.org/news.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1174:
+http://www.mozillazine.org/contents.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1507:
+http://www.multiagent.com/mynetscape.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1007:
+http://www.radwin.org/mvhs-alumni/summary.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3524:
+http://my.marijuana.com/backend.php3
+
+# From Userland page http://my.userland.com/viewChannel$735:
+http://128.171.15.137/news/nahenahe/nahenaheToRSS.xml
+
+# From Userland page http://my.userland.com/viewChannel$1920:
+http://keola.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1608:
+http://www.neoflux.com/news/rss-1.xml
+
+# From Userland page http://my.userland.com/viewChannel$2014:
+http://www.netbsd.org/Changes/rss-netbsd-internals.xml
+
+# From Userland page http://my.userland.com/viewChannel$1732:
+http://www.netbsd.org/Changes/rss-netbsd-pkgs.xml
+
+# From Userland page http://my.userland.com/viewChannel$1731:
+http://www.netbsd.org/Changes/rss-netbsd.xml
+
+# From Userland page http://my.userland.com/viewChannel$1557:
+http://www.nwfusion.com/netflash.rss
+
+# From Userland page http://my.userland.com/viewChannel$1127:
+http://network54.com/
+
+# From Userland page http://my.userland.com/viewChannel$1615:
+http://www.musi-cal.com/mojamnews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1479:
+http://ipw.internet.com/harvest.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1480:
+http://ipw.internet.com/harvest-news.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1728:
+http://cnn.com/cnn.rss
+
+# From Userland page http://my.userland.com/viewChannel$3521:
+http://jabbercentral.com/rss.php
+
+# From Userland page http://my.userland.com/viewChannel$3352:
+http://news.is.free.fr/news.rdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$1510:
+http://newsblip.com/xml/latestrss.php3
+
+# From Userland page http://my.userland.com/viewChannel$3500:
+http://www.newsonjapan.com/html/editorial/xml/noj_feed.xml
+
+# From Userland page http://my.userland.com/viewChannel$580:
+http://trialcentral.aoe2.net/newspro/update/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$257:
+http://newstrolls.com/newstrolls.rdf
+
+# From Userland page http://my.userland.com/viewChannel$725:
+http://www.njjobs.com/cgi-bin/resumes/todaysResumes.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1923:
+http://nolondon.qwe.as/xml/rss.xml
+
+# From Userland page http://my.userland.com/viewChannel$1884:
+http://fmcpherson.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1700:
+http://frauke.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$75:
+http://ibex.co.nz/channels/jazz_mnn.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1660:
+http://www.oreillynet.com/rss.csp
+
+# From Userland page http://my.userland.com/viewChannel$3519:
+http://obscure.co.nz/index.php?m=rss
+
+# From Userland page http://my.userland.com/viewChannel$1620:
+http://OMS.EditThisPage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$41:
+http://www.on-the-rox.be/olwr.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1940:
+http://www.onclave.com/nodelog/include/rss91.asp
+
+# From Userland page http://my.userland.com/viewChannel$1562:
+http://ondecidingbetter.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3520:
+http://www.olgn.com/backend.php3
+
+# From Userland page http://my.userland.com/viewChannel$628:
+http://www.palmpower.com/shares/userland-rss/channeldata.xml
+
+# From Userland page http://my.userland.com/viewChannel$1242:
+http://www.palmstation.com/palmstation.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1699:
+http://shanson.editthispage.com/xml/scriptingnews2.xml/
+
+# From Userland page http://my.userland.com/viewChannel$182:
+http://www.pdabuzz.com/netscape.txt
+
+# From Userland page http://my.userland.com/viewChannel$1353:
+http://www.news.perl.org/perl-news-short.rdf
+
+# From Userland page http://my.userland.com/viewChannel$776:
+http://www.pharmalicensing.com/ul_sn.php
+
+# From Userland page http://my.userland.com/viewChannel$305:
+http://www.slip.net/~pwolff/jest.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1996:
+http://p.moreover.com/cgi-local/page?index_philippines+rss
+
+# From Userland page http://my.userland.com/viewChannel$1601:
+http://phillyfuture.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1565:
+http://www.phlux.net/phlux-rss.php3
+
+# From Userland page http://my.userland.com/viewChannel$2568:
+http://phuketinsider.com/xml/rss/phuketinsider.xml
+
+# From Userland page http://my.userland.com/viewChannel$510:
+http://www.pigdog.org/pigdog.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1646:
+http://www.plebius.org/data/remote.xml
+
+# From Userland page http://my.userland.com/viewChannel$631:
+http://www.windowscepower.com/shares/userland-rss/channeldata.xml
+
+# From Userland page http://my.userland.com/viewChannel$1956:
+http://jobs.portalux.com/jobs.rss
+
+# From Userland page http://my.userland.com/viewChannel$1958:
+http://portalux.com/nnl/nnl.rss
+
+# From Userland page http://my.userland.com/viewChannel$576:
+http://members.xoom.com/LadyJen/rdfnetscape.xml
+
+# From Userland page http://my.userland.com/viewChannel$1621:
+http://www.gov.pe.ca/news/rss/rssnews.php3
+
+# From Userland page http://my.userland.com/viewChannel$1281:
+http://www.PrivacyDigest.com/mostRecentNews
+
+# From Userland page http://my.userland.com/viewChannel$2006:
+http://www.progressiveforum.org/progressiveforum.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3506:
+http://www.prophezine.com/headlines/pzn_headlines.rss
+
+# From Userland page http://my.userland.com/viewChannel$1191:
+http://www.psyberspace.net/web/channel.cfm
+
+# From Userland page http://my.userland.com/viewChannel$1546:
+http://punknews.org/backend/punknews.txt
+
+# From Userland page http://my.userland.com/viewChannel$835:
+http://www.pythonware.com/news.xml
+
+# From Userland page http://my.userland.com/viewChannel$1573:
+http://q.queso.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1722:
+http://RavenX.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$810:
+http://www.razzberry.com/include/xml/ratings-rdf.asp
+
+# From Userland page http://my.userland.com/viewChannel$2016:
+http://home.earthlink.net/~rfgunning/ReadingJournal/ReadingJournal_RSS_Channel.xml
+
+# From Userland page http://my.userland.com/viewChannel$1388:
+http://www.herring.com/cgi-bin/edit/harvest.pl?id=userland
+
+# From Userland page http://my.userland.com/viewChannel$1852:
+http://www.benefitslink.com/rdf/benefitslink-regs.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1552:
+http://release1.userland.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1727:
+http://www.researchbuzz.com/researchbuzz.rss
+
+# From Userland page http://my.userland.com/viewChannel$1853:
+http://www.benefitslink.com/rdf/benefitslink-retplanadministration.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1854:
+http://www.benefitslink.com/rdf/benefitslink-retplandesign.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1855:
+http://www.benefitslink.com/rdf/benefitslink-retplaninfoforemployees.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1856:
+http://www.benefitslink.com/rdf/benefitslink-retplaninfoforinvestors.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1857:
+http://www.benefitslink.com/rdf/benefitslink-retplanpolicy.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3479:
+http://www.reutershealth.com/eline.rss
+
+# From Userland page http://my.userland.com/viewChannel$1790:
+http://www.riffola.com/headlines.xml
+
+# From Userland page http://my.userland.com/viewChannel$2009:
+http://riposte.org/riposte.rss
+
+# From Userland page http://my.userland.com/viewChannel$883:
+http://catless.ncl.ac.uk/rdigest.rdf
+
+# From Userland page http://my.userland.com/viewChannel$111:
+http://www.linkwatcher.com/metalog/robotwisdom.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1719:
+http://www.rootprompt.org/rss/
+
+# From Userland page http://my.userland.com/viewChannel$1335:
+http://andrew.house8.net/slave_admin/slave.rss
+
+# From Userland page http://my.userland.com/viewChannel$1378:
+http://www.salon.com/feed/RDF/salon_use.rdf
+
+# From Userland page http://my.userland.com/viewChannel$779:
+http://sd.znet.com/~dwlarson/Channels/San_Diego_Dons_News.xml
+
+# From Userland page http://my.userland.com/viewChannel$1925:
+http://www.sanemagazine.com/rdf/sanemagazine.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1607:
+http://www.technopagan.org/sf-news/rdf.php
+
+# From Userland page http://my.userland.com/viewChannel$1622:
+http://www.sffworld.com/sffworld.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3477:
+http://www.sciencefriday.com/scifri.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1946:
+http://screaming-penguin.com/screamRDF.txt
+
+# From Userland page http://my.userland.com/viewChannel$747:
+http://scriptingnews.userland.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1539:
+http://www.searchatlanta.com/searchatl/channel.cfm
+
+# From Userland page http://my.userland.com/viewChannel$1513:
+http://www.securityfocus.com/topnews-rss.html
+
+# From Userland page http://my.userland.com/viewChannel$2001:
+http://www.security.za.net/szn.rss
+
+# From Userland page http://my.userland.com/viewChannel$1566:
+http://instructionalTechnology.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1670:
+http://shellcity.net/citynews.xml
+
+# From Userland page http://my.userland.com/viewChannel$3532:
+http://www.showmelinux.com/showmelinux.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1570:
+http://www.myapplemenu.com/cgi-bin/surfView.cgi?category=singapore&mainfull=1000&fmt=scripting&template=scripting
+
+# From Userland page http://my.userland.com/viewChannel$1816:
+http://sitereview.org/rss/
+
+# From Userland page http://my.userland.com/viewChannel$2566:
+http://www.sitescour.com/news/feed.cfm
+
+# From Userland page http://my.userland.com/viewChannel$1521:
+http://www.slashdot.org/slashdot.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1793:
+http://www.smartmac.com/smartmac.rss
+
+# From Userland page http://my.userland.com/viewChannel$1972:
+http://soccernews.com.au/soccer.rss
+
+# From Userland page http://my.userland.com/viewChannel$1859:
+http://www.benefitslink.com/rdf/benefitslink-socialsecurity.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1484:
+http://www.softronic.se/w_startsida/rss.cs
+
+# From Userland page http://my.userland.com/viewChannel$958:
+http://www.sflare.com/solarflare.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3247:
+http://sourceforge.net/export/rss_sfnewreleases.php
+
+# From Userland page http://my.userland.com/viewChannel$3245:
+http://sourceforge.net/export/rss_sfnews.php
+
+# From Userland page http://my.userland.com/viewChannel$1939:
+http://www.southcountyjournal.com/index.rss
+
+# From Userland page http://my.userland.com/viewChannel$1190:
+http://www.spaceviews.com/news.rdf
+
+# From Userland page http://my.userland.com/viewChannel$858:
+http://spiritofatlanta.org/news/rdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$1589:
+http://squishdot.org/rdf
+
+# From Userland page http://my.userland.com/viewChannel$3526:
+http://www.datanation.com/fallacies/downes.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1860:
+http://www.benefitslink.com/rdf/benefitslink-stockoptions.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1598:
+http://www.stockcharts.com/stockcharts.rss
+
+# From Userland page http://my.userland.com/viewChannel$1052:
+http://www.stockwisdom.com/netscapechannel.asp
+
+# From Userland page http://my.userland.com/viewChannel$1734:
+http://www.studiob.com/cafenews/studiobrss.rss
+
+# From Userland page http://my.userland.com/viewChannel$2003:
+http://www.suddenstrikenet.de/index.shtml
+
+# From Userland page http://my.userland.com/viewChannel$1861:
+http://www.benefitslink.com/rdf/benefitslink-surveys.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1529:
+http://synz.com/dir/synz.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1197:
+http://hr-careers.tcm.com/jobs/rdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$1474:
+http://www.teamgop.com/teamgop-rss.php3
+
+# From Userland page http://my.userland.com/viewChannel$1123:
+http://technocrat.net/rdf
+
+# From Userland page http://my.userland.com/viewChannel$108:
+http://telefnord.com/mnn.cgi
+
+# From Userland page http://my.userland.com/viewChannel$1668:
+http://www.radio4all.net/ainfos_rp.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1572:
+http://www.myapplemenu.com/cgi-bin/surfView.cgi?category=reader&mainfull=1000&fmt=scripting&template=scripting
+
+# From Userland page http://my.userland.com/viewChannel$373:
+http://www.thebesite.com/3/about/headlines.php3?type=rss&limit=7
+
+# From Userland page http://my.userland.com/viewChannel$277:
+http://www.brunching.com/brunching.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1874:
+http://thecaperock.com/headlines.rss
+
+# From Userland page http://my.userland.com/viewChannel$1873:
+http://www.sinisterweb.fsnet.co.uk/enchanted/enchanted.rss
+
+# From Userland page http://my.userland.com/viewChannel$1974:
+http://bands.webzone.net.au/jimblog/jimbob.rss
+
+# From Userland page http://my.userland.com/viewChannel$1754:
+http://www.freebsddiary.org/news.php3
+
+# From Userland page http://my.userland.com/viewChannel$1082:
+http://www.reinvented.net/theguardian/deaths.xml
+
+# From Userland page http://my.userland.com/viewChannel$1081:
+http://www.reinvented.net/theguardian/localnews.xml
+
+# From Userland page http://my.userland.com/viewChannel$1084:
+http://www.reinvented.net/theguardian/sports.xml
+
+# From Userland page http://my.userland.com/viewChannel$1083:
+http://www.reinvented.net/theguardian/topstories.xml
+
+# From Userland page http://my.userland.com/viewChannel$2011:
+http://bornstein.atlanta.ga.us/niel/diary/rdf.php3
+
+# From Userland page http://my.userland.com/viewChannel$64:
+http://happypenguin.org/html/news.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1024:
+http://www.listology.com/recent.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3493:
+http://members.optushome.com.au/adlowe/adlowe.rss
+
+# From Userland page http://my.userland.com/viewChannel$1221:
+http://www.fool.com/xml/foolnews_rss091.xml
+
+# From Userland page http://my.userland.com/viewChannel$1582:
+http://newjazzthing.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3537:
+http://web.philly.com/content/inquirer/home/newsupdate.rss
+
+# From Userland page http://my.userland.com/viewChannel$1071:
+http://mini.net/sax/saxnews.xml
+
+# From Userland page http://my.userland.com/viewChannel$1584:
+http://www.shmoo.com/stampy.xml
+
+# From Userland page http://my.userland.com/viewChannel$1661:
+http://villagenews.weblogger.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1714:
+http://www.twst.com/mynetscape/main.rdf
+
+# From Userland page http://my.userland.com/viewChannel$3508:
+http://www.woodburner.com/woodburner.xml
+
+# From Userland page http://my.userland.com/viewChannel$3505:
+http://www.the-election.com/newsview.rss
+
+# From Userland page http://my.userland.com/viewChannel$1758:
+http://www.theonering.net/cgi-bin/lotr2rdf.cgi
+
+# From Userland page http://my.userland.com/viewChannel$1494:
+http://weblog.creedon.net/weblog.xml
+
+# From Userland page http://my.userland.com/viewChannel$1783:
+http://tibetfocus.editthispage.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$209:
+http://cvs-mirror.mozilla.org/webtools/tinderbox/showbuilds.cgi?rdf=1&tree=SeaMonkey
+
+# From Userland page http://my.userland.com/viewChannel$2591:
+http://www.pokemon-hq.com/about/writers_feed.cfm
+
+# From Userland page http://my.userland.com/viewChannel$771:
+http://www.tomalak.org/recentTodaysLinks.xml
+
+# From Userland page http://my.userland.com/viewChannel$255:
+http://www.webcomics.com/mynetscape.rdf
+
+# From Userland page http://my.userland.com/viewChannel$2004:
+http://www.tornado-investor.com/includes/gen/investor_rss.xml
+
+# From Userland page http://my.userland.com/viewChannel$2592:
+http://www.pokemon-hq.com/about/toronto_feed.cfm
+
+# From Userland page http://my.userland.com/viewChannel$3522:
+http://www.totalf1.com/newspro/news.cdf
+
+# From Userland page http://my.userland.com/viewChannel$1994:
+http://trinity.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$279:
+http://www.tsubakimoto.co.jp/english/rdf/tsubaki.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1645:
+http://www.orbiter.com/gam/gfx/uasdbfl.xml
+
+# From Userland page http://my.userland.com/viewChannel$1916:
+http://www.ultimatechaos.com/news/rss-1.xml
+
+# From Userland page http://my.userland.com/viewChannel$1935:
+http://agents.umbc.edu/awchannel.xml
+
+# From Userland page http://my.userland.com/viewChannel$365:
+http://www.uniquefarm.com/UniqueFarm/UniqueFarm.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1214:
+http://www.ush.net/rdf.html
+
+# From Userland page http://my.userland.com/viewChannel$1522:
+http://usableweb.com/usableweb.xml
+
+# From Userland page http://my.userland.com/viewChannel$1033:
+http://www.usefulinc.com/usefulThings/xml
+
+# From Userland page http://my.userland.com/viewChannel$2148:
+http://www.vaneats.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1944:
+http://www.vex.net/parnassus/parnassus.rss
+
+# From Userland page http://my.userland.com/viewChannel$1978:
+http://www.internetstockreport.com.au/backend/vc.jsp
+
+# From Userland page http://my.userland.com/viewChannel$1692:
+http://vfih.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1695:
+http://viewfromtheheart.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1803:
+http://wamble.weblogger.com/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1254:
+http://www.crc.co.jp/weather/we-tokyo.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1538:
+http://www.web-graphics.com/wb/channel.cfm
+
+# From Userland page http://my.userland.com/viewChannel$1980:
+http://www.webcomics.com/cgi-bin/webcom/rdfnews
+
+# From Userland page http://my.userland.com/viewChannel$1932:
+http://webdev.khm.de/xml/scriptingNews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1683:
+http://webfeet.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1595:
+http://www.weblogger.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1748:
+http://www.carotids.com/weblogue/backend.rss
+
+# From Userland page http://my.userland.com/viewChannel$1798:
+http://www.webreference.com/webreference.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1500:
+http://www.groksoup.com/Site/WebSnot/WebSnot.xml
+
+# From Userland page http://my.userland.com/viewChannel$1599:
+http://web.webwerks.co.nz/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1659:
+http://www.wideopen.com/wideopen.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1804:
+http://mike.smb.man.ac.uk/wigan/newsfeed.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1563:
+http://www.wiredfool.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$736:
+http://www.wired.com/news_drop/netcenter/netcenter.rdf
+
+# From Userland page http://my.userland.com/viewChannel$2170:
+http://www.wirelessdevnet.com/wirelessnews/rss/dailynews.rss
+
+# From Userland page http://my.userland.com/viewChannel$3535:
+http://www.nwfusion.com:8080/rss/wireless/query.html?col=archive1&col=edge&ws=0&qt=%2Bwireless&qm=0&ql=&st=1&nh=10&lk=1&rf=1
+
+# From Userland page http://my.userland.com/viewChannel$1115:
+http://www.perl.com/pace/perlnews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1282:
+http://www.wc.cc.va.us/news/rss.asp
+
+# From Userland page http://my.userland.com/viewChannel$2007:
+http://www.x-radio.com/features.xml
+
+# From Userland page http://my.userland.com/viewChannel$2567:
+http://www.parc.xerox.com/current/parc-events.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1509:
+http://www.moreover.com/cgi-local/page?index_xml+rss
+
+# From Userland page http://my.userland.com/viewChannel$1986:
+http://arieldolan.com/adxml.rss
+
+# From Userland page http://my.userland.com/viewChannel$773:
+http://xml.com/xml/scriptingnews.rdf
+
+# From Userland page http://my.userland.com/viewChannel$1455:
+http://www.xmlhack.com/rsscat.php
+
+# From Userland page http://my.userland.com/viewChannel$1809:
+http://www.xplane.com/xblog/xml/xblog.xml
+
+# From Userland page http://my.userland.com/viewChannel$1997:
+http://XRayNet.editthispage.com/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$1780:
+http://yabel.com/backends/index.php3
+
+# From Userland page http://my.userland.com/viewChannel$1046:
+http://myhome.mystuff.net/myweblog/search.news.yahoo.com.cgi?netgravity
+
+# From Userland page http://my.userland.com/viewChannel$1401:
+http://myhome.mystuff.net/myweblog/search.news.yahoo.com.cgi?soap+xml
+
+# From Userland page http://my.userland.com/viewChannel$1045:
+http://myhome.mystuff.net/myweblog/search.news.yahoo.com.cgi?userland
+
+# From Userland page http://my.userland.com/viewChannel$1400:
+http://myhome.mystuff.net/myweblog/search.news.yahoo.com.cgi?xml
+
+# From Userland page http://my.userland.com/viewChannel$294:
+http://www.yourmom.com/ym/include/ym-rdf.asp
+
+# From Userland page http://my.userland.com/viewChannel$2361:
+http://on1.zkm.de/zkm/xml/scriptingnews2.xml
+
+# From Userland page http://my.userland.com/viewChannel$3244:
+http://www.zope.org/Members/plewis/job_board/rss
+
+# From Userland page http://my.userland.com/viewChannel$1929:
+http://weblogs.userland.com/zopeNewbies/xml/rss.xml
+
+# From Userland page http://my.userland.com/viewChannel$1384:
+http://www.zope.org/SiteIndex/news.rss
+
+# From Userland page http://my.userland.com/viewChannel$101:
+http://zzt.org/news.cdf
+
+# End of userland.rsslist

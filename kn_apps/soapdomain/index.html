@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:08:59 troutgirl Exp $
+
+-->
+
+<!-- An example program to illustrate how to use SOAP services through
+     a mod_pubsub instance to retrieve stock quotes. --> 
+
+<html>
+<head>
+
+<title>pubsub soap domain</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<!-- XML and SOAP Helper Libraries -->
+<script src="../kn_lib/kn_xml_msg.js"></script>
+<script src="../kn_lib/soap2object.js"></script>
+<script src="../kn_lib/object2soap.js"></script>
+<script src="../kn_lib/object2xml.js"></script>
+<script src="../kn_lib/xml2object.js"></script>
+<script src="../kn_lib/xmljs/xml.js"></script>
+
+</head>
+
+<script><!--
+
+var req = new Object();
+var topic = (kn_argv.kn_topic)? kn_argv.kn_topic : "/who/" + kn.userid + "/soap/domain";
+
+function startup() {
+
+    // FIXME: we need a reliable way to determine this URL from
+    // JavaScript, and a *usable* JavaScript URL class wouldn't hurt.
+
+    var url =
+      self.
+      kn_server.
+      split("pubsub.cgi").
+      join("soap_filter.cgi").
+      split("://").
+      join("://kncgi:kncgi@");
+
+    // NOTE: kn_server must end in "pubsub.cgi" for the above hack to work.
+    // If you put soap_filter.cgi somewhere else, set "url" to point to it.
+
+    kn.subscribe(topic + "/send", url);
+    kn.subscribe(topic, receiveDomain);
+}
+
+
+function receiveDomain(e)
+{
+    var rcv = new Object();
+
+    // If the payload length is less than five, we can reasonably
+    // assume that it has not received a valid response, as SOAP
+    // responses are very long.
+
+    if (e.kn_payload.length < 5) { // An arbitrary number.
+      document.forms.domain.elements.avail.value = "SOAP Error, please try later.";
+      return;
+    }
+
+    // The received event should be a valid SOAP request, or at
+    // least resemble one.  Soap2Object will take the various
+    // properties of a SOAP encoded response/request, and turn it
+    // into a JavaScript object. 
+
+    rcv = kn_event2object(e);
+    //rcv = Soap2Object(e.kn_payload);
+
+    // An object should be returned.  If not there was a problem.
+
+    if (rcv) {
+
+      if (rcv.checkDomainResponse.Result == "unavailable") {
+          document.forms.domain.elements.avail.value = document.forms.domain.dom.value + " is unavailable.";
+      } else {
+          document.forms.domain.dom.value = req.domainname;
+          document.forms.domain.elements.avail.value = rcv.checkDomainResponse.Result;
+      }
+
+    } else {
+      document.forms.domain.elements.dom.value = "Error";
+    }
+}
+
+function lookup()
+{
+    var headers = new Object();
+
+    // Every JavaScript object, with some exceptions,
+    // is translated into a SOAP request.  This is the case
+    // for req.domainname, as it is moved into a SOAP request.
+
+    req.domainname = document.forms.domain.dom.value;
+
+    // These *MUST* be set for both the payload object and the
+    // headers object.  
+
+    headers.soap_uri = req.soap_uri = "urn:xmethods-DomainChecker";
+    headers.soap_method = req.soap_method = "checkDomain";
+    headers.soap_endpoint = req.soap_endpoint = "http://66.28.98.121:9090/soap";
+      // Warning: This URL is subject to change.
+      // Was: "http://services.xmethods.net:80/soap";
+      // See: http://services.xmethods.net/soap/urn:xmethods-DomainChecker.wsdl
+    headers.kn_next_hop = topic;
+
+    // This is the important function call for sending SOAP requests.
+
+    kn_activateSoap(topic + "/send", req, headers);
+    document.forms.domain.elements.avail.value = "Searching...";
+}
+
+// -->
+</script>
+
+<body onLoad="startup()" bgcolor="FFFFFF">
+<h1 align="center">PubSub SOAP Domain Name Lookup Demo</h1>
+<table align="center"><tr><td>The information for this demo is
+collected from a SOAP service provided by
+<a href="http://www.xmethods.net/">xmethods</a>.
+</td></tr></table>
+
+<form name="domain" onSubmit="return false;">
+<table align="center" border="1">
+<tr>
+<td>Enter Domain to Lookup:</td><td><input type="text" name="dom"></td>
+</tr>
+<tr>
+<td>Domain availability:</td><td><input type="text" name="avail" size="40"></td>
+</tr>
+<tr><td colspan="2" align="center"><input type="submit" onClick="lookup();return false"> <input type="reset" value="Clear"></td>
+</table>
+</form>
+
+</body>
+</html>

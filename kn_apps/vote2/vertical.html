@@ -1,0 +1,336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: vertical.html,v 1.1 2002/11/07 07:09:18 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub vote 2: color vote (vertical)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<style><!--
+
+td.knownow, th {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+h1 {
+  font-size: 18pt;
+  font-weight: normal;
+}
+
+input.clock {
+  border: 0px;
+  background: white;
+  color: black;
+  font-size: 10pt;
+  text-align: right;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+body, td, .output {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+.rule {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: #ff9900; 
+  margin: 0px 0%;
+}
+
+a:link, a:hover, a:active, a:visited {
+  color: #3366cc;
+}
+
+a:link, a:visited, a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+td.voter {
+        font-size: 12px;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+td.leftmenu {
+        font-size: 11px;
+}
+
+
+b.number {
+        font-size: 16px;
+       	color: #003366;
+}
+
+
+p.copy {
+        font-size: 10px;
+        color: #999999;
+}
+
+input.output {
+  border: 0px;
+  background: white;
+  color: black;
+}
+
+-->
+</style>
+
+<script><!--
+
+var redVotes = 0;
+var greenVotes = 0;
+var blueVotes = 0;
+
+var vote_topic = "/what/vote";
+
+function init(){
+	
+  if (document.all && ! document.getElementById)
+    {
+      for (var i = 0; i < document.all.length; i ++)
+	{
+	  var node = document.all[i];
+	  if (node.className == "rule")
+	    {
+	      node.outerHTML = '<hr size="1" color="#ff9900" />';
+	    }
+	}
+    }
+
+	// This grabs the proper object reference for each colored bar.
+
+	if (document.layers){
+		barOne = document.layers["bar1"];
+		barTwo = document.layers["bar2"];
+		barThree = document.layers["bar3"];
+	} else if (document.all){
+		barOne = document.all["bar1"].style;
+		barTwo = document.all["bar2"].style;
+		barThree = document.all["bar3"].style;
+	} else {
+		barOne = document.getElementById("bar1").style;
+		barTwo = document.getElementById("bar2").style;
+		barThree = document.getElementById("bar3").style;
+	}
+	
+	if (! barOne)
+	  {
+	    barOne = {
+	      clip: {
+	      }
+	    };
+	  }
+	
+	if (! barTwo)
+	  {
+	    barTwo = {
+	      clip: {
+	      }
+	    };
+	  }
+	
+	if (! barThree)
+	  {
+	    barThree = {
+	      clip: {
+	      }
+	    };
+	  }
+
+	// Attach the setWidth method to each bar object (see below).
+	
+	barOne.setHeight = setHeight;
+	barTwo.setHeight = setHeight;
+	barThree.setHeight = setHeight;
+	
+	// Subscribe to the vote topic route.
+	
+	kn.subscribe(vote_topic,displayIncomingVote,{do_max_age:"infinity",kn_expires:"infinity"});
+
+}
+
+// The setWidth function manages the widths of the colored bars.
+
+function setHeight(h){
+	if (document.layers) this.clip.top = -h; // For NN4.
+	else {
+		this.height = h; // For IE5 and NN6.
+		this.clip = "rect(0px 20px " + h + "px 0px)";	
+	}
+}
+
+// The vote function creates an event and publishes it to
+// the mod_pubsub instance via the vote topic route.
+
+function vote(which){
+	var ev = {};
+	ev.kn_payload = which;
+	ev.kn_expires = "+86400";
+	kn.publish(vote_topic,ev);
+}
+
+// The displayIncomingVote function does all the heavy lifting
+// in this app.  This function receives all vote events that 
+// arrive via the topic route, examines each one and determines
+// the total number of votes, vote percentages, and other data.
+
+function displayIncomingVote(voteEvt){
+	
+	// voteEvt is the incoming event.
+	
+	// Determine which color this vote is for and increment the
+	// vote count for that color.
+	
+	var which = voteEvt.kn_payload;
+	switch(which){
+		case "red":
+			redVotes++;
+			break;
+		case "green":
+			greenVotes++;
+			break;
+		case "blue":
+			blueVotes++;
+			break;
+	}
+	
+	// Add the votes.
+
+	totalVotes = redVotes + greenVotes + blueVotes;
+	
+	// Figure out the ratios.
+
+	var redRatio = Math.round(redVotes/totalVotes*100);
+	var greenRatio = Math.round(greenVotes/totalVotes*100);
+	var blueRatio = Math.round(blueVotes/totalVotes*100);
+	
+	// Calculate the widths of each bar.
+
+	var redW = Math.round(redVotes/totalVotes*200);
+	var greenW = Math.round(greenVotes/totalVotes*200);
+	var blueW = Math.round(blueVotes/totalVotes*200);
+	
+	// Update the text inputs.
+
+	document.forms[0].elements.redBox.value = redVotes + " votes " + redRatio +"%";
+	document.forms[0].elements.greenBox.value = greenVotes + " votes " + greenRatio +"%";
+	document.forms[0].elements.blueBox.value = blueVotes + " votes " + blueRatio +"%";
+	
+	// Set the bar heights.
+
+	barOne.setHeight(redW);
+	barTwo.setHeight(greenW);
+	barThree.setHeight(blueW);
+}
+
+// -->
+</script>
+
+<base target="_top" />
+</head>
+
+<body bgcolor="#ffffff" link="#3366cc" vlink="#3366cc" alink="#3366cc" text="#000000"
+      leftmargin="10" topmargin="15" marginwidth="10" marginheight="15"
+      onload="init()"> 
+
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+
+   <td align="left" valign="top"> &nbsp;&nbsp;
+   <h1>Color Vote (Vertical)</h1> &nbsp;&nbsp; </td>
+
+</tr>
+</table>
+
+<div class="rule"></div>
+
+<br />
+
+<center>
+<table border="0" cellspacing=0 cellpadding=5>
+<tr>
+<td height="200" valign="bottom"><div id="bar1" style="position:relative; background-color:#ff0000; layer-background-color:#ff0000; width:20px; height:10px; clip:rect(0px 20px 10px 0px); font-size:1px; line-height:0px;">&nbsp;</div></td>
+<td height="200" valign="bottom"><div id="bar2" style="position:relative; background-color:#00ff00; layer-background-color:#00ff00; width:20px; height:10px; clip:rect(0px 20px 10px 0px); font-size:1px; line-height:0px;">&nbsp;</div></td>
+<td height="200" valign="bottom"><div id="bar3" style="position:relative; background-color:#0000ff; layer-background-color:#0000ff; width:20px; height:10px; clip:rect(0px 20px 10px 0px); font-size:1px; line-height:0px;">&nbsp;</div></td>
+</tr>
+<tr>
+<td align="center">Red</td>
+<td align="center">Grn</td>
+<td align="center">Blu</td>
+</tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<form name="voteform" action="javascript://">
+<td
+><input type="button" value="Vote Red" onclick="vote('red');"
+/> <font size="-1"
+><input type="text" name="redBox" class="output" readonly="readonly" onfocus="blur()"
+/></font><br
+/><input type="button" value="Vote Green" onclick="vote('green');"
+/> <font size="-1"
+><input type="text" name="greenBox" class="output" readonly="readonly" onfocus="blur()"
+/></font><br
+/><input type="button" value="Vote Blue" onclick="vote('blue');"
+/> <font size="-1"
+><input type="text" name="blueBox" class="output" readonly="readonly" onfocus="blur()"
+/></font></td>
+</form>
+</tr>
+</table>
+</center>
+
+<br />
+
+<div class="rule"></div>
+
+</body>
+</html>

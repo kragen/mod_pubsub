@@ -1,0 +1,478 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: testlist.html,v 1.1 2002/11/07 07:08:58 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub client test page</title>
+
+<script><!--
+
+tests = [ ];
+next_test = 0;
+
+// We store a pointer to ourselves in the top frame of the frameset so
+// test cases in other frames can find us to report success or failure.
+top.kn_test_frame = window;
+
+// URL of a blank page in the right JavaScript security zone.
+var blank_page = "blank.html";
+
+function random_id()
+{
+    return Math.random().toString().substring(2);
+}
+
+// Interpolate bits of an object into a string in place of {names};
+// e.g. formatstr("{name} is {emotion}", {name: 'Ben', emotion: 'jubilant'})
+// returns "Ben is jubilant".
+function formatstr(format, args)
+{
+    var result = '';
+    var normal = true;
+    while (1)
+    {
+        var pos = format.indexOf(normal ? '{' : '}');
+        if (pos == -1) return result + (normal ? format : args[format]);
+        var match = format.substring(0, pos);
+        format = format.substring(pos + 1);
+        result += (normal ? match : args[match]);
+        normal = ! normal;
+    }
+}
+
+// Yuck.
+test_session_id = random_id();
+// Create test topics under here.
+test_topic = "/what/test/" + test_session_id;
+
+function push(list, item)
+{
+    list[list.length] = item;
+}
+
+// setTimeout is somewhat broken in Netscape; sometimes timeout
+// handlers never run.  The thing we most often use it for is
+// enqueuing of work to be done in the near future.  So here's a
+// work queue.
+
+work_queue = [];
+
+function do_work()
+{
+    if (work_queue.length == 0) return;
+    var new_work_queue = [];
+    // Remove first element from queue.
+    for (i = 1; i != work_queue.length; i++)
+    {
+        push(new_work_queue, work_queue[i]);
+    }
+    var work = work_queue[0];
+    work_queue = new_work_queue;
+    work();
+    // Repeat the whole process, if we didn't get an error in work().
+    do_work();
+}
+
+function enqueue_work(work)
+{
+    push(work_queue, work);
+}
+
+setInterval('do_work()', 100);
+
+function output_message_nl(msg)
+{
+    output_message(msg + "\n");
+}
+
+function output_message(msg)
+{
+    var elem = document.testform.output_area;
+    elem.value = elem.value + msg;
+}
+
+_and_run = function(){};
+
+function blank_frames_and_run(fn)
+{
+    top.frameCallback = function(win)
+    {
+        if (win != top.frames[1])
+        {
+            win.document.bgColor = 'black';
+            return;
+        }
+        top.frameCallback = function(win)
+        {
+            if (win != top.frames[2])
+            {
+                win.document.bgColor = 'black';
+                return;
+            }
+            top.frameCallback = function(){};
+            fn();
+        }
+        right_frame_esp(blank_page);
+    }
+    left_frame_esp(blank_page);
+}
+
+n_subtests = 0;
+function run_next_test()
+{
+    blank_frames_and_run(function() {
+        if (next_test == tests.length)
+        {
+            output_message_nl("Tests completed " + new Date());
+        }
+        else
+        {
+            var current_test = tests[next_test];
+            output_message("Running '" + current_test.name + "' ... ");
+            next_test ++;
+            n_subtests = 0;
+            current_test.closure();
+        }
+    });
+}
+
+function runtests()
+{
+    document.testform.output_area.value = "";
+    document.bgColor = "white";
+    output_message_nl("Running tests at " + new Date() + "...");
+    next_test = 0;
+    run_next_test();
+}
+
+// A test calls this when it is going to use subtests.  It specifies
+// the number of subtests; this way, if it forgets to run some tests
+// or report their results (pubsub_test.cgi had this problem; it was
+// producing syntactically invalid JavaScript) it will fail.
+
+function expect_subtests(n)
+{
+    output_message("subtests: \n");
+    n_subtests = n;
+}
+
+function succeed()
+{
+    if (n_subtests != 0) 
+    {
+        fail(formatstr("{n} subtest{s} didn't run", 
+                       {n: n_subtests,
+                        s: n_subtests == 1 ? "" : "s"}));
+    }
+    else
+    {
+        output_message("OK\n");
+        // Since this often gets called from event handlers in ESPs,
+        // relative paths (like for left_frame_esp) will be resolved
+        // relative to kn.cgi.  This is the problem we wrote
+        // kn_resolvePath to fix, but unfortunately, we have to
+        // include the whole microserver to get kn_resolvePath.
+        // So we cheat, using enqueue_work.
+        enqueue_work(run_next_test);
+    }
+}
+
+function fail(err)
+{
+    output_message_nl("failed: " + err);
+    document.bgColor = "#ff7777";
+    // See the comment above the same line in succeed().  Should this 
+    // line be factored into its own function, given that it needs 
+    // a five-line comment to explain it?
+    enqueue_work(run_next_test);
+}
+
+// When a subtest succeeds.
+function subsucceed(name)
+{
+   output_message(formatstr("    {name}: OK\n", {name: name}));
+   decrement_n_subtests();
+}
+
+function subfail(namemsg)
+{
+   output_message(formatstr("    {name}: failed: {msg}\n", namemsg));
+   decrement_n_subtests();
+}
+
+function decrement_n_subtests()
+{
+    if (n_subtests == 0)
+    {
+        fail("too many subtests");
+    }
+    else
+    {
+        n_subtests--;
+    }
+}
+
+function onError(err)
+{
+    // I think this needs more logic; it works in Netscape 4.74, but I
+    // am under the impression that MSIE5 gives us more information in
+	// the error, so we have to extract the string from it.
+    fail(err);
+}
+
+
+function define_test(name, test)
+{
+    push(tests, {name: name, closure: test});
+}
+
+
+// These two tests verify that the success machinery is working and
+// will properly run the next test.  It would be very confusing to have
+// the first "real" test hang forever because the test machinery is broken.
+
+define_test("nop test", function() {
+    succeed();
+});
+
+define_test("nop test 2", function() {
+    succeed();
+});
+
+// Test sequence number, incremented each time we run a test.
+var seqno = 0;
+
+// Note that this function assumes you're using ; to separate
+// name-value pairs in your URL, not & ...
+function make_url_uncachable(url)
+{
+    if (url.indexOf('?')<0)
+    {
+        url += '?';
+    }
+    else
+    {
+        url += ';';
+    }
+    url += 'dontCacheMe=' + test_session_id + '_' + (seqno ++);
+    return url;
+}
+
+function frame_esp(url, frame)
+{
+    if ((navigator.appName == "Microsoft Internet Explorer") &&
+        (navigator.appVersion.indexOf("Macintosh") >= -1))
+    {
+        // We have to do strange things to get the test suite working
+        // in Mac MSIE, at least under Mac OS X.  Doing this causes
+        // history pollution, but in Mac MSIE, form submission always
+        // adds history entries anyhow, so this extra bit of history
+        // pollution goes completely unnoticed by the EPA.
+        with(frame.document)
+            {
+                open();
+                write('<html><head><title>Loading...</title></head><body></body></html>');
+                close();
+            }
+    }
+    frame.location.replace(top.location.href + url);
+}
+
+function left_frame_esp(url)
+{
+    url = make_url_uncachable(url);
+    document.testform.left_frame_url.value = url;
+    frame_esp(url, parent.frames[1]);
+}
+
+function right_frame_esp(url)
+{
+    url = make_url_uncachable(url);
+    document.testform.right_frame_url.value = url;
+    frame_esp(url, parent.frames[2]);
+}
+
+define_test("load a simple HTML file", function()
+{
+    left_frame_esp("simple.html");
+});
+
+define_test("load a simple HTML file, other frame", function()
+{
+    right_frame_esp("simple.html");
+});
+
+define_test("start a tunnel", function()
+{
+    var topic = test_topic + "/start_tunnel";
+    left_frame_esp("start_tunnel.html?kn_debug=posts;kn_topic=" + topic);
+});
+
+test_cookie = 0;
+define_test("pass an argument", function()
+{
+    test_cookie = random_id();  // a new one each time we run this test
+    left_frame_esp("get_arg.html?kn_debug=1;test_cookie=" + test_cookie);
+});
+
+function i_think_cookie_is(attempt)
+{
+    if (test_cookie == attempt)
+    {
+        succeed();
+    }
+    else
+    {
+        fail("Expected magic cookie '" + test_cookie + "' but got '" +
+             attempt);
+    }
+}
+
+define_test("post and receive an event", function()
+{
+    var topic = test_topic + "/post_and_receive";
+    left_frame_esp("post_recv.html?kn_debug=1;kn_topic=" + topic);
+});
+
+define_test("post and get success", function()
+{
+    var topic = test_topic + "/post_and_get_success";
+    left_frame_esp("post_get_succ.html?kn_debug=1;kn_topic=" + topic);
+});
+
+define_test("unsubscribe", function()
+{
+    var topic = test_topic + "/unsubscribe";
+    left_frame_esp("unsubscribe.html?kn_debug=1;kn_topic=" + topic);
+});
+
+// These two tests depend on our server's current brain-dead way of 
+// restricting topic names.  If we fix that, we'll have to find a better
+// way to get these guys to fail.
+
+define_test("subscribe and get failure", function()
+{
+    var topic = test_topic + "/subscribe_and_get_failure/...";
+    left_frame_esp("subs_get_fail.html?kn_debug=1;kn_topic=" + topic);
+});
+
+define_test("post and get failure", function()
+{
+    var topic = test_topic + "/post_and_get_failure/...";
+    left_frame_esp("post_get_fail.html?kn_debug=1;kn_topic=" + topic);
+});
+
+define_test("dynamic document", function()
+{
+    var topic = test_topic + "/dynamic_document";
+    left_frame_esp("dyn_doc.html?kn_debug=1;kn_topic=" + topic);
+});
+
+define_test("follower subscribes successfully", function()
+{
+    var topic = test_topic + "/follower_subscribes_successfully";
+    left_frame_esp("nop.html?kn_debug=1;kn_topic=" + topic);
+    setTimeout('right_frame_esp("start_tunnel.html?kn_debug=1;kn_topic=" + "' 
+               + topic + '")', 2000);
+});
+
+define_test("server-side test suite", function()
+{
+    if (document.authform.username.value)
+    {
+        left_frame_esp("../../cgi-bin/pubsub_test.cgi?jsoutput=1;user=" + 
+                       escape(document.authform.username.value) + 
+                       ";password=" + 
+                       escape(document.authform.password.value));
+    }
+    else
+    {
+          left_frame_esp("../../cgi-bin/pubsub_test.cgi?jsoutput=1");
+    }
+});
+
+// -->
+</script>
+
+</head>
+
+<body bgcolor="white" onLoad="document.testform.output_area.value=''">
+<h1>PubSub client test page</h1>
+
+    <form name="authform">
+    If your server requires usernames and passwords, enter them --- <br />
+      Username: <input name="username" />
+      Password: <input type="password" name="password" /> <br />
+    </form>
+
+<p> Close any open PubSub-enabled weblications, then click <button
+onclick="runtests()"><a href="javascript:void runtests()//"
+>Go</a></button> to start the test process.
+If a test is hung, you can click <button
+onclick="fail('user override')"><a
+href="javascript:void fail('user override')//">Fail</a></button> to force the
+test to fail and proceed to the next.</p>
+
+    <form name="testform">
+    <p> <textarea name="output_area" rows="30" cols="80" wrap="virtual" readonly>
+If this message remains displayed for more than a couple of seconds, your browser is not running JavaScript, and neither the test suite nor, probably, the software it is intended to test will work.  This is usually because you've disabled JavaScript in your browser.  Check to see if you're doing this, enable JavaScript if so, and reload.
+</textarea> 
+    <h2>Frames should contain:</h2>
+    <nobreak>L: <input name="left_frame_url" size="80" /></nobreak>
+    <nobreak>R: <input name="right_frame_url" size="80" /></nobreak>
+    </p>
+    </form>
+
+<p>At the moment, these tests are known to work on Windows MSIE 4,
+Windows MSIE 5.5, Windows Mozilla 0.6, Linux Netscape 4.74, and MacOS
+X Netscape 4.75.  One of them (post and receive) doesn't work in at
+least one version of Mac MSIE 5.1, apparently because of a limitation
+on the number of fields in a form.  MSIE 4 in our configuration
+sometimes hangs for long periods of time while running some tests.
+None of the tests beyond "load a simple HTML file" work in Mozilla
+0.7, although they all work fine in 0.6.  In Opera 5, they work fine
+up to the point where they start using ESPs ("start a tunnel"), after
+which none of them work.</p>
+
+</body>
+</html>

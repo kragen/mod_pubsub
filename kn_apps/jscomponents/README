@@ -1,0 +1,115 @@
+KnowNow JavaScript Components Release Notes version 1.5
+
+	This document contains the following sections:
+
+	**  Target Audience 
+	**  Supported Browsers 
+	**  Required Software 
+	**  Installation
+	**  New Features
+	**  Known Issues 
+	**  Product Information and Support 
+
+	The KnowNow JavaScript Components include the following:
+
+	**  KN HTML- A JavaScript library that allows you to easily KnowNow-enable your existing HTML pages by allowing HTML elements to subscribe to KnowNow topics and respond to KnowNow events. 
+	**  KN Table- A JavaScript library that makes it easy to write a table of data to the page in a highly customized way. KN TABLE takes in an array of objects and writes each one as a row of the table. The columns are derived from properties of the objects used to construct the table. KN Table also provides sorting and pagination capabilities, as well as a number of template options to format the data the way you want to use it. 
+	**  KN Form- A JavaScript utility library that allows HTML Forms to automatically publish and subscribe to KnowNow event topics. 
+	**  KN FlashGraph- A Flash Movie that allows you to use JavaScript to dynamically control the position and size of a bar graph in realtime. 
+	**  KN ActivePanels- a component that allows you to create dynamic content areas in a webpage that can be updated in realtime. 
+
+Intended Audience 
+
+	KnowNow Javascript Components are intended for developers who want to "jump start" the KnowNow-enabling of their web applications. 
+
+Requirements
+
+	The components are supported on the following browsers:
+
+    KN HTML-
+    **  IE 5.0 on Microsoft Windows 98, NT 4, and 2000
+    **  IE 5.5 on Microsoft Windows 98, NT 4, 2000, and XP
+
+    KN Table-
+    **  IE 5.0 on Microsoft Windows 98, NT 4, and 2000
+    **  IE 5.5 on Microsoft Windows 98, NT 4, 2000, and XP
+
+    KN Form- 
+    **  IE 5.0 on Microsoft Windows 98, NT 4, and 2000
+    **  IE 5.5 on Microsoft Windows 98, NT 4, 2000, and XP
+    **  Netscape 4.76 on Microsoft Windows 98, NT 4, and 2000 
+    **  Netscape 4.76 on Sun Solaris 2.8 
+
+    KN FlashGraph-
+    **  IE 5.0 on Microsoft Windows 98, NT 4, and 2000 with Macromedia Flash 5
+    **  IE 5.5 on Microsoft Windows 98, NT 4, 2000, and XP with Macromedia Flash 5   
+
+    KN ActivePanels-
+    **  IE 5.0 on Microsoft Windows 98, NT 4, and 2000
+    **  IE 5.5 on Microsoft Windows 98, NT 4, 2000, and XP
+    **  Netscape 4.76 on Microsoft Windows 98, NT 4, 2000, and XP
+    **  Netscape 4.76 on Sun Solaris 2.8 
+
+	To use this product, you must have the following software installed:
+
+    **  KnowNow Event Router with JavaScript Microserver
+
+	For KN FlashGraph
+    **   Macromedia Flash 5 Player 
+
+Installation
+
+	The KnowNow JavaScript Component Library is distributed as a package. To install the product, untar the jscomponents-1.5.x.tar.gz file.
+
+	The default install directories for the contents of the JavaScript Components are as follows:
+
+/ jscomponents
+    kn_bargraph.swf
+    kn_activepanels.js
+    kn_form.js
+    kn_html.js
+    kn_table.js
+    /examples
+        /kn_activepanels/index.html & related files
+        /kn_flashgraph/index.html & related files
+        /kn_form/index.html & related files
+        /kn_html/index.html & related files
+        /kn_table/index.html & related files
+    /source
+         /kn_flashgraph
+	chart.fla
+	chart1.txt
+	iolib.txt
+    /documentation
+         /kn_activepanels/index.html & related files
+         /kn_flashgraph/index.html & related files
+         /kn_form/index.html & related files
+         /kn_html/index.html & related files
+         /kn_table/index.html & related files
+    LICENSE
+    INSTALL
+    RELEASE_NOTES
+
+	For more information, see the KN HTML, KN Table, KN Form, KN ActivePanels and KN FlashGraph Component Documentation at Developer.KnowNow.com.
+
+New Features
+
+	None.
+
+Known Issues
+
+    KN Table Example
+    **  Intermittently, a new line is added to the table if you click through the table fields without adding data. 
+
+    KN ActivePanels 
+    **  Performance can be much slower in Netscape 4.x than in other browsers, especially during a series of rapid realtime updates. 
+    **  This example may not work correctly when the Router is configured to run over SSL.
+
+Product Information and Support
+
+	If you have any questions about the KnowNow products, please visit our website at Developer.KnowNow.com.
+
+	All brand names and product names used in this document are trade names, service marks, trademarks or registered trademarks of their respective owners.
+
+Copyright(c) KnowNow, Inc. All rights reserved.
+Last updated: January 23, 2002

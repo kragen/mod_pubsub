@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: bookmarklets.html,v 1.1 2002/11/07 07:09:35 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<title>bookmarklet toolbox</title>
+</head>
+<body>
+<p>Bookmarklets are tiny JavaScript applications that fit in a single URL.
+Click and drag one of the following links to your Links Toolbar if you
+are using Internet Explorer or, if you are using Netscape, your Personal
+Toolbar.</p>
+<dl>
+<dt><a
+title="pubsub:stop"
+href="javascript:kn_sendCallback=kn_publish=kn_subscribe=kn_unsubscribe=function(){};if(top.onunload)top.onunload();void(0)"
+>pubsub:stop</a></dt>
+<dd>pubsub:stop is a stop button for pubsub apps</dd>
+<dt><a
+title="pubsub:proxy"
+href="javascript:if(!this.kn)alert('no microserver');else{var s=prompt('source topic',kn_argv.kn_topic?kn_argv.kn_topic:'/what/chat'),d=s?prompt('destination URI',kn_server):0,t=d?prompt('destination topic',s):0,u,h;if(!t)alert('giving up');else{kn.subscribe(s,function(e){u=d+'?do_method=notify;kn_status_to=http://0:0;kn_to='+kn_escape(t);for(h in e)u+=';'+kn_escape(h)+'='+kn_escape(e[h]);frames[0].location.replace(u)});kn.documents[frames[0].name]={html:'close this window to stop the proxy',state:'ready'};frames[0].location.replace(kn_blank)}}void 0"
+>pubsub:proxy</a></dt>
+<dd>pubsub:proxy is a lossy pubsub topic proxy for tiny events</dd>
+<!-- why spqr? for senatus populusque romanus, of course! -->
+<dt><a title="catch me if you can."
+href="javascript:/*_v0.1_*/(function(s,p,q,r,_){while((q=prompt(p+'\nr: '+r+' ['+typeof r+']',q))!=_&&q!='')try{r=eval(q);p=''}catch(e){p=e[s]?e[s]:e}})('description','Enter JavaScript to interpret.','')"
+>micro&iuml;nterpreter</a> v0.1</dt>
+<dd>micro&iuml;nterpreter is an interactive JavaScript interpreter using <code>try</code> and <code
+>catch</code>; it works in Mozilla, Netscape 6+, and IE 5+</dd>
+<dt><a title="i bookmarked this. you can too."
+href="javascript:/*_v0.2_*/_e=this['onError'];void(onError=function(p){var q=typeof _q=='undefined'?'=Math.PI':_q;if((q=prompt('Enter JavaScript to interpret. (Prefix with \'=\' for in-place evaluation.)\n'+p,q))!=null&&q!=''){_q=q;var s='onError(eval(unescape(\''+(_q.charAt(0)=='='?'_q=_q.charAt(0);_q+':'')+escape(_q)+'\')))';setTimeout(typeof Error=='undefined'?s:('try{'+s+'}catch(e){onError(typeof e.description==\'undefined\'?e:e.description)}'),1);}else onError=_e;})('')"
+>interpreter</a> v0.2</dt>
+<dd>interpreter is an interactive JavaScript interpreter which works in Netscape 4+ and IE4+</dd>
+<dt><a title="i bookmarked this. you can too."
+href="javascript:/*_v0.3_*/_e=window['_e']?_e:window['onError'];void((window.onError=(new Function('p','var q=typeof _q==\'undefined\'?\'=Math.PI\':_q;if((q=prompt(\'Enter JavaScript to interpret. (Prefix with \\\'=\\\' for in-place evaluation.)\\n\'+p,q))!=null&&q!=\'\'){_q=q;var s=\'window.onError(eval(unescape(\\\'\'+(_q.charAt(0)==\'=\'?\'_q=_q.charAt(0);_q+\':\'\')+escape(_q)+\'\\\')))\';setTimeout(typeof Error==\'undefined\'?s:(\'try{\'+s+\'}catch(e){window.onError(typeof e.description==\\\'undefined\\\'?e:e.description)}\'),1);}else window.onError=_e;')))(''))"
+>interpreter</a> v0.3</dt>
+<dd>this version also works in Netscape 3</dd>
+<dt><a title="i bookmarked this. you can too."
+href="javascript:/*_v0.4-alert_*/keys=new Function('o','var k=new Array();for(var p in o)k[k.length]=p;return k');_e=window['_e']?_e:window['onError'];void((window.onError=(new Function('p','var q=typeof _q==\'undefined\'?\'=Math.PI\':_q;if(((\'\'+p)&amp;&amp;alert(p)),(q=prompt(\'Enter JavaScript to interpret. (Prefix with \\\'=\\\' for in-place evaluation.)\\n\'+p,q))!=null&amp;&amp;q!=\'\'){_q=q;var s=\'window.onError(eval(unescape(\\\'\'+(_q.charAt(0)==\'=\'?\'_q=_q.charAt(0);_q+\':\'\')+escape(_q)+\'\\\')))\';setTimeout((typeof Error!=\'undefined\'||navigator.appVersion.indexOf(\'MSIE \')!=-1&amp;&amp;navigator.platform==\'MacPPC\')?(\'try{\'+s+\'}catch(e){window.onError(typeof e.description==\\\'undefined\\\'?e:e.description)}\'):s,1);}else window.onError=_e;')))(''))"
+>interpreter</a> v0.4-alert</dt>
+<dd>For use in buggy Mac MSIE 5.1 under Mac OS X.1.</dd>
+<dt><a title="i bookmarked this. you can too."
+href="javascript:/*_v0.4_*/keys=new Function('o','var k=new Array();for(var p in o)k[k.length]=p;return k');_e=window['_e']?_e:window['onError'];void((window.onError=(new Function('p','var q=typeof _q==\'undefined\'?\'=Math.PI\':_q;if((q=prompt(\'Enter JavaScript to interpret. (Prefix with \\\'=\\\' for in-place evaluation.)\\n\'+p,q))!=null&amp;&amp;q!=\'\'){_q=q;var s=\'window.onError(eval(unescape(\\\'\'+(_q.charAt(0)==\'=\'?\'_q=_q.charAt(0);_q+\':\'\')+escape(_q)+\'\\\')))\';setTimeout((typeof Error!=\'undefined\'||navigator.appVersion.indexOf(\'MSIE \')!=-1&amp;&amp;navigator.platform==\'MacPPC\')?(\'try{\'+s+\'}catch(e){window.onError(typeof e.description==\\\'undefined\\\'?e:e.description)}\'):s,1);}else window.onError=_e;')))(''))"
+>interpreter</a> v0.4</dt>
+<dd>Includes the <code>keys(<var>object</var>)</code> convenience function.</dd>
+</dl>
+<p><small>P.S. WANJSG [We Am Not JavaScript Gods], we just wrote these
+to speed up our own development process. We are always looking for ways to
+improve them, and for new bookmarklets to add to the toolbox.</small></p>
+</body>
+</html>

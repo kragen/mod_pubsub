@@ -1,0 +1,15 @@
+#!/bin/sh
+# beat on RUTH.
+
+if [ $# -ne 3 ] ; then
+	echo "$0: usage: $0 servername topic nlisteners" >&2
+	exit 1
+fi
+
+i=0
+
+while [ $i -lt "$3" ]; do
+	ruth "$1" 9092 "$2" | tai64n > ruthlog.$$.$i &
+	sleep 1
+	i=$(($i+1))
+done

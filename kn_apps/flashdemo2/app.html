@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: app.html,v 1.1 2002/11/07 07:09:11 troutgirl Exp $
+
+-->
+
+<!--
+
+ To do:
+   - Add some sort of keep-alive
+   - Add some sort of idle timer
+
+ Note: this demo only works on IE 4+ for Windows.
+
+ FIXME: inter-person instant messaging is a tad buggy because it
+ uses the main window for all publishing and subscribing communication.
+ The IM chat apps should be able to directly communicate with each other.
+
+-->
+
+<html>
+<head>
+<title>pubsub flash demo 2: robots</title>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- The JavaScript Document Helper Library -->
+<script src="../kn_lib/document.js"></script>
+
+<script><!--
+
+var topic = "/what/apps/robots";
+
+function init() {
+	kn.subscribe(topic, handleEvent, { do_max_age : 60*60*24 });
+	// Start up the chat listener.
+	init_chat();
+}
+
+var moviename = "testcommand";
+
+function movieobject(moviename) {
+
+    //IE and Netscape refer to the movie object differently.
+    //This function returns the appropriate syntax depending on the browser.
+
+    if (navigator.appName.indexOf ("Microsoft") !=-1) {
+        return window[moviename]
+    }else{
+        return document[moviename]
+    }
+}
+
+function testcommand_DoFSCommand(func,this_robot) {
+
+    if (func == "robot_fu") {
+
+        if (movieobject(moviename).TGetProperty("/logout_button",6) == 100) {
+
+            // If you're logged in, open a chat window when you click on
+            // the robot instead of moving your robot to a new location.
+            
+            if (robot_roster[this_robot] != null && robot_roster[this_robot] != "undefined" && robot_roster[this_robot] != kn.userid) {
+                handleMessage({userid:robot_roster[this_robot],kn_payload:""});
+            }
+        } else {
+            set_robot_status(this_robot);    
+        }
+
+    } else if (func == "logout") {
+        change_button("h");
+        depart_robot(kn.userid,true)
+    }
+}
+
+function set_robot_status(room_number) {
+
+    var status = new Object();
+    status.kn_payload = "text message goes here";
+    status.where = room_number;
+
+    // Make sure there's only one message for each user.
+    status.kn_id = kn.userid;
+    kn.publish(topic,status);
+}
+
+robot_roster = new Array();
+
+function handleEvent(event) {
+    if (event.where != "hide") {
+        show_yourself_robot(event.where,event.userid);
+    } else {
+        depart_robot(event.userid);
+    }
+}
+
+function show_yourself_robot(num,name) {
+        make_noise_for_entrance();
+            movieobject(moviename).TSetProperty("/spot" + num,6,100);
+            movieobject(moviename).SetVariable("spot" + num + "_name", name);
+    
+        // Rip through and clear out the old robot location.
+        found = false;
+        for (i=0; i < robot_roster.length; i++) {
+            if (robot_roster[i] == name) {
+                hide_yourself_robot(i);
+                robot_roster[i] = null;
+                found = true;
+            }
+        }
+    
+        // Set new robot location.
+        robot_roster[num] = name;
+
+        // Reveal the logout button if the robot is the user.
+        if (name == kn.userid) {
+            change_button("v");
+        }
+}
+        
+function hide_yourself_robot(num2) {
+        movieobject(moviename).TSetProperty("/spot" + num2,6,30);
+        movieobject(moviename).SetVariable("spot" + num2 + "_name", "");
+}
+
+function depart_robot(who,me) {
+    // Rip through and clear out the old robot location.
+    for (i=0; i < robot_roster.length; i++) {
+        if (robot_roster[i] == who) {
+            hide_yourself_robot(i);
+            robot_roster[i] = null;
+            make_noise_for_exit();
+            // Do it rockafella. If the user is calling depart_robot it
+            // will publish the event so that other people know too. 
+            if (me == true || who == kn.userid) {                
+                change_button("h");
+                set_robot_status("hide");
+            }
+        }
+    }
+}
+
+// Utility/debug function.
+
+function set_var(x,y) {
+        movieobject(moviename).SetVariable("spot" + document.forms[0].bob.value + "_name", document.forms[0].joe.value);
+}
+
+function change_button(huh) {
+    if (huh == "v") {
+            movieobject(moviename).TSetProperty("/logout_button",6,100);
+    } else if (huh == "h") {
+            movieobject(moviename).TSetProperty("/logout_button",6,0);
+    } else if (huh == "") {
+        if (movieobject(moviename).TGetProperty("/logout_button",6) == 0) {
+                movieobject(moviename).TSetProperty("/logout_button",6,100);
+        } else {
+                movieobject(moviename).TSetProperty("/logout_button",6,0);
+        }
+    }
+}
+
+out_ready = false;
+
+function make_noise_for_exit() {
+        if(out_ready == "false") {
+                while(out_ready == "false") {
+                        if(movieobject("sound_out").PercentLoaded() == 100) {
+                                movieobject("sound_out").Play();
+                                out_ready = "true";
+                        }
+                }
+        }else{
+                movieobject("sound_out").Play();
+        }
+}
+
+in_ready = false;
+
+function make_noise_for_entrance() {
+        if(in_ready == "false") {
+                while(in_ready == "false") {
+                        if(movieobject("sound_in").PercentLoaded() == 100) {
+                                movieobject("sound_in").Play();
+                                in_ready = "true";
+                        }
+                }
+        }else{
+                movieobject("sound_in").Play();
+        }
+}
+
+
+// Add some chat code now... we'll ignore how messy all of this is...
+// Yeah... we will.... 
+
+open_windows = new Array();
+open_chats = new Array();
+chat_sessions = new Array();
+
+// Define a bunch of stuff that lets you change the presentation of chat lines.
+
+var name_pre = " <b>";
+var name_post = "</b>: ";
+var msg_pre = "";
+var msg_post = "</font>";
+var line_end = "<br>";
+var date_pre = "<font size='1'>(";
+var date_post = ")";
+var date_format = "now = new Date();now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds()";
+var body_open = "<body marginheight=2 marginwidth=2 topmargin=2 leftmargin=2>";
+var body_close = "</body>";
+
+// Set the window name so we can refer back to it later.
+window.name = "robot_commander";
+
+function init_chat() {
+    chat_topic = "/who/" + kn.userid + "/apps/robots/im_inbox";
+    kn.subscribe(chat_topic, handleMessage);
+}
+
+function check_sessions(userid) {
+    for (i=0; i < chat_sessions.length; i++) {
+        if (chat_sessions[i] == userid) {
+            if (open_windows[i] != void 0 && open_windows[i].closed) {
+                return -1;
+            } else {
+                return i;
+            }
+        } else {
+            // nothing!
+        }
+    }
+    // Send back -1 if the user is not found. this is only executed if
+    // the above doesnt return anything.
+    chat_sessions[chat_sessions.length] = userid;
+    return -1;
+}
+
+function handleMessage(event) {
+    if (check_sessions(event.userid) > -1) {
+        // Window is already open, send the messages there.
+        display_message(event);
+    } else {
+        // Open a window and begin the chat love!
+        open_chat_window(event);
+        open_chats[check_sessions(event.userid)] = "";
+        // This was an attempt to use KNDocument... but it failed.
+        //setTimeout("open_chats[check_sessions(event.userid)] = new KNDocument(open_windows[check_sessions(event.userid)].frames[0]);",1);
+        //setTimeout("open_chats[check_sessions(event.userid)].open();",2)
+    }
+}
+
+function open_chat_window(event) {
+    open_windows[check_sessions(event.userid)] = window.open("chatwindow.html?" + event.userid + "," + escape(event.kn_payload),event.userid + "_window","width=300,height=200,location=no,status=yes,menubar=no,resizable=yes")
+}
+
+function display_message(event) {
+
+    // alert(event.kn_payload);
+    if (event.kn_payload != "") {
+
+        if (event.from == void 0) {
+            who = event.userid;
+        } else {
+            who = event.from;
+        }
+
+        // Construct the message.
+        message = (date_pre + eval(date_format) + date_post + 
+               name_pre + who + name_post + 
+               msg_pre + event.kn_payload + msg_post +
+               line_end);
+
+        // Draw it.
+        //open_chats[check_sessions(event.userid)].writeln(message);
+        //open_windows[check_sessions(event.userid)].frames[0].document.write(open_chats[check_sessions(event.userid)].html);
+
+        open_chats[check_sessions(event.userid)] = message + open_chats[check_sessions(event.userid)];
+
+        win = open_windows[check_sessions(event.userid)];
+        win.frames[0].document.open();
+        win.frames[0].document.write("<html>" + body_open + open_chats[check_sessions(event.userid)] + body_close + "</html>");
+        win.frames[0].document.close();
+        
+    } else {
+        open_windows[check_sessions(event.userid)].focus();
+    }
+}
+
+function publish_message(who,text) {
+
+    // alert(who + ": " + text);
+    var pub_msg = new Object();
+    pub_msg.kn_payload = text;
+    pub_msg.topic = "/who/" + who + "/apps/robots/im_inbox"
+
+    // Send it out to the recipient.
+    kn.publish(pub_msg.topic, pub_msg);
+    
+    // Publish it locally.
+    display_message({userid:who, kn_payload:text, from:kn.userid});
+}
+
+// -->
+</script>
+
+<script language=VBScript><!-- 
+
+//  Catch FS Commands in IE, and pass them to the corresponding
+// JavaScript function.  More moock code.
+
+Sub testcommand_FSCommand(ByVal command, ByVal args)
+    call testcommand_DoFSCommand(command, args)
+end sub
+
+//-->
+</script>
+
+<style>
+#controls{
+    position: absolute;
+    top: 470;
+    left: 0;
+    width: 360;
+    visibility: visible;
+    z-index: 100;
+}
+</style>
+
+<body bgcolor="cccccc" onload="init()" marginheight="0" marginwidth="2" topmargin="0" leftmargin="2">
+
+<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%"
+    codebase="http://active.macromedia.com/flash3/cabs/" id=testcommand>
+
+<param name="movie" VALUE="in_out2.swf">
+<param name="play" VALUE="false">
+<param name="loop" VALUE="true">
+<param name="quality" VALUE="high">
+<param name="scale" VALUE="SHOWALL">
+
+<embed name="testcommand" src="in_out2.swf" width="100%" height="100%"
+    play="false" loop="true" quality="high" scale="showall" swLiveConnect="true"
+    pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash">
+</embed>
+
+</object>
+
+<!-- Happy fun debug form
+<br><br><br>
+<form name="jojo">
+<input size="15"><input type="button" onclick="eval(document.forms[1].elements[0].value)" value="eval!">
+</form>
+-->
+
+
+<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="1" height="1"
+    codebase="http://active.macromedia.com/flash3/cabs/" id=sound_out>
+
+<param name="movie" value="sound_out.swf">
+<param name="play" value="false">
+<param name="loop" value="true">
+<param name="quality" value="high">
+<param name="scale" value="SHOWALL">
+
+<embed name="sound_out" src="sound_out.swf" width="1" height="1"
+    play="false" loop="true" quality="high" scale="showall" swLiveConnect="true"
+    pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash">
+</embed>
+
+</object>
+
+<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="1" height="1"
+    codebase="http://active.macromedia.com/flash3/cabs/" id=sound_in>
+
+<param name="movie" value="sound_in.swf">
+<param name="play" value="false">
+<param name="loop" value="true">
+<param name="quality" value="high">
+<param name="scale" value="showall">
+
+<embed name="sound_in" src="sound_in.swf" width="1" height="1"
+    play="false" loop="true" quality="high" scale="showall" swLiveConnect="true"
+    pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash">
+</embed>
+
+</object>
+
+</body>
+</html>

@@ -1,0 +1,1834 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:40 troutgirl Exp $
+
+-->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>CharAt</title>
+    <!--
+           CharAt - JavaScript character set browser
+
+           Written to explore Unicode/UCS support in JavaScript.
+
+           CharAt generates an HTML table on-the-fly and displays
+           a 'page' of 256 characters; a selected character is
+           displayed in the corner, and cells are hyperlinked to
+           allow character selection.
+
+           The only portable way to dynamically update the
+           table seems to be to re-write the whole thing (ick!)
+           Caching pieces of the document would likely improve
+           the update speed, as would generating more compact HTML.
+
+           TODO: This still does not handle 'U+' notation for
+           surrogate pairs. It should also handle '0x' notation for
+           UTF-8 sequences. Furthermore, all three notations should be
+           printed for each character. UTF-7 and/or quoted-printable
+           notation might be useful, but it seems like too much
+           complexity for such a useless and fluffy transformation...
+           UTF-16 and UTF-8 sequences should be printed
+           space-separated; '0x' codes outside the 8-bit range should
+           be treated just like 'U+' codes; a decoded string should
+           only be used if it is completely decoded; '0x' codes should
+           always be displayed padded to two digits.
+
+           TODO: There should be an obvious way to select group/plane
+           numbers (two more tracks sounds really complicated, but a
+           pair of up/down hex-entry boxes might work well.) Once this
+           is done, the left track can be changed to only show 4 digits.
+
+           TODO: This still has no history, nor can it decode strings
+           representing more than one character, nor can it accumulate
+           selected characters into a string/textarea for copy'n'paste
+           convenience (that is, act as a 'virtual keyboard'.)
+
+      -->
+           <script type="text/javascript">
+           <!--
+
+// default font
+var fontFace = '';
+
+// navigation buttons
+var leftButton = '&' + '#8592;';
+var upButton = '&' + '#8593;';
+var rightButton = '&' + '#8594;';
+var downButton = '&' + '#8595;';
+
+if ((document.location.search != null) &&
+    (document.location.search.toLowerCase() == '?ascii'))
+{
+    leftButton = '&' + 'lt;';
+    upButton = '^';
+    rightButton = '&' + 'gt;';
+    downButton = 'v';
+}
+
+// create an object from a list of names and values; substitute for
+// JavaScript 1.2 object literals
+function object()
+{
+    var result = new Object();
+    for (var i = 0; i < arguments.length; i += 2)
+    {
+        var name = arguments[i];
+        var value = arguments[i + 1];
+        result[name] = value;
+    }
+    return result;
+}
+
+// create an array from a list of elements; substitute for JavaScript
+// 1.2 array literals
+function array()
+{
+    var result = new Array();
+    for (var i = 0; i < arguments.length; i ++)
+    {
+        result[result.length] = arguments[i];
+    }
+    return result;
+}
+
+// reverse-lookup table for character codes
+_codes = object();
+if (! "".charCodeAt)
+{
+    for (var code = 0; code < 256; code ++)
+    {
+        _codes[eval("'\\x" + code.toString(16) + "'")] = code;
+    }
+}
+
+// this approximates the charCodeAt method for strings
+function codeAt(string, index)
+{
+    if (string.charCodeAt)
+        return string.charCodeAt(index);
+    return _codes[string.charAt(index)];
+}
+
+// this approximates String.fromCharCode
+function fromCodes()
+{
+    var list = array();
+    for (var index = 0; index < arguments.length; index ++)
+    {
+        var code = arguments[index];
+        var ch;
+        if (String.fromCharCode)
+        {
+            ch = String.fromCharCode(code);
+        }
+        else
+        {
+            ch = eval("'\\x" + code.toString(16) + "'");
+        }
+        list[list.length] = ch;
+    }
+    return list.join("");
+}
+
+// color schemes
+var themes = array(
+
+    // a saturated and colorful theme
+    object(
+        'name', 'Blue',
+        'fgColor', 'black',
+        'bgColor', 'white',
+        'disabled', object( 'fgColor', '#7f7f7f' ),
+        // selected cell
+        'sel',
+        object(
+            'fgColor', 'white',
+            'bgColor', 'navy',
+            'disabled', object()
+            ),
+        // partially selected cell (crosshairs)
+        'presel',
+        object(
+            'bgColor', '#ccccff'
+            ),
+
+        // page tabs
+        'major',
+        object(
+            'disabled', object( 'fgColor', 'white' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', '#7f7f7f'
+                )
+            ),
+
+        // character tabs
+        'minor',
+        object(
+            'fgColor', 'white',
+            'bgColor', 'navy',
+            'disabled', object( 'fgColor', 'navy' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', '#ccccff'
+                )
+            )
+        ),
+
+    // a light green theme
+    object(
+        'name', 'Forest',
+        'fgColor', 'black',
+        'bgColor', '#ffffee',
+        'disabled', object( 'fgColor', '#7f7f7f' ),
+        // selected cell
+        'sel',
+        object(
+            'bgColor', '#bbffbb',
+            'disabled', object()
+            ),
+        // partially selected cell (crosshairs)
+        'presel',
+        object(
+            'bgColor', '#ddffdd'
+            ),
+
+        // page tabs
+        'major',
+        object(
+            'fgColor', 'white',
+            'bgColor', 'green',
+            'disabled', object( 'fgColor', 'green' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'black',
+                'bgColor', '#7fff7f'
+                )
+            ),
+
+        // character tabs
+        'minor',
+        object(
+            'bgColor', '#7fff7f',
+            'disabled', object( 'fgColor', '#7fff7f' ),
+            // selected tab
+            'sel',
+            object(
+                'bgColor', '#bbffbb'
+                )
+            )
+        ),
+
+    // a light-hued theme
+    object(
+        'name', 'Light',
+        'fgColor', 'black',
+        'bgColor', 'white',
+        'disabled', object( 'fgColor', '#7f7f7f' ),
+        // selected cell
+        'sel',
+        object(
+            'fgColor', 'black',
+            'bgColor', '#dddddd',
+            'disabled', object()
+            ),
+        // partially selected cell (crosshairs)
+        'presel',
+        object(
+            'fgColor', 'black',
+            'bgColor', '#eeeeee'
+            ),
+
+        // page tabs
+        'major',
+        object(
+            'fgColor', 'black',
+            'bgColor', '#ffeeee',
+            'disabled', object( 'fgColor', '#7f7f7f' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'black',
+                'bgColor', '#ffdddd'
+                )
+            ),
+
+        // character tabs
+        'minor',
+        object(
+            'fgColor', 'black',
+            'bgColor', '#eeeeff',
+            'disabled', object( 'fgColor', '#7f7f7f' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'black',
+                'bgColor', '#ddddff'
+                )
+            )
+        ),
+
+    // a saturated version of Pastel
+    object(
+        'name', 'Pastel',
+        'fgColor', 'black',
+        'bgColor', 'white',
+        'disabled', object( 'fgColor', '#7f7f7f' ),
+        // selected cell
+        'sel',
+        object(
+            'fgColor', 'black',
+            'bgColor', '#bbbbbb',
+            'disabled', object()
+            ),
+        // partially selected cell (crosshairs)
+        'presel',
+        object(
+            'fgColor', 'black',
+            'bgColor', '#dddddd'
+            ),
+
+        // page tabs
+        'major',
+        object(
+            'fgColor', 'black',
+            'bgColor', '#ffdddd',
+            'disabled', object( 'fgColor', '#7f7f7f' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'black',
+                'bgColor', '#ffbbbb'
+                )
+            ),
+
+        // character tabs
+        'minor',
+        object(
+            'fgColor', 'black',
+            'bgColor', '#ddddff',
+            'disabled', object( 'fgColor', '#7f7f7f' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'black',
+                'bgColor', '#bbbbff'
+                )
+            )
+        ),
+
+    // the right-as-the-next-guy theme
+    object(
+        'name', 'Staid',
+        'fgColor', 'navy',
+        'bgColor', 'white',
+        // selected cell
+        'sel',
+        object(
+            'fgColor', '#ccccff',
+            'bgColor', 'navy',
+            'disabled', object()
+            ),
+        // partially selected cell (crosshairs)
+        'presel',
+        object(
+            'fgColor', 'navy',
+            'bgColor', 'white'
+            ),
+
+        // page tabs
+        'major',
+        object(
+            'fgColor', 'black',
+            'bgColor', 'white',
+            'disabled', object( 'fgColor', 'gray' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'white',
+                'bgColor', 'black'
+                )
+            ),
+
+        // character tabs
+        'minor',
+        object( 
+            'fgColor', 'black',
+            'bgColor', '#eeeeee',
+            'disabled', object( 'fgColor', 'gray' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'white',
+                'bgColor', 'gray'
+                )
+            )
+        ),
+
+    // an ugly green theme
+    object(
+        'name', 'Green',
+        'fgColor', '#00ff00',
+        'bgColor', '#000000',
+        'disabled', object( 'fgColor', '#008000' ),
+        // selected cell
+        'sel',
+        object(
+            'fgColor', '#000000',
+            'bgColor', '#00ff00',
+            'disabled', object()
+            ),
+
+        // page tabs
+        'major',
+        object(
+            'fgColor', '#008000',
+            'bgColor', '#000000',
+            'disabled', object( 'fgColor', '#000000' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', '#00ff00',
+                'bgColor', '#000000'
+                )
+            ),
+
+        // character tabs
+        'minor',
+        object(
+            'fgColor', '#000000',
+            'bgColor', '#00ff00',
+            'disabled', object( 'fgColor', '#00ff00' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', '#00ff00',
+                'bgColor', '#007f00'
+                )
+            )
+        ),
+
+    // a black-and-white theme
+    object(
+        'name', 'Mono',
+        'fgColor', 'black',
+        'bgColor', 'white',
+        // selected cell
+        'sel',
+        object(
+            'fgColor', 'white',
+            'bgColor', 'black'
+            ),
+        // partially selected cell (crosshairs)
+        'presel',
+        object(
+            'fgColor', 'black',
+            'bgColor', 'white'
+            ),
+
+        // page tabs
+        'major',
+        object(
+            'fgColor', 'black',
+            'bgColor', 'white',
+            'disabled', object( 'fgColor', 'white' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'white',
+                'bgColor', 'black'
+                )
+            ),
+
+        // character tabs
+        'minor',
+        object(
+            'fgColor', 'white',
+            'bgColor', 'black',
+            'disabled', object( 'fgColor', 'black' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'white',
+                'bgColor', 'black'
+                )
+            )
+        ),
+
+    // a dark-hued theme
+    object(
+        'name', 'Dark',
+        'fgColor', 'white',
+        'bgColor', 'black',
+        'disabled', object( 'fgColor', '#cccccc' ),
+        // selected cell
+        'sel',
+        object(
+            'fgColor', 'white',
+            'bgColor', '#5f5f5f',
+            'disabled', object()
+            ),
+        // partially selected cell (crosshairs)
+        'presel',
+        object(
+            'fgColor', 'white',
+            'bgColor', '#3f3f3f'
+            ),
+
+        // page tabs
+        'major',
+        object(
+            'fgColor', 'white',
+            'bgColor', '#5f0000',
+            'disabled', object( 'fgColor', '#808080' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'white',
+                'bgColor', '#7f0000'
+                )
+            ),
+
+        // character tabs
+        'minor',
+        object(
+            'fgColor', 'white',
+            'bgColor', '#00005f',
+            'disabled', object( 'fgColor', '#808080' ),
+            // selected tab
+            'sel',
+            object(
+                'fgColor', 'white',
+                'bgColor', '#00007f'
+                )
+            )
+        ),
+    // a poppy theme
+    object(
+        'name', 'RGB',
+        'fgColor', 'white',
+        'bgColor', 'black',
+        'sel',
+        object(
+            'fgColor', 'lime',
+            'bgColor', 'green'
+            ),
+        'presel',
+        object(
+            'fgColor', 'lime'
+            ),
+        'major',
+        object(
+            'fgColor', 'red',
+            'sel',
+            object(
+                'fgColor', 'red',
+                'bgColor', 'maroon'
+                )
+            ),
+        'minor',
+        object(
+            'fgColor', 'blue',
+            'sel', object()
+            )
+        ),
+    // the simplest theme
+    object(
+        'name', 'Paper',
+        'fgColor', 'black',
+        'bgColor', 'white'
+        )
+    );
+
+// current theme
+var theme = themes[0];
+
+// construct a subtheme
+function subStyle(theme, key)
+{
+    if (theme[key] == null)
+        return theme;
+    if (theme['_' + key] == null)
+    {
+        var style = object();
+        for (var prop in theme)
+            if (prop.charAt(0) != '_')
+                style[prop] = theme[prop];
+        if (theme['_'] != null)
+            for (var prop in theme['_'])
+                if (prop.charAt(0) != '_')
+                    style[prop] = theme['_'][prop];
+        for (var prop in theme[key])
+            if (prop.charAt(0) != '_')
+                style[prop] = theme[key][prop];
+        style['_'] = theme[key];
+        theme['_' + key] = style;
+    }
+    return theme['_' + key];
+}
+
+// character encoders/decoders
+
+      // is the given character code a dangerous or invalid one?
+function isEvil(code)
+{
+    // C0
+    if (code < 32)
+        return true;
+    // DEL or C1
+    if ((code > 126) && (code < 160))
+        return true;
+    // Surrogates
+    if ((code & ~0x7FF) == 0xD800)
+        return true;
+    // Private Use Area
+    if ((code >= 0xE000) && (code <= 0xF8FF))
+        return true;
+    // Specials
+    if ((code >= 0xFFF0) && (code <= 0xFFFD))
+        return true;
+    // ..FFFE / ..FFFF
+    if ((code & 0xFFFE) == 0xFFFE)
+        return true;
+    // High Private Use Area
+    if ((code >= 0xF0000) && (code <= 0x10FFFF))
+        return true;
+    return false;
+}
+
+// is the given character code a combining one?
+function isCombining(code)
+{
+    // Combining Diacritical Marks
+    if ((code >= 0x0300) && (code <= 0x036F))
+        return true;
+    // Cyrillic (Historical miscellaneous)
+    if ((code >= 0x0483) && (code <= 0x0489) && (code != 0x0487))
+        return true;
+    // Arabic (Points from ISO 8859-6)
+    if ((code >= 0x064B) && (code <= 0x0652))
+        return true;
+    // Arabic (Combining maddah and hamza)
+    if ((code >= 0x0653) && (code <= 0x0655))
+        return true;
+    // Arabic (Point) [ARABIC LETTER SUPERSCRIPT ALEF]
+    if (code == 0x0670)
+        return true;
+    // Arabic (Koranic annotation signs) [ARABIC SMALL HIGH MADDA]
+    if (code == 0x06E4)
+        return true;
+    // Combining Diacritical Marks for Symbols
+    if ((code >= 0x20D0) && (code <= 0x20FF))
+        return true;
+    // Hiragana (Voicing marks)
+    if ((code == 0x3099) || (code == 0x309A))
+        return true;
+    // Hebrew presentation forms [HEBREW POINT JUDEO-SPANISH VARIKA]
+    if (code == 0xFB1E)
+        return true;
+    // Combining Half Marks
+    if ((code >= 0xFE20) && (code <= 0xFE2F))
+        return true;
+    // Other characters are considered non-combining
+    return false;
+}
+
+var hexdigits = '0123456789ABCDEF';
+
+// convert a number to hexadecimal
+function toHex(n)
+{
+    if (n < 0)
+        return '-' + toHex(Math.abs(n));
+    var hex = hexdigits.charAt(n & 0xf);
+    if (n >> 4)
+        hex = toHex(n >> 4) + hex;
+    return hex;
+}
+
+// generate a Unicode or UCS character reference
+function uniref(n)
+{
+    var ref = toHex(n);
+    // we pad Unicode to at least four digits
+    while (ref.length < 4)
+    {
+        ref = '0' + ref;
+    }
+    if (n <= 0x10FFFF)
+    {
+        return 'U+' + ref;
+    }
+    // For the rest of UCS, we pad to eight digits
+    while (ref.length < 8)
+    {
+        ref = '0' + ref;
+    }
+    return 'U-' + ref;
+}
+
+// generate visible control character glyphs
+
+// characters we have abbreviations for
+var visible_abbrevs = object(
+    uniref(0x0000), 'NUL',
+    uniref(0x0001), 'SOH',
+    uniref(0x0002), 'STX',
+    uniref(0x0003), 'ETX',
+    uniref(0x0004), 'EOT',
+    uniref(0x0005), 'ENQ',
+    uniref(0x0006), 'ACK',
+    uniref(0x0007), 'BEL',
+    uniref(0x0008), 'BS',
+    uniref(0x0009), 'HT',
+    uniref(0x000A), 'LF',
+    uniref(0x000B), 'VT',
+    uniref(0x000C), 'FF',
+    uniref(0x000D), 'CR',
+    uniref(0x000E), 'SO',
+    uniref(0x000F), 'SI',
+    uniref(0x0010), 'DLE',
+    uniref(0x0011), 'DC1',
+    uniref(0x0012), 'DC2',
+    uniref(0x0013), 'DC3',
+    uniref(0x0014), 'DC4',
+    uniref(0x0015), 'NAK',
+    uniref(0x0016), 'SYN',
+    uniref(0x0017), 'ETB',
+    uniref(0x0018), 'CAN',
+    uniref(0x0019), 'EM',
+    uniref(0x001A), 'SUB',
+    uniref(0x001B), 'ESC',
+    uniref(0x001C), 'FS',
+    uniref(0x001D), 'GS',
+    uniref(0x001E), 'RS',
+    uniref(0x001F), 'US',
+    uniref(0x0020), 'SP',
+    uniref(0x007F), 'DEL',
+    uniref(0x0080), 'PAD',
+    uniref(0x0081), 'HOP',
+    uniref(0x0082), 'BPH',
+    uniref(0x0083), 'NBH',
+    uniref(0x0084), 'IND',
+    uniref(0x0085), 'NEL',
+    uniref(0x0086), 'SSA',
+    uniref(0x0087), 'ESA',
+    uniref(0x0088), 'HTS',
+    uniref(0x0089), 'HTJ',
+    uniref(0x008A), 'VTS',
+    uniref(0x008B), 'PLD',
+    uniref(0x008C), 'PLU',
+    uniref(0x008D), 'RI',
+    uniref(0x008E), 'SS2',
+    uniref(0x008F), 'SS3',
+    uniref(0x0090), 'DCS',
+    uniref(0x0091), 'PU1',
+    uniref(0x0092), 'PU2',
+    uniref(0x0093), 'STS',
+    uniref(0x0094), 'CCH',
+    uniref(0x0095), 'MW',
+    uniref(0x0096), 'SPA',
+    uniref(0x0097), 'EPA',
+    uniref(0x0098), 'SOS',
+    uniref(0x0099), 'SGCI',
+    uniref(0x009A), 'SCI',
+    uniref(0x009B), 'CSI',
+    uniref(0x009C), 'ST',
+    uniref(0x009D), 'OSC',
+    uniref(0x009E), 'PM',
+    uniref(0x009F), 'APC',
+    uniref(0x00A0), 'NBSP',
+    uniref(0x00AD), 'SHY',
+    uniref(0x2000), 'NQSP',
+    uniref(0x2001), 'MQSP',
+    uniref(0x2002), 'ENSP',
+    uniref(0x2003), 'EMSP',
+    uniref(0x2004), '3/MSP',
+    uniref(0x2005), '4/MSP',
+    uniref(0x2006), '6/MSP',
+    uniref(0x2007), 'FSP',
+    uniref(0x2008), 'PSP',
+    uniref(0x2009), 'THSP',
+    uniref(0x200A), 'HSP',
+    uniref(0x200B), 'ZWSP',
+    uniref(0x200C), 'ZWNJ',
+    uniref(0x200D), 'ZWJ',
+    uniref(0x200E), 'LRM',
+    uniref(0x200F), 'RLM',
+    uniref(0x2028), 'LSEP',
+    uniref(0x2029), 'PSEP',
+    uniref(0x202A), 'LRE',
+    uniref(0x202B), 'RLE',
+    uniref(0x202C), 'PDF',
+    uniref(0x202D), 'LRO',
+    uniref(0x202E), 'RLO',
+    uniref(0x202F), 'NNBSP',
+    uniref(0x206A), 'ISS',
+    uniref(0x206B), 'ASS',
+    uniref(0x206C), 'IAFS',
+    uniref(0x206D), 'AAFS',
+    uniref(0x206E), 'NADS',
+    uniref(0x206F), 'NODS',
+    uniref(0x3000), 'IDSP',
+    uniref(0x3164), 'HF',
+    uniref(0xFFA0), 'HWHF',
+    uniref(0xFEFF), 'ZWNBSP',
+    uniref(0xFFF9), 'IAA',
+    uniref(0xFFFA), 'IAS',
+    uniref(0xFFFB), 'IAT',
+    uniref(0xFFFC), 'OBJ',
+    uniref(0xE0001), 'LANG&' + 'gt;',
+    uniref(0xE007F), '&' + 'gt;CAN'
+    );
+
+// add tag ASCII to the above table
+for (var code = 0xE0020; code < 0xE007F; code ++)
+{
+    visible_abbrevs[uniref(code)] = '&' + 'gt;' + encodeRaw(code & 0xFF) + '&' + 'gt;';
+}
+
+// reverse lookup for visible abbreviations, including any alternate abbreviations
+var visible_reverse = object(
+    'NL', uniref(0x000A),
+    'NBHY', uniref(0x2011),
+    '&' + 'gt;SP&' + 'gt;', uniref(0xE0020)
+    );
+
+// add all forward maps, too
+for (var ref in visible_abbrevs)
+{
+    visible_reverse[visible_abbrevs[ref]] = ref;
+}
+
+function encodeVisible(code, style)
+{
+    var pre = '';
+    var post = '';
+    var arrow = '&' + 'gt;';
+    var spacer = ' ';
+    var widen = new Function('string', '{ return string; }');
+    if (style != null)
+    {
+        pre = '<' + 'span style="color:' + style.bgColor +
+            ';background:' + style.fgColor + '">' +
+            '<' + 'font' +
+            ' face="arial narrow,helvetica,sans-serif,sans"' +
+            ' size="-2">';
+        post = '<' + '/font><' + '/span>';
+        spacer = 'o';
+        widen =
+            new Function('string',
+                         '{' +
+                         '    if (true || (string.length < 4))' +
+                         '    {' +
+                         '        return "&" + "nbsp;" + string + "&" + "nbsp;";' +
+                         '    }' +
+                         '    return string;' +
+                         '}'
+                );
+    }
+    // abbreviations
+    var ref = uniref(code);
+    var name = visible_abbrevs[ref];
+    if (name != null)
+        return pre + widen(name) + post;
+    // other evil characters
+    if (isEvil(code))
+    {
+        return pre + widen(ref) + post;
+    }
+    // combining characters
+    if (isCombining(code))
+    {
+        return spacer + encodeSGML(code);
+    }
+    return encodeSGML(code);
+}
+
+// decode graphic control code mnemonics
+function decodeVisible(string)
+{
+    var entified = entify(string);
+    if (string.length > 1)
+    {
+        // Spaced combining mark (or any other string with space-prefix)
+        if (string.charAt(0) == ' ')
+        {
+            return encoding.decode(string.substring(1));
+        }
+        // Named specials
+        var string_upper = string.toUpperCase();
+        var entified_upper = entify(string_upper);
+        var i;
+        if ((i = visible_reverse[entified]) != null ||
+            (i = visible_reverse[string]) != null ||
+            (i = visible_reverse[entified_upper]) != null ||
+            (i = visible_reverse[string_upper]) != null)
+        {
+            string = i;
+        }
+    }
+    return decodeUTF16(string);
+}
+
+// generate an SGML character entity for a given character code
+function encodeSGML(code)
+{
+    return '&' + '#' + code + ';';
+}
+
+// assume the JavaScript implementation gets it right, except
+// for control characters
+function encodeRaw(code)
+{
+    if (isEvil(code))
+        return encodeSGML(code);
+    if (code == codeAt('&', 0))
+        return '&' + 'amp;';
+    if (code == codeAt('<', 0))
+        return '&' + 'lt;';
+    if (code == codeAt('>', 0))
+        return '&' + 'gt;';
+    if (code == codeAt('"', 0))
+        return '&' + 'quot;';
+    return fromCodes(code);
+}
+
+// assume the JavaScript implementation gets it right, except
+// for control characters and surrogate pairs
+function encodeUTF16(code)
+{
+    if ((code > 0xFFFF) && (code < 0x110000))
+    {
+        code -= 0x10000;
+        return fromCodes(0xD800 | (code >> 10),
+                                   0xDC00 | (code & 0x3FF));
+    }
+    return encodeRaw(code);
+}
+
+// do our own UTF-8 encoding -- doesn't work, and shouldn't really!
+function encodeUTF8(code)
+{
+    if (code <= 0x7F)
+        return encodeRaw(code);
+    if (code <= 0x7FF)
+        return fromCodes(0xc0 | ((code >> 6) & 0x1f),
+                                   0x80 | (code & 0x3f));
+    if (code <= 0xFFFF)
+        return fromCodes(0xE0 | ((code >> 12) & 0xf),
+                                   0x80 | ((code >> 6) & 0x3f),
+                                   0x80 | (code & 0x3f));
+    if (code <= 0x1FFFFF)
+        return fromCodes(0xF0 | ((code >> 18) & 0x7),
+                                   0x80 | ((code >> 12) & 0x3f),
+                                   0x80 | ((code >> 6) & 0x3f),
+                                   0x80 | (code & 0x3f));
+    if (code <= 0x3FFFFFF)
+        return fromCodes(0xF8 | ((code >> 24) & 0x3),
+                                   0x80 | ((code >> 18) & 0x3f),
+                                   0x80 | ((code >> 12) & 0x3f),
+                                   0x80 | ((code >> 6) & 0x3f),
+                                   0x80 | (code & 0x3f));
+    if (code <= 0x7FFFFFFF)
+        return fromCodes(0xFC | ((code >> 30) & 0x1),
+                                   0x80 | ((code >> 24) & 0x3f),
+                                   0x80 | ((code >> 18) & 0x3f),
+                                   0x80 | ((code >> 12) & 0x3f),
+                                   0x80 | ((code >> 6) & 0x3f),
+                                   0x80 | (code & 0x3f));
+    // give up, we don't know how to UTF-8 encode this
+    return encodeSGML(code);
+}
+
+// do our own numeric character reference decoding, and handle
+// the four named character entities we use.
+function decodeSGML(string)
+{
+    if (string == '&' + 'amp;')
+        return codeAt('&', 0);
+    if (string == '&' + 'lt;')
+        return codeAt('<', 0);
+    if (string == '&' + 'gt;')
+        return codeAt('>', 0);
+    if (string == '&' + 'quot;')
+        return codeAt('\"', 0);
+    if ((string.length > 2) &&
+        (string.charAt(0) == '&') &&
+        (string.charAt(1) == '#'))
+    {
+        var hex = string.charAt(2).toLowerCase() == 'x';
+        var code = 0;
+        var digit = -1;
+        for (var i = (hex ? 3 : 2); i < string.length; i++)
+        {
+            var c = string.charAt(i).toLowerCase();
+            digit = hexdigits.toLowerCase().indexOf(c);
+            if ((digit >= 0) &&
+                (digit <= 15))
+            {
+                code *= hex ? 16 : 10;
+                code += digit;
+            }
+            else
+            {
+                if (((c < 'a') || (c > 'z')) && (c != '_') && (c != '-'))
+                {
+                    digit = 0;
+                }
+                break;
+            }
+        }
+        if ((digit >= 0) && (digit <= 15))
+        {
+            return code;
+        }
+    }
+    // U+ or U- notation
+    if ((string.charAt(0).toLowerCase() == 'u') &&
+        ((string.charAt(1) == '+') ||
+         (string.charAt(1) == '-')) &&
+        (string.length > 2))
+    {
+        var code = parseInt('0x' + string.substring(2));
+        if ((code >= 0) && (code <= 0x7FFFFFFF))
+            return code;
+    }
+    if (string.length > 0)
+        return codeAt(string, 0);
+    return -1;
+}
+
+// do our own UTF-16 decoding
+function decodeUTF16(string)
+{
+    if (string.length > 1)
+    {
+        var code0 = codeAt(string, 0);
+        var code1 = codeAt(string, 1);
+        if (((code0 & ~0x3FF) == 0xD800) &&
+            ((code1 & ~0x3FF) == 0xDC00))
+        {
+            return 0x10000 +
+                (((code0 & 0x3FF) << 10) | code1 & 0x3FF);
+        }
+    }
+    return decodeSGML(string);
+}
+
+// do our own UTF-8 decoding
+// FIXME: this accepts overlong sequences
+function decodeUTF8(string)
+{
+    if (string.length > 1)
+    {
+        var mask = 0x3F;
+        var byte0 = codeAt(string, 0);
+        var length = 0;
+        while ((byte0 >> 7) == 1)
+        {
+            byte0 &= 0x7F;
+            byte0 <<= 1;
+            length ++;
+        }
+        if ((length > 1) &&
+            (length < 7) &&
+            (string.length >= length))
+        {
+            var code = (byte0 & 0xFF) >> length;
+            for (var i = 1; i < length; i ++)
+            {
+                code <<= 6;
+                var byte1 = codeAt(string, i);
+                if ((byte1 & 0xC0) == 0x80)
+                {
+                    code |= (byte1 & 0x3F);
+                }
+                else
+                {
+                    code = 0;
+                    break;
+                }
+            }
+            if (code > 0x7F)
+            {
+                return code;
+            }
+        }
+    }
+    return decodeVisible(string);
+}
+
+var encodings =
+array(
+    object(
+        'name', 'Visible',
+        'encode', encodeVisible,
+        'decode', decodeVisible
+        ),
+    object(
+        'name', 'SGML',
+        'encode', encodeSGML,
+        'decode', decodeVisible
+        ),
+    object(
+        'name', 'UTF-16',
+        'encode', encodeUTF16,
+        'decode', decodeVisible
+        ),
+    object(
+        'name', 'Raw',
+        'encode', encodeRaw,
+        'decode', decodeVisible
+        ),
+    object(
+        'name', 'UTF-8',
+        'encode', encodeUTF8,
+        'decode', decodeUTF8
+        )
+    );
+
+// current character encoding
+var encoding = encodings[0];
+
+// generate javascript for a particular character code
+function codeScript(code)
+{
+    return 'c(' +
+        code +
+        ')';
+}
+
+// generate a javascript: URL for a particular character code
+function codeURL(code)
+{
+    return 'javascript:' + codeScript(code);
+}
+
+// generate javascript for a particular string
+function stringScript(string)
+{
+    return 's(' +
+        string +
+        ')';
+}
+
+// generate a javascript: URL for a particular string
+function stringURL(string)
+{
+    return 'javascript:' + stringScript(string);
+}
+
+// generate an HTML link to a particular character code
+// FIXME: this is excessively fluffy!
+function codeLink(code, string, style)
+{
+    var html = array();
+    var enabled = true;
+    if ((! (code >= 0)) || (code != (code & 0x7FFFFFFF)))
+    {
+        enabled = false;
+        style = subStyle(style, 'disabled');
+    }
+    if (string == '&' + 'nbsp;')
+    {
+        var nbstyle = object();
+        for (var prop in style)
+            nbstyle[prop] = style[prop];
+        style = nbstyle;
+        style.fgColor = style.bgColor;
+        string = '_';
+    }
+    if (enabled)
+        html[html.length] = '<' + 'a href="' + codeURL(code) + '"' +
+            ' title="' + entify(codeText(code)) + '">';
+    if ((style.fgColor != theme.fgColor) || ! enabled)
+        html[html.length] = '<' + 'font color="' + style.fgColor + '">';
+    html[html.length] = string;
+    if ((style.fgColor != theme.fgColor) || ! enabled)
+        html[html.length] = '<' + '/font>';
+    if (enabled)
+        html[html.length] = '<' + '/a>';
+    return html.join('');
+}
+
+// generate an HTML link to a particular character given in split row/column code
+function splitLink(prow, pcol, crow, ccol, string, style)
+{
+    return codeLink((prow << 12) + (pcol << 8) + (crow << 4) + ccol,
+                    string, style);
+}
+
+// turn a string into legal CDATA
+function entify(string)
+{
+    var entities = array();
+    for (var i = 0; i < string.length; i ++) 
+        entities[i] = encodeRaw(codeAt(string, i));
+    return entities.join('');
+}
+
+// generate bgColor attribute
+function bgStyle(style)
+{
+    if (style.bgColor == theme.bgColor)
+        return '';
+    return 'bgcolor="' + style.bgColor + '"';
+}
+
+// decode a string and display the first character
+function showString(string)
+{
+    if (string.length < 1)
+        return;
+    show(encoding.decode(string));
+}
+
+// regenerate the inner frame in the given document,
+// highlighting the given character code
+function show(ccode)
+{
+    if ((! (ccode >= 0)) || (ccode != (ccode & 0x7FFFFFFF)))
+        return;
+    current = ccode;
+    var html = array();
+    var prow = ccode >> 12,
+        pcol = (ccode >> 8) & 15,
+        crow = (ccode >> 4) & 15,
+        ccol = ccode & 15;
+    html[html.length] = '<' + 'style>\n';
+    html[html.length] = '<' + '!-' + '-\n';
+    html[html.length] = 'a:link {width: 100%;text-decoration: none}\n';
+    html[html.length] = 'a:active {width: 100%;text-decoration: none}\n';
+    html[html.length] = 'a:visited {width: 100%;text-decoration: none}\n';
+    html[html.length] = '-' + '->\n';
+    html[html.length] = '<' + '/style>\n';
+    html[html.length] = '<' + 'script>\n';
+    html[html.length] = '<' + '!-' + '-\n';
+    html[html.length] = 'function c(code){\n';
+    html[html.length] = 'parent.setTimeout(\'show(\' + code + \')\', 0);\n';
+    html[html.length] = 'void null}\n';
+    html[html.length] = 'function s(string){\n';
+    html[html.length] = 'parent.setTimeout(\'showString(unescape(\\\'\'' +
+        ' + escape(string) + ' +
+        '\'\\\'))\', 0);\n';
+    html[html.length] = 'void null}\n';
+    html[html.length] = '/' + '/ -' + '->\n';
+    html[html.length] = '<' + '/script>\n';
+    html[html.length] = '<' + '/head><' + 'body ' +
+        ' onload="top.setTimeout(\'verifyForm(' + ccode + ')\',1)"' +
+        ' bgcolor="' + theme.bgColor + '"' +
+        ' text="' + theme.fgColor + '"' +
+        ' link="' + theme.fgColor + '"' +
+        ' alink="' + theme.fgColor + '"' +
+        ' vlink="' + theme.fgColor + '"' +
+        '>\n';
+    html[html.length] = '    <' + 'table cellspacing="0" border="0">\n';
+
+    // our layout uses 20 columns at the moment, but two of them
+    // are half-width
+    var width = 100/19;
+
+    html[html.length] = '      <' + 'tr>';
+
+    // large character display
+    {
+        var style = subStyle(theme, 'minor');
+        html[html.length] = '<' + 'td width="' + (width*2) + '%" colspan="2" rowspan="2"';
+        html[html.length] = ' align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font';
+        if (fontFace != '')
+            html[html.length] = ' face="' + entify(fontFace) + '"';
+        if (style.fgColor != theme.fgColor)
+            html[html.length] = ' color="' + style.fgColor + '"';
+        html[html.length] = ' size="+3">';
+        html[html.length] = encoding.encode(ccode, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // previous major column
+    {
+        var style = subStyle(theme, 'major');
+        html[html.length] = '<' + 'td width="' + (width/2) + '%" align="right"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = codeLink(ccode - (1<<8), leftButton, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // major column selector
+    for (var col = 0; col < 16; col ++)
+    {
+        var style = subStyle(theme, 'major');
+        if (col == pcol)
+            style = subStyle(style, 'sel');
+        html[html.length] = '<' + 'th width="' + width + '%" align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = splitLink(prow, col, crow, ccol, toHex(col) + '00', style);
+        html[html.length] = '<' + '/th>';
+    }
+
+    // next major column
+    {
+        var style = subStyle(theme, 'major');
+        html[html.length] = '<' + 'td width="' + (width/2) + '%" align="right"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = codeLink(ccode + (1<<8), rightButton, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    html[html.length] = '<' + '/tr>\n';
+    html[html.length] = '      <' + 'tr>';
+
+    // previous minor column
+    {
+        var style = subStyle(theme, 'minor');
+        html[html.length] = '<' + 'td align="right"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = codeLink(ccode - 1, leftButton, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // minor column selector
+    for (var col = 0; col < 16; col ++)
+    {
+        var style = subStyle(theme, 'minor');
+        if (col == ccol)
+            style = subStyle(style, 'sel');
+        html[html.length] = '<' + 'th align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = splitLink(prow, pcol, crow, col, toHex(col), style);
+        html[html.length] = '<' + '/th>';
+    }
+
+    // next minor column
+    {
+        var style = subStyle(theme, 'minor');
+        html[html.length] = '<' + 'td align="right"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = codeLink(ccode + 1, rightButton, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    html[html.length] = '<' + '/tr>\n';
+
+    html[html.length] = '<' + 'tr>\n';
+
+    // previous major row
+    {
+        var style = subStyle(theme, 'major');
+        html[html.length] = '<' + 'td width="' + width + '%" align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = codeLink(ccode - (1 << 12), upButton, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // previous minor row
+    {
+        var style = subStyle(theme, 'minor');
+        html[html.length] = '<' + 'td width="' + width + '%" align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = codeLink(ccode - (1 << 4), upButton, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // filler column
+    {
+        var style = theme;
+        html[html.length] = '<' + 'td align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2"';
+        if (style.fgColor != theme.fgColor)
+            html[html.length] = ' color="' + style.fgColor + '"';
+        html[html.length] = '>';
+        html[html.length] = '&' + 'nbsp;';
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // filler row
+    for (var col = 0; col < 16; col ++)
+    {
+        var style = theme;
+        if (col == ccol)
+            style = subStyle(style, 'presel');
+        html[html.length] = '<' + 'td align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = splitLink(prow, pcol, crow, col, '&' + 'nbsp;', style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // filler column
+    {
+        var style = theme;
+        html[html.length] = '<' + 'td align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2"';
+        if (style.fgColor != theme.fgColor)
+            html[html.length] = ' color="' + style.fgColor + '"';
+        html[html.length] = '>';
+        html[html.length] = '&' + 'nbsp;';
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    html[html.length] = '<' + '/tr>\n';
+
+    for (var row = 0; row < 16; row ++)
+    {
+        html[html.length] = '      <' + 'tr>';
+
+        // major row selector
+        {
+            var xrow = row + ((ccode >> 16) << 4);
+            var style = subStyle(theme, 'major');
+            if (xrow == prow)
+                style = subStyle(style, 'sel');
+            html[html.length] = '<' + 'th align="center"';
+            html[html.length] = ' ' + bgStyle(style) + '>';
+            html[html.length] = splitLink(xrow, pcol, crow, ccol, toHex(xrow) + '000', style);
+            html[html.length] = '<' + '/th>';
+        }
+
+        // minor row selector
+        {
+            var style = subStyle(theme, 'minor');
+            if (row == crow)
+                style = subStyle(style, 'sel');
+            html[html.length] = '<' + 'th align="center"';
+            html[html.length] = ' ' + bgStyle(style) + '>';
+            html[html.length] = splitLink(prow, pcol, row, ccol, toHex(row) + '0', style);
+            html[html.length] = '<' + '/th>';
+        }
+
+        // filler column
+        {
+            var style = theme;
+            if (row == crow)
+                style = subStyle(style, 'presel');
+            html[html.length] = '<' + 'td align="center"';
+            html[html.length] = ' ' + bgStyle(style) + '>';
+            html[html.length] = splitLink(prow, pcol, row, ccol, '&' + 'nbsp;', style);
+            html[html.length] = '<' + '/td>';
+        }
+
+        // character selector
+        for (var col = 0; col < 16; col ++)
+        {
+            var code = (prow << 12) | (pcol << 8) | (row << 4) | col;
+            var style = theme;
+            if (code == ccode)
+                style = subStyle(style, 'sel');
+            else if ((col == ccol) || (row == crow))
+                style = subStyle(style, 'presel');
+            if (isEvil(code) || isCombining(code))
+                style = subStyle(style, 'disabled');
+            html[html.length] = '<' + 'td align="center"';
+            html[html.length] = ' ' + bgStyle(style) + '>';
+            if (fontFace != '')
+                html[html.length] = '<' + 'font face="' + entify(fontFace) + '">';
+            html[html.length] = (code == ccode) ?
+                ('<' + 'font color="' + style.fgColor + '">' +
+                 encoding.encode(code, style) +
+                 '<' + '/font>') :
+                splitLink(prow, pcol, row, col,
+                          encoding.encode(code, style), style);
+            if (fontFace != '')
+                html[html.length] = '<' + '/font>';
+            html[html.length] = '<' + '/td>';
+        }
+
+        // filler column
+        {
+            var style = theme;
+            if (row == crow)
+                style = subStyle(style, 'presel');
+            html[html.length] = '<' + 'td align="center"';
+            html[html.length] = ' ' + bgStyle(style) + '>';
+            html[html.length] = splitLink(prow, pcol, row, ccol, '&' + 'nbsp;', style);
+            html[html.length] = '<' + '/td>';
+        }
+
+        html[html.length] = '<' + '/tr>\n';
+    }
+
+    html[html.length] = '<' + 'tr>\n';
+
+    // next major row
+    {
+        var style = subStyle(theme, 'major');
+        html[html.length] = '<' + 'td align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = codeLink(ccode + (1 << 12), downButton, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // next minor row
+    {
+        var style = subStyle(theme, 'minor');
+        html[html.length] = '<' + 'td align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = codeLink(ccode + (1 << 4), downButton, style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // filler column
+    {
+        var style = theme;
+        html[html.length] = '<' + 'td align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2"';
+        if (style.fgColor != theme.fgColor)
+            html[html.length] = ' color="' + style.fgColor + '"';
+        html[html.length] = '>';
+        html[html.length] = '&' + 'nbsp;';
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // filler row
+    for (var col = 0; col < 16; col ++)
+    {
+        var style = theme;
+        if (col == ccol)
+            style = subStyle(style, 'presel');
+        html[html.length] = '<' + 'td align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2">';
+        html[html.length] = splitLink(prow, pcol, crow, col, '&' + 'nbsp;', style);
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // filler column
+    {
+        var style = theme;
+        html[html.length] = '<' + 'td align="center"';
+        html[html.length] = ' ' + bgStyle(style) + '>';
+        html[html.length] = '<' + 'font size="-2"';
+        if (style.fgColor != theme.fgColor)
+            html[html.length] = ' color="' + style.fgColor + '"';
+        html[html.length] = '>';
+        html[html.length] = '&' + 'nbsp;';
+        html[html.length] = '<' + '/font>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    html[html.length] = '<' + '/tr>\n';
+
+    html[html.length] = '    <' + '/table>\n';
+
+    html[html.length] = '    <' + 'table>\n';
+    html[html.length] = '      <' + 'tr>';
+
+    // character jump form
+    html[html.length] = '<' + 'td>';
+    html[html.length] = '<' + 'form name="charJump" action="' +
+        stringURL('document.forms.charJump.elements[0].value') +
+        '//">';
+    {
+        var string = encoding.encode(ccode, null);
+        html[html.length] = 'Char<' + 'br /><' + 'input' +
+            ' size="10"' +
+            ' value="' +
+            string +
+            '" />';
+    }
+    html[html.length] = '<' + '/form>';
+    html[html.length] = '<' + '/td>';
+
+    // hex jump form
+    html[html.length] = '<' + 'td>';
+    html[html.length] = '<' + 'form name="hexJump" action="' +
+        codeURL('parseInt(\'0x\'+document.forms.hexJump.elements[0].value)') +
+        '//">';
+    html[html.length] = 'Hex<' + 'br /><' + 'input size="8" value="' + toHex(ccode) +
+        '" />';
+    html[html.length] = '<' + '/form>';
+    html[html.length] = '<' + '/td>';
+
+    // decimal jump form
+    html[html.length] = '<' + 'td>';
+    html[html.length] = '<' + 'form name="decJump" action="' +
+        codeURL('parseInt(document.forms.decJump.elements[0].value)') +
+        '//">';
+    html[html.length] = 'Dec<' + 'br /><' + 'input size="10" value="' + ccode + '" />';
+    html[html.length] = '<' + '/form>';
+    html[html.length] = '<' + '/td>';
+
+    // theme selector
+    {
+        html[html.length] = '<' + 'td>';
+        html[html.length] = '<' + 'form name="theme" action="javascript:' +
+            'parent.theme=parent.themes[' +
+            'document.forms.theme.elements.themes.selectedIndex' +
+            ']' +
+            ';' +
+            codeScript(ccode) +
+            '//">';
+        html[html.length] = 'Theme<' + 'br /><' + 'select name="themes"' +
+            ' onChange="document.forms.theme.submit()"' +
+            '>';
+        for (var style in themes)
+        {
+            html[html.length] = '<' + 'option value="' + style + '"';
+            if (themes[style] == theme)
+                html[html.length] = ' selected';
+            html[html.length] = '>';
+            html[html.length] = entify(themes[style].name);
+            html[html.length] = '<' + '/option>';
+        }
+        html[html.length] = '<' + '/select>';
+        html[html.length] = '<' + 'input type="submit" value=" &gt; " />';
+        html[html.length] = '<' + '/form>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // font selector
+    {
+        html[html.length] = '<' + 'td>';
+        html[html.length] = '<' + 'form name="font" action="javascript:' +
+            'parent.fontFace=' +
+            'document.forms.font.elements.face.value' +
+            ';' +
+            codeScript(ccode) +
+            '//">';
+        html[html.length] = 'Font&' + 'nbsp;Family<' + 'br /><' + 'input name="face" size="10" value="' +
+            entify(fontFace) + '" />';
+        html[html.length] = '<' + '/form>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    // encoding selector
+    {
+        html[html.length] = '<' + 'td>';
+        html[html.length] = '<' + 'form name="encoding" action="javascript:' +
+            'parent.encoding=parent.encodings[' +
+            'document.forms.encoding.elements.encodings.selectedIndex' +
+            ']' +
+            ';' +
+            codeScript(ccode) +
+            '//">';
+        html[html.length] = 'Encoding<' + 'br /><' + 'select name="encodings"' +
+            ' onChange="document.forms.encoding.submit()"' +
+            '>';
+        for (var e in encodings)
+        {
+            html[html.length] = '<' + 'option value="' + e + '"';
+            if (encodings[e] == encoding)
+                html[html.length] = ' selected';
+            html[html.length] = '>';
+            html[html.length] = entify(encodings[e].name);
+            html[html.length] = '<' + '/option>';
+        }
+        html[html.length] = '<' + '/select>';
+        html[html.length] = '<' + 'input type="submit" value=" &gt; " />';
+        html[html.length] = '<' + '/form>';
+        html[html.length] = '<' + '/td>';
+    }
+
+    html[html.length] = '<' + '/tr>\n';
+    html[html.length] = '    <' + '/table>\n';
+
+    html[html.length] = '<' + 'code>' + entify(codeText(ccode)) +
+        '<' + '/code>\n';
+
+    html[html.length] = '  <' + '/body>\n';
+
+    // write the generated HTML into the UI frame
+    htmlstring = html.join('');
+
+    // update the color of the frameset to match
+    if (document) document.bgColor = theme.bgColor;
+
+    // force a redraw
+    frames[0].location.replace(
+        'blank.html?parent.redraw'
+        );
+}
+
+// only used when (re-)loading
+var current = codeAt('A', 0);
+
+// buffered frame contents; only used when redrawing
+var htmlstring = '';
+
+// redraw callback
+function redraw()
+{
+    var doc = top.frames[0].document;
+    doc.write(top.htmlstring);
+}
+
+// Round-Trip Failure dialog
+var rtf_enabled = true;
+function rtf(code, got)
+{
+    var msg =
+        '[Round-Trip Failure] \'' + encoding.name + '\' encoding: ' +
+        'expected character ' + uniref(code) +
+        ', got ' + got + ' instead.';
+    if (rtf_enabled)
+    {
+        rtf_enabled = false;
+        rtf_enabled = confirm('WARNING\n' +
+                              msg +
+                              '\n\nPress OK to continue, or Cancel to ' +
+                              'move future warnings to the status bar.');
+    }
+    if (! rtf_enabled)
+        top.status = msg;
+}
+
+// return a description of a given character code
+function codeText(code)
+{
+    return uniref(code) +
+        ' (SGML ' + encodeSGML(code, null) + ') ' +
+        fromCodes(code);
+}
+
+// verify form callback
+function verifyForm(code)
+{
+    top.status = codeText(code);
+    var form =
+        frames[0].document.forms['charJump'];
+    if (form == null)
+    {
+        var pre = 'ERROR\nThe browser failed to display ' +
+            uniref(code) + ' in the \'' +
+            encoding.name + '\' encoding.';
+        if (encoding != encodings[0])
+        {
+            encoding = encodings[0];
+            show(code);
+            alert(pre +
+                  '\nSwitching to the \'' + encodings[0].name +
+                  '\' encoding.');
+        }
+        else if (confirm(pre +
+                         '\nReset the character browser?'))
+        {
+            fontFace = '';
+            theme = themes[0];
+            encoding = encodings[0];
+            current = codeAt('A', 0);
+            htmlstring = '';
+            rtf_enabled = true;
+            show(current);
+        }
+        return;
+    }
+    var actual =
+        form.elements[0].value;
+    if (actual.length == 0)
+    {
+        rtf(code, 'empty string');
+        return;
+    }
+    var actualCode = encoding.decode(actual);
+    if ((actualCode >=0) && (actualCode <= 0x7FFFFFFF))
+    {
+        if (actualCode == code)
+            return;
+        rtf(code, uniref(actualCode));
+        return;
+    }
+    var list = array();
+    for (var i = 0; i < actual.length; i ++)
+        list[list.length] = uniref(codeAt(actual, i));
+    rtf(code, 'string ' + list.join(', '));
+}
+
+// initialize the browser
+function whenLoaded()
+{
+    show(current);
+}
+
+// -->
+    </script>
+    <noscript>
+      <h1>JavaScript 1.1 Required</h1>
+      <p>
+        This demonstration requires JavaScript 1.1 support, which is
+        either missing or not enabled. If your
+        browser has such support, but that support is disabled,
+        it is suggested that you enable it and reload.
+      </p>
+    </noscript>
+  </head>
+  <frameset rows="100%,*" onload="whenLoaded()" onresize="whenLoaded()" border="0">
+    <frame name="viewer" src="empty.html" noresize />
+    <frame name="hidden" src="empty.html" noresize />
+  </frameset>
+  <noframes>
+    <h1>Frames Required</h1>
+    <p>
+      This demonstration requires frames support. If your
+      browser has such support, but that support is disabled,
+      it is suggested that you enable it and reload.
+    </p>
+  </noframes>
+</html>

@@ -1,0 +1,1345 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: yew.html,v 1.1 2002/11/07 07:09:07 troutgirl Exp $
+
+-->
+
+<!-- "u", anywhere you see it, is a *very* temporary variable -->
+
+<html>
+
+<head>
+<title>pubsub yew</title>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- The JavaScript Document Helper Library -->
+<script src="../kn_lib/document.js"></script>
+
+<!-- The JavaScript Htmlsafe Helper Library -->
+<script src="../kn_lib/htmlsafe.js"></script>
+
+<noscript>
+<h1>JavaScript Required</h1>
+<p>JavaScript support is missing or not enabled.</p>
+</noscript>
+
+
+<script><!--
+
+var max_age = 600; // Number of seconds of history to display.
+var remove_time = '+3600'; // Number of seconds removed events should linger.
+
+var topic = kn_argv.kn_topic ? kn_argv.kn_topic : '/what/chat';
+
+var rid = null;
+var rrid = null; // For readers.
+var srid = null; // For subtopics.
+
+var my_history = new Array();
+var current = 0;
+
+my_history[current] = topic;
+// These are set in startup().
+var conf_topic;
+var buddy_topic;
+var status_topic;
+var buddy_status_topic;
+
+var buddy_style = '<' +
+    'body bgcolor="#e8e8f0" text="black" alink="black" vlink="navy" link="navy" onload="o()">';
+
+var ui_style = '<' +
+    'body bgcolor="#e8e8f0" text="black" alink="black" vlink="navy" link="navy">';
+
+var index_style = '<' +
+    'body bgcolor="#e8e8f0" text="black" alink="black" vlink="navy" link="navy" onload="o()">';
+
+var status_doc, buddy_doc, quick_doc, reader_doc, nav_doc, subs_doc;
+
+function sameTopic(handler)
+{
+    var t = topic;
+    return function(e)
+    {
+        if (t == topic)
+            handler(e);
+    };
+}
+
+function subscribe()
+{
+    messages = new Array();
+    if (rid != null)
+        kn_unsubscribe(rid);
+    if (! subs[topic])
+    {
+        rid = kn_subscribe(topic, sameTopic(onMessage), {do_max_age: max_age});
+    }
+    else
+    {
+        messages = subs[topic].messages;
+    }
+    if (rrid != null)
+        kn_unsubscribe(rrid);
+    if (readers)
+        delete readers;
+    readers = new Object();
+    rrid = kn_subscribe(topic + '/kn_routes', sameTopic(onRouteMessage),
+        {do_max_age: "infinity"});
+    if (srid != null)
+        kn_unsubscribe(srid);
+    if (subtopics)
+        delete subtopics;
+    subtopics = new Object();
+    srid = kn_subscribe(topic + '/kn_subtopics', sameTopic(onSubtopicMessage),
+        {do_max_age: "infinity"});
+    top.document.title = 'pubsub yew: ' + kn_htmlEscape(topic);
+    drawIndex();
+    drawSubsAndBuddies();
+    drawTitle();
+    doWriteQuickPost();
+}
+
+function prettyTopic(t)
+{
+    var s = t;
+    for (var i = 0; i < (t.length - 1); i ++)
+        if (t.charAt(i) == '/')
+            s = t.substring(i + 1);
+    return s;
+}
+
+function drawTitle()
+{
+    with (nav_doc)
+        {
+            var x = topic;
+            var topics = x.split('/');
+
+            open('text/html');
+            write(ui_style);
+
+            write('<table width="100%"><tr>');
+            write('<td>');
+            write('<h1 title="topic: ' +
+                  kn_htmlEscape(topic) +
+                  '">');
+            write(kn_htmlEscape(prettyTopic(topic)));
+            write('</h1>');
+
+            // Nav bar.
+            write('<td align="right">');
+            write('<table border="0" cellspacing="0" cellpadding="0">');
+            writeln('<td>');
+            write('</td>');
+            write('<td>&' + 'nbsp;</td>');
+            write('<td><form name="back" action="javascript:void parent.setTimeout(\'goBack()\', 1); //"');
+            write('>');
+            if (current == 0)
+                write('<font color="gray">');
+            else
+                write('<font color="black">');
+            write('<input type="submit" value="&' + '#8592; Back"');
+            if (current == 0)
+                write(' title="No previous topic" disabled');
+            else
+                write(' title="Go to ' +
+                      kn_htmlEscape(my_history[current - 1]) +
+                      '"');
+            write(' />');
+            write('</font>');
+            write('</form>');
+            write('</td>');
+            write('<td><form name="forward" action="javascript:void parent.setTimeout(\'goForward()\',1); //"');
+            write('>');
+            if ((current + 1) == my_history.length)
+                write('<font color="gray">');
+            else
+                write('<font color="black">');
+            write('<input type="submit" value="&' + '#8594;"');
+            if ((current + 1) == my_history.length)
+                write(' title="No next topic" disabled');
+            else
+                write(' title="Go to ' +
+                      kn_htmlEscape(my_history[current + 1]) +
+                      '"');
+            write(' />');
+            write('</font>');
+            write('</form>');
+            write('</td>');
+            write('<td><form name="topic" action="javascript:void parent.setTimeout(\'setTopic(kn_unescape(\\\'\'+parent.kn_escape(document.topic.elements[0].value)+\'\\\'))\',1); //">');
+            write('<input type="text" size="40" value="' +
+                  kn_htmlEscape(topic) + '" />');
+            write('<input type="submit" value="Go" title="Go to the selected topic" /></form></td>');
+            
+            // Subtopic browser.
+            write('<td>');
+            write('<form name="subtopic" ' +
+                  'action="javascript:void parent.setTimeout(\'doSubtopic(' +
+                  '\'+document.subtopic.elements[0].selectedIndex+\')\'' +
+                  ',1)//">');
+            write('<font color="black">');
+            write('<select name="subtopic" onchange="document.subtopic.submit()">');
+            write('<option value=""> </option>');
+            subtopic_map.length = 0;            
+            for (var j in subtopics)
+            {
+                var subtopic = subtopics[j].kn_payload;
+                if (subtopic.substring(0,3) == 'kn_')
+                {
+                    continue;
+                }
+                write('<option value="' + subtopic_map.length + '">');
+                write(kn_htmlEscape(subtopic));
+                writeln('</option>');
+                subtopic = '/' + subtopic;
+                if (topic != '/')
+                    subtopic = topic + subtopic;
+                subtopic_map[subtopic_map.length] = subtopic;
+            }
+            write('</select>');
+            write('</font>');
+            write('</form>');
+            write('</td>');
+
+            write('</tr>');
+            write('</table></td>');
+
+            write('</table>');
+            close();
+        }
+}
+
+function startup()
+{
+    nav_doc = new KNDocument(frames[0]);
+    quick_doc = new KNDocument(frames[1]);
+    status_doc = new KNDocument(frames[2]);
+    reader_doc = new KNDocument(frames[3]);
+    buddy_doc = new KNDocument(frames[4]);
+    drawStatus();
+    conf_topic = "/who/" + kn.userid + "/apps/yew";
+    buddy_topic = conf_topic + "/buddies";
+    status_topic = conf_topic + "/status";
+    buddy_status_topic = buddy_topic + "/status";
+    kn_subscribe(conf_topic, onConfigure, {do_max_age: "infinity"});
+    kn_subscribe(buddy_topic, onBuddy, {do_max_age: "infinity"});
+    kn_subscribe(status_topic, onBuddyStatus, {do_max_age: "infinity"});
+    kn_subscribe(buddy_status_topic, onBuddyStatus, {do_max_age: "infinity"});
+    subscribe();
+}
+
+function shutdown()
+{
+    if (rid != null)
+        kn_unsubscribe(rid);
+    if (rrid != null)
+        kn_unsubscribe(rrid);
+    if (srid != null)
+        kn_unsubscribe(srid);
+}
+
+var messages = null;
+
+var reading = false;
+
+function onMessage(e)
+{
+    if (! subs[topic])
+    {
+        for (var i = 0; i < messages.length; i ++)
+            if (messages[i].kn_id == e.kn_id)
+                break;
+        messages[i] = e;
+    }
+    if (! reading)
+        drawIndex();
+}
+
+var readers = null;
+
+function onRouteMessage(e)
+{
+    if (e.kn_payload == '')
+    {
+        delete readers[e.kn_id];
+    }
+    else
+    {
+        readers[e.kn_id] = e;
+    }
+    drawSubsAndBuddies();
+}
+
+var subtopics = null;
+var subtopic_map = new Array();
+
+function onSubtopicMessage(e)
+{
+    if (e.kn_payload == '')
+    {
+        delete subtopics[e.kn_id];
+    }
+    else
+    {
+        subtopics[e.kn_id] = e;
+    }
+    drawTitle();
+}
+
+function doSubtopic(t)
+{
+    if (t == 0)
+	return;
+    setTopic(subtopic_map[t-1]);
+}
+
+function subject(e)
+{
+    if (e['subject'])
+        return e['subject'];
+    if (e['who'] || e['what'] || e['when'] || e['where'])
+        return (e['who'] ? ('Who: ' + e.who + ' ') : '') +
+            (e['what'] ? ('What: ' + e.what + ' ') : '') +
+            (e['when'] ? ('When: ' + e.when + ' ') : '') +
+            (e['where'] ? ('Where: ' + e.where + ' ') : '');
+    if (e['rss_title'])
+        return e['rss_title'];
+    return null;
+}
+
+var auto_buddy_select = false;
+
+function drawMessage(index)
+{
+    var e = messages[index];
+    reading = true;
+    if (selected_buddies == 0)
+    {
+        selectBuddy(e['userid']);
+        auto_buddy_select = true;
+        if (e['userid'] &&
+            buddies[e['userid']])
+        {
+            buddies[e.userid].selected = false;
+        }
+        selected_buddy = e['userid'];
+    }
+    with (reader_doc)
+        {
+            open('text/html');
+            write(ui_style);
+            write('<table border="0" cellspacing="0" cellpadding="0"><tr><td><font color="black">');
+            write('<form action="javascript:void parent.setTimeout(\'drawIndex()\',1)//"><input type="submit" value="&' + '#8592; Index" /></form>');
+            writeln('</font></td></tr></table>');
+            write('<table cellspacing="0" width="100%" border="0" bgcolor="#dcdcf0">');
+            write('<tr bgcolor="#c0c0f0">' +
+                  '<td align="left"><font size="-1" color="black">');
+            write(kn_htmlEscape('' + e['displayname']));
+            write('</font></td>');
+	    write('<td align="right"><font size="-1" color="black">');
+            write(kn_htmlEscape('' + subject(e)));
+            write('</font></td>');
+            write('</tr>');
+            if (e['who'])
+            {
+                write('<tr><th align="left" valign="top">Who:</th>');
+                write('<td>');
+                write(htmlSanitize(e['who']));
+                write('</td>');
+                write('</tr>');
+            }
+            if (e['what'])
+            {
+                write('<tr><th align="left" valign="top">What:</th>');
+                write('<td>');
+                write(htmlSanitize(e['what']));
+                write('</td></tr>');
+            }
+            if (e['when'])
+            {
+                write('<tr><th align="left" valign="top">When:</th>');
+                write('<td>');
+                write(htmlSanitize(e['when']));
+                write('</td></tr>');
+            }
+            if (e['where'])
+            {
+                write('<tr><th align="left" valign="top">Where:</th>');
+                write('<td>');
+                write(htmlSanitize(e['where']));
+                write('</td></tr>');
+            }
+            write('</table>');
+            write('<p>');
+	    write(htmlSanitize(''+e['kn_payload'], true));
+            write('</p>');
+            close();
+        }
+}
+
+function doQuickPost(msg)
+{
+    var e = new Object();
+    e.kn_payload = msg;
+    e['content-type'] = 'text/html';
+    e.kn_id = kn_publish(topic, e);
+    if (subs[topic])
+    {   
+        subs[topic].messages[subs[topic].messages.length] = e;
+        updateSubsAndBuddies();
+    }   
+    onMessage(e);
+}
+
+function doWriteQuickPost()
+{
+    with(quick_doc) {
+        open('text/html');
+        write(ui_style);
+        
+	write('<table border="0" cellpadding="0" cellspacing="0" width="100%">');
+	write('<tr>');
+	write('<form name="quickpost" ' + 
+	      'action="javascript:void parent.setTimeout(\'doQuickPost(kn_unescape(\\\'\'+parent.kn_escape(document.forms.quickpost.elements[0].value)+\'\\\'))\',1);document.forms.quickpost.reset();document.forms.quickpost.elements[0].focus()//">');
+	write('<td align="left" valign="top">');
+	write('<input size="60" name="subject" />');
+	write('<input type=submit value="Post">');
+	write('</td>');
+	write('</form>');
+	write('</tr>');
+	write('</table>');
+	
+        close();
+    }
+    
+}
+
+function removeMessages()
+{
+    var nmesg = 0;
+    var nsel = 0;
+    var ngoing = 0;
+    for (var i = 0; i < messages.length; i ++)
+    {
+        if (messages[i]['yew_status'] == 'going')
+        {
+            ngoing ++;
+            continue;
+        }
+        if ((messages[i]['yew_status'] == 'deleted') ||
+            (messages[i]['deleted'] == 'true'))
+            continue;
+        nmesg ++;
+        if (messages[i]['yew_status'] == 'selected')
+            nsel ++;
+    }
+    if (nmesg == 0)
+        return;
+    var prefix = '';
+    var suffix = '';
+    if (ngoing)
+        suffix = ' remaining';
+    if (nsel == 0)
+    {
+        if (nmesg > 1)
+            prefix = 'all ';
+    }
+    else
+        suffix += ' selected';
+    if ((nsel ? nsel : nmesg) == 1)
+        prefix = 'the ';
+    if (confirm('Really remove ' + prefix +
+                (nsel ? nsel : nmesg) +
+                suffix + ' message' +
+                (((nsel ? nsel : nmesg) != 1) ? 's' : '') +
+                '? '))
+    {
+        for (var i = 0; i < messages.length; i ++)
+        {
+            if (messages[i]['yew_status'] == 'going')
+                continue;
+            if ((messages[i]['yew_status'] == 'deleted') ||
+                (messages[i]['deleted'] == 'true'))
+                continue;
+            if ((nsel == 0) ||
+                (messages[i]['yew_status'] == 'selected'))
+                removeMessage(i);
+        }
+    }
+}
+
+function removeMessage(i)
+{
+    messages[i].yew_status = 'going';
+    var e = new Object();
+    e.kn_id = messages[i].kn_id;
+    e.yew_status = 'deleted';
+    e.deleted = 'true';
+    e.kn_expires = remove_time;
+    e.kn_payload = '';
+    if (messages[i]['userid'] == kn.userid)
+    {
+        kn_publish(topic, e);
+    }
+    else if (subs[topic])
+    {
+        kn_publish(conf_topic + '/subs' + topic, e);
+    }
+    else
+        messages[i] = e;
+    onMessage(messages[i]);
+}
+
+// Values for the 'yew_status' header:
+//   null (i.e. no header) or '': regular, unmarked message
+//   'selected': marked message
+//   'going': about to be removed
+//   'deleted': removed message
+
+function drawIndex()
+{
+    if (auto_buddy_select)
+        selectBuddy('');
+    reading = false;
+    with (reader_doc)
+        {
+            open('text/html');
+            write(index_style);
+            var nmesg = 0;
+            for (var i = 0; i < messages.length; i ++)
+                if ((messages[i]['yew_status'] != 'deleted') &&
+                    (messages[i]['deleted'] != 'true'))
+                    nmesg ++;
+            write('<table cellspacing="0" width="100%" border="0" bgcolor="#dcdcf0">');
+            write('<tr bgcolor="#c0c0f0">' +
+                  '<th colspan="4" align="right"><small>');
+            write(nmesg + ' message' +
+                  ((nmesg != 1) ? 's' : ''));
+            write('</small></th></tr>');
+            write('<tr bgcolor="#dcdcf0">');
+            write('<form action="javascript:void window.open(parent.kn_unescape(\'' +
+                  kn_escape(kn_resolvePath(location.pathname,
+                                        'writer.html') +
+                         '?kn_topic=') +
+                  '\') + parent.kn_escape(parent.topic), \'writer\',' +
+                  '\'directories=no,menubar=no,status=yes,resizable=yes,' +
+                  'height=400,width=500\')//">');
+            write('<td colspan="3">');
+            write('<font color="black">');
+            write('<input type="submit" value="Add" title="Compose a message" />');
+            write('</font>');
+            write('</td>');
+            write('</form>');
+            write('<form action="javascript:void parent.setTimeout(' +
+                  '\'removeMessages()\', 1)//">');
+            write('<td align="right"><font color="' +
+                  (nmesg ? 'black' : 'gray') +
+                  '">');
+            write('<input type="submit" value="Remove" title="Remove messages" ' +
+                  (nmesg ? '' : 'disabled ') +
+                  '/>');
+            write('</font>');
+            write('</td>');
+            write('</form>');
+            write('</tr>');
+            write('<form name="messages" action="javascript:void(0)//">');
+            var index = 0;
+            for (var i=messages.length; i-- > 0;)
+            {
+                e = messages[i];
+                if ((e['yew_status'] == 'deleted') ||
+                    (e['deleted'] == 'true'))
+                    continue;
+                var fgColor = 'black';
+                var bgColor = '#dcdcf0';
+                if (e['yew_status'] == 'going')
+                    fgColor = "gray";
+                var fgC = fgColor;
+                var bgC = bgColor;
+                if (e['userid'] == kn.userid)
+                    fgC = 'maroon';
+                var selected = false;
+                if (e['userid'] &&
+                    ((buddies[e.userid] &&
+                      buddies[e.userid].selected) ||
+                     e.userid == selected_buddy))
+                {
+                    selected = true;
+                    var temp = bgC;
+                    bgC = fgC;
+                    fgC = temp;
+                }
+                write('<tr>');
+                write('<td valign="top">' +
+                      '<font color="' + fgColor + '">' +
+                      '<input type="checkbox" ' +
+                      'title="Toggle this message\'s deletion mark" ' +
+                      (((e['kn_time_t'] == null) ||
+                        (e['yew_status'] == 'going')) ?
+                       'disabled ' :
+                       ('onclick="parent.setTimeout(\'messages[' +
+                        i +
+                        '].yew_status=\\\'\' + ' +
+                        '(document.forms.messages.elements[' +
+                        index +
+                        '].checked ? \'selected\' : \'\') + \'\\\'\',1)" ')) +
+                      (((e['yew_status'] == 'selected') ||
+                        (e['yew_status'] == 'going')) ? 'checked ' : '') +
+                      '/>' +
+                      '</font>' +
+                      '</td>');
+                write('<td valign="top">');
+                write('<font color="' + fgColor + '">');
+                if (typeof e['kn_time_t'] != 'undefined')
+                {
+                    var n = parseInt(e.kn_time_t);
+                    if (! isNaN(n))
+                    {
+                        var d;
+			var now = new Date();
+			var string = '';
+
+			if (isNaN(parseInt(e.kn_time_t)))
+			{
+			    d = new Date();
+			}
+			else 
+			{
+			    d = new Date(parseInt(e.kn_time_t) * 1000);
+			}
+			if ((d.getDate() != now.getDate()) ||
+			    (d.getMonth() != now.getMonth()) ||
+			    (d.getYear() != now.getYear()))
+			{
+			    string += d.toLocaleString();
+			}
+			else 
+			{
+	 		    var h = d.getHours();
+                            var m = d.getMinutes();
+			    string += (h%12 ? h%12 : "12") + ":" +
+                                      (m < 10 ? "0" + m : m) +
+                                      (h < 12 ? "a" : "p");
+			} 
+			
+                        write(string);
+                    }
+                }
+                write('</font>');
+                write('</td>');
+                write('<th align="left" valign="top" bgcolor="' + bgC +
+                      '">');
+                write('<a href=" javascript:void parent.setTimeout(\'drawMessage('+i+')\',1)">');
+                write('<font color="' + fgC + '">');
+                if (typeof e['displayname'] != 'undefined')
+                    write(kn_htmlEscape(e.displayname));
+                else
+                    write('<em>Anonymous</em>');
+                write('</font>');
+                write('&' + 'nbsp;</a>');
+                write('</th>');
+                write('<td width="60%" valign="top">');
+                write('<font color="' + fgColor + '">');
+                var s = subject(e);
+                if (s != null)
+                {
+                    write('<a href=" javascript:void parent.setTimeout(\'drawMessage('+i+')\',1)">');
+                    if (s == '') s = '(No Subject)';
+                    write(kn_htmlEscape(s));
+                    write('&' + 'nbsp;</a>');
+                }
+                else
+                    write(htmlSanitize(e.kn_payload, true));
+                write('</font>');
+                write('</td>');
+                write('</tr>\n');
+                index ++;
+            }
+            write('</form>');
+            write('</table>');
+            writeln('<script><!-' + '-');
+            writeln('function o(){' +
+                    'var index=0;' +
+                    'for(var i=parent.messages.length;i-' + '- >0;)' +
+                    '{' +
+                    'var d=parent.messages[i][\'deleted\'];' +
+                    'if(d==\'true\')continue;' +
+                    'var e=parent.messages[i][\'yew_status\'];' +
+                    'if(e==\'deleted\')continue;' +
+                    'var s=(e==\'selected\')||(e==\'going\');' +
+                    'if(s&&!document.forms.messages.elements[index].checked)' +
+                    'document.forms.messages.elements[index].checked=s;' +
+                    'index++;' +
+                    '}' +
+                    '}');
+            writeln('// -' + '-' + '>');
+            writeln('<' + '/script>');
+            close();
+        }
+}
+
+// Begin the Navagation Doc functions.
+
+function setTopic(s)
+{
+    my_history.length = ++current;
+    my_history[current] = s;
+    updateTopic();
+}
+
+
+function goBack() 
+{
+    if (current > 0 )
+    {
+        current --;
+        updateTopic();
+    }
+}
+
+function goForward()
+{
+    if( (current + 1) < my_history.length ) 
+    {
+        current ++;
+        updateTopic();
+    }
+}
+
+function updateTopic()
+{
+    topic = my_history[current];
+    subscribe();
+}
+
+// End Nav Doc Functions.
+
+
+
+// ***Persistent subscription stuff.***
+
+
+// Subscription table, indexed by topic.
+
+var subs = new Object();
+
+function rmSubs(topic)
+{
+    if (subs[topic])
+    {
+        var e = subs[topic].rid;
+        if (e && e.kn_payload)
+        {
+            kn_unsubscribe(e.kn_payload);
+            e.kn_payload = '';
+            kn.publish(conf_topic, e);
+        }
+    }
+}
+
+function mkSubs(topic)
+{
+    if (subs[topic])
+        return;
+    var e = new Object();
+    e.kn_id = 'sub_' + ('' + Math.random()).substring(2);
+    e.what = topic;
+    e.where = conf_topic + '/subs' + topic;
+    e.kn_payload = kn_subscribe(e.what, e.where, {do_max_age: max_age});
+    kn.publish(conf_topic, e);
+}
+
+function onSubs(e)
+{
+    // A subscription event has a payload with the longterm rid.
+    // The subscribed topic name is kept in the 'what' property.
+    // There is a table of subscriptions indexed by topic.
+    // Subscriptions are kept in /who/user/apps/yew/subs/original/topic.
+    // The permanent subscription topic is kept in the 'where' property.
+
+    var t = e.what;
+    if (e.kn_payload != '')
+    {
+        subs[t] = new Object();
+        subs[t].rid = e;
+        subs[t].messages = new Array();
+        var onSubsMessage = function (ee)
+        {
+            var redraw = true;
+            if ((ee.kn_id == subs[t]['barrier']) &&
+                ((ee['yew_status'] == 'deleted') ||
+                 (ee['deleted'] == 'true')))
+            {
+                delete subs[t].barrier;
+                redraw = false;
+            }
+            else
+            {
+                for (var i = 0; i < subs[t].messages.length; i ++)
+                {
+                    if (subs[t].messages[i].kn_id == ee.kn_id)
+                    {
+                        redraw = false;
+                        break;
+                    }
+                }
+                if (((i == subs[t].messages.length) ||
+                     (subs[t].messages[i]['deleted'] == 'true') ||
+                     (subs[t].messages[i]['yew_status'] == 'deleted')) &&
+                    ((ee['deleted'] == 'true') ||
+                     (ee['yew_status'] == 'deleted')))
+                {
+                    return;
+                }
+                subs[t].messages[i] = ee;
+            }
+            if ((! subs[t].barrier) && (t == topic))
+            {
+                onMessage(ee);
+            }
+            if (redraw)
+            {
+                updateSubsAndBuddies();
+            }
+        };
+        kn_subscribe(e.where, onSubsMessage, {do_max_age: "infinity"});
+        subs[t].barrier = kn_publish(e.where, {kn_expires: remove_time,
+                                               kn_payload: '',
+                                               deleted: 'true',
+                                               yew_status: 'deleted'});
+        if (t == topic)
+        {
+            if (rid)
+                kn_unsubscribe(rid);
+            rid = null;
+            messages = subs[t].messages;
+            drawIndex();
+        }
+    }
+    else if (subs[t])
+    {
+        delete subs[t].rid;
+        delete subs[t].messages;
+        delete subs[t];
+        if (t == topic)
+        {
+            messages = new Array();
+            drawIndex();
+            rid = kn_subscribe(topic, sameTopic(onMessage),
+                {do_max_age: max_age});
+        }
+    }
+    drawSubsAndBuddies();
+}
+
+// Configuration stuff.
+
+function onConfigure(e)
+{
+    // sub_XXXX is reserved for subscriptions.
+
+    if (e.kn_id.substring(0,4) == 'sub_')
+    {
+        onSubs(e);
+    }
+
+// Used by: KnowWrite (writer.html) ids: closewindow.
+// Previously used ids: "topic" (for remote-control topic changing).
+
+}
+
+function configure(string, value)
+{
+    var e = new Object();
+    e.kn_id = string;
+    e.kn_payload = value;
+    kn.publish(conf_topic, e);
+}
+
+
+
+// ***Buddy-list stuff.***
+
+var buddies = new Object();
+var buddy_status = new Object();
+var selected_buddies = 0;
+var selected_buddy = '';
+
+function selectBuddy(userid)
+{
+    var update_index = false;
+    for (var i = 0; i < messages.length; i ++)
+        if (messages[i]['userid'] == userid)
+        {
+            update_index = true;
+            break;
+        }
+    auto_buddy_select = false;
+    if ((userid == '') && (selected_buddy != ''))
+    {
+        userid = selected_buddy;
+    }
+    if ((selected_buddy == userid) && (userid != ''))
+    {
+        selected_buddies --;
+        userid = '';
+    }
+    else if (buddies[userid])
+    {
+        if (! (buddies[userid].selected =
+               ! buddies[userid]['selected']))
+        {
+            userid = '';
+        }
+        if (userid != '')
+        {
+            selected_buddies ++;
+        }
+        else
+        {
+            selected_buddies --;
+        }
+        userid = '';
+    }
+    selected_buddy = userid;
+    drawSubsAndBuddies();
+    if (update_index && ! reading)
+        drawIndex();
+}
+
+function updateSubsAndBuddies()
+{
+    if (buddy_doc.isReady())
+        buddy_doc.window.setTimeout('o()', 1);
+}
+
+function drawSubsAndBuddies()
+{
+    with (buddy_doc)
+        {
+            open('text/html');
+            write(buddy_style);
+
+            writeln('<script type="text/javascript"><!--');
+            writeln(
+                'function o(){' + (
+                    'var index=0;' +
+                    'for(var i in parent.subs){' + (
+                        'var nmesg=0;' +
+                        'for(var j=0;j<parent.subs[i].messages.length;j++)' + (
+                            'if((parent.subs[i].messages[j].yew_status!=\'deleted\')&&' +
+                               '(parent.subs[i].messages[j].deleted!=\'true\'))' + (
+                                'nmesg++;')) +
+                        'nmesg=\'\'+nmesg;' +
+                        'if(document.forms.subs.elements[index].value!=nmesg)' + (
+                            'document.forms.subs.elements[index].value=nmesg;') +
+                        'index++;') +
+                    '}' +
+                    'index=0;' +
+                    'for(var i in parent.buddies){' + (
+                        'if(parent.buddy_status[i])' + (
+                            'if(document.forms.buddies.elements[index].value!=parent.buddy_status[i].kn_payload)' + (
+                                'document.forms.buddies.elements[index].value=parent.buddy_status[i].kn_payload;')) +
+                        'index++;') +
+                    '}') +
+                '}');
+            writeln('// -->');
+            writeln('<' + '/script>');
+
+            write('<table cellspacing="0" width="100%" border="0" bgcolor="#dcdcf0">');
+            write('<tr bgcolor="#c0c0f0">' +
+                  '<th align="right" colspan="2"><small>');
+            write('Subscriptions');
+            write('</small></th></tr>');
+            write('<tr bgcolor="#dcdcf0">');
+            write('<form action="javascript:u=\'\';if((u=prompt(\'Topic to add: \',parent.topic))&&(u!=\'\'))parent.setTimeout(\'mkSubs(kn_unescape(\\\'\'+parent.kn_escape(u)+\'\\\'),kn_unescape(\\\'\'+parent.kn_escape(u)+\'\\\'))\',1);void null//">');
+            write('<td align="left">');
+            write('<font color="black">');
+            write('<input type="submit" value="Add" title="Start a subscription" />');
+            write('</font>');
+            write('</td>');
+            write('</form>');
+            write('<form action="javascript:u=\'\';if((u=prompt(\'Subscription to cancel: \',parent.topic))&&(u!=\'\'))parent.setTimeout(\'rmSubs(kn_unescape(\\\'\'+parent.kn_escape(u)+\'\\\'))\',1);void null//">');
+            write('<td align="right">');
+            write('<font color="black">');
+            write('<input type="submit" value="Remove" title="Cancel a subscription" />');
+            write('</font>');
+            write('</td>');
+            write('</form>');
+            write('</tr>');
+            write('<form name="subs" action="javascript:void(0)//">');
+            for (var i in subs)
+            {
+                var fgColor = "gray";
+                var bgColor = "#dcdcf0";
+                if (i == topic)
+                {
+                    fgColor = "maroon";
+                }
+                write('<tr bgColor="'+bgColor+'">');
+                write('<th align="left">' +
+                      '<a href="javascript:void parent.setTimeout(\'' +
+                      'setTopic(kn_unescape(\\\'' +
+                      kn_escape(i) +
+                      '\\\'))\',1)" title="topic: ' +
+                      kn_htmlEscape(i) + '">' +
+                      '<font color="' + fgColor + '">');
+                write(kn_htmlEscape(prettyTopic(i)));
+                write('</font></a></th>');
+                write('<td align="right">');
+                write('<font color="'+fgColor+'">');
+                var nmesg = 0;
+                for (var j = 0; j < subs[i].messages.length; j ++)
+                    if ((subs[i].messages[j].yew_status != 'deleted') &&
+                        (subs[i].messages[j].deleted != 'true'))
+                        nmesg ++;
+                write('<input readonly size="' +
+                      ((('' + nmesg).length > 6) ?
+                       ('' + nmesg).length :
+                       6) +
+                      '" value="');
+                write(nmesg);
+                write('" />');
+                write('</font></td>');
+                write('</tr>\n');
+            }
+            write('</form>');
+            write('</table>');
+
+            write('<p></p>');
+
+            write('<table cellspacing="0" width="100%" border="0" bgcolor="#dcdcf0">');
+            write('<tr bgcolor="#c0c0f0">' +
+                  '<th align="right" colspan="2">' +
+                  '<small>');
+            write('Buddies');
+            write('</small></th></tr>');
+            write('<tr bgcolor="#dcdcf0">');
+            write('<form action="javascript:u=\'\';if((u=prompt(\'Buddy to add: \',parent.selected_buddy))&&(u!=\'\'))parent.setTimeout(\'addBuddy(\\\'\\\',kn_unescape(\\\'\'+parent.kn_escape(u)+\'\\\'),kn_unescape(\\\'\'+parent.kn_escape(u)+\'\\\'))\',1);void null//">');
+            write('<td align="left">');
+            write('<font color="black">');
+            write('<input type="submit" value="Add" title="Add a buddy" />');
+            write('</font>');
+            write('</td>');
+            write('</form>');
+            write('<form action="javascript:{u=\'\';var p=parent;var v=p.selected_buddy;for(var i in p.buddies)if(p.buddies[i].selected){u=i;break;};if(!v)v=u;if((u=prompt(\'Buddy to remove: \',v))&&u.length)p.setTimeout(\'rmBuddy(kn_unescape(\\\'\'+parent.kn_escape(u)+\'\\\'))\',1);}void null//">');
+            write('<td align="right">');
+            write('<font color="black">');
+            write('<input type="submit" value="Remove" title="Remove a buddy" />');
+            write('</font>');
+            write('</td>');
+            write('</form>');
+            write('</tr>');
+            write('<form name="buddies" action="javascript:void(0)//">');
+            for (var i in buddies)
+            {
+                var fgColor = "black";
+                var bgColor = "#dcdcf0";
+                if (i == kn.userid)
+                    fgColor = 'maroon';
+                if ((buddies[i]['selected']) ||
+                    (selected_buddy == i))
+                {
+                    var temp = bgColor;
+                    bgColor = fgColor;
+                    fgColor = temp;
+                }
+                write('<tr bgColor="'+bgColor+'">');
+                write('<th align="left">' +
+                      '<a href="javascript:void parent.setTimeout(\'' +
+                      'selectBuddy(kn_unescape(\\\'' +
+                      kn_escape(i) +
+                      '\\\'))\',1)" title="userid: ' +
+                      kn_htmlEscape(i) + '">' +
+                      '<font color="' + fgColor + '">');
+                write(kn_htmlEscape(buddies[i].who))
+                write('</font></a></th>');
+                write('<td align="right">');
+                write('<font color="'+fgColor+'">');
+                write('<input readonly size="12" value="');
+                if ((buddy_status[i]) && (buddy_status[i].kn_payload != ''))
+                    write(kn_htmlEscape(buddy_status[i].kn_payload));
+                write('" />');
+                write('</font></td>');
+                write('</tr>\n');
+            }
+            write('</form>');
+            write('</table>');
+
+            write('<p></p>');
+
+            write('<table cellspacing="0" width="100%" border="0" bgcolor="#dcdcf0">');
+            write('<tr bgcolor="#c0c0f0">' +
+                  '<th align="right"><small>');
+            write('Readers');
+            var reader_table = new Object();
+            write('</small></th></tr>');
+            for (var i in readers)
+            {
+                var userid = readers[i]['userid'];
+                var found = false;
+                for (var j in reader_table)
+                {
+                    if (reader_table[j]['userid'] == userid)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    break;
+                reader_table[i] = readers[i];
+            }
+            for (var i in reader_table)
+            {
+                var fgColor = "black";
+                var bgColor = "#dcdcf0";
+                var userid = reader_table[i]['userid'];
+                if (userid == kn.userid)
+                    fgColor = 'maroon';
+                if ((buddies[userid] && buddies[userid]['selected']) ||
+                    (userid == selected_buddy))
+                {
+                    var temp = bgColor;
+                    bgColor = fgColor;
+                    fgColor = temp;
+                }
+                write('<tr bgcolor="' + bgColor + '">');
+                write('<th align="left">');
+                write('<a title="');
+                if (typeof reader_table[i]['kn_time_t'] != 'undefined')
+                {
+                    var n = parseInt(reader_table[i].kn_time_t);
+                    if (! isNaN(n))
+                    {
+                        var d = new Date(n * 1000);
+                        write("Here since " +
+                              kn_htmlEscape(d.toLocaleString()));
+                    }
+                }
+                write('" href="javascript:void parent.setTimeout(\'' +
+                      'selectBuddy(kn_unescape(\\\'' +
+                      kn_escape(reader_table[i]['userid']) +
+                      '\\\'))\',1)"><font color="' + fgColor + '">');
+                if (typeof reader_table[i]['displayname'] != 'undefined')
+                    write(kn_htmlEscape(reader_table[i].displayname));
+                else
+                    write('<em>Anonymous</em>');
+                write('</font></a></th>');
+                write('</tr>');
+            }
+            write('</table>');
+            close();
+        }
+}
+
+var status_words = new Array();
+status_words[0] = "";
+status_words[1] = "Offline";
+status_words[2] = "Available";
+status_words[3] = "Coding";
+
+function drawStatus()
+{
+    var status = '';
+    if (buddy_status[kn.userid])
+        status = buddy_status[kn.userid].kn_payload;
+    with (status_doc)
+        {
+            open('text/html');
+            write(ui_style);
+            write('<table width="100%" border="0" ' +
+                        'cellpadding="0" cellspacing="0">');
+            write('<tr>');
+	    write('<form action="javascript:void parent.setTimeout(\'setStatus(kn_unescape(\\\'\'+parent.kn_escape(document.forms[0].elements[1].value)+\'\\\'))\',1)//">');
+            write('<td>');
+	    write('<strong>' + kn.displayname + '</strong> is<br />');
+	    write('<select name="mystatus" onchange="document.forms[0].elements[1].value=document.forms[0].elements[0].options[document.forms[0].elements[0].selectedIndex].value;document.forms[0].submit()" title="Choose your status">');
+            var found = false;
+            for (var i = 0; i < status_words.length; i ++)
+            {
+                write('<option value="' +
+                      kn_htmlEscape(status_words[i]) +
+                    '"');
+                if (status == status_words[i])
+                {
+                    write(' selected');
+                    found = true;
+                }
+                write('> ' +
+                      kn_htmlEscape(status_words[i]) +
+                      ' </option>');
+            }
+            if (! found)
+            {
+                write('<option value="' +
+                      kn_htmlEscape(status) +
+                      '" selected>' +
+                      kn_htmlEscape(status) +
+                      '</option>');
+                status_words[status_words.length] = status;
+            }
+	    write('</select>');
+            write('&' + 'nbsp;');
+            write('<input type="hidden" name="mikulasz"' +
+                  ' value="' + kn_htmlEscape(status) + '" />');
+            write('<input type="button" name="jeroen" onclick="parent.setTimeout(\'if((u=prompt(\\\'Status to report: \\\',kn_unescape(\\\'' +
+                  kn_escape(status) +
+                  '\\\')))!=null){setStatus(u);}\',1)" value="..." title="Customize your status display" />');
+	    write('</font>');
+            write('</td>');
+	    write('</form>');
+            write('</tr>');
+            write('</table>');
+            close();
+        }
+}
+
+function onBuddy(e)
+{
+    if (e.kn_payload == '')
+    {
+        if (buddies[e.kn_id] != null)
+            delete buddies[e.kn_id];
+    }
+    else
+    {
+        buddies[e.kn_id] = e;
+    }
+    drawSubsAndBuddies();
+}
+
+function onBuddyStatus(e)
+{
+    if ((! buddy_status[e.kn_id]) ||
+        (buddy_status[e.kn_id].kn_payload != e.kn_payload))
+    {
+        buddy_status[e.kn_id] = e;
+        if (buddies[e.kn_id])
+        {
+            if (buddies[e.kn_id].who != e.displayname)
+            {
+                buddies[e.kn_id].who = e.displayname;
+                drawSubsAndBuddies();
+            }
+            else
+                updateSubsAndBuddies();
+        }
+        if (e.kn_id == kn.userid)
+            drawStatus();
+    }
+}
+
+function setStatus(s)
+{
+    var e = new Object();
+    e.kn_id = kn.userid;
+    e.kn_payload = s;
+    kn.publish(status_topic, e);
+}
+
+function addBuddy(list, userid, displayname)
+{
+    selectBuddy(userid);
+    if (buddies[userid])
+        rmBuddy(userid);
+    var e = new Object();
+    e.kn_id = userid;
+    e.kn_payload = kn_subscribe('/who/' + userid + '/apps/yew/status',
+                                buddy_status_topic,
+                                {do_max_age: "infinity"});
+    e.who = displayname;
+    e.where = list;
+    e.rid = e.kn_payload; // This is a hack to avoid using old-style buddies.
+    kn.publish(buddy_topic, e);
+}
+
+function rmBuddy(userid)
+{
+    if (buddies[userid])
+    {
+        if (buddies[userid]['rid'] == buddies[userid].kn_payload)
+            kn.unsubscribe(buddies[userid].kn_payload);
+    }
+    var e = new Object();
+    e.kn_id = userid;
+    e.kn_payload = '';
+    kn.publish(buddy_topic, e);
+}
+
+// -->
+</script>
+
+</head>
+
+<frameset rows="50,60,*" onload="startup()" onunload="shutdown()" border="0">
+    <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" noresize />
+    <frameset cols="*,220">
+        <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" />
+        <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" noresize />
+    </frameset>
+    <frameset cols="*,220">
+        <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" />
+        <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" noresize />
+    </frameset>
+</frameset>
+
+<noframes>
+<h1>Frames Required</h1>
+<p>Frameset support is missing or not enabled, or missing JavaScript
+support has broken the frameset.</p>
+</noframes>
+
+</html>

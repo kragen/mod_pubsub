@@ -1,0 +1,328 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: chat-ui.html,v 1.1 2002/11/07 07:08:50 troutgirl Exp $
+
+-->
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub chat 2</title>
+</head>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- The PubSub Htmlsafe Helper Library -->
+<script src="../kn_lib/htmlsafe.js" /></script> 
+
+<body onLoad="doLoad()"
+  text="black" bgcolor="#fffff4" link="blue" alink="red" vlink="purple">
+
+<noscript>
+<h1>Frames and JavaScript 1.1 Required</h1>
+<p>This page requires frames and JavaScript 1.1 support. If your browser
+has such support, please enable it and reload to try the pubsub chat
+weblication.</p>
+</noscript>
+
+<script><!--
+kn = parent.kn; // Because we are using our own frameset one level deeper.
+var topic = (parent.kn_argv.kn_topic) ? parent.kn_argv.kn_topic : "/what/chat";
+
+var session = Math.random().toString().replace(/\./g, '_');
+var seqno = 0;
+
+function doLoad()
+{
+    if (parent.kn_argv.invited) top.document.title="IM with: "+parent.kn_argv.invited;
+    else if (parent.kn_argv.inviter) top.document.title="IM with: "+parent.kn_argv.inviter;
+    else if (parent.kn_argv.invitedGroup) top.document.title="Group Chat: "+parent.kn_argv.invitedGroup;
+    // Redraw the chat window.
+    document.options.displayname.value = kn.displayname;
+    redrawChatOutput(null);
+    kn.subscribe(topic, onMessage, {do_max_age: 600});
+}
+
+function sendChat() 
+{
+    var e = new Object;
+    e.displayname = document.options.displayname.value;
+    e.kn_payload = document.visible.kn_payload.value;
+    e.kn_id=kn.publish(topic,e);
+    onMessage(e);   // The call to kn.publish implicitly set our kn_id .
+    // Clear payload.
+    document.visible.kn_payload.value = '';
+    document.visible.kn_payload.focus();
+    return false;
+}
+// -->
+</script>
+
+<form name="options" onSubmit="document.visible.kn_payload.focus(); return false">
+<input name="displayname" value="*" />
+<input type="button" value="Bold"
+ onClick="document.visible.kn_payload.value =
+              document.visible.kn_payload.value.bold();
+          document.visible.kn_payload.focus();" />
+<input type="button" value="Italics"
+ onClick="document.visible.kn_payload.value =
+              document.visible.kn_payload.value.italics();
+          document.visible.kn_payload.focus();" />
+
+&nbsp;
+<input type="button" value="Preview"
+ onClick="kn_systemMessage('<em>Preview</em>',
+                           document.visible.kn_payload.value);document.visible.kn_payload.focus();" />
+<input type="button" value="Send" onClick="sendChat()" />
+&nbsp;
+<input type="button" value="Redraw"
+ onClick="redrawChatOutput(null);" />
+<input type="button" value="Forget"
+ onClick="if (confirm('Really forget chat history?'))
+          {
+              chatlog = [];
+              eventIDCache = { };
+              redrawChatOutput(1);
+              document.visible.kn_payload.focus();
+          }" />
+&nbsp;&nbsp;&nbsp;&nbsp;
+Make&nbsp;URLs&nbsp;Hyperlinks?&nbsp;<input type="checkbox" checked name="autohtml" onClick="redrawChatOutput(1)" />
+</form>
+<form name="visible" onSubmit="setTimeout('sendChat()',0); return false;">
+<input type="text" name="kn_payload" size="80" />
+</form>
+<script><!--
+var header =
+'<html><head>' +
+'<meta http-equiv="content-type" content="text/html; charset=utf-8" />' +
+'<title>Chat Log</title></head>\n' +
+'<body\n' +
+' text="black" bgcolor="#fffff4" link="blue" alink="red" vlink="purple">\n' +
+'<table width="100%">\n';
+
+var footer =
+  '</table>' +
+  '</body></html>\n';
+
+var redrawTimer = null;
+var chatlog = [];
+var chatlog_string = '';
+
+function chatOutput(chatline)
+{
+    chatlog[chatlog.length] = chatline;
+    chatlog_string = renderLine(chatline) + chatlog_string;
+    if (redrawTimer)
+    { 
+        clearTimeout(redrawTimer);
+        redrawTimer = null;
+    }
+    redrawTimer = setTimeout("redrawChatOutput(null)",300);
+}
+
+function redrawChatOutput(complete_redraw)
+{
+    // Completely re-render the table, if requested.
+    if ((chatlog_string == null) || complete_redraw)
+    {
+        var strings = new Array(chatlog.length);
+
+        for (i in chatlog)
+        {
+            strings[i] = renderLine(chatlog[i]);
+        }
+        strings.reverse();
+        chatlog_string = strings.join('');
+    }
+    parent.frames[0].location.replace(
+         '../../cgi-bin/pubsub.cgi?do_method=blank&kn_init=' +
+         escape('parent.rc')
+         );
+}
+
+
+// parent.rc = redrawChatDoc;
+parent.kn_redrawCallback = redrawChatDoc;
+
+function redrawChatDoc()
+{
+    // Redraw the chat window.
+    parent.frames[0].document.write(
+        parent.frames[1].header +
+        parent.frames[1].chatlog_string +
+        parent.frames[1].footer +
+        '\n');
+}
+
+
+var linePos = 0;
+
+function renderLine(chatline)
+{
+    var string = '';
+
+    // We use width="1%" to make the column as narrow as possible;
+    // unfortunately width="0%" seems to get ignored in NS4.61.
+    // We think wrapping peoples' names when they contain spaces is OK.
+
+    string += '<tr><th align="right" valign="top" width="1%">';
+    string += '<font color="' + chatline.nameColor + '">';
+    string += htmlSanitize(chatline.name, document.options.autohtml.checked);
+    string += '</font>';
+    string += ':</th><td valign="top" bgcolor="' + chatline.bgColor + '">&nbsp;';
+    string += htmlSanitize(chatline.message, document.options.autohtml.checked);
+    if (parent.kn_argv.kn_timestamp != void 0)
+        { 
+       string += " <FONT SIZE=1 COLOR=#191970 >[";
+
+       var now = new Date();
+       var d;
+       if (isNaN(parseInt(chatline.kn_time_t)))
+       {
+           d = new Date();
+       }
+       else 
+       {
+           d = new Date(parseInt(chatline.kn_time_t) * 1000);
+       }
+       if ((d.getDate() != now.getDate()) ||
+           (d.getMonth() != now.getMonth()) ||
+           (d.getYear() != now.getYear()))
+       {
+           string += d.toLocaleString();
+       }
+       else 
+       {
+           string +=((d.getHours() % 12)  ? (d.getHours() % 12) : "12") +":"+ 
+                    ((d.getMinutes() < 10)? "0" : "")+ d.getMinutes() + " " + 
+            ((d.getHours() < 12)  ?"AM":"PM");
+       } 
+       string += "]</FONT>";
+    }
+    string += '&nbsp;</td></tr>\n';
+    return string;
+}
+
+var eventIDCache = { };
+
+function onMessage(e) 
+{
+    var color;
+    var bgcolor;
+    var displayname = null, payload = null;
+    var id = null;
+    var time_t = null;
+
+    displayname = e.displayname;
+    payload = e.kn_payload;
+    id = e.kn_id;
+    time_t = e.kn_time_t; // This field is not present @ local echo.
+
+    if ((id != null) && (id != ""))
+    {
+        if (eventIDCache[id] == payload)
+        {
+            return;
+        }
+        eventIDCache[id] = payload;
+    }
+
+    // This alternates between green and yellow bars every two lines.
+
+    if (linePos >= 2)
+    {
+        bgcolor = '#ddffdd';
+    }
+    else
+    {
+        bgcolor = '#fffff4';
+    }
+    linePos++;
+    linePos %= 4;
+
+    if (displayname == document.options.displayname.value)
+    {
+    color = 'red';
+    }
+    else
+    {
+        color = 'black';
+    }
+
+    chatOutput({
+        bgColor:    bgcolor,
+        nameColor:  color,
+        name:       displayname,
+        message:    payload,
+        kn_time_t:  time_t
+    });
+
+}
+
+function kn_systemMessage(name, string)
+{
+    // We use width="1%" to make the column as narrow as possible;
+    // unfortunately width="0%" seems to get ignored in NS4.61.
+
+    chatOutput({
+      bgColor:    "ffdddd",
+      nameColor:  "black",
+      name:       name,
+      message:    string
+    });
+}
+// -->
+</script>
+
+</body>
+</html>

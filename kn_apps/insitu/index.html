@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:01 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<title>pubsub insitu editor</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<script type="text/javascript"><!--
+
+var topic = (kn_argv.kn_topic)? kn_argv.kn_topic: "/what/editor";
+
+nn=''; ch='character'; tab='&nbsp;&nbsp;&nbsp;';
+etype = ''; 
+here = null;
+deltaCache = new Object;
+prev_kn_id = -1;
+
+function attach() {
+    frames[0].document.attachEvent('onmouseup', do_MouseUp);
+    frames[0].document.attachEvent('onkeydown', do_funKey);
+    frames[0].document.attachEvent('onkeypress', do_Key);
+}
+
+function whenLoaded() {
+    attach();
+    kn.subscribe(topic, subDelta);
+}
+
+function pubPasteHTML (o,x) {
+    var e = new Object;
+    e.delta = "replace";
+    doPub(e,o,x);
+}
+
+function doPub (e,o,x) {
+    e.bookmark = escape(o.getBookmark());
+    e.kn_payload = x;
+    e.prev = prev_kn_id;
+
+    e.kn_id = kn.publish(topic, e);
+
+	// Local Echo immediately.
+    subDelta (e);
+}
+
+function subDelta (e) {
+    if (deltaCache[e.kn_id]) 
+       return;
+    deltaCache[e.kn_id] = true;
+    if ((e.prev != -1) && (prev_kn_id != e.prev)) {
+       //Skip it.
+       return;
+    }
+    prev_kn_id = e.kn_id;
+
+    var r = frames[0].document.body.createTextRange();
+ 
+    r.moveToBookmark(unescape(e.bookmark));
+    if (e.delta == "replace") {
+        r.pasteHTML(e.kn_payload);
+        r.collapse(false);
+    }
+    if (e.delta == "reformat") 
+        r.execCommand(e.kn_payload);
+}
+     
+     function do_MouseUp()
+     { xE= frames[0].document.selection.createRange();
+       here = xE.duplicate(); here.collapse();
+       etype='mouse';
+     }
+     
+     function do_funKey()
+     { var theEvent = frames[0].event;
+       var which = theEvent.keyCode;
+       switch(which)
+       { case 9 : // TAB
+         for(var i=0;i<5;i++) pubPasteHTML(here,tab);
+         theEvent.returnValue=false; break
+         case 67: // CTRL-C
+         if (theEvent.ctrlKey)
+           { xE.execCommand("copy"); theEvent.returnValue=false }
+         break
+         case 86: // CTRL-V
+         if (theEvent.ctrlKey)
+           { here.execCommand("paste"); theEvent.returnValue=false }
+         break
+         case 88: // CTRL-X
+         if (theEvent.ctrlKey)
+           { xE.execCommand("cut"); theEvent.returnValue=false }
+         break
+         case 66: // CTRL-B
+         if (theEvent.ctrlKey)
+           { pubExecCommand(xE,"bold"); theEvent.returnValue=false }
+         break
+         case 73: // CTRL-I
+         if (theEvent.ctrlKey)
+           { pubExecCommand(xE, "italic"); theEvent.returnValue=false }
+         break
+         case 85: // CTRL-U
+         if (theEvent.ctrlKey)
+           { pubExecCommand(xE, "underline"); theEvent.returnValue=false }
+         break
+         case 37: // LEFT ARROW
+         here.moveStart(ch,-1);
+         here.select(); here.collapse(); break
+         case 39: // RIGHT ARROW
+         here.moveEnd(ch,1);
+         here.select(); here.collapse(false); break
+         case 8: // BACKSPACE
+         if (xE.htmlText.length > 0)
+           { pubPasteHTML(xE,nn) }
+           else { here.moveStart(ch,-1); pubPasteHTML(here,nn) }
+         theEvent.returnValue=false; break
+         case 46: // DELETE
+         if (xE.htmlText.length > 0)
+           { pubPasteHTML(xE,nn) }
+           else { here.expand(ch,1); pubPasteHTML(here,nn) }
+         here.collapse(); break
+         case 32: // SPACE
+         here.moveStart(ch,-1);
+         pubPasteHTML(here,here.text.substr(0,1)+"&#032;");
+         here.expand(ch,1); here.collapse();
+         theEvent.returnValue=false; break
+         case 13: // ENTER
+         pubPasteHTML(xE,xE.htmlText+"<br>");
+         here.setEndPoint("StartToEnd",xE); break
+         default:
+       }
+     }
+     
+     function do_Key()
+     { var theEvent = frames[0].event;
+       var which = theEvent.keyCode;
+       switch(which)
+       { case 38: kS="&amp;"; break
+         case 60: kS="&lt;"; break
+         default: kS=String.fromCharCode(which)
+       }
+       if (etype=='mouse') here = xE.duplicate();
+       pubPasteHTML(here,kS); etype='key';
+       here.collapse(false);
+       xE=here.duplicate();
+     }
+
+// -->
+</script>
+
+</head>
+
+<frameset rows="100%,0%,*" border="0" onload="whenLoaded()">
+    <frame name="editpage" src="blankslate.html" noresize />
+</frameset>
+
+</html>

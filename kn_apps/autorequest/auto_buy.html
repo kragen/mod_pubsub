@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: auto_buy.html,v 1.1 2002/11/07 07:08:54 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub autorequest message exchange: buyer</title>
+
+<!-- The PubSub JavaScript prologue, setting credentials -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+
+<!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
+<script src="../kn_lib/cookie_auth.js"></script>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../kn_lib/pubsub.js"></script>
+
+<!-- Note that if I didn't care about user credentials, I could simply use
+
+  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+instead of the previous three <script> calls, which loads the PubSub
+JavaScript Library with the prologue directly from the mod_pubsub instance. -->
+
+<!-- XML and SOAP Helper JavaScript Libraries -->
+<script src="../kn_lib/kn_xml.js"></script>
+
+<!-- AutoRequest Helper JavaScript Utilities -->
+<script src="auto_util.js"></script>
+
+<script><!--
+
+var topic = "/what/auto-request";
+var uniqueID = Math.random().toString().substr(2,8);
+var offer_id = kn.userid+"_buy";
+var events = new Array();
+
+kn_subscribe(topic, onMessage, {do_max_age : "86400" }); // 1 day.
+kn_subscribe("/who/"+kn.userid+"/invite", onInviteMessage);
+
+var match = { make:"GMC", model:"Yukon", max:30000, min:15000, miles:10000 };
+
+function doLoad()
+{
+    // Keep a copy of the values for our filtering of messages.
+    match.make = document.request.make.value;
+    match.model = document.request.model.value;
+    match.miles = document.request.miles.value;
+    match.min = parseInt(document.request.min.value);
+    match.max = parseInt(document.request.max.value);
+}
+
+function doUnload()
+{
+    // So far, nothing.
+}
+
+function isGoodMatch(msg)
+{
+    return ((match.max >= msg.body.offer.price) &&
+            (match.min <= msg.body.offer.price) &&
+            (match.miles >= msg.body.offer.miles));
+}
+
+// Handle 'sell' offers.
+function onMessage(e)
+{
+    var text = "";
+
+    msg = filter_message(e);
+
+    if (msg.body && msg.body.offer.type == 'sell')
+    {
+        var form = document.response;
+        var offer = msg.body.offer;
+        
+        if (isGoodMatch(msg))
+        {
+            text += msg.displayname+" has a " + offer.make + " " + offer.model;
+            text += " for $" + offer.price;
+            msg.message = text;
+            addEvent(msg);
+            addOffer(msg);
+
+            if (document.request.soap)
+            {
+                document.soap.received.value = msg.kn_payload;
+            }
+        }
+        else
+        {
+            if (events[msg.kn_id])
+            {
+                addEvent(msg);
+                drawOffers();
+            }
+        }
+    }
+}
+
+function onInviteMessage(e)
+{
+    msg = filter_message(e);
+    
+    if (msg.body && msg.body.invite)
+    {
+        var href;
+        
+        href = addTopic(msg.body.invite.app,msg.body.invite.topic);
+        window.open(href,"auto_buy_chat");
+    }
+}
+
+
+function doSubmit(form)
+{
+    var offer;
+    
+    // Create an application-specific JavaScript object.
+    offer = new Object;
+    offer.make = form.make.value;
+    offer.model = form.model.value;
+    offer.year = parseInt(form.year.value);
+    offer.miles = parseInt(form.miles.value);
+    offer.min = parseInt(form.min.value);
+    offer.max = parseInt(form.max.value);
+    offer.type = 'buy';
+
+    if (isNaN(offer.miles))
+    {
+        alert("The mileage you entered is not a number.\nPlease enter only numbers.");
+        return false;
+    }
+
+    if (isNaN(offer.min))
+    {
+        alert("The minimum price you entered is not a number.\nPlease enter only numbers.");
+        return false;
+    }
+
+    if (isNaN(offer.max))
+    {
+        alert("The maximum price you entered is not a number.\nPlease enter only numbers.");
+        return false;
+    }
+
+    
+    // Keep a copy of the values for our filtering of messages.
+    match.make = form.make.value;
+    match.model = form.model.value;
+    match.year = form.year.value;
+    match.miles = form.miles.value;
+    match.min = parseInt(form.min.value);
+    match.max = parseInt(form.max.value);
+
+    // Broadcast.
+    if (true)
+    {
+        kn_publishAsSoap(topic, "offer", offer, {kn_id : offer_id, kn_expires : "+86400"  });
+        document.soap.sent.value = kn_generateSoap("offer", offer);
+    }
+    else
+        kn_publishAsXml(topic, "offer", offer, {kn_id : offer_id, kn_expires : "+86400"  });
+    
+    // Adjust offers.
+    drawOffers();
+
+    return false;
+}
+
+// -->
+</script>
+
+</head>
+
+<body onLoad='doLoad();' onUnload='doUnload();' topmargin='0' leftmargin='0'>
+<basefont face='arial'/>
+
+<table width='100%' cellpadding='0' cellspacing='0'>
+<tr bgcolor='blue' height='32' style='color: white; font-size: 24'>
+<td colspan='2'><b>&nbsp;AutoRequest Buyer's Page</b></td>
+</tr>
+
+</table>
+&nbsp;AutoRequest is a peer to peer exchange of car buyers and sellers. 
+
+<br />
+I'm looking for a car like this: <br />
+
+<form name='request' onSubmit='return doSubmit(this);'>
+<table border=0>
+
+<!-- Model -->
+<tr>
+<td>Make</td>
+<td><input name='make' size='12' value='GMC'></td>
+</tr>
+
+<!-- Model -->
+<tr>
+<td>Model</td>
+<td><input name='model' size='24' value='Yukon'></td>
+</tr>
+
+<!-- Color -->
+<tr>
+<td>Year</td>
+<td><input name='year' size='8' value='Any'></td>
+</tr>
+
+<!-- Mileage -->
+<tr>
+<td>Mileage under</td>
+<td><input name='miles' size='8' value='10000'></td>
+</tr>
+
+<!-- Price -->
+<tr>
+<td>Price Range</td>
+<td>
+<input name='min' size='8' value='10000'> to 
+<input name='max' size='8' value='10000'>
+</td>
+</tr>
+
+<!-- Advertise Button -->
+<tr>
+<td></td>
+<td align='right'>
+<input type='submit' value=' Advertise Now '><br />
+<input type='checkbox' name='soap' CHECKED> Show SOAP Message
+</td>
+</tr>
+
+</table>
+</form>
+
+<br>
+
+<form name='response'>
+<a href='javascript:doClearOffers()'>Clear offers</a> 
+<a href='javascript:doBidderChat()'>Chat with bidder</a><br/>
+Offers found so far: <br />
+<select name='offers' size='7' onChange='showCurrentOffer()'></select>
+<textarea name='body' rows='8' cols='36'></textarea>
+</form>
+
+<hr />
+
+<form name='soap'>
+Sent: <br>
+<textarea name='sent' rows='8' cols='72'></textarea><br />
+Received: <br>
+<textarea name='received' rows='8' cols='72'></textarea>
+</form>
+
+</body>
+</html>  

@@ -1,0 +1,97 @@
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<meta name="generator" content="Adobe GoLive 4">
+		<title>experimental - XML code doodlings</title>
+		<style type="text/css"><!--
+			.body { font-size: 12px; font-family: Arial, Helvetica }
+			.colour { color: #483b8b }
+			.comment { font-style: italic; font-size: 12px; font-family: "Arial Narrow", Arial, Helvetica; text-align: right }
+			.hi { color: #ff4500 }
+			.subtitle { color: #483d8b; font-style: italic; font-weight: bold; font-size: 18px; font-family: "Arial Narrow", Arial, Helvetica }
+			.t1 { color: #483d8b; font-weight: bold; font-size: 40px; font-family: "Arial Narrow", Arial, Helvetica }-->
+		</style>
+	</head>
+
+	<body bgcolor="white" link="#483d8b" vlink="#483d8b" alink="#ff4500" class="body">
+		<!-- title -->
+		<span class="t1">e<span class="hi">x</span>peri<span class="hi">m</span>enta<span class="hi">l</span></span> <span class="subtitle">(xml code doodlings)</span>
+		<hr noshade="noshade" size="1">
+		<span class="comment">client-side scripting: that part of the code which can be fixed at the customer site.</span>
+		<p class="subtitle"><span class="hi">xml</span> for &lt;SCRIPT&gt;</p>
+		<p class="body"><span class="hi"><b>New version 0.22.</b></span><b> Another bugfix release. Thanks to David Joham, Stu Coates and Mike Yukish for their help in fixing bugs, and to Chris Bayes for finding a bug I haven't yet fixed ;) - see the bugs section below.</b></p>
+		<p class="body">Here is a simple non-validating XML parser written in JavaScript. This was written partly as an exploration of the issues involved in coding parsers for XML, and partly to see how useful such a parser would be for version three and four browsers.</p>
+		<p class="body">The parser takes input from a string, so the way your XML is included in your page is up to you - as long as you can pull out a string containing the content, it can be parsed. There are several ways to do this:</p>
+		<ul>
+			<li><span class="body">Put your XML text in a <tt>&lt;TEXTAREA&gt;</tt>. The associated form could be hidden (in a hidden <tt>&lt;FRAME&gt;</tt>, <tt>&lt;IFRAME&gt;</tt>, or layer)</span>
+			<li><span class="body">Generate your XML from script</span>
+			<li><span class="body">Store/retrieve from a cookie - this might enable all sorts of extended metadata type applications. - <i>not tested</i></span>
+		</ul>
+		<p class="body">The result of the parsing is a set of nested objects, describing the document tree. There is a trivial Document Object Model to aid the interrogation of the objects.</p>
+		<p class="body"><b>Version 0.2</b> of the parser now happily ignores processing instructions, DTDs and other prolog items. This is likely to remain the case in this particular design.</p>
+		<p class="subtitle">implementation</p>
+		<p class="body">The essential implementation objectives were:</p>
+		<ul>
+			<li><span class="body"><b>Speed - use as little recursion as possible</b>. Bitter experience of stack and memory limitations in version three and four JavaScript and JScript engines suggests that avoiding serious recursion is a good plan. There are some speed benefits to be gained here.</span>
+			<li><span class="body"><b>Speed (2) - avoid character-by-character manipulation.</b> Again, this is a speed issue. <b>Version 0.2</b> implements a single pass parser (as opposed to the three-pass implementation of 0.1). This considerably simplifies the code. However, otherwise the main intent of the design remains intact - to try to consider the largest substrings possible, to reduce parse time,</span>
+			<li><span class="body"><b>Compliance - implement as much of the 10-Feb-98 recommendation as is possible.</b> This thing has to be useful. The subset of the standard I have implemented (this isn't the final implementation) is enough to use XML in several embedded applications. A more faithful rendering of the standard is in the works. <b>Version 0.2</b> does not significantly change the compliance status - the current compromise is considered acceptable.</span>
+			<li><span class="body"><b>Usefulness - provide DOM-like functionality.</b> In order to make the parser <i>slightly</i> useful, some DOM-like methods are provided. <b>Version 0.2</b> has significantly improved the object model - check out the code!</span>
+		</ul>
+		<p class="body">The code style used is minimally object-oriented, using some of the prototype model features that JavaScript provides. This may cause problems with some implementations of JavaScript/EcmaScript - notably, those not from Microsoft or Netscape. A purely procedural implementation is possible - shout if you want one.</p>
+		<p class="body">The parser is provided as a single <tt>.js</tt> file - if some of the browsers in your target audience (notably IE3) don't support this, the code could be included in the document (or perhaps the parent frame of a frameset).</p>
+		<p class="body">The code has now been widely tested on various browsers, with only some problems with some Mozilla milestone releases.</p>
+		<p class="subtitle">bugs</p>
+		<p><span class="hi"><b>Serious: </b></span><b>The browser may lock up if you have an attribute with a &gt; in the value. </b></p>
+		<p class="subtitle">limitations</p>
+		<p class="body">The obvious limitations of the code (notwithstanding those imposed by web browsers, such as probably incomplete Unicode support, and the various hacky approaches needed to access XML content) are in the lack of total compliance to the XML specification where it relates to non-validating parsers.</p>
+		<p class="body">It is likely that this code is too lenient in some places through omission of well-formedness constraint checking, and too strict in other places as a result of the implementation technique used.</p>
+		<p class="subtitle">api overview</p>
+		<p class="body"><b>Version 0.2<span class="hi"> </span>- this documentation has been removed, pending a possible rewrite - check out the code in the meantime :)</b></p>
+		<p class="subtitle">code example</p>
+		<p class="body">Here is <a href="demo.html">a simple example</a>. Browse the source code when you've experimented with it, to see how it was implemented.</p>
+		<p class="subtitle">further information</p>
+		<p class="body">For further information on XML and web standards, see:</p>
+		<ul>
+			<li><a href="http://www.w3.org/"><span class="body">The Web Consortium</span></a>
+			<li><a href="http://www.w3.org/TR/1998/REC-xml-19980210.html"><span class="body">W3C XML Recommendation (REC-xml-19980210)</span></a>
+		</ul>
+		<p class="body">For general information on XML, try these starting points:</p>
+		<ul>
+			<li><a href="http://www.xml.org/"><span class="body">www.xml.org</span></a>
+			<li><a href="http://www.xml.com/"><span class="body">www.xml.com</span></a>
+			<li><a href="http://www.ibm.com/developer/xml/"><span class="body">the XML page at IBM's developerworks</span></a>
+		</ul>
+		<p class="body">Other javascript XML parsers:</p>
+		<ul>
+			<li><a href="http://www.jeremie.com/Dev/XML/"><span class="body">XParse from www.jeremie.com</span></a>
+		</ul>
+		<p class="body">Other useful links:</p>
+		<ul>
+			<li><a href="(http://www.w3.org/People/Raggett/tidy/"><span class="body">Dave Raggett's excellent HTML Tidy</span></a><span class="body"> - turn your HTML to browser-safe XHTML</span>
+		</ul>
+		<p class="subtitle">licensing</p>
+		<p class="body">The <span class="hi"><b>xml</b></span><b> <span class="colour">for &lt;SCRIPT&gt;</span></b> parser is licensed under the terms of the <a href="http://www.gnu.org/copyleft/lesser.html">GNU Lesser General Public Licence</a> (LGPL). For more information on the LGPL and other GNU and free software issues, visit the <a href="http://www.gnu.org/">GNU website</a>.</p>
+		<p class="body">I ask that you contact me at the address below if you use this software, as I'd like to know how it is being used.</p>
+		<p class="subtitle">version history</p>
+		<p class="body"><b>Version 0.1</b> -Initial version.</p>
+		<p class="body"><b>Version 0.2</b> - Significant code changes - switched to a cleaner one-pass parser.</p>
+		<p class="body"><b>Version 0.21</b> - Bug fix release. Resolves an issue with attributes named 'length', due to the Array/Object duality in JavaScript. Adds a new accessor method on XMLNode, getAttributeNames(), to return a list of attribute names (Direct access to the attributes array property is discouraged),</p>
+		<p class="body"><b>Version 0.22</b> - Bug fix release. Fixes problems with the content of CDATA and comment sections, and addresses string processing issues.</p>
+		<p class="subtitle">download</p>
+		<p class="body">The parser can be downloaded, with this page, the demonstration page, and a copy of the LGPL, as:</p>
+		<ul>
+			<li><a href="xmljs.zip"><span class="body">a Zip file</span></a>
+			<li><a href="xmljs.tar.gz"><span class="body">a Gzip'd TAR file</span></a>
+		</ul>
+		<p><span class="body">Also available is the <a href="0.1/">version 0.1 site</a>, complete with release zips.</span></p>
+		<p class="subtitle">feedback</p>
+		<p class="body">If you have any comments, suggestions, modifications, complaints, etc., please contact me (Michael Houghton) by email: <a href="mailto:mike@idle.org">mike@idle.org</a>. If you're reporting a bug, it would be useful if you could provide the smallest chunk of XML that demonstrates the problem.</p>
+		<p>
+		<hr noshade="noshade" size="1">
+		</p>
+		<p class="body">Copyright 2000 Michael Houghton. All trademarks are the property of their respective owners.</p>
+		<p class="body"><a href="http://www.idle.org/home.html"><i>Home</i></a>
+	</body>
+
+</html>

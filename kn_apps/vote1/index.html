@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/11/07 07:09:10 troutgirl Exp $
+
+-->
+
+<html>
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pubsub vote 1: election 2000</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+
+<script><!--
+topic = (kn_argv.kn_topic)? kn_argv.kn_topic : "/what/election-2000";
+age = (kn_argv.do_max_age) ? parseInt(kn_argv.do_max_age) : 3*24*60*60;
+
+function init(){
+    kn_subscribe(topic, add_vote, {do_max_age: age });
+    document.tally.reset();
+}
+
+var votes = new Object;
+votes.total = 0;
+
+function cast_vote() 
+{
+    var voteEvent = {kn_payload:""};
+
+    for (var i=0; i < document.tally.elements.length ; i++)
+    { 
+        if (document.tally.elements[i].checked == true) 
+        {
+            voteEvent.kn_payload += document.tally.elements[i].name + ",";
+            document.tally.elements[i].checked = false;
+        }
+    }
+    kn.publish(topic, voteEvent);
+    return false;
+}
+
+function add_vote(ballot) 
+{
+    var candidates = ballot.kn_payload.split(",");
+
+    for (var i=0; i<candidates.length; i++) 
+    {   
+        if (candidates[i] && (document.tally[candidates[i]] != null)) 
+        {
+            if (votes[candidates[i]] == void 0)
+                votes[candidates[i]] = 0;
+            votes[candidates[i]]++; 
+            votes.total++;
+            document.tally.total_votes.value = votes.total;
+        }
+    }
+    for (var c in votes)
+    {
+        var e = c + "_votes";
+        if (document.tally[e])
+            document.tally[e].value = 
+                Math.round((votes[c]/votes.total)*100)+'% ('+votes[c] +')';
+    }
+    render_shares();
+}
+var max =0;
+
+function render_shares(){
+
+    if (document.all) { // Only works in IE4+.
+
+        // calc_max
+        max=0;
+	for (var i in votes) 
+	    if (max < votes[i] && (i != "total")) max = votes[i]
+
+        // For every _bar, if there are any corresponding votes, draw.
+        for (var i=0; i < document.all.length; i++) {
+            n = document.all[i].name;
+
+            if (n && (n.substr(n.length-4,4) == "_bar") && votes[n.substring(0,n.length-4)]) {
+	        if (votes[n.substring(0,n.length-4)] == max){
+			document.all[i].bgColor="red";
+		} else {
+			document.all[i].bgColor="green";
+		}
+
+                document.all[i].width = Math.round((votes[n.substring(0,n.length-4)] / max)*100) + "%";
+            }
+        }
+    }
+}
+
+// -->
+</script>
+
+<style type="text/css"><!--
+
+/* basic text formatting */
+h2 {font-family:verdana, sans-serif; font-size:24px; font-weight:bold; color:#333; margin-top:5px; margin-bottom:2px; 
+margin-left:5$
+p {font-family:verdana, sans-serif; font-size:11px;}
+td {font-family:verdana, sans-serif; font-size:11px;}
+
+/* link and page environment formatting */
+a {font-weight:bold;}
+a:hover {color:#69C;}
+.link {text-decoration:none;}
+
+
+/* footer text formatting */
+.footy {font-family:verdana, sans-serif; font-size:11px; color:white; font-weight:bold; text-decoration:none;}
+.copy {font-family:verdana, sans-serif; font-size:11px; color:#cccccc; font-weight:normal;}
+
+-->
+</style>
+
+</head>
+
+<body onload='init()'>
+<center>
+
+<h2>Election 2000</h2>
+<p><i>Voting is such a fissiparous process...</i> so vote early and vote
+as <b>often</b> as you like!  If you're in Palm Beach,
+<a href="palmbeach.html" target="_blank">use the special ballot to vote</a>.</p>
+
+<br>
+
+<form name="tally" onSubmit="return cast_vote()">
+<table border=0 width=100%>
+<tr>
+<td width=30%><input type="checkbox" name="nobody"/ onClick="cast_vote()">Nobody</td>
+<td width=10%><input name="nobody_votes" size=10 value="0"/></td>
+<td width=60%><table border=0 width=100%><tr><td name=nobody_bar bgColor=white width=20%>&nbsp;</td><td>&nbsp;</td></tr></table></td>
+</tr>
+
+<tr>
+<td><input type="checkbox" name="gore"/ onClick="cast_vote()">Albert Gore</td>
+<td><input name="gore_votes" size=10 value="0"/></td>
+<td width=60%><table border=0 width=100%><tr><td name=gore_bar bgColor=white width=20%>&nbsp;</td><td>&nbsp;</td></tr></table></td>
+</tr>
+        
+<tr>
+<td><input type="checkbox" name="bush"/ onClick="cast_vote()">George W. Bush</td>
+<td><input name="bush_votes" size=10 value="0"/></td>
+<td width=60%><table border=0 width=100%><tr><td name=bush_bar bgColor=white width=20%>&nbsp;</td><td>&nbsp;</td></tr></table></td>
+</tr>
+
+<tr>    
+<td><input type="checkbox" name="nader"/ onClick="cast_vote()">Ralph Nader</td>
+<td><input name="nader_votes" size=10 value="0"/></td>
+<td width=60%><table border=0 width=100%><tr><td name=nader_bar bgColor=white width=20%>&nbsp;</td><td>&nbsp;</td></tr></table></td>
+</tr>
+
+<tr>
+<td><input type="checkbox" name="pikachu"/ onClick="cast_vote()">Pikachu</td> 
+<td><input name="pikachu_votes" size=10 value="0"/></td>
+<td width=60%><table border=0 width=100%><tr><td name=pikachu_bar bgColor=white width=20%>&nbsp;</td><td>&nbsp;</td></tr></table></td>
+</tr>
+
+<tr>
+<td><input type="checkbox" name="rohit"/ onClick="cast_vote()">Rohit Khare</td>
+<td><input name="rohit_votes" size=10 value="0"/></td>
+<td width=60%><table border=0 width=100%><tr><td name=rohit_bar bgColor=white width=20%>&nbsp;</td><td>&nbsp;</td></tr></table></td>
+</tr>
+
+<tr>
+<td align="center" colspan="3">Total votes: <input name="total_votes" size=10 value="0"/></td>
+</tr>
+</table>
+</form>
+
+</body>
+</html>
