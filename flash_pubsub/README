@@ -1,5 +1,5 @@
 From: Jos Yule, http://www.theorganization.net/
-$Id: README,v 1.2 2003/07/20 08:35:55 ifindkarma Exp $
+$Id: README,v 1.3 2003/07/21 23:32:08 ifindkarma Exp $
 
 I've been working (slowly) on the Flash PubSub Lib.
 This is what i've got so far.
@@ -43,3 +43,54 @@ For questions and comments, see
    http://mod-pubsub.sf.net/
 
 Thanks!
+
+
+
+Additional notes from Scott follow...
+
+-----Original Message-----
+From: Scott Andrew LePera [mailto:scott@scottandrew.com]
+Sent: Friday, July 18, 2003 8:12 AM
+To: mod-pubsub-developer@lists.sourceforge.net
+Subject: [Mod-pubsub-developer] Safari clues and Flash pubsub
+
+Hey all,
+
+I actually got around to tinkering with the new tarball last night. I'm 
+happy to report that python_pubsub seems to run just fine on the Python 
+2.2 install that comes with Mac OS X 10.2.
+
+I spent some time trying to track down the source of the Safari glitch 
+we've been seeing. It looks like the onTunnelStatus callback in 
+pubsub.js is not being called, as we suspected. The tunnel frame passes 
+the isReady check and the connector has a valid handle to it, so it's 
+not a frame access problem AFAICT.
+
+I also messed around with hooking into python_pubsub from ActionScript 
+(Flash). I don't know if Jos is still on this list (Hello, Jos? Do you 
+still have your Flash connector code lying around somewhere?), but I was 
+able to confirm his finding that the Flash XMLSocket object works fine 
+as a tunnel manager, and the new "flash" wire format works great.
+
+The remaining problem is that XMLSocket still only gets us ports 1024 
+and above. I tried using the new wire format on the other Flash objects 
+that support HTTP on :80 (like the XML and LoadVars objects), and while 
+the new format allows their onLoad handlers to be invoked (a step 
+forward), there's still no way to access the data returned from the 
+server. The XMLSocket is specifically designed for persistent 
+connections and looks for the null byte to fire its handlers; I fear 
+that these other objects may be listening for an actual Connection:close 
+before making any response data available.
+
+That said, it looks like we could easily create a pubsub_actionscript 
+library right now, just restricted to ports 1024 and up. That wouldn't 
+be entirely bad.
+
+scottandrew
+
+-- 
+Scott Andrew LePera
+Scott Andrew and the Walkingbirds
+Lo-fi DIY acoustic pop and weirdo country thing
+scott@scottandrew.com
+http://www.scottandrew.com
