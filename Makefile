@@ -32,9 +32,9 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Makefile,v 1.1 2002/11/07 07:07:52 troutgirl Exp $
+# $Id: Makefile,v 1.2 2003/01/29 05:28:03 kragen Exp $
 
-all:	kn_apps/kn_lib/pubsub.js kn_events/.index
+all:	kn_apps/kn_lib/pubsub.js kn_events
 
 .PHONY:	all
 
@@ -43,11 +43,12 @@ all:	kn_apps/kn_lib/pubsub.js kn_events/.index
 kn_apps/kn_lib/pubsub.js:	kn_apps/kn_lib/pubsub_raw.js kn_tools/js_compress.sh
 	bash kn_tools/js_compress.sh < kn_apps/kn_lib/pubsub_raw.js > kn_apps/kn_lib/pubsub.js
 
-# Create a kn_events directory -- needed to run mod_pubsub.
+# Make sure mod_pubsub can write to the kn_events directory --- otherwise it
+# won't run.
 
-kn_events/.index:
-	mkdir kn_events
-	chmod a+w kn_events
-	touch kn_events/.index
+kn_events:
+	[ x"$(HTTPD_USER)" != x ]  # define HTTPD_USER as the user that runs your web server, e.g. make HTTPD_USER=httpd (or nobody, or www-data)
+	mkdir $@
+	if ! chown $(HTTPD_USER) $@; then rmdir $@; false; fi
 
 # End of Makefile

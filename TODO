@@ -3,8 +3,11 @@ High-level items on the "to do" list.
 -------------------------------------
 
  0. Instruct Apache to redirect /kn to pubsub.cgi .
-    (Alias /kn /home/kragen/public_html/cgi-bin/pubsub.cgi --
-     then use pubsub.cgi?url=http://localhost/kn to test it)
+    (Now INSTALL has instructions for how to do this; use
+    pubsub_test.cgi?url=http://localhost/kn to test it; however, various
+    things, including pubsub.cgi and pubsub_test.cgi, still expect
+    other things to live near pubsub.cgi in URL-space.  We'll correct
+    this soon...)
  1. Create a mod_pubsub self-contained Apache module that
     subsumes the best practices of pubsub.cgi and pubsub.py .
  2. Create a php_pubsub client.
@@ -44,4 +47,4 @@ High-level items on the "to do" list.
     (?As part of the REST Wiki?  Talk with Mark Baker & Jeff Bone...)
 23. In the kn_apps directory, unify kn_lib and jscomponents.
 
-$Id: TODO,v 1.2 2003/01/28 05:12:20 kragen Exp $
+$Id: TODO,v 1.3 2003/01/29 05:28:03 kragen Exp $
