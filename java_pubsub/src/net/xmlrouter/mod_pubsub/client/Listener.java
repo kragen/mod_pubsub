@@ -1,5 +1,5 @@
 package net.xmlrouter.mod_pubsub.client;
-import java.util.HashMap;
+import java.util.Map;
 /**
  * @author mike
  *
@@ -10,5 +10,5 @@ import java.util.HashMap;
  */
 public interface Listener
 {
-	public void onMessage(HashMap msg);
+	public void onMessage(Map msg);
 }

@@ -12,7 +12,7 @@ public class DebugListener implements Listener
 	/**
 	 * @see net.xmlrouter.mod_pubsub.client.Listener#onMessage(HashMap)
 	 */
-	public void onMessage(HashMap msg)
+	public void onMessage(Map msg)
 	{
 		Iterator it = msg.keySet().iterator();
 		String name;

@@ -1,9 +1,7 @@
- package net.xmlrouter.mod_pubsub.client;
+package net.xmlrouter.mod_pubsub.client;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
-import HTTPClient.*;
 
 /**
  * @author msg
@@ -11,13 +9,12 @@ import HTTPClient.*;
  */
 public class SimpleRouter
 {
-	HTTPConnection server;
 	String serverURI;
 	String basePath;
 	Map eventStreams = new HashMap();
 	
 	/**
-	 * @param server URI of message server
+	 * @param server URI of message server (ex. http://localhost/kn/)
 	 */
 	public SimpleRouter(String uri) throws MalformedURLException
 	{
@@ -25,10 +22,8 @@ public class SimpleRouter
 		
 		try
 		{
-			URI url = new URI(uri);
-			//basePath = url.getPathAndQuery();
+			URL url = new URL(uri);
 			basePath="";
-			server = createConnection(uri);
 		}
 		catch(Exception e)
 		{
@@ -36,15 +31,6 @@ public class SimpleRouter
 		}
 	}
 	
-	HTTPConnection createConnection(String uri) throws Exception
-	{
-		URI url = new URI(uri);
-		
-		server= new HTTPConnection(url.getScheme(),url.getHost(),url.getPort());
-		server.setAllowUserInteraction(false);
-		return server;
-	}
-
 	public String getMessageId()
 	{
 		return Double.toString(Math.random()).substring(2,10);
@@ -77,49 +63,18 @@ public class SimpleRouter
 		{
 			URL url =new URL(serverURI+basePath);
 			java.net.HttpURLConnection conn;
+			String body;
 					
 			// add some things
 			msg.put("kn_method","notify");
 			msg.put("kn_to",topic);
 
 			// copy Map into namevalue pair array
-			String body;
-			{
-				StringBuffer sb = new StringBuffer();
-				
-				String name;
-				Object value;
-				Iterator it = msg.keySet().iterator();
-				while (it.hasNext())
-				{
-					name = (String)it.next();
-					value = URLEncoder.encode((String)msg.get(name));
-					sb.append(name+"="+value);
-					if (it.hasNext())
-						sb.append("&");
-				}
-				body = sb.toString();
-			}
+			body = HTTPUtil.encodeToForm(msg);
 			
 			// send message
 			{
-				OutputStream os;
-				
-				conn = (java.net.HttpURLConnection)url.openConnection();
-				conn.setRequestMethod("POST");
-				conn.setDoInput(true);
-				conn.setDoOutput(true);
-				conn.setRequestProperty("User-Agent","mod_pubsub.java/0.1");
-				conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-				conn.setRequestProperty("Content-Length",Integer.toString(body.length()*2));
-				conn.connect();
-				os = conn.getOutputStream();
-
-				// send content body
-				for (int i=0; i < body.length(); i++)
-				{
-					os.write((byte)body.charAt(i));
-				}
+				conn = HTTPUtil.Post(url,body);
 				
 				// get response
 				if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
@@ -145,7 +100,6 @@ public class SimpleRouter
 	{
 		String route_id=null;
 		String msg_id = getMessageId();
-		String random = getMessageId();
 		
 		// generate magic route id
 		route_id = getRouteId(topic,msg_id);
@@ -155,6 +109,7 @@ public class SimpleRouter
 		{
 			URL url =new URL(serverURI+basePath);
 			java.net.HttpURLConnection conn;
+			String body;
 			
 			msg_id = getMessageId();
 			
@@ -166,43 +121,11 @@ public class SimpleRouter
 			//msg.put("kn_uri",route_id);
 
 			// copy Map into namevalue pair array
-			String body;
-			{
-				StringBuffer sb = new StringBuffer();
-				
-				String name;
-				Object value;
-				Iterator it = msg.keySet().iterator();
-				while (it.hasNext())
-				{
-					name = (String)it.next();
-					value = URLEncoder.encode((String)msg.get(name));
-					sb.append(name+"="+value);
-					if (it.hasNext())
-						sb.append("&");
-				}
-				body = sb.toString();
-			}
+			body = HTTPUtil.encodeToForm(msg);
 			
 			// send message
 			{
-				OutputStream os;
-				
-				conn = (java.net.HttpURLConnection)url.openConnection();
-				conn.setRequestMethod("POST");
-				conn.setDoInput(true);
-				conn.setDoOutput(true);
-				conn.setRequestProperty("User-Agent","mod_pubsub.java/0.1");
-				conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-				conn.setRequestProperty("Content-Length",Integer.toString(body.length()*2));
-				conn.connect();
-				os = conn.getOutputStream();
-
-				// send content body
-				for (int i=0; i < body.length(); i++)
-				{
-					os.write((byte)body.charAt(i));
-				}
+				conn = HTTPUtil.Post(url,body);
 				
 				// get response
 				if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
@@ -251,6 +174,7 @@ public class SimpleRouter
 			String uri;
 			uri = serverURI+basePath;
 			URL url =new URL(uri);
+			String body;
 			
 			msg_id = getMessageId();
 			
@@ -258,48 +182,16 @@ public class SimpleRouter
 			msg.put("kn_method","route");
 			msg.put("kn_from",from);
 			msg.put("kn_to",to);
-			//msg.put("do_max_age","3600");
-			//msg.put("kn_uri",route_id);
+			msg.put("kn_id",route_id);
+			msg.put("do_max_age","3600");
 
 			// copy Map into namevalue pair array
-			String body;
-			{
-				StringBuffer sb = new StringBuffer();
-				
-				String name;
-				Object value;
-				Iterator it = msg.keySet().iterator();
-				while (it.hasNext())
-				{
-					name = (String)it.next();
-					value = URLEncoder.encode((String)msg.get(name));
-					sb.append(name+"="+value);
-					if (it.hasNext())
-						sb.append("&");
-				}
-				body = sb.toString();
-			}
-			
+			body = HTTPUtil.encodeToForm(msg);
+
 			// send message
 			{
-				OutputStream os;
-				
-				conn = (java.net.HttpURLConnection)url.openConnection();
-				conn.setRequestMethod("POST");
-				conn.setDoInput(true);
-				conn.setDoOutput(true);
-				conn.setRequestProperty("User-Agent","mod_pubsub.java/0.1");
-				conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-				conn.setRequestProperty("Content-Length",Integer.toString(body.length()*2));
-				conn.connect();
-				os = conn.getOutputStream();
+				conn = HTTPUtil.Post(url,body);
 
-				// send content body
-				for (int i=0; i < body.length(); i++)
-				{
-					os.write((byte)body.charAt(i));
-				}
-				
 				// get response
 				if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
 				{
@@ -344,7 +236,11 @@ public class SimpleRouter
 		Map msg = new HashMap();
 		try
 		{
-			HTTPResponse response;
+			java.net.HttpURLConnection conn;
+			String uri;
+			uri = serverURI+basePath;
+			URL url =new URL(uri);
+			String body;
 			
 			// add some things
 			msg.put("kn_method","route");
@@ -354,29 +250,14 @@ public class SimpleRouter
 			msg.put("kn_response_format","simple");
 			
 			// copy Map into namevalue pair array
-			int i=0;
-			String name;
-			Object value;
-			Iterator it = msg.keySet().iterator();
-			NVPair form_data[] = new NVPair[msg.size()];
-			while (it.hasNext())
-			{
-				name = (String)it.next();
-				value = msg.get(name);
-				form_data[i] = new NVPair(name,value.toString());
-				i++;
-			}
+			body = HTTPUtil.encodeToForm(msg);
 			
-			// send message
-			response = server.Post(basePath,form_data);
-
+			conn=HTTPUtil.Post(url,body);
+			
 			// check for errors
-			if (response.getStatusCode() >= 300)
+			if (conn.getResponseCode() >= 300)
 			{				
 			}
-			// read response
-			System.out.println(response.getText());
-		
 		}
 		catch(Exception e)
 		{
