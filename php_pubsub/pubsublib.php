@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: pubsublib.php,v 1.6 2003/04/29 05:27:32 troutgirl Exp $';
+$RCSID = '$Id: pubsublib.php,v 1.7 2003/04/29 08:19:01 ifindkarma Exp $';
 
 if (! defined("PUBSUBLIB_PHP_INCLUDED"))
 {
@@ -1344,7 +1344,7 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
                     $input = "nonexistent-" . md5(uniqid(rand()));
                     $expected = PUBSUB_NULL;
 
-                    $output = kn__gpc($input, PUBSUB_NULL, array("_ENV"));
+                    $output = kn__gpc($input, PUBSUB_NULL, array("_ENV", "_SERVER"));
                     if (! kn_isEqualTo($output, $expected))
                     {
                         $err = "check environment (negative)";
