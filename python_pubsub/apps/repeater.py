@@ -11,7 +11,7 @@
     Example of usage:
         ./repeater.py http://www.mod-pubsub.org:9000/kn http://127.0.0.1:8000/kn /what/apps/blogchatter/pings
 
-    $Id: repeater.py,v 1.5 2003/10/09 17:56:17 bsittler Exp $
+    $Id: repeater.py,v 1.6 2003/10/09 21:55:57 bsittler Exp $
     
     Contact Information:
         http://mod-pubsub.sf.net/
@@ -55,7 +55,7 @@
 
 
 # Include standard system libraries:
-import sys, getopt, asyncore
+import sys, getopt, asyncore, urllib
 
 # Include local libraries:
 sys.path = [ "../" ] + sys.path
@@ -64,13 +64,21 @@ import pubsublib, scheduler
 
 
 class StatusMonitor:
+    def __init__(self, verbose, process):
+        self.verbose = verbose
+        self.process = process
     def onStatus(self, event):
-        # print "STATUS: " + str(event["status"])
+        if self.verbose >= 3:
+            sys.stderr.write(
+                "status for " + self.process + ": " + event["status"] + "\n"
+                )
+            sys.stderr.flush()
         pass
 
 
 class Repeater(StatusMonitor):
     def __init__(self, verbose, recursive, client1, client2, topic, options):
+        StatusMonitor.__init__(self, verbose, "repeating " + topic + " from " + client1.getServerURL() + " to " + client2.getServerURL())
         self.verbose = verbose
         self.recursive = recursive
         self.client1 = client1
@@ -86,12 +94,14 @@ class Repeater(StatusMonitor):
         client1.subscribe(topic,
                           self,
                           options,
-                          StatusMonitor())
+                          StatusMonitor(self.verbose,
+                                        "subscribing to " + topic + " on " + client1.getServerURL()))
         if recursive:
             client1.subscribe(topic + '/kn_subtopics',
                               self.onSubtopic,
                               { "do_max_age": "infinity" },
-                              StatusMonitor())
+                              StatusMonitor(self.verbose,
+                                            "monitoring subtopics of " + topic + " on " + client1.getServerURL()))
     def onSubtopic(self, subtopic):
         try:
             assert subtopic["kn_payload"].index("kn_") == 0
@@ -103,10 +113,18 @@ class Repeater(StatusMonitor):
                      self.topic + "/" + subtopic["kn_payload"],
                      self.options),
     def onMessage(self, event):
-        # print "Message: " + event["kn_payload"]
+        if self.verbose >= 2:
+            msg = urllib.quote(event["kn_payload"])
+            if len(msg) > 50:
+                msg = msg[:23] + "..." + msg[-24:]
+            sys.stderr.write(
+                "message in " + self.topic + ": " + msg + "\n"
+                )
+            sys.stderr.flush()
         self.client2.publish(self.topic,
                              event,
-                             StatusMonitor())
+                             StatusMonitor(self.verbose,
+                                           "publishing to " + self.topic + " on " + self.client2.getServerURL()))
 
 def main(argv):
 
@@ -126,7 +144,7 @@ def main(argv):
                 "  -h, --help          print this message and exit\n"
                 "  -b, --bridge        repeat from to-server to from-server also\n"
                 "  -r, --recursive     recursively repeat non-\"kn_\" subtopics\n"
-                "  -v, --verbose       print verbose messages to stderr\n"
+                "  -v, --verbose       write diagnostics to stderr (repeat to increase verbosity)\n"
                 "  --max-n=N           try to replay the last N previous events on startup\n"
                 "  --max-age=AGE       try to replay the last AGE seconds on startup\n"
                 "  --max-age=\"infinity\"  try to replay all old events on startup\n"
@@ -140,7 +158,7 @@ def main(argv):
         elif opt in ('-r', '--recursive'):
             recursive = 1
         elif opt in ('-v', '--verbose'):
-            verbose = 1
+            verbose += 1
         elif opt in ('--max-n'):
             repeat_style = "do_max_n"
             repeat_value = val
