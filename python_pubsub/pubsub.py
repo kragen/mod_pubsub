@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.19 2003/04/30 23:40:33 ifindkarma Exp $
+# $Id: pubsub.py,v 1.20 2003/05/06 22:56:02 ifindkarma Exp $
 
 
 """
@@ -101,7 +101,7 @@ PermissionDenied = "403 Permission denied"
 StaleTopic = "404 Expired"
 Error = "pubsub.py error"
 
-import sys, os, asyncore, string, socket, time, cgi, urlparse, urllib, os.path, re, cgitb, getopt, traceback
+import sys, os, asyncore, string, socket, time, cgi, urlparse, urllib, os.path, re, cgitb, getopt, traceback, errno
 from cPickle import dump, load
 from serverutils import *
 
@@ -948,13 +948,14 @@ class Connection(asyncore.dispatcher_with_send):
         try:
             data = self.socket.recv(4096)
             if data == '':
-                print "%s: eof on read" % self
+                # print "%s: eof on read" % self
                 self.close()
             else:
                 self.inbuf = self.inbuf + data
                 self.try_to_respond()
         except socket.error, val:
-            print "%s: read error: %s" % (self, val)
+            if val[0] != errno.ECONNRESET:
+                print "%s: read error: %s" % (self, val)
             self.close()
     def try_to_respond(self):
         if self.expecting_body_bytes is None:
