@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/08/02 01:09:28 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>PubSub Amp</title>
+
+<!-- The PubSub JavaScript Library -->
+<script type="text/javascript" src="/kn/?do_method=lib"></script>
+  
+<!-- PubSub Amp JavaScript -->
+<script type="text/javascript"><!--
+
+// Constants
+var topic_cmd = "/what/amp/commands";
+var topic_songs = "/what/amp/songs";
+var topic_playlist = "/what/amp/playlist";
+
+// Global Variables
+var winampPlaylist, winampDisplay, currentSelectedItem;
+var currentPlayingSong = null;
+var songlist = [];
+var playlistflag = false;
+
+function addSongItem(title,pos){
+
+  // Creates the DIV objects that represent songs in the list.
+  // The song properties are attached directly to the DIV.
+
+  var text = (pos+1) + ". " + title;
+  var songTitle = document.createTextNode(text);
+  var songItemDiv = document.createElement("div");
+  songItemDiv.className = "songitem";
+  songItemDiv.appendChild(songTitle);
+  winampPlaylist.appendChild(songItemDiv);
+  songItemDiv.onmousedown = selectSongItem;
+  songItemDiv.ondblclick = playSongFromList;
+  songItemDiv.songTitle = title;
+  songItemDiv.songPos = pos;
+  
+  // In case a song from a previous songlist change is currently playing.
+
+  if (currentPlayingSong && currentPlayingSong.songTitle == title)
+    currentSelectedItem = songItemDiv;
+  
+  // Keep track of the song in the playlist.
+
+  songlist[title] = songItemDiv;
+  
+}
+
+function selectSongItem(obj){
+  // Marks a song as selected.
+  if (!obj) obj = this;
+  if (currentSelectedItem) deselectSongItem();
+  obj.style.backgroundColor = "#0000ff";
+  currentSelectedItem = obj;
+}
+
+function updateWinampDisplay(){
+  if (currentSelectedItem == null) return;
+  // Updates the Amp display.
+  var displayText = (currentSelectedItem.songPos+1) + ". " + currentSelectedItem.songTitle;
+  if (displayText.length > 25){
+    displayText = displayText.substring(0,24) + "...";
+  }
+  winampDisplay.innerHTML = displayText;
+}
+
+function playSongFromList(obj,remote){
+  //Plays a song from the list.
+  if (!obj) obj = this;
+  selectSongItem(obj);
+  updateWinampDisplay();
+  if (currentPlayingSong && currentPlayingSong != this)
+    currentPlayingSong.style.color = "#00ff00";
+  currentPlayingSong = currentSelectedItem;
+  currentPlayingSong.style.color = "#ffffff";
+  // Only send the "play" command if the song was selected 
+  // at the HTML client, not remotely from WinAmp.
+  if (!remote) playfromPlaylist();
+}
+
+function deselectSongItem(){
+  // Unmarks a selected song.
+  currentSelectedItem.style.backgroundColor = "#000000";
+  if (currentSelectedItem != currentPlayingSong) currentSelectedItem.style.color = "#00ff00";
+  currentSelectedItem = null;
+}
+
+function clearPlaylist(){
+  // Waxes the whole playlist.
+  while (winampPlaylist.childNodes.length != 0){
+    var c = winampPlaylist.removeChild(winampPlaylist.firstChild)
+  }
+}
+
+function initPlaylist(evnt){
+  // Sets up the playlist from from WinAmp data.
+  // Clear playlist if changed.
+  if (playlistflag) clearPlaylist();
+  // Get the event data.
+  var songPositionList = new String(evnt.position);
+  var songTitleList = new String(evnt.title);
+  // Get song titles and positions.
+  var songPositionArray = songPositionList.split("\n");
+  var songTitleArray = songTitleList.split("\n");
+  // Generate a DIV song object for each song.
+  for (var i = 0; i < songPositionArray.length; i++)
+    if (songTitleArray[i])
+      addSongItem(songTitleArray[i], parseInt(songPositionArray[i]));
+  playlistflag = true;
+  // Update display.
+  updateWinampDisplay();
+}
+
+function updateCurrentSong(evnt){
+  // Updates the display and selected song when WinAmp.
+  // Begins to play a song.
+  var title = evnt.kn_payload;
+  if (songlist[title])
+    playSongFromList(songlist[title],true);
+}
+
+function sendWimampCommand(cmd){
+  /*
+  Sends a command to the WinAmp plugin.
+  
+  "playfromplaylist" - select and play a song by double-clicking on the list
+  "play" - play the selected song with the Play button
+  "stop" - stop the song
+  "pause" - pause/unpause the song
+  "nexttrack" - play the next song in the list
+  "prevtrack" - play the previous song in the list
+  "updateplaylist" - refresh the playlist
+  */
+  
+  // Get the current song.
+  // If no current song, get the first in the list.
+  if (currentPlayingSong == null) {
+    var song = winampPlaylist.getElementsByTagName("div").item(0);
+    // Since the list may be empty, check it first.
+    if (song != null) {
+      selectSongItem(song);
+      currentPlayingSong = currentSelectedItem;
+    }
+  }
+  var evnt = {};
+  if (currentPlayingSong != null) {
+    evnt.position = currentPlayingSong.songPos;
+    evnt.title = currentPlayingSong.songTitle;
+  }
+  evnt.command = cmd;
+  kn.publish(topic_cmd, evnt);
+}
+
+// Command button handlers used to invoke sendWimampCommand.
+
+function playfromPlaylist(){
+  sendWimampCommand("playfromplaylist");
+}
+
+function playSong(){
+  sendWimampCommand("play");
+}
+
+function stopSong(){
+  sendWimampCommand("stop");
+}
+
+function pauseSong(){
+  sendWimampCommand("pause");
+}
+
+function nextTrack(){
+  sendWimampCommand("nexttrack");
+}
+
+function prevTrack(){
+  sendWimampCommand("prevtrack");
+}
+
+function refreshPlaylist(){
+  sendWimampCommand("updateplaylist");
+}
+
+function init(){
+  // Configure app at onload.
+  winampPlaylist = document.getElementById("winamp-playlist");
+  winampDisplay = document.getElementById("winamp-display");
+  kn.subscribe(topic_playlist, initPlaylist);
+  kn.subscribe(topic_songs, updateCurrentSong);
+}
+
+onload = init;
+
+// -->
+</script>
+
+<!-- PubSub Amp CSS -->
+<style type="text/css">
+
+#winamp-main {
+  background-color: #000000;
+  visibility: visible;
+  width: 250px;
+  height: 300px;
+  clip: rect(auto auto auto auto);
+  position: absolute;
+  border: 4px outset #999999;
+}
+
+#winamp-playlist {
+  background-color: Black;
+  visibility: visible;
+  top: 80px;
+  left: 10px;
+  clip: auto;
+  width: 220px;
+  height: 200px;
+  clip: rect(auto auto auto auto);
+  overflow: auto;
+  position: absolute;
+  border: 2px inset #999999;
+  padding: 4px 4px 4px 4px;
+}
+
+#winamp-control {
+  visibility: visible;
+  top: 40px;
+  left: 10px;
+  width: 220px;
+  height: auto;
+  clip: rect(auto auto auto auto);
+  position: absolute;
+  border: 2px outset #999999;
+  padding: 4px 4px 4px 4px;
+}
+
+#winamp-display {
+  visibility: visible;
+  background-color: #000066;
+  color: #00ff00;
+  font-family: verdana, arial, helvetica;
+  font-size: 11px;
+  top: 10px;
+  left: 10px;
+  width: 220px;
+  height: 26px;
+  clip: rect(0px 220px 26px 0px);
+  position: absolute;
+  border: 2px inset #999999;
+  padding: 4px 4px 4px 4px;
+  overflow:hidden;
+}
+
+.songitem {
+  font-family: verdana, arial, helvetica;
+  color: #00ff00;
+  font-size: 9px;
+  width:96%;
+  padding: 2px 2px 2px 2px;
+}
+
+.winampctrlbutton {
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 12px;
+  width:30px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- PubSub Amp HTML -->
+<div id="winamp-main">
+<form name="winamp-ctrl-form" action="#" onsubmit="return false;">
+<div id="winamp-display">Welcome to PubSub Amp</div>
+<div id="winamp-control">
+<input class="winampctrlbutton" type="button" value="|<" onclick="prevTrack();">
+<input class="winampctrlbutton" type="button" value=">" onclick="playSong();">
+<input class="winampctrlbutton" type="button" value="||" onclick="pauseSong();">
+<input class="winampctrlbutton" type="button" value="X" onclick="stopSong();">
+<input class="winampctrlbutton" type="button" value=">|" onclick="nextTrack();">
+<input class="winampctrlbutton" type="button" value="U" onclick="refreshPlaylist();">
+</div>
+<div id="winamp-playlist">
+</div>
+</form>
+</div>
+
+</body>
+</html>
