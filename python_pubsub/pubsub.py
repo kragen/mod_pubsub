@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.8 2003/03/21 20:28:04 ifindkarma Exp $
+# $Id: pubsub.py,v 1.9 2003/03/21 20:29:55 ifindkarma Exp $
 
 
 """
@@ -643,7 +643,7 @@ def route_get_topic(conn, uri, query):
     return conn.get_topic(uri)
 
 def absolute_expiry(value, base = 0.0):
-    print 'absolute_expiry' + str((value, base))
+    # print 'absolute_expiry' + str((value, base))
     if value is None: return value
     if value[0] == '+': return absolute_expiry(value[1:], time.time() + base)
     if value=="infinity": return None
