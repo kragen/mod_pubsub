@@ -1,0 +1,6 @@
+$Id: README,v 1.1 2003/03/22 06:59:18 ifindkarma Exp $
+
+This is a round-trip latency testing tool built on the c_pubsub/libkn API.
+
+libkn is the C PubSub Client Library, written in portable ANSI C, which
+works on a wide variety of platforms, including Solaris, Linux, and MacOS X.
