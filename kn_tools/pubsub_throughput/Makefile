@@ -32,12 +32,18 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: Makefile,v 1.4 2003/05/06 23:36:10 bsittler Exp $
+# $Id: Makefile,v 1.5 2003/05/06 23:48:12 bsittler Exp $
 
 .PHONY: all clean
 
 # GNU libtool
+
+# Darwin calls it 'glibtool'
+ifneq (,$(findstring Darwin,$(shell uname -a)))
+LIBTOOL=glibtool
+else
 LIBTOOL=libtool
+endif
 
 # C compiler and linker
 CC=$(LIBTOOL) `curl-config --cc` -static
