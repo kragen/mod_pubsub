@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.5 2003/05/04 00:43:27 ifindkarma Exp $
+ $Id: index.html,v 1.6 2003/05/16 04:37:23 ifindkarma Exp $
 
 -->
 
@@ -147,7 +147,7 @@ function presenceSendMessage(msg)
 {
 
     kn.publish(presenceMessageTopic,
-               ({ displayname: presenceClientId, kn_payload: msg }));
+               ({ displayname: presenceClientId, kn_payload: msg, kn_expires: "+86400" }));
 
 }
 
