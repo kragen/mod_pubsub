@@ -65,7 +65,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: pubsublib.py,v 1.8 2003/05/31 01:46:41 ifindkarma Exp $
+## $Id: pubsublib.py,v 1.9 2003/05/31 01:49:08 ifindkarma Exp $
 
 
 
@@ -117,7 +117,7 @@ class Client:
     def getTunnelURL(self):
         return self._C_tunnelurl
 
-    def connect(self, timeout = 30):
+    def connect(self):
         """
             Connection state is used to statefully reconnect when the
             connection is lost.  Connection state includes a journal to
@@ -142,7 +142,7 @@ class Client:
                 # Calls self's onStatus with the server's response to the
                 # route request.  This in turn sets self._C_connected in
                 # its onStartTunnel method.
-                wrapper = self._StatusHandlerWrapper(self, self, kn_status_from, timeout)
+                wrapper = self._StatusHandlerWrapper(self, self, kn_status_from)
                 self.addHandler(kn_status_from, wrapper)
                 self.startTunnel(message)
 
@@ -181,13 +181,13 @@ class Client:
 
     class _StatusHandlerWrapper:
 
-        def __init__(self, client, inner, kn_status_from, timeout = 30):
+        def __init__(self, client, inner, kn_status_from):
             self._SHW_client = client
             # Call its own onStatus() if inner is None.
             self._SHW_inner = inner or self
             self._SHW_kn_status_from = kn_status_from
             self._SHW_fired = 0
-            scheduler.schedule_processing(self, time.time() + timeout, "auto-timeout")
+            scheduler.schedule_processing(self, time.time() + 30, "auto-timeout")
 
         def onStatus(self, message):
             pass
@@ -202,7 +202,7 @@ class Client:
             if not self._SHW_fired:
                 self._SHW_client.cancel(self._SHW_kn_status_from)
 
-    def enqueue(self, message, statushandler = None, timeout = 30):
+    def enqueue(self, message, statushandler = None):
         """
             The request queue is an internal list data structure.
 
@@ -215,7 +215,7 @@ class Client:
                  2. cancel - pending queued item.
  
             Unacknowledged requests are automatically cancelled
-            after timeout seconds (default: 30).
+            after 30 seconds.
         """
         
         # FIXME: this needs to handle retries
@@ -231,7 +231,7 @@ class Client:
 
         kn_status_from = messageCopy["kn_status_from"]
 
-        wrapper = self._StatusHandlerWrapper(self, statushandler, kn_status_from, timeout)
+        wrapper = self._StatusHandlerWrapper(self, statushandler, kn_status_from)
 
         self.addHandler(kn_status_from, wrapper)
 
@@ -255,7 +255,7 @@ class Client:
             {
             "kn_route_location": kn_status_from,
             "status": "500 Internal Server Error",
-            "kn_payload": "Client Cancelled Request."
+            "kn_payload": "Client Cancelled Request"
             }
             )
 
@@ -273,7 +273,7 @@ class Client:
             if self._C_dispatchTable.has_key(kn_route_location):
                 self._C_dispatchTable[kn_route_location].onMessage(message)
 
-    def publish(self, topic, message, statushandler = None, timeout = 30):
+    def publish(self, topic, message, statushandler = None):
         """
             publish - enqueue "notify" request to submit to the server.
 
@@ -306,11 +306,11 @@ class Client:
         requestMessage["kn_to"] = canonicalizeTopic(
             self.getServerURL(), requestMessage["kn_to"])
 
-        self.enqueue(requestMessage, statushandler, timeout)
+        self.enqueue(requestMessage, statushandler)
 
         return requestMessage["kn_id"]
 
-    def subscribe(self, topic, destination, options = None, statushandler = None, timeout = 30):
+    def subscribe(self, topic, destination, options = None, statushandler = None):
         """
             subscribe - add an entry to the dispatch table,
             then enqueue "route" request to submit to the server.
@@ -367,12 +367,12 @@ class Client:
             self.addHandler(requestMessage["kn_uri"], requestMessage["kn_to"])
             requestMessage["kn_to"] = self.getTunnelURL()
 
-        self.enqueue(requestMessage, statushandler, timeout)
+        self.enqueue(requestMessage, statushandler)
 
         return requestMessage["kn_uri"]
 
 
-    def unsubscribe(self, kn_route_location, statushandler = None, timeout = 30):
+    def unsubscribe(self, kn_route_location, statushandler = None):
         """
             unsubscribe - remove an entry from the dispatch table,
             then enqueue "route" request to submit to the server.
@@ -425,7 +425,7 @@ class Client:
         requestMessage["kn_from"] = canonicalizeTopic(
             self.getServerURL(), requestMessage["kn_from"])
 
-        self.enqueue(requestMessage, statushandler, timeout)
+        self.enqueue(requestMessage, statushandler)
 
     def onConnect(self):
         """
