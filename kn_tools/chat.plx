@@ -1,5 +1,12 @@
 #!/usr/bin/perl -w
 
+# chat.plx -- Command-line chat using the command-line-provided
+# PubSub Server URL and topic.  Demonstrates PubSub::Client.
+
+# Example of usage:
+#        ./chat.plx http://127.0.0.1:8000/kn /what/chat
+
+
 # Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
 # @KNOWNOW_LICENSE_START@
@@ -34,10 +41,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: chat.plx,v 1.2 2003/02/22 03:12:43 ifindkarma Exp $
-
-# chat.plx tests the functionality of PubSub::Client.
-# Functionality: It's a command-line chat client.
+# $Id: chat.plx,v 1.3 2003/03/29 08:01:58 ifindkarma Exp $
 
 use strict;
 use lib '../cgi-bin';
@@ -48,9 +52,10 @@ my $bold = `tput bold`;
 my $red = `tput setaf 1`;
 my $cyan = `tput setaf 6`;
 my $serv = new PubSub::Client(shift @ARGV);
+my $topic = (shift @ARGV or "/what/chat");
 my $me = (getpwuid($<))[0];
 $serv->displayname($me);
-$serv->subscribe("/what/chat", sub {
+$serv->subscribe($topic, sub {
                      my ($event) = @_;
                      my $displayname = $event->{displayname} || 'unknown';
                      my $payload = $event->{kn_payload};
@@ -79,7 +84,7 @@ for (;;) {
         my $msg = <STDIN>;  # assume a line or EOF is there; hang if not
         exit if not defined $msg;
         chomp $msg;
-        $serv->publish("/what/chat", {kn_payload => $msg});
+        $serv->publish($topic, {kn_payload => $msg});
     }
     $serv->handle_events(); # always handle events because looking at $rin is too hard
 }
