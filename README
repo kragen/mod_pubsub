@@ -3,7 +3,8 @@ About This Distribution
 -----------------------
 
 This distribution contains a set of files that add publish-and-subscribe
-to the web for users of Perl, Python, JavaScript, and web pages.
+to the web for users of Perl, Python, JavaScript, C, COM/ActiveX/.NET,
+and Ruby.  (Coming soon: PHP and Java, we hope.)
 
 This is an early snapshot that includes the PubSub Server as Perl CGI
 scripts that are called from Apache (or run inside mod_perl in
@@ -34,7 +35,7 @@ liability while promoting free use of this set of code, tools, and
 documentation.  Enjoy!
 
   -- Adam Rifkin
-     $Id: README,v 1.3 2003/03/12 01:47:46 ifindkarma Exp $
+     $Id: README,v 1.4 2003/03/15 04:57:42 ifindkarma Exp $
 
 
 
@@ -87,8 +88,9 @@ without using the modified versions of these files.
 
 Regarding that python_pubsub directory, we thank the many authors who
 have contributed to the files included in that distribution, including
-but not limited to Sam Rushing, Ka-Ping Yee, Guido van Rossum, Michael
-McLay, Steve Majewski, Andreas Paepcke, Greg Burd, and Kragen Sitaker.
+but not limited to Sam Rushing, Ka-Ping Yee, Guido van Rossum,
+Michael McLay, Steve Majewski, Andreas Paepcke, Timothy O'Malley,
+Greg Burd, Phil Harris, Andrew Athan, and Kragen Sitaker.
 
 Also in the python_pubsub directory, we use an asynchronous HTTP/1.1
 client library called asynchttp.py .  We thank Downright Software
