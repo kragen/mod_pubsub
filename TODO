@@ -2,94 +2,66 @@
 High-level items on the "to do" list.
 -------------------------------------
 
-$Id: TODO,v 1.6 2003/03/12 02:19:31 ifindkarma Exp $
+$Id: TODO,v 1.7 2003/03/22 11:28:32 ifindkarma Exp $
 
- 0. Instruct Apache to redirect /kn to pubsub.cgi .
+ 1. Create a mod_pubsub self-contained Apache module that
+    subsumes the best practices of pubsub.cgi and pubsub.py .
+
+ 2. Instruct Apache to redirect /kn to pubsub.cgi .
     (Now INSTALL has instructions for how to do this; use
     pubsub_test.cgi?url=http://localhost/kn to test it; however, various
     things, including pubsub.cgi and pubsub_test.cgi, still expect
     other things to live near pubsub.cgi in URL-space.  We'll correct
     this soon...)
 
- 1. Create a mod_pubsub self-contained Apache module that
-    subsumes the best practices of pubsub.cgi and pubsub.py .
+ 3. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
+    that has publish, subscribe, and unsubscribe.  This still needs a
+    test suite and several other things; see python_pubsub/TODO for
+    next things on the list.
 
- 2. After inspecting Phil Harris' python pubsub client from
-    http://cvs.developer.knownow.com/
-    it looks like we can really use a decent Python PubSub client
-    library that can serve as a reference for future Python PubSub
-    client libraries.
+ 4. pubsub.cgi and pubsub.py should be less lazy about detecting
+    closed sessions.  Bring active presence detection to mod_pubsub.
+    Perhaps do this by writing an external cleanup.py program.
 
-    (Update 3/2003: We have an initial Python PubSub Client in
-    python_pubsub/pubsublib.py that has publish, subscribe, and
-    unsubscribe.  This still needs a test suite and several other
-    things; see python_pubsub/TODO for next things on the list.)
+ 5. Clean up python_pubsub so it doesn't need to ship with
+    all those other .py files.  (Ka-Ping Yee?  We wish...)
 
- 3. Create a PubSub::Server.Pm and make pubsub.cgi a thin
-    wrapper around it.  (Note: we have already merged "KNMS"
-    into Client.pm .)  Part of this project may include making
-    Tunnel.pm event-driven.
+ 6. Create a java_pubsub client library.  Greg suggests creating a clean
+    Java API usable in any type of Java client (app server based or not)
+    and then layer a JMS interface on top of that.  This makes it easier to
+    develop and easier to maintain over time while covering all the bases.
 
+ 7. pubsub.js -- fix it to deal with long lived IE6 sessions.
+
+ 8. Make Tunnel.pm event-driven.
     Unify the Perl PubSub client and server and
     submit the PubSub perl package to CPAN.
 
- 4. Create a java_pubsub client library.
-
-    Greg suggests creating a nice clean Java API usable in any type of
-    Java client (app server based or not) and then layer a JMS
-    provider interface on top of that.  This will make it easier to
-    develop and easier to maintain over time while covering all the bases.
-
- 5. Create a php_pubsub client.
-
- 6. Revamp RSS Support because kn_sense/rss is an awful hack.
+ 9. Revamp RSS Support because kn_sense/rss is an awful hack.
     Use Jeff Barr's wonderful http://www.syndic8.com/ tools.
-
     (Update 3/2003: cxx_pubsub contains a Windows RSS-sensing tool.)
-
- 7. Clean up python_pubsub so it doesn't need to ship with
-    all those other .py files.  (Ka-Ping Yee?  We wish...)
-
- 8. Get push_manager working and clean up its directory.
-
- 9. pubsub.cgi should be less lazy about detecting closed
-    sessions.  Bring active presence detection to mod_pubsub.
-    Perhaps do this by writing an external cleanup.py program.
 
 10. While we're at it, clean up any broken and/or ugly kn_apps.
     "replay" is a particularly useful kn_app that is broken.
 
-11. pubsub.js -- fix it to deal with long lived IE6 sessions.
+11. Get push_manager working and clean up its directory.
 
 12. Build an Apache log sensor and use that to create a
     "webmaster's dashboard" application.
 
 13. Get "Pocket NOC" application that monitors machines
     working to create a "sysadmin's dashboard" application.
-
     (Update 3/2003: kn_apps/sitewatch is a first-pass at this.
     It needs to be improved significantly, perhaps using
     kn_sense/apache_logfile.sh .)
 
-14. Write a Jabber gateway using mod_pubsub.
+14. Write a Jabber gateway using mod_pubsub.  And/or
+    write an (all-DHTML) IM client application using mod_pubsub.
 
-15. Write an (all-DHTML) IM client application using mod_pubsub.
+15. Get Pushlets working with mod_pubsub.
 
-16. Get Pushlets working with mod_pubsub.
+16. Get chess application from http://cvs.developer.knownow.com/ working.
 
-17. Import applications from http://cvs.developer.knownow.com/
-
-18. Improve and extend pubsub_test.cgi .
-
-19. Build performance testing tools.
-
-20. Import Greg Burd's ruby pubsub client from
-    http://cvs.developer.knownow.com/
-    (Didn't think we were going to forget that one, did you? :)
-
-21. Get working Fred Sanchez's chess application from
-    http://cvs.developer.knownow.com/
-
-22. Start a Wiki for this project.
-    (?As part of the REST Wiki?  Talk with Mark Baker & Jeff Bone...
+17. Start a Wiki for this project.
+    (?As part of the REST Wiki?
     http://internet.conveyor.com/RESTwiki/moin.cgi/ )
