@@ -86,6 +86,13 @@ A:hover {
     background-color:#fff;
 }
 
+.faq {
+    text-align: left;
+    color: #669966;
+    font-size: 18px;
+    font-weight: bold;
+}
+
 .serendipity_Entry_Date {
     margin: 20px;
     width: auto;
