@@ -1,5 +1,7 @@
 /*	$OpenBSD: strlcpy.c,v 1.4 1999/05/01 18:56:41 millert Exp $	*/
 
+/* $Id: strlcpy.c,v 1.2 2003/03/19 05:44:22 ifindkarma Exp $ */
+
 /*
  * Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
  * All rights reserved.

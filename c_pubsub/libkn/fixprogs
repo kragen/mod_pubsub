@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+
+# $Id: fixprogs,v 1.2 2003/03/19 05:46:47 ifindkarma Exp $
+
 #
 # fixprogs  - run through the list of entropy commands and
 #             score out the losers
