@@ -103,6 +103,7 @@ Disclaimers
   * Publisher statistics are not collected automatically now
   * Lots of extra text output to publisher screen
   * Making routes is a pain
+  * Maximum of 1000 events published by any given publisher
 
 analyze.py to Analyze Data
   * If more than one instance of throughput_sub used,
