@@ -1,7 +1,7 @@
 #!/usr/local/bin/ruby
 # -*- ruby -*-
 
-# $Id: t2.rb,v 1.1 2003/03/15 03:57:32 ifindkarma Exp $
+# $Id: t2.rb,v 1.2 2003/05/06 00:45:31 ifindkarma Exp $
 
 # http://mod-pubsub.sf.net/
 require '../libkn'

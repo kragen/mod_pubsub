@@ -7,7 +7,7 @@
 libkn.rb - Ruby PubSub Client Library for use with a PubSub Server
 Originally written by Gregory Burd <gburd@ossus.com>
 
-$Id: libkn.rb,v 1.1 2003/03/15 03:57:32 ifindkarma Exp $
+$Id: libkn.rb,v 1.2 2003/05/06 00:45:31 ifindkarma Exp $
 
 Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
 
@@ -110,7 +110,7 @@ module PubSub
     RELEASE_DATE = '2002-04-12'
     VERSION_CODE = 001
     RELEASE_CODE = 20020412
-    REVISION     = '$Id: libkn.rb,v 1.1 2003/03/15 03:57:32 ifindkarma Exp $'
+    REVISION     = '$Id: libkn.rb,v 1.2 2003/05/06 00:45:31 ifindkarma Exp $'
 
     def initialize(address = nil, port = nil, basetopic = nil,
 		   username = nil, password = nil)
