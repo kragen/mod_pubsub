@@ -64,7 +64,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: pubsublib.py,v 1.4 2003/03/15 05:04:25 ifindkarma Exp $
+## $Id: pubsublib.py,v 1.5 2003/03/18 03:23:38 ifindkarma Exp $
 
 
 
@@ -99,6 +99,16 @@ class Client:
         self._C_connected = 0
         self._C_connecting = 0
         self._C_random = random.Random()
+
+        """
+            The URL to get a persistent response needs to end in
+            /kn_journal . The rest of its topic is free-form;
+            our conventional default is
+                %serverURL%/who/%username%/s/%random%/kn_journal
+
+            FIXME: This should be configurable.
+        """    
+
         self._C_tunnelurl = "%s/who/anonymous/s/%s/kn_journal" % (
             self.getServerURL(),
             str(self._C_random.random()).replace(".","_"))
