@@ -32,45 +32,51 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: Makefile,v 1.5 2003/07/20 07:09:16 ifindkarma Exp $
+# $Id: Makefile,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
 
-CP=cp
-SUBDIRS=js_pubsub
+.PHONY: all update-cache update-cache-rules clean docs
 
-all:	kn_apps/kn_lib/pubsub.js kn_events
-	$(CP) kn_apps/kn_lib/pubsub_raw.js js_pubsub/js/connectors/kn_raw.js
-	$(CP) kn_tools/js_compress.sh js_pubsub/js/tools/kn_compress.sh
-	$(CP) kn_tools/kn_localize.sh js_pubsub/js/tools/kn_localize.sh
-	$(MAKE) -C js_pubsub "$@"
+all: docs
 
 clean:
-	@for x in $(SUBDIRS); do $(MAKE) -C "$$x" "$@" || exit 1; done
-	rm -rf kn_events
-	$(RM) kn_apps/kn_lib/pubsub.js
-	$(RM) js_pubsub/js/connectors/kn_raw.js
-	$(RM) js_pubsub/js/tools/kn_compress.sh
-	$(RM) js_pubsub/js/tools/kn_localize.sh
+	rm -rf js html latex cache-rules doxygen-output
 
-.PHONY:	all clean kn_events
+update-cache:
+	@[ -d js ] || mkdir js
+	@find js -name '*.js' | \
+		sed 's|\(.*\)\.js|[ -f ../../"\1".js ] \|\| ( rm -f doxygen-output; echo "docs cache: removing cached file \1.js."; rm -f "&" )|' | \
+		bash
+	@find js -type d | \
+		sed 's|.*|[ -d ../../"&" ] \|\| ( rm -f doxygen-output; rmdir "&" )|' | \
+		bash
+	@find ../../js -type d | \
+		sed 's|\.\./\.\./\(.*\)|[ -d "\1" ] \|\| ( rm -f doxygen-output; mkdir "\1" )|' | \
+		bash
+	@find ../../js -name connectors -a -prune -o -name '*.js' -a -print | \
+		sed 's|^\.\./\.\./\(.*\)\.js$$|\1.js|' | \
+		xargs $(MAKE) -s
+	@$(MAKE) -s js/connectors/kn_raw.js
 
-# Compress pubsub.js so it is much less bytes over the wire.
+# NOTE: Additional .js-based dependencies for this target are
+# assembled automagically by the action associated with the "docs"
+# target.
+doxygen-output: Doxyfile mainpage.js
+	doxygen
+	@touch doxygen-output
 
-kn_apps/kn_lib/pubsub.js:	kn_apps/kn_lib/pubsub_raw.js kn_tools/js_compress.sh
-	bash kn_tools/js_compress.sh < kn_apps/kn_lib/pubsub_raw.js > kn_apps/kn_lib/pubsub.js
+-include cache-rules
 
-# Make sure mod_pubsub can write to the kn_events directory ---
-# otherwise it will not run.
+update-cache-rules: update-cache
+	@rm -f cache-rules
+	@echo -n "doxygen-output: " > cache-rules
+	@find js -name '*.js' | \
+		sed 's|.*|& \\|' >> cache-rules
+	@echo "" >> cache-rules
 
-# Note that you only need the kn_events directory if you are using
-# the Perl PubSub Server.  (The Python PubSub Server runs in memory.)
+docs: update-cache-rules
+	@$(MAKE) doxygen-output
 
-HTTPD_USER=$(shell whoami)
-
-kn_events:
-	[ x"$(HTTPD_USER)" != x ]  # Define HTTPD_USER as the user that runs your web server, e.g. make HTTPD_USER=httpd (or nobody, or www-data)
-	if ! [ -d "$@" ]; \
-	then mkdir $@; \
-	    if ! chown $(HTTPD_USER) $@; then rmdir $@; false; fi; \
-	fi
-
-# End of Makefile
+js/%.js: ../../js/%.js js2doxy js2doxy.pl
+	@rm -f doxygen-output
+	@echo "docs cache: updating cached file $@."
+	@bash js2doxy < "$<" > "$@" || ( rm -f "$@"; exit 1 )

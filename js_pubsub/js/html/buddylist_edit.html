@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: buddylist_edit.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>Add Buddy</title>
+
+<script type="text/javascript" src="../../js/kn_config.js"></script>
+<script type="text/javascript" src="../../js/kn_browser.js"></script>
+
+<script type="text/javascript">
+  kn_include("kn_buddylist");
+</script>
+
+<script type="text/javascript"><!--
+  
+  function statusHandler(e)
+  {
+    this.onSuccess = new Function('self.close();');
+    this.onError = new Function('alert(e.status);');
+    return this;
+  }
+  
+  function init()
+  {
+        
+    list = new kn_buddylist_obj({},"");
+    
+    list.onBuddy = onMessage;
+    list.onBuddyStatus = new Function('return false;');
+    list.getForm = new Function('return false;');
+    list.init();
+  }
+  
+  function onMessage(e)
+  {
+    if (!kn_argv.id) return;
+    var deleted = (e.kn_deleted == true || !e.kn_payload);
+    if (!deleted && (e.kn_id == kn_argv.id))
+    {
+      document.title = kn_buddylist$("Edit Buddy");
+      document.forms.BuddyUseridForm.elements.buddy_userid.disabled = true;
+      document.forms.BuddyUseridForm.elements.buddy_userid.value = e.kn_id || "";
+      document.forms.BuddyDisplaynameForm.elements.buddy_displayname.value = e.who || "";
+      document.forms.BuddyCatForm.elements.buddy_cat.value = e.where ||
+          kn_buddylist$("default");
+    }
+    
+  }
+  
+  function addBuddy()
+  {
+    var userid = document.forms.BuddyUseridForm.elements.buddy_userid.value;
+    var displayname = document.forms.BuddyDisplaynameForm.elements.buddy_displayname.value;
+    var cat = document.forms.BuddyCatForm.elements.buddy_cat.value;
+    
+    list.addBuddy(cat, userid, displayname, new statusHandler());
+    
+  }
+
+  function rmBuddy(userid)
+  {
+  
+    var userid = document.forms.BuddyUseridForm.elements.buddy_userid.value;
+    list.rmBuddy(userid, new statusHandler());
+  }
+  
+  onload = init;
+
+// -->
+</script>
+
+<style type="text/css">
+  body
+  {
+    font-family:verdana,arial,sans-serif;
+    font-size:12px;
+                background-color:#ccc;
+  }
+  
+  input.text
+  {
+    font-family:monospace, courier;
+    font-size:12px;
+  }
+  
+  input.button
+  {
+    width:120px;
+  }
+        
+        /*/*/
+        body
+  {
+                background-color:ButtonFace;
+                margin-left:24px;
+  }
+        /**/
+  
+  
+</style>
+
+</head>
+
+<body>
+<form action="javascript:void(0);//" name="BuddyUseridForm" onsubmit="addBuddy(); return false;">
+Buddy User ID:<br />
+<input class="text" size="20" type="text" name="buddy_userid"><br />
+</form>
+<form action="javascript:void(0);//" name="BuddyCatForm" onsubmit="addBuddy(); return false;">
+Buddy Category:<br />
+<input class="text" size="20" type="text" name="buddy_cat"><br />
+</form>
+<form action="javascript:void(0);//" name="BuddyDisplaynameForm" onsubmit="addBuddy(); return false;">
+Buddy Display Name: <br />
+<input class="text" size="20" type="text" name="buddy_displayname"><br /><br />
+
+<input class="button" type="submit" value="Save Buddy">
+</form>
+<br />
+
+
+</body>
+</html>

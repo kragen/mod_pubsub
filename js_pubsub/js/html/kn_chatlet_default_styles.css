@@ -1,0 +1,111 @@
+.chatlet-ui
+{
+    font-family: verdana;
+    font-size:11px;
+                background-color:#ccc;
+}
+
+.chatlet-ui input
+{
+    font-family: verdana;
+    font-size:11px;
+}
+
+.chatlet-ui form
+{
+    margin:4px;
+    display:inline;
+}
+
+.chatlet-display
+{
+    font-family:verdana;
+    font-size:11px;
+    background-color:#eee;
+}
+
+.chatlet-local-user
+{
+    color:red;
+    font-weight:bold;
+}
+
+.chatlet-remote-user
+{
+    color:blue;
+    font-weight:bold;
+}
+
+.chatlet-linebreak
+{
+        display:none;
+}
+
+
+/* these style rules are hidden from NS4 */
+
+/*/*/
+
+.chatlet-ui
+{
+    font-family: arial,verdana;
+    font-size:10px;
+                background-color:buttonface;
+}
+
+.chatlet-ui input
+{
+    font-family:arial, verdana;
+    font-size:10px;
+}
+
+.chatlet-display
+{
+    font-family:verdana;
+    font-size:11px;
+    background-color:ButtonHighlight;
+                padding:4px;
+                border:2px inset buttonface;
+}
+
+.chatlet-outerborder
+{
+        border:2px outset buttonface;
+        background-color:buttonface;
+}
+
+.chatlet-username
+{
+    width:50%;
+}
+
+.chatlet-payload
+{
+    margin-top:2px;
+    width:75%;
+}
+
+.chatlet-ui a.chat-button
+{
+    color:#000;
+    background-color:ButtonHighlight;
+    text-decoration:none;
+    padding-left:2px;
+    padding-right:2px;
+    border:1px solid #aaa;
+                font-family:arial, verdana;
+                font-size:10px;
+}
+
+.chatlet-ui a.chat-button:hover
+{
+        border:1px solid red;
+        color:red;
+}
+
+.chatlet-display td
+{
+    font-size:11px;
+}
+
+/**/

@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>PubSub ActivePanel</title>
+
+<script type="text/javascript" src="../../js/kn_config.js"></script>
+<script type="text/javascript" src="../../js/kn_browser.js"></script>
+
+<script type="text/javascript">
+  kn_include("kn_activepanels");
+</script>
+
+<script type="text/javascript"><!--
+
+function init()
+{    
+  updatePanel("PanelGold","Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut.");
+  updatePanel("PanelGreen","Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo");
+  updatePanel("PanelRed","<table width='300' border='1'><tr><td>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo</td></tr></table>");
+
+  var r = kn.subscribe("/what/demos/activepanel",handleEvent);
+
+}
+
+onload = init;
+
+function handleEvent(ev)
+{
+  var id = ev.PanelId;
+  var text = ev.PanelText;
+  updatePanel(id,text);
+}
+
+function updatePanel(id,text)
+{
+  var panel = kn_activepanels[id];
+  panel.clear();
+  panel.write(text);
+  panel.update();
+}
+
+function doUpdate()
+{
+  var f = document.forms["formName"].elements;
+  var panelID = f["panelName"].options[f["panelName"].selectedIndex].value;
+  var panelText = f["panelText"].value;
+  f["panelText"].value = "";
+  f["panelText"].focus();
+  
+  var ev = new Object();
+  ev.PanelId = panelID;
+  ev.PanelText = panelText;
+  
+  kn.publish("/what/demos/activepanel",ev);
+  
+}
+
+// -->
+</script>
+
+<style type="text/css">
+
+.activepanel td
+{
+  font-family:verdana;
+  font-size:12px;
+}
+
+#PanelGold-activepanel
+{
+  background-color:#cc9900;
+}
+
+#PanelGreen-activepanel
+{
+  background-color:#66cc33;
+}
+
+#PanelRed-activepanel
+{
+  background-color:#ff0000;
+}
+</style>
+  
+</head>
+
+<body bgcolor="white" text="black" link="navy" alink="maroon" vlink="purple">
+
+<h1>ActivePanel</h1>
+
+<hr />
+
+<p>This page demonstrates some of the capabilities of the ActivePanel component.</p>
+
+<table cellspacing="2" cellpadding="2" border="0">
+<tr>
+    <td><script>kn_activepanel("PanelGold",150,100,true)</script></td>
+    <td><script>kn_activepanel("PanelGreen",150,100,true)</script></td>
+    <td><script>kn_activepanel("PanelRed",150,100,true)</script></td>
+</tr>
+</table>
+
+<form action="#" name="formName" onsubmit="doUpdate(); return false;">
+<p>Update an ActivePanel:</p>
+<p>
+<select name="panelName" onchange="this.form.elements.panelText.focus()">
+    <option value="PanelGold" selected="true">Gold</option>
+    <option value="PanelGreen">Green</option>
+    <option value="PanelRed">Red</option>
+</select>&nbsp;
+<input type="text" name="panelText" size="20">&nbsp;
+<input type="submit" value="Update!">
+</p>
+</form>
+
+<hr />
+
+<p><a href="../../index.html">Home</a>   |   <a href="../../docs/index.html">Documentation</a>   |   <a href="../index.html">Samples</a>   |  <a href="../../tests/index.html">Tests</a></p>
+
+</body>
+</html>

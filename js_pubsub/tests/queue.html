@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: queue.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PubSub Test: In-Memory Queues</title>
+
+<script type="text/javascript">
+  kn_browser_includePath = "../js/";
+</script>
+
+<script type="text/javascript" src="../js/kn_config.js"></script>
+<script type="text/javascript" src="../js/kn_browser.js"></script>
+<script type="text/javascript" src="lib.js"></script>
+
+<script type="text/javascript"><!--
+
+function do_it()
+{
+    var done = 0;
+    var topic = kn_argv.kn_topic;
+    var other_topic = kn_argv.kn_topic + '/other';
+    var bogus_topic = kn_argv.kn_topic + '/bogus';
+    var other_bogus_topic = kn_argv.kn_topic + '/bogus/other';
+    var key = "javascript://PubSub/Test/" + Math.random().toString();
+    var other_key = key + "/other";
+    expect_subtests(5);
+    kn_subscribe(topic,
+                 (function (e)
+                 {
+                     if (e.failed)
+                     {
+                         fail(e.kn_payload);
+                     }
+                     else
+                     {
+                         done++; subsucceed(e.kn_payload);
+                     }
+                 }),
+                 ({}),
+                 ({ onSuccess: 
+    (function ()
+    {
+        kn_subscribe(bogus_topic,
+                     (function (e)
+                     {
+                         if (e.kn_route_location == key)
+                         {
+                             if (e.status.substring(0, 3) == "200")
+                             {
+                                 done++; subsucceed("queued request status");
+                                 if (done == 5)
+                                 {
+                                     succeed();
+                                 }
+                             }
+                             else
+                             {
+                                 fail("queued request status: " + e.status);
+                             }
+                         }
+                     }),
+                     ({ kn_uri: key }));
+        kn_subscribe(other_bogus_topic,
+                     (function (e)
+                     {
+                         if (e.kn_route_location == other_key)
+                         {
+                             if (e.status.substring(0, 3) != "200")
+                             {
+                                 fail("request status: " + e.status);
+                             }
+                         }
+                     }),
+                     ({ kn_uri: other_key }));
+        kn.sendQueue(
+            ([
+                ({ do_method: "notify",
+                                  kn_to: topic,
+                                  kn_payload: "regular notify",
+                                  kn_status_from: other_key }),
+                ({ do_method: "notify",
+                                  kn_to: other_topic,
+                                  failed: "true",
+                                  kn_payload: "ordered route: route was created out-of-order",
+                                  kn_status_from: other_key }),
+                ({ do_method: "route",
+                                  kn_from: other_topic,
+                                  kn_to: topic,
+                                  kn_status_from: other_key }),
+                ({ do_method: "notify",
+                                  kn_to: other_topic,
+                                  kn_payload: "ordered route",
+                                  kn_status_from: other_key }),
+                ({ do_method: "notify",
+                                  kn_to: topic,
+                                  kn_payload: "keyed request",
+                                  kn_status_from: key })
+                ]),
+            ({}),
+            ({ onSuccess: (function() { done++; subsucceed('queue'); }), onError: (function(e) { fail('queue: ' + e.status); }) }));
+    }),
+        onError: function(e){fail('subscription: ' + e.status);}
+                 })
+        );
+}
+
+// -->
+</script>
+
+<body onload="do_it()">
+
+<h1>In-Memory Queues</h1>
+
+<p>This tests the <code>kn.sendQueue</code> function, which allows
+several requests to be queued in memory, then sent all at once.</p>
+
+</body>
+</html>

@@ -1,4 +1,9 @@
-$Id: MOVED,v 1.2 2003/05/10 03:33:25 ifindkarma Exp $
+$Id: MOVED,v 1.3 2003/07/20 07:09:16 ifindkarma Exp $
+
+There are lots of useful JavaScript PubSub libraries,
+samples, and components in this directory.  In addition,
+there are lots of other JavaScript goodies elsewhere
+in the mod_pubsub distribution.
 
 For the JavaScript PubSub Client Library, see
 

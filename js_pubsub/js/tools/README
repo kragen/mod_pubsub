@@ -1,0 +1,11 @@
+$Id: README,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+kn_compress.sh and kn_localize.sh are generated in this directory
+by the top-level Makefile under mod_pubsub.
+
+For questions and comments, see
+
+   mod-pubsub-developer@lists.sourceforge.net
+   http://mod-pubsub.sf.net/
+
+Thanks!

@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>PubSub ScreenPops</title>
+
+<script type="text/javascript" src="../../js/kn_config.js"></script>
+<script type="text/javascript" src="../../js/kn_browser.js"></script>
+
+<script type="text/javascript">
+  kn_include("kn_screenpops");
+</script>
+
+</head>
+
+<body bgcolor="white" text="black" link="navy" alink="maroon" vlink="purple">
+
+<script type="text/javascript"><!--
+
+// Generic ScreenPops sent to default topic (usually /what/alerts).
+kn_screenpops();
+
+// ScreenPops sent specifically to this user.
+kn_screenpops("/who/" + kn.userid + "/alerts");
+
+// Connect our mailbox to the system broadcast topic.
+kn_subscribe("/what/broadcast",
+             "/who/" + kn.userid + "/alerts",
+             ({ kn_id: "alerts_" + kn_escape(kn.userid) }));
+
+document.write(
+'<h1>' +
+kn_htmlEscape(
+$("PubSub ScreenPops")
+) +
+'</h1>' +
+'<hr>' +
+'<p>' +
+$_("Use another tool to publish to the default alerts topic (a shared mailbox; usually <code>%{0}</code>,) to the <code>/what/broadcast</code> topic (which each individual mailbox subscribes to,) or to your personal alerts topic, <code>%{1}</code> (an individual mailbox.) Messages delivered to mailboxes are removed as soon as they are confirmed by the user. <p>See the %{2} for one way to publish alerts.</p>",
+   kn_htmlEscape("/what/alerts"),
+   kn_htmlEscape("/who/" + kn.userid + "/alerts"),
+   '<a target="_blank" href="../lwws/sampleClient.html?/who/' + kn_escape(kn.userid) + '/alerts">' +
+   $("kn_lwws sampleClient") +
+   "</a>"
+) +
+'</p>'
+);
+
+function sendTest()
+{
+    kn.publish(
+        "/what/alerts", ({
+
+            // reply-to is the topic choice responses will be published to
+            "reply-to":
+                "/who/" + kn.userid + "/alerts",
+
+            // comma-separated list of choice tokens; each token turns into a button
+            choices: "1,2,3",
+
+            // custom button labels for some of the choices
+            choice_1: "One",
+            choice_3: "Three",
+
+            // a non-empty payload is required!
+            kn_payload: "Testing"
+    }));
+}
+
+document.write(
+    '<p>' +
+    '<button onclick="sendTest(); return false">' +
+    '<a href="javascript:void sendTest();//">' +
+    $_("Send test message to %{0}.",
+       kn_htmlEscape("/what/alerts")) +
+    '<' + '/a>' +
+    '<' + '/button>' +
+    '<' + '/p>');
+
+// -->
+</script>
+
+<hr />
+
+<p><a href="../../index.html">Home</a>   |   <a href="../../docs/index.html">Documentation</a>   |   <a href="../index.html">Samples</a>   |  <a href="../../tests/index.html">Tests</a></p>
+
+</body>
+</html>

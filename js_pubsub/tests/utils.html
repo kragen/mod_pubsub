@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: utils.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PubSub Test: Utility Functions</title>
+
+<script type="text/javascript">
+  kn_browser_includePath = "../js/";
+</script>
+
+<script type="text/javascript" src="../js/kn_config.js"></script>
+<script type="text/javascript" src="../js/kn_browser.js"></script>
+<script type="text/javascript" src="lib.js"></script>
+
+<script type="text/javascript"><!--
+
+subtests = [ ];
+var failed_subtests = 0;
+var next_subtest = 0;
+current_subtest = null;
+current_form = null;
+
+function succeed_subtest()
+{
+    current_form.elements[0].checked = true;
+    current_form.elements[0].disabled = false;
+    subsucceed(current_subtest.name);
+    window.setTimeout("run_next_subtest()", 1);
+}
+
+function fail_subtest(msg)
+{
+    failed_subtests ++;
+    current_form.elements[1].checked = true;
+    current_form.elements[1].disabled = false;
+    subfail(current_subtest.name, msg);
+    setTimeout("run_next_subtest()", 1);
+}
+
+function run_next_subtest()
+{
+    if (next_subtest < subtests.length)
+    {
+        current_form = document.forms[next_subtest];
+        current_subtest = subtests[next_subtest];
+        next_subtest ++;
+        current_subtest.closure();
+    }
+    else
+    {
+        if (failed_subtests)
+            fail(failed_subtests + " subtest(s) failed");
+        else
+            succeed();
+    }
+}
+
+// Subtests must call either succeed_subtest() or fail_subtest(msg).
+function define_subtest(name, subtest)
+{
+    subtests[subtests.length] =
+    {name: name, closure: subtest};
+}
+
+// Array form for emacs-friendly declaration.
+function mksubtest(a)
+{
+    define_subtest(a[0], a[1]);
+}
+
+// BEGINNING OF SUBTESTS
+
+mksubtest(
+    [ "nop subtest", function ()
+    {
+        succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_resolvePath, part 1", function ()
+    {
+        var base = "/foo/bar/baz";
+        var relative = "../baq/../../oof";
+        var expected = "/oof";
+        var result = kn_resolvePath(base, relative);
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_resolvePath, part 2", function ()
+    {
+        var base = "/foo/bar/baz";
+        var relative = "../oof";
+        var expected = "/foo/oof";
+        var result = kn_resolvePath(base, relative);
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_resolvePath, part 3", function ()
+    {
+        var base = "/foo/bar/baz";
+        var relative = "oof";
+        var expected = "/foo/bar/oof";
+        var result = kn_resolvePath(base, relative);
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_resolvePath, part 4", function ()
+    {
+        var base = "/foo/bar/baz";
+        var relative = "/oof";
+        var expected = "/oof";
+        var result = kn_resolvePath(base, relative);
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+var obj_template = "%{name} is %{emotion}. %%{name} is %%{emotion}.";
+var obj_args = { name: "Ben", emotion: "jubilant" };
+var obj_formatted = "Ben is jubilant. %{name} is %{emotion}.";
+
+mksubtest(
+    [ "kn_formatString", function ()
+    {
+        var result = kn_formatString(obj_template, obj_args);
+        if (result != obj_formatted)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', obj_formatted, result));
+        else
+            succeed_subtest();
+    }]);
+
+// FIXME: we should really check for proper handling of illegal codes too...
+
+var unescaped = ("\0=3b+;gar&FOO=3B" +
+                 kn_stringFromCharCode(0x7F,
+                                       0x80,
+                                       0x84,
+                                       0xFF,
+                                       0x100,
+                                       0x2122,
+                                       0xFEFF,
+                                       0xFFFD,
+                                       0x10000,
+                                       0x10FFFD) +
+                 "\n\r\t <b>\"'");
+
+var escaped = ("%00%3D3b%2B%3Bgar%26FOO%3D3B" +
+               "%7F%C2%80%C2%84%C3%BF%C4%80" +
+               "%E2%84%A2%EF%BB%BF%EF%BF%BD%F0%90%80%80" +
+               "%F4%8F%BF%BD%0A%0D%09%20%3Cb%3E%22%27");
+
+var htmlEscaped = ("&#0;=3b+;gar&amp;FOO=3B" +
+                   "&#127;&#128;&#132;&#255;&#256;&#8482;" +
+                   "&#65279;&#65533;&#65536;" +
+                   "&#1114109;&#10;&#13;&#9; &lt;b&gt;&quot;&#39;");
+
+var utf8encoded = ("\x00\x3D3b\x2B\x3Bgar\x26FOO\x3D3B" +
+                   "\x7F\xC2\x80\xC2\x84\xC3\xBF\xC4\x80" +
+                   "\xE2\x84\xA2\xEF\xBB\xBF\xEF\xBF\xBD\xF0\x90\x80\x80" +
+                   "\xF4\x8F\xBF\xBD\x0A\x0D\x09\x20\x3Cb\x3E\x22\x27");
+
+mksubtest(
+    [ "kn_escape", function ()
+    {
+        var expected = escaped;
+        var result = kn_escape(unescaped);
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_unescape", function ()
+    {
+        var expected = unescaped;
+        var result = kn_unescape(escaped);
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_htmlEscape", function ()
+    {
+        var expected = htmlEscaped;
+        var result = kn_htmlEscape(unescaped);
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_utf8decode", function ()
+    {
+        var expected = unescaped;
+        var result = kn_utf8decode(utf8encoded);
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+var ucs = [
+    0, 0x7F, 0x80, 0x99,
+    0x9F, 0xA0, 0xFD, 0xFE, 0xFF,
+    0x100, 0x1FF, 0x200,
+    0x7FF,
+    0x800,
+    0xFEFF,
+    0xFFFD,
+    0xFFFE,
+    0xFFFF,
+    0x10000,
+    0x10FFFF
+    ];
+
+var utf16 = [
+    0, 0x7F, 0x80, 0x99,
+    0x9F, 0xA0, 0xFD, 0xFE, 0xFF,
+    0x100, 0x1FF, 0x200,
+    0x7FF,
+    0x800,
+    0xFEFF,
+    0xFFFD,
+    0xFFFE,
+    0xFFFF,
+    0xD800, 0xDC00,
+    0xDBFF, 0xDFFF
+    ];
+
+mksubtest(
+    [ "kn_stringFromCharCode", function ()
+    {
+        var expected = utf16.join(',');
+        var array = [];
+        var string = "";
+        for (var i = 0; i < ucs.length; i ++)
+            string += kn_stringFromCharCode(ucs[i]);
+        for (var i = 0; i < string.length; i ++)
+            array[i] = string.charCodeAt(i);
+        var result = array.join(',');
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_charCodesFromString", function ()
+    {
+        var expected = ucs.join(',');
+        var string = "";
+        for (var i = 0; i < utf16.length; i ++)
+            string += String.fromCharCode(utf16[i]);
+        var array = kn_charCodesFromString(string);
+        var result = array.join(',');
+        if (result != expected)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', expected, result));
+        else
+            succeed_subtest();
+    }]);
+
+var unlocalized = "This has not been localized.";
+var localized_en = "This has been localised for English.";
+var localized_en_us = "This has been localized for U.S. English.";
+
+mksubtest(
+    [ "l10n wrapper ($)", function ()
+    {
+        var old_lang = kn_lang;
+        kn_lang = "en";
+        var result = $(unlocalized);
+        kn_lang = old_lang;
+        if (result != unlocalized)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', unlocalized, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "variant kn_localize", function ()
+    {
+        kn_localize("en-us", "", unlocalized, localized_en_us);
+        var old_lang = kn_lang;
+        kn_lang = "en";
+        var result = $(unlocalized);
+        kn_lang = old_lang;
+        if (result != localized_en_us)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', localized_en_us, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "simple kn_localize", function ()
+    {
+        kn_localize("en", "", unlocalized, localized_en);
+        var old_lang = kn_lang;
+        kn_lang = "en";
+        var result = $(unlocalized);
+        kn_lang = old_lang;
+        if (result != localized_en)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', localized_en, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_localize, no translation", function ()
+    {
+        kn_localize("x-yankee", "", unlocalized);
+        var old_lang = kn_lang;
+        kn_lang = "x-yankee";
+        var result = $(unlocalized);
+        kn_lang = old_lang;
+        if (result != unlocalized)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', unlocalized, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "disabled (empty) kn_lang", function ()
+    {
+        var old_lang = kn_lang;
+        kn_lang = "";
+        var result = $(unlocalized);
+        kn_lang = old_lang;
+        if (result != unlocalized)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', unlocalized, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "l10n variant fallback", function ()
+    {
+        var old_lang = kn_lang;
+        kn_lang = "en-uk";
+        var result = $(unlocalized);
+        kn_lang = old_lang;
+        if (result != unlocalized)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', unlocalized, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "kn_createContext", function ()
+    {
+        kn_createContext("ctx");
+        var old_lang = kn_lang;
+        kn_lang = "en";
+        var result = ctx$(unlocalized);
+        kn_lang = old_lang;
+        if (result != unlocalized)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', unlocalized, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "simple contextual l10n", function ()
+    {
+        kn_localize("en", "ctx", unlocalized, localized_en);
+        var old_lang = kn_lang;
+        kn_lang = "en";
+        var result = ctx$(unlocalized);
+        kn_lang = old_lang;
+        if (result != localized_en)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', localized_en, result));
+        else
+            succeed_subtest();
+    }]);
+
+var template = "I %{0} %{1}, %{2}!";
+var a0 = "like";
+var a1 = "JavaScript";
+var a2 = "so shoot me";
+var formatted = "I like JavaScript, so shoot me!";
+var template_en = "It's %{1} I most %{0}, %{2}.";
+var a0_en = "fancy";
+var a1_en = "ECMAScript";
+var formatted_en = "It's ECMAScript I most fancy, so shoot me.";
+
+mksubtest(
+    [ "formatting l10n wrapper ($_)", function ()
+    {
+        var old_lang = kn_lang;
+        kn_lang = "en";
+        var result = $_(template,
+                        $(a0),
+                        $(a1),
+                        $(a2));
+        kn_lang = old_lang;
+        if (result != formatted)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', formatted, result));
+        else
+            succeed_subtest();
+    }]);
+
+mksubtest(
+    [ "simple formatted l10n", function ()
+    {
+        kn_localize("en", "", template, template_en);
+        kn_localize("en", "", a0, a0_en);
+        kn_localize("en", "", a1, a1_en);
+        var old_lang = kn_lang;
+        kn_lang = "en";
+        var result = $_(template,
+                        $(a0),
+                        $(a1),
+                        $(a2));
+        kn_lang = old_lang;
+        if (result != formatted_en)
+            fail_subtest($_('Expected "%{0}", got "%{1}"', formatted_en, result));
+        else
+            succeed_subtest();
+    }]);
+
+// END OF SUBTESTS
+
+expect_subtests(subtests.length);
+
+// -->
+</script>
+</head>
+
+<body onload="run_next_subtest()" text="black" bgcolor="white">
+
+<h1 align="center">Utility Functions</h1>
+
+<script type="text/javascript"><!--
+
+document.write(subtestTable(subtests));
+
+// -->
+</script>
+
+</body>
+</html>

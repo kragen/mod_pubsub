@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+
+<title>KN_HTML</title>
+
+<script type="text/javascript" src="../../js/kn_config.js"></script>
+<script type="text/javascript" src="../../js/kn_browser.js"></script>
+
+<script type="text/javascript">
+  kn_include("kn_html");
+</script>
+
+<script type="text/javascript"><!--
+
+function sendEvent()
+{
+  var evt = {};
+  var x = document.forms["zz"].elements["kn_payload"].value;
+  evt.kn_payload = x;
+  kn.publish("/what/tests/kn_html/s/anonymous",evt);
+  document.forms["zz"].elements["kn_payload"].value = "";
+}
+
+// -->  
+</script>
+        
+</head>
+
+<body bgcolor="white" text="black" link="navy" alink="maroon" vlink="purple">
+
+<h1>KN HTML</h1>
+
+<hr />
+
+<p>This example demonstrates the use of PubSub HTML to insert event property
+values into HTML.</p>
+
+<p>Enter text into the Payload text box and click the button to publish
+the event.  The grey box contains a line of HTML with the PubSub tokens
+{{kn_id}} and {{kn_payload}} inserted.</p>
+
+<form action="#" name="zz" onsubmit="sendEvent(); return false;">
+Payload: <input type="text" name="kn_payload">
+<input type="submit" value="Publish Event">
+</form>
+
+<div kn_topic="/what/tests/kn_html/s/anonymous" style="background-color:#cccccc; width:400px; padding: 10px 10px 10px 10px;">The payload of Event #{{kn_id}} is <strong>&quot;{{kn_payload}}&quot;</strong>.</div>
+
+<hr />
+
+<p><a href="../../index.html">Home</a>   |   <a href="../../docs/index.html">Documentation</a>   |   <a href="../index.html">Samples</a>   |  <a href="../../tests/index.html">Tests</a></p>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PubSub Test</title>
+
+<!--
+
+ This app is not PubSub for very good reasons! Do not PubSub-enable it.
+ Specifically, it has to test creation and deletion of the leader
+ JavaScript PubSub instance under different conditions, and if it were
+ PubSub-enabled, it would become the leader and stay the leader.
+
+ -->
+
+<script type="text/javascript">
+  kn_browser_includePath = "../js/";
+</script>
+
+<script type="text/javascript" src="../js/kn_config.js"></script>
+
+<script type="text/javascript"><!--
+
+document.write('<script src="' +
+               (self.kn_config_server || "/kn") +
+               '?do_method=whoami"><' + '/script>');
+// -->
+</script>
+
+<script type="text/javascript"><!--
+
+frameCallback = function(){};
+
+// -->
+</script>
+
+</head>
+
+<frameset rows="65%, 35%">
+<frame src="testlist.html" name="main" />
+<frameset cols="50%, 50%">
+<frame src="blank.html" name="esp1" /> // ESP = Event Server Page.
+<frame src="blank.html" name="esp2" /> // (What we used to call PubSub-enabled apps.)
+</frameset>
+
+<noframes>
+
+<body bgcolor="white" text="black" link="navy" alink="maroon" vlink="purple">
+
+<h1 align="center">PubSub Test</h1>
+
+<hr />
+
+<p>PubSub Test requires a frames-capable browser.</p>
+
+<hr />
+
+<p><a href="../index.html">Home</a>   |   <a href="../docs/index.html">Documentation</a>   |   <a href="../samples/index.html">Samples</a>   |  Tests</p>
+
+</body>
+</noframes>
+</frameset>
+</html>

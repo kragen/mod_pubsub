@@ -1,0 +1,819 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: testlist.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PubSub Test</title>
+
+<script type="text/javascript">
+  kn_browser_includePath = "../js/";
+</script>
+
+<script type="text/javascript" src="../js/kn_config.js"></script>
+
+<script type="text/javascript"><!--
+
+document.write('<script src="' +
+               (self.kn_config_server || "/kn") +
+               '?do_method=whoami"><' + '/script>');
+
+// -->
+</script>
+
+<script type="text/javascript"><!--
+
+tests = [ ];
+next_test = 0;
+results = null;
+
+// We store a pointer to ourselves in the top frame of the frameset so that 
+// test cases in other frames can find us in order to report success or failure.
+top.kn_test_frame = window;
+
+// URL of a blank page in the right script security zone.
+var blank_page = "blank.html";
+
+function random_id()
+{
+    return Math.random().toString().substring(2);
+}
+
+// Interpolate bits of an object into a string in place of {names};
+// for example, formatstr("{name} is {emotion}", {name: 'Ben', emotion: 'jubilant'})
+// returns "Ben is jubilant".
+function formatstr(format, args)
+{
+    var result = '';
+    var normal = true;
+    while (1)
+    {
+        var pos = format.indexOf(normal ? '{' : '}');
+        if (pos == -1) break;
+        var match = format.substring(0, pos);
+        format = format.substring(pos + 1);
+        result += (normal ? match : args[match]);
+        normal = ! normal;
+    }
+    return result + (normal ? format : args[format]);
+}
+
+// Yuck.
+test_session_id = random_id();
+// Create test topics under here.
+test_topic = "/what/apps/Test/" + test_session_id;
+
+function push(list, item)
+{
+    list[list.length] = item;
+}
+
+// setTimeout is somewhat broken in Netscape; sometimes timeout handlers
+// never run.  The thing we most often use it for is enqueuing of work
+// to be done in the near future.  So here's a work queue.
+
+work_queue = [];
+
+function do_work()
+{
+    if (work_queue.length == 0) return;
+    var new_work_queue = [];
+    // Remove first element from queue.
+    for (i = 1; i != work_queue.length; i++)
+    {
+        push(new_work_queue, work_queue[i]);
+    }
+    var work = work_queue[0];
+    work_queue = new_work_queue;
+    work();
+    // Repeat the whole process, if we didn't get an error in work().
+    do_work();
+}
+
+function enqueue_work(work)
+{
+    push(work_queue, work);
+}
+
+setInterval('do_work()', 100);
+
+function output_message_nl(msg)
+{
+    output_message(msg + "\n");
+}
+
+function output_message(msg)
+{
+    var elem = document.testform.output_area;
+    elem.value = elem.value + msg;
+}
+
+_and_run = function(){};
+
+function blank_frames_and_run(fn)
+{
+    top.frameCallback = function(win)
+    {
+        if (win != top.frames[1])
+        {
+            win.document.bgColor = 'black';
+            return;
+        }
+        top.frameCallback = function(win)
+        {
+            if (win != top.frames[2])
+            {
+                win.document.bgColor = 'black';
+                return;
+            }
+            top.frameCallback = function(){};
+            fn();
+        }
+        right_frame_esp(blank_page);
+    }
+    left_frame_esp(blank_page);
+}
+
+n_subtests = 0;
+function run_next_test()
+{
+    blank_frames_and_run(function() {
+        if (next_test == tests.length)
+        {
+            output_message_nl("Tests completed " + new Date() + ".");
+            if ((results.passed + results.failed) != next_test)
+            {
+                output_message_nl("TEST SUITE BROKEN: Not all tests returned results.");
+                document.bgColor = "#bb77bb";
+            }
+            output_message_nl(('' + (100 * results.passed / next_test)).substring(0, 5) +
+                              '% successful; took ' +
+                              ((new Date() - results.start_time) / 1000) +
+                              ' seconds.');
+            if (results.failed)
+            {
+                output_message_nl("CODE BROKEN");
+                document.bgColor = "#ff7777";
+            }
+            else
+            {
+                document.bgColor = "#77ff77";
+            }
+            hide();
+        }
+        else
+        {
+            var current_test = tests[next_test];
+            output_message("Running '" + current_test.name + "' ... ");
+            next_test ++;
+            n_subtests = 0;
+            current_test.closure();
+        }
+    });
+}
+
+function runtests()
+{
+    show();
+    document.testform.output_area.value = "";
+    document.testform.output_area.focus();
+    document.bgColor = "white";
+    output_message_nl("Running tests at " + new Date() + "...");
+    next_test = 0;
+    results = { start_time: new Date(), passed: 0, failed: 0 };
+    run_next_test();
+}
+
+// A test calls this when it is going to use subtests.  It specifies
+// the number of subtests; this way, if it forgets to run some tests
+// or report their results (pubsub_test.cgi had this problem; it was
+// producing syntactically invalid scripts) it will fail.
+
+function expect_subtests(n)
+{
+    output_message("subtests: \n");
+    n_subtests = n;
+}
+
+function succeed()
+{
+    if (n_subtests != 0) 
+    {
+        fail(formatstr("{n} subtest{s} didn't run", 
+        {n: n_subtests,
+                s: n_subtests == 1 ? "" : "s"}));
+    }
+    else
+    {
+        output_message("OK\n");
+        results.passed ++;
+        // Since this often gets called from event handlers in pubsub apps,
+        // relative paths (like for left_frame_esp) will be resolved
+        // relative to the topic root.  This is the problem we wrote
+        // kn_resolvePath to fix, but unfortunately, we have to
+        // include the whole pubsub client library to get kn_resolvePath.
+        // So we cheat, using enqueue_work.
+        enqueue_work(run_next_test);
+    }
+}
+
+function fail(err)
+{
+    output_message_nl("failed: " + err);
+    results.failed ++;
+    document.bgColor = "#ff7777";
+    // See the comment above the same line in succeed().  Should this 
+    // line be factored into its own function, given that it needs 
+    // a five-line comment to explain it?
+    enqueue_work(run_next_test);
+}
+
+// When a subtest succeeds.
+function subsucceed(name)
+{
+    output_message(formatstr("    {name}: OK\n", {name: name}));
+    decrement_n_subtests();
+}
+
+function subfail(namemsg)
+{
+    output_message(formatstr("    {name}: failed: {msg}\n", namemsg));
+    decrement_n_subtests();
+}
+
+function decrement_n_subtests()
+{
+    if (n_subtests == 0)
+    {
+        fail("too many subtests");
+    }
+    else
+    {
+        n_subtests--;
+    }
+}
+
+function onError(err)
+{
+    // I think this needs more logic; it works in Netscape 4.74, but I
+    // am under the impression that MSIE5 gives us more information in the
+    // error, so we have to extract the string from it.
+    fail(err);
+}
+
+
+function define_test(name, test)
+{
+    push(tests, {name: name, closure: test});
+}
+
+// Emacs likes this syntax better...
+function mktest(array)
+{
+    define_test(array[0], array[1]);
+}
+
+// BEGINNING OF TESTS
+
+// These two tests verify that the success machinery is working and
+// will properly run the next test.  It would be very confusing to have
+// the first "real" test hang forever because the test machinery is broken.
+
+mktest(
+    [ "nop test", function()
+    {
+        succeed();
+    }]);
+
+mktest(
+    [ "nop test 2", function()
+    {
+        succeed();
+    }]);
+
+// Test sequence number, incremented each time we run a test.
+var seqno = 0;
+
+// Note that this function assumes you're using ; to separate
+// name-value pairs in your URL, not &.
+
+function make_url_uncachable(url)
+{
+    if (url.indexOf('?')<0)
+    {
+        url += '?';
+    }
+    else
+    {
+        url += ';';
+    }
+    url += 'dontCacheMe=' + test_session_id + '_' + (seqno ++);
+    return url;
+}
+
+function frame_esp(url, frame)
+{
+    if ((navigator.appName == "Microsoft Internet Explorer") &&
+        (navigator.appVersion.indexOf("Macintosh") >= -1))
+    {
+        // We have to do strange things to get the test suite working
+        // in Mac MSIE, at least under Mac OS X.  Doing this causes
+        // history pollution, but in Mac MSIE, form submission always
+        // adds history entries anyhow, so this extra bit of history
+        // pollution goes completely unnoticed by the EPA.
+        with(frame.document)
+            {
+                open();
+                write('<html><head><title>Loading...<' + '/title><' + '/head><body><' + '/body><' + '/html>');
+                close();
+            }
+    }
+    if (frame.stop) frame.stop();
+    if ((url.charAt(0) == '/') || url.match(/^[a-zA-Z0-9]+:/))
+    {
+        frame.location.replace(url);
+    }
+    else
+    {
+        var base = top.location.pathname.split("/");
+        base[base.length - 1] = "";
+        frame.location.replace(base.join("/") + url);
+    }
+}
+
+function left_frame_esp(url, hash)
+{
+    url = make_url_uncachable(url);
+    if (hash) url += hash;
+    document.testform.left_frame_url.value = url;
+    frame_esp(url, parent.frames[1]);
+}
+
+function right_frame_esp(url, hash)
+{
+    url = make_url_uncachable(url);
+    if (hash) url += hash;
+    document.testform.right_frame_url.value = url;
+    frame_esp(url, parent.frames[2]);
+}
+
+mktest(
+    [ "load a simple HTML file", function()
+    {
+        left_frame_esp("simple.html");
+    }]);
+
+mktest(
+    [ "load a simple HTML file, other frame", function()
+    {
+        right_frame_esp("simple.html");
+    }]);
+
+mktest(
+    [ "wrapping and notification", function()
+    {
+        var topic = test_topic + "/callbacks";
+        left_frame_esp("callbacks.html", "#" + escape(topic));
+    }]);
+
+mktest(
+    [ "start a tunnel", function()
+    {
+        var topic = test_topic + "/start_tunnel";
+        left_frame_esp("start_tunnel.html?kn_debug=posts;kn_topic=" + topic);
+    }]);
+
+test_cookie = 0;
+mktest(
+    [ "pass an argument", function()
+    {
+        test_cookie = random_id();  // a new one each time we run this test
+        left_frame_esp("get_arg.html?kn_debug=1;test_cookie=" + test_cookie);
+    }]);
+
+function i_think_cookie_is(attempt)
+{
+    if (test_cookie == attempt)
+    {
+        succeed();
+    }
+    else
+    {
+        fail("Expected magic cookie '" + test_cookie + "' but got '" +
+             attempt);
+    }
+}
+
+mktest(
+    [ "kn_queryString", function()
+    {
+        left_frame_esp("kn__argv.html?fail=1");
+    }]);
+
+mktest(
+    [ "post and get success", function()
+    {
+        var topic = test_topic + "/post_and_get_success";
+        left_frame_esp("post_get_succ.html?kn_debug=1;kn_topic=" + topic);
+    }]);
+
+mktest(
+    [ "unsubscribe", function()
+    {
+        var topic = test_topic + "/unsubscribe";
+        left_frame_esp("unsubscribe.html?kn_debug=1;kn_topic=" + topic);
+    }]);
+
+// These two tests depend on our server's current brain-dead way of 
+// restricting topic names.  If we fix that, we'll have to find a better
+// way to get these guys to fail.
+
+mktest(
+    [ "subscribe and get failure", function()
+    {
+        var topic = test_topic + "/subscribe_and_get_failure/kn_journal";
+        left_frame_esp("subs_get_fail.html?kn_debug=1;kn_topic=" + topic);
+    }]);
+
+mktest(
+    [ "post and get failure", function()
+    {
+        var topic = test_topic + "/post_and_get_failure/kn_routes";
+        left_frame_esp("post_get_fail.html?kn_debug=1;kn_topic=" + topic);
+    }]);
+
+browser = {
+    name: navigator.appName,
+    version: new Number(navigator.appVersion.replace(/ .*/, ""))
+};
+
+{
+    var MSIE = navigator.appVersion.indexOf("MSIE ");
+    if (MSIE != -1)
+    {
+        browser.name = "MSIE";
+        browser.version = new Number(navigator.appVersion.substring(MSIE + 5).substring(0,  3));
+    }
+}
+
+mktest(
+    [ "follower subscribes successfully", function()
+    {
+        if (((browser.name == "MSIE") &&
+             (browser.version < 5.1) &&
+             (navigator.appVersion.indexOf("Macintosh") == -1) &&
+             ! confirm("WARNING: This test is likely to crash your browser!\n" +
+                       "This test is known to crash non-Macintosh MSIE 5.0 and earlier.\n\n" +
+                       "\tSelect OK to run it despite this warning.\n" +
+                       "\tSelect CANCEL to skip it, and succeed silently.")))
+        {
+            succeed();
+            return;
+        }
+        var topic = test_topic + "/follower_subscribes_successfully";
+        left_frame_esp("nop.html?kn_debug=1;kn_topic=" + topic);
+        setTimeout('right_frame_esp("start_tunnel.html?kn_debug=1;kn_topic=" + unescape("' 
+                   + escape(topic) + '"))', 2000);
+    }]);
+
+mktest(
+    [ "post and receive an event", function()
+    {
+        var topic = test_topic + "/post_and_receive";
+        left_frame_esp("post_recv.html?kn_debug=1;kn_topic=" + topic);
+    }]);
+
+mktest(
+    [ "post and receive an event in a follower", function()
+    {
+        if (((browser.name == "MSIE") &&
+             (browser.version < 5.1) &&
+             (navigator.appVersion.indexOf("Macintosh") == -1) &&
+             ! confirm("WARNING: This test is likely to crash your browser!\n" +
+                       "This test is known to crash non-Macintosh MSIE 5.0 and earlier.\n\n" +
+                       "\tSelect OK to run it despite this warning.\n" +
+                       "\tSelect CANCEL to skip it, and succeed silently.")) ||
+            ((browser.name == "Netscape") &&
+             (browser.version == 5.0) &&
+             ! confirm("WARNING: This test may crash your browser!\n" +
+                       "This test is known to crash some versions of Netscape 6 and Mozilla.\n\n" +
+                       "\tSelect OK to run it despite this warning.\n" +
+                       "\tSelect CANCEL to skip it, and succeed silently.")))
+        {
+            succeed();
+            return;
+        }
+        var topic = test_topic + "/follower_post_and_receive";
+        left_frame_esp("nop.html?kn_debug=1;kn_topic=" + topic);
+        setTimeout('right_frame_esp("post_recv.html?kn_debug=1;kn_topic=" + unescape("' 
+                   + escape(topic) + '"))', 2000);
+    }]);
+
+mktest(
+    [ "in-memory queues", function()
+    {
+        left_frame_esp("queue.html?kn_debug=1");
+    }]);
+
+mktest(
+    [ "utility functions", function()
+    {
+        left_frame_esp("utils.html?kn_debug=1");
+    }]);
+
+mktest(
+    [ "kn_browser functions", function()
+    {
+        left_frame_esp("kn_browser.html?kn_debug=1");
+    }]);
+
+// mktest(
+    // [ "kn_config API", function()
+    // {
+        // left_frame_esp("kn_config.html?kn_debug=1");
+    // }]);
+
+mktest(
+    [ "kn_activepanel API", function()
+    {
+        left_frame_esp("kn_activepanels.html?kn_debug=1");
+    }]);
+
+mktest(
+    [ "server-side tests", function()
+    {
+        if (document.serverform.server.checked)
+        {
+            var testgroup = document.serverform.testgroup.value;
+            if (document.serverform.username.value ||
+                document.serverform.password.value)
+            {
+                left_frame_esp("/cgi-bin/pubsub_test.cgi?test=" +
+                               escape(testgroup) +
+                               ";jsoutput=1;user=" + 
+                               escape(document.serverform.username.value) + 
+                               ";password=" + 
+                               escape(document.serverform.password.value));
+            }
+            else
+            {
+                left_frame_esp("/cgi-bin/pubsub_test.cgi?test=" +
+                               escape(testgroup) +
+                               ";jsoutput=1");
+            }
+        }
+        else
+        {
+            succeed();
+        }
+    }]);
+
+mktest(
+    [ "nop test 3", function ()
+    {
+        succeed();
+    }]);
+
+// END OF TESTS
+
+function update()
+{
+    var enabled = document.serverform.server.checked;
+    document.serverform.username.disabled =
+        document.serverform.password.disabled =
+        document.serverform.testgroup.disabled =
+        ! enabled;
+    if (enabled) document.serverform.username.focus();
+}
+
+function enable()
+{
+    document.serverform.server.checked = true;
+    update();
+}
+
+// MSIE allows a frameset's dimensions to be adjusted dynamically.
+// This means we can hide the test frames when they're not in use.
+
+// Mozilla 0.9 does support document.body.rows, but it runs out of memory (!)
+// when the frameset is re-arranged. So we disable this feature in
+// every Netscape-based browser.
+
+function hide()
+{
+    if (top.document.body && navigator.appName != "Netscape")
+    {
+        top.document.body.rows = "100%, *";
+    }
+}
+
+function show()
+{
+    if (top.document.body && navigator.appName != "Netscape")
+    {
+        top.document.body.rows = "65%, 35%";
+    }
+}
+
+// -->
+</script>
+
+</head>
+
+<body bgcolor="white" text="black" link="navy" alink="maroon" vlink="purple"
+onload="document.testform.output_area.value=' ';update();hide()">
+
+<h1 align="center">PubSub Test</h1>
+
+<hr />
+
+<table border="0" width="100%" summary="">
+<tr>
+<td valign="top">
+<p>Close any open PubSub apps, then click <button onclick="runtests()"><a
+href="javascript:void runtests()//">Go</a></button> to start the
+test process. If a test is hung, you can click <button
+onclick="fail('user override')"><a
+href="javascript:void fail('user override')//">Fail</a></button> to
+force the test to fail and proceed to the next. The <a
+href="#server" onclick="enable();return true">server-side tests</a>
+are optional.</p>
+</td>
+<td valign="top"><small>This version of PubSub Test defines 
+
+<script type="text/javascript"><!--
+
+document.write(tests.length);
+
+// -->
+</script>
+
+tests. Some tests include multiple parts, called
+<em>subtests</em>. Failure of a subtest doesn't automatically imply
+failure of the larger test it's a part of.</small></td>
+</tr>
+
+<tr>
+<td>
+<form action="javascript:void null//" name="testform">
+<table bgcolor="#cccccc" border="0" cellspacing="0" cellpadding="5"
+summary="Test Results">
+<tr>
+<th align="left">Test Results</th>
+</tr>
+
+<tr>
+<td>
+<table bgcolor="#cccccc" width="100%" border="0"
+summary="Test Suite Output">
+<tr>
+<td align="center"><textarea name="output_area" rows="30" cols="80"
+wrap="virtual" readonly="readonly">If this message remains
+displayed for more than a couple of seconds, your browser is not
+running scripts, and neither the test suite nor, probably, the
+software it is intended to test will work.  This is usually because
+you have disabled scripting in your browser.  Check to see if you're
+doing this, enable scripts if so, and reload.
+</textarea> </td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td>
+<table bgcolor="#cccccc" width="100%" border="0" summary="Frame Contents">
+<tr>
+<td colspan="2">The lower frames should contain:</td>
+</tr>
+
+<tr>
+<th align="right">Left:</th>
+<td><input name="left_frame_url" size="80" readonly="readonly" /></td>
+</tr>
+
+<tr>
+<th align="right">Right:</th>
+<td><input name="right_frame_url" size="80"
+readonly="readonly" /></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</form>
+</td>
+<td valign="top">
+<form name="serverform" action="javascript:void runtests()//">
+<table bgcolor="#cccccc" border="0" cellspacing="0" cellpadding="5"
+summary="Server-Side Tests">
+<tr>
+<th align="left"><a name="server" id="server"><input
+type="checkbox" name="server" onclick="update()" /> Include
+Server-Side Tests</a></th>
+</tr>
+
+<tr>
+<td>
+<table bgcolor="#cccccc" width="100%" border="0"
+summary="Server-Side Test Options">
+<tr>
+<th valign="top">Note:</th>
+<td><em>These tests require CGI support on the server.  Perl and
+LWP must also be installed.</em></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td>
+<table bgcolor="#cccccc" width="100%" border="0"
+summary="Authentication for use by Server-Side Tests">
+<tr>
+<td colspan="2">If your server requires user names and passwords,
+enter them:</td>
+</tr>
+
+<tr>
+<th align="right">User name:</th>
+<td><input name="username" disabled="disabled"
+onclick="enable();this.focus()" /></td>
+</tr>
+
+<tr>
+<th align="right">Password:</th>
+<td><input type="password" name="password" disabled="disabled"
+onclick="enable();this.focus()" /></td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td>
+<table bgcolor="#cccccc" width="100%" border="0"
+summary="Server-Side Test Selection">
+<tr>
+<td colspan="2">Test for the server-side test suite
+(for example, <samp>subtopics aren't events</samp>):</td>
+</tr>
+
+<tr>
+<th align="right">Test&nbsp;Selection:</th>
+<td><input name="testgroup" value="" disabled="disabled"
+onclick="enable();this.focus()" /> </td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</form>
+</td>
+</tr>
+</table>
+<hr />
+
+<p><a href="../index.html" target="_parent">Home</a>   |   <a href="../docs/index.html" target="_parent">Documentation</a>   |   <a href="../samples/index.html" target="_parent">Samples</a>   |  Tests</p>
+
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: kn_activepanels.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>ActivePanel Test</title>
+
+<script type="text/javascript">
+  kn_browser_includePath = "../js/";
+</script>
+
+<script type="text/javascript" src="../js/kn_config.js"></script>
+<script type="text/javascript" src="../js/kn_browser.js"></script>
+
+<script type="text/javascript">
+  kn_include("kn_activepanels");
+</script>
+
+<script type="text/javascript" src="lib.js"></script>
+
+<script type="text/javascript"><!--
+
+subtests = [ ];
+var failed_subtests = 0;
+var next_subtest = 0;
+current_subtest = null;
+current_form = null;
+
+function succeed_subtest()
+{
+    current_form.elements[0].checked = true;
+    current_form.elements[0].disabled = false;
+    subsucceed(current_subtest.name);
+    window.setTimeout("run_next_subtest()", 1);
+}
+
+function fail_subtest(msg)
+{
+    failed_subtests ++;
+    current_form.elements[1].checked = true;
+    current_form.elements[1].disabled = false;
+    subfail(current_subtest.name, msg);
+    setTimeout("run_next_subtest()", 1);
+}
+
+function run_next_subtest()
+{
+    if (next_subtest < subtests.length)
+    {
+        current_form = document.forms[next_subtest];
+        current_subtest = subtests[next_subtest];
+        next_subtest ++;
+        current_subtest.closure();
+    }
+    else
+    {
+        if (failed_subtests)
+            fail(failed_subtests + " subtest(s) failed");
+        else
+            succeed();
+    }
+}
+
+// Subtests must call either succeed_subtest() or fail_subtest(msg).
+function define_subtest(name, subtest)
+{
+    subtests[subtests.length] =
+    {name: name, closure: subtest};
+}
+
+// Array form for emacs-friendly declaration.
+function mksubtest(a)
+{
+    define_subtest(a[0], a[1]);
+}
+
+// BEGINNING OF SUBTESTS
+
+mksubtest(
+    [ "nop subtest", function ()
+    {
+        succeed_subtest();
+    }]);
+  
+mksubtest(
+    [ "ActivePanel creation", function ()
+    {
+        if (self.kn_activepanels["PanelGold"])
+          succeed_subtest();
+        else
+          fail_subtest();   
+    }]);
+    
+function countImages(obj)
+{
+  var img;
+  if (document.layers)
+  {
+    img = obj.document.images;
+  } else if (document.all)
+  {
+    img = obj.all.tags("img");
+  } else
+  {
+    img = obj.getElementsByTagName("img");
+  }
+  return img.length;
+}
+
+mksubtest(
+    [ "write/update ActivePanel", function ()
+    {
+        var ap = self.kn_activepanels["PanelGold"];
+        ap.write('<img src="dummy.gif" width="20" height="20" border="0" alt="">');
+        ap.update();
+        self.setTimeout(
+        "var obj = kn_activepanel_getObj(\"PanelGold\");"+
+        "if (!obj)" +
+        "{" +
+          "fail_subtest(\"Cannot find activepanel\");" +
+        "} else" +
+        "{   " +
+          "var i =countImages(obj);" +
+          "if (i == 1) {" +
+            "succeed_subtest();" +
+          "} else {" +
+            "fail_subtest(i + \" images, expected 1\");" +
+          "}" +
+        "}",2000);
+    }]);
+
+mksubtest(
+    [ "clear/update ActivePanel", function ()
+    {
+
+        var ap = self.kn_activepanels["PanelGold"];
+        ap.clear();
+        ap.update();
+        self.setTimeout(
+        "var obj = kn_activepanel_getObj(\"PanelGold\");" +
+        "if (!obj)" +
+        "{" +
+        "  fail_subtest(\"Cannot find activepanel\");" +
+        "} else" +
+        "{   " +
+        "  var i =countImages(obj);" +
+        "  if (i == 0)" +
+        "    succeed_subtest();" +
+        "  else" +
+        "    fail_subtest(i + \" images, expected none\");" +
+        "} ", 2000);
+    }]);
+
+// END OF SUBTESTS
+
+expect_subtests(subtests.length);
+
+// -->
+</script>
+
+</head>
+
+<body onload="run_next_subtest()" text="black" bgcolor="white">
+
+<h1 align="center">ActivePanel Test</h1>
+
+<script>kn_activepanel("PanelGold",150,100,true)</script>
+
+<script type="text/javascript"><!--
+
+document.write(subtestTable(subtests));
+
+// -->
+</script>
+
+</body>
+</html>

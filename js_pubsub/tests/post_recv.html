@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: post_recv.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PubSub Test: Post and receive an event</title>
+
+<script type="text/javascript">
+  kn_browser_includePath = "../js/";
+</script>
+
+<script type="text/javascript" src="../js/kn_config.js"></script>
+<script type="text/javascript" src="../js/kn_browser.js"></script>
+<script type="text/javascript" src="lib.js"></script>
+
+<script type="text/javascript"><!--
+
+sent_payload = null;
+
+// We test all chars less than solid_codes.
+solid_codes = 0x200;
+
+// We also test these chars.
+// FIXME: we also need to test *illegal* codes (i.e. 0x...FFFE/0x...FFFF)
+// to make sure they are mapped to the replacement character U+FFFD.
+additional_codes = [
+    0x7FF, // last 2-byte UTF-8 sequence
+    0x800, // first three-byte UTF-8 sequence
+    0xFFFD, // last three-byte UTF-8 sequence (and last BMP character)
+    0x10000, // first four-byte UTF-8 sequence (and first Plane 1 character)
+    0x10FFFD // last UTF-16 character (and last Plane 16 character)
+    ];
+
+// NOTE: characters past this point don't work yet.
+//    0x110000, // first non-UTF-16 character
+//    0x1FFFFD, // last four-byte UTF-8 sequence
+//    0x200000, // first five-byte UTF-8 sequence
+//    0x3FFFFFD, // last five-byte UTF-8 sequence
+//    0x4000000, // first six-byte UTF-8 sequence
+//    0x7FFFFFFD // last six-byte UTF-8 sequence (and last UCS character)
+//
+// The rest of UCS is unrepresentable in UTF-16. There's not much we
+// can do at this point.
+//
+// A solution might be to map these characters into an extended UTF-16
+// using the Private Use Area and/or the Extended Private Use Area,
+// but that does have the disadvantage of being nonstandard. Perhaps a
+// UTF-16-like mapping from UCS to UTF-16 could be adopted for
+// characters beyond U+10FFFF:
+//
+//   I'd like to propose a character encoding (call it "UTF-21", since
+//   it represents each UCS character using two 21-bit UTF-16 code
+//   points) for encoding all of UCS in UTF-16, without changing the
+//   meaning of any assigned UTF-16 codepoints outside the Extended
+//   Private Use Area.
+//
+//   Given a (31-bit) UCS code point with this binary representation:
+//
+//       HHH Hhhh hhhh hhhh llll llll llll llll
+//
+//   represent it in a UTF-21 stream using two consecutive UTF-16 code
+//   points chosen from the former Extended Private Use Area with
+//   these binary representations:
+//
+//       0 1111 1HHH Hhhh hhhh hhhh (uses the second half of plane 16)
+//       1 0000 llll llll llll llll (uses all of plane 17)
+//
+//   No UTF-16-style offset is applied to the value encoded in the
+//   UTF-21 surrogate pair. UTF-21 surrogate pairs corresponding to
+//   UCS code points in the range U+0000..U+F10FFFF are invalid, and
+//   should be handled accordingly. The same considerations apply
+//   here as apply to processing of overlong UTF-8 sequences.
+//
+//   The range U+F8000..U+10FFFF should be reserved in UCS, and the
+//   resulting (smaller) Extended Private Use Area should cover
+//   U+F0000..U+F7FFF. This is unlikely to affect existing
+//   applications in any way, except when UTF-16 streams with Extended
+//   Private Use Area characters are mistakenly processed as UTF-21.
+//
+//   UCS code points beyond U+F7FFF are expected to be rare enough
+//   that the slight overhead for processing UTF-21 pairs won't
+//   matter.
+//
+//   Unpaired halves could be ignored (that is, passed along
+//   unmodified,) removed, or converted to the replacement character
+//   U+FFFD. Basically, the same considerations apply here as apply to
+//   UTF-16 processing.
+//
+//   This does use up 75% of the Extended Private Use Area, but it
+//   also allows access to the much larger private half of
+//   UCS. Another problem, potentially more severe, is that this is a
+//   "nested" encoding, i.e. it requires two levels of UTF-16-style
+//   surrogate pair decoding. This only matters, though, for
+//   applications that need to manipulate the encoded UCS
+//   characters. Other applications will pass the surrogates
+//   unmodified, with no ill effects other than potentially incorrect
+//   character counts (based on UTF-16 counts rather than UCS counts.)
+//
+//   The endianness and byte order mark considerations of UCS-2 and
+//   UTF-16 apply equally to UTF-21. There may be a need for three
+//   variants: UTF-21 (with U+FEFF byte order mark,) UTF-21BE
+//   (big-endian, no byte order mark) and UTF-21LE (little-endian, no
+//   byte order mark.)
+//
+// Anyhow, enough ranting...
+
+// Generate a U+.... hexadecimal character code reference.
+function uniref(code)
+{
+    if (! ((code >= 0) && (code <= KN.ucsMaxChar)))
+    {
+        return '' + code;
+    }
+    if (code <= KN.ucs2max)
+    {
+        return 'U+' + (code + 0x10000).toString(16).substring(1).toUpperCase();
+    }
+    return (code <= KN.utf16max ? 'U+' : 'U-') + code.toString(16).toUpperCase();
+}
+
+function receive_event(e)
+{
+    var testname; // for subtests
+    for (var i = 0; i < solid_codes; i++)
+    {
+        if (e[uniref(i)] == null)
+        {
+            fail("Charcode " + uniref(i) +
+                 " didn't come back");
+            return;
+        }
+        if (e[uniref(i)].length != 1)
+        {
+            fail("Charcode " + uniref(i) +
+                 " came back with wrong length (" +
+                 e[uniref(i)].length + ")");
+            return;
+        }
+        var mangled = e[uniref(i)].charCodeAt(0);
+        if (mangled != i)
+        {
+            fail("Charcode " + uniref(i) + " failed (got mapped to " +
+                uniref(mangled) + ")");
+            return;
+        }
+        if (e[e[uniref(i)]] != i)
+        {
+            fail("Charcode " + uniref(i) + " didn't work as a header name");
+            return;
+        }
+    }
+    for (var i = 0; i < additional_codes.length; i ++)
+    {
+        var code = additional_codes[i];
+        if (e[uniref(code)] == null)
+        {
+            fail("Charcode " + uniref(code) +
+                 " didn't come back");
+            return;
+        }
+        var mangled = kn_charCodesFromString(e[uniref(code)]);
+        if (mangled.length != 1)
+        {
+            fail("Charcode " + uniref(code) +
+                 " came back with wrong length (" +
+                 mangled.length + ")");
+            return;
+        }
+        if (code != mangled[0])
+        {
+            fail("Charcode " + uniref(code) + " failed (got mapped to " +
+                 uniref(mangled[0]) + ")");
+            return;
+        }
+        if (e[e[uniref(code)]] != code)
+        {
+            fail("Charcode " + uniref(code) + " didn't work as a header name");
+            return;
+        }
+    }
+    if (e.kn_payload != sent_payload)
+    {
+        fail("Payload transparency failed.");
+        return;
+    }
+    if (e[sent_payload] != sent_payload.length)
+    {
+        fail("Header name transparency failed.");
+        return;
+    }
+    if (! kn__hacks('noswap'))
+    {
+        if (! e.kn_route_checkpoint && ! e.kn_event_hash)
+        {
+            fail("The kn_route_checkpoint and kn_event_hash headers are missing, but the 'noswap' hack is disabled.");
+            return;
+        }
+    }
+    testname = "kn_time_t and kn_expires test";
+    if (e.kn_expires &&
+        (e.kn_expires.charAt(0) != '+') &&
+        e.kn_time_t &&
+        (new Number(e.kn_expires) < new Number(e.kn_time_t)))
+    {
+        subfail(
+            "Warning: " + testname,
+            "Expiration time precedes timestamp:\n\tkn_expires: " +
+            e.kn_expires +
+            " [" +
+            new Date(e.kn_expires * 1000).toLocaleString() +
+            "]\n\tkn_time_t: " +
+            e.kn_time_t +
+            " [" +
+            new Date(e.kn_time_t * 1000).toLocaleString() +
+            "]");
+    }
+    else
+    {
+        subsucceed(testname);
+    }
+    if (e["empty header value test"] != "")
+    {
+        fail("Empty header value failed.");
+        return;
+    }
+//      testname = "empty header name test";
+//      if (e[""] != "empty header name test")
+//      {
+//          subfail(
+//              "Warning: " + testname,
+//              "Empty header name lost in transit.");
+//      }
+//      else
+//      {
+//          subsucceed(testname);
+//      }
+    succeed();
+}
+
+// Funny how all these test functions have really meaningless names.
+function do_it()
+{
+    expect_subtests(1);
+    var topic = kn_argv.kn_topic;
+    kn_subscribe(topic, receive_event);
+   
+    var event = { kn_payload: "" };
+
+    for (var i = 0; i < solid_codes; i++)
+    {
+        var s = String.fromCharCode(i);
+        event[uniref(i)] = s;
+        event[s] = i;
+        event.kn_payload += s;
+    }
+    for (var i = 0; i < additional_codes.length; i ++)
+    {
+        var code = additional_codes[i];
+        var s = kn_stringFromCharCode(code);
+        event[uniref(code)] = s;
+        event[s] = code;
+        event.kn_payload += s;
+    }
+    sent_payload = event.kn_payload;
+    event[sent_payload] = sent_payload.length;
+//      event[""] = "empty header name test";
+    event["empty header value test"] = "";
+    kn_publish(topic, event);
+}
+
+// -->
+</script>
+
+</head>
+
+<body onload="do_it()">
+
+<h1>Post and receive an event</h1>
+
+<p>This test seems to take longer than you might expect; although
+it is only posting a single event (and therefore receiving three),
+that event has lots of headers.</p>
+
+<p>Various MSIE flavors take ten seconds or more to run this test;
+we think it is because of some of the funky characters. MSIE 5.0
+for Windows has been known to crash when this test is run inside a
+frameset with another frame controlling the tunnel connection.</p>
+
+</body>
+</html>

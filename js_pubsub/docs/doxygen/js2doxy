@@ -1,0 +1,9 @@
+#!/bin/bash --
+case :"$(uname -s)" in
+(:CYGWIN*)
+	exec perl "$(cygpath -w "$(dirname "$0")"/js2doxy.pl)" "$@"
+	;;
+(*)
+	exec perl js2doxy.pl "$@"
+	;;
+esac

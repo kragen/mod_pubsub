@@ -1,0 +1,295 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: popup_proxy.html,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+
+<noscript>
+
+<title>JavaScript PubSub Library (JavaScript Disabled)</title>
+
+</noscript>
+
+<script type="text/javascript"><!--
+
+// We make use of quite a few convenience functions from the JavaScript
+// PubSub Library, but we don't want to deal with a separate active
+// JavaScript PubSub instance here, so we load the dummy loopback
+// plugin before loading the JavaScript PubSub instance.
+
+function kn_popup_proxyConfig()
+{
+
+// Dummy (loopback) plug-in to disable networking.
+self.kn_include_plugin("kn_loopback");
+
+self.kn_include_connector(self.kn_config_server, self.kn_config_connector || "knl");
+
+};
+
+self.kn_config = kn_popup_proxyConfig;
+
+// -->
+</script>
+
+<script type="text/javascript" src="../../js/kn_config.js"></script>
+<script type="text/javascript" src="../../js/kn_browser.js"></script>
+
+
+<script type="text/javascript"><!--
+
+kn_popup_proxyInvalid = false;
+
+// Our default error gives up completely.
+
+function _kn_popup_proxyOnerror(message, url, line)
+{
+    return false;
+}
+
+self.onerror = _kn_popup_proxyOnerror;
+
+// Returns true if this proxy window is valid; as a side-effect,
+// closes it if it isn't valid.
+
+function _kn_popup_proxyValid()
+{
+    if (self.kn_popup_proxyInvalid)
+    {
+        return false;
+    }
+    if (kn_isReady(opener) && opener.kn &&
+        kn_argv.kn_popup_sid == opener.kn_popup_sid)
+    {
+        return true;
+    }
+    else
+    {
+        kn_popup_proxyInvalid = true;
+        self.setTimeout("self.close();", 1);
+        return false;
+    }
+}
+
+if (_kn_popup_proxyValid())
+{
+    kn_popup_proxyUniq = opener.name;
+    kn_popup_proxyBlank = opener.kn_blank;
+    kn_popup_proxyDebug = opener.kn__debug();
+    kn_popup_proxyUserMessage = opener.kn_popup_user_message;
+}
+
+{
+    var titleText = $("PubSub JavaScript Library");
+    if (_kn_popup_proxyValid() &&
+        opener.document &&
+        opener.document.title)
+    {
+        titleText =
+            $_("%{0} - %{1}",
+               opener.document.title,
+               titleText);
+    }
+    document.write("<title>" + kn_htmlEscape(titleText) + "</title>");
+}
+
+// Run every second after self.onload() to make sure the opener window
+// has not died unexpectedly.
+
+function _kn_popup_scan()
+{
+    // A temporary setTiemout is used here in case the opener check explodes.
+    var _l_handle = //_
+        self.setTimeout("self.close()", 500);
+    if (_kn_popup_proxyValid())
+    {
+        self.clearTimeout(_l_handle);
+        self.setTimeout("_kn_popup_scan()", 1000);
+    }
+}
+
+function _kn_popup_proxyFramesetOnLoad()
+{
+    // Start scanning.
+    _kn_popup_scan();
+    if (_kn_popup_proxyValid())
+    {
+        self.kn = opener.kn;
+        opener.setTimeout("kn_popup_onLoad();",1);
+    }
+}
+  
+function _kn_popup_proxySendCallback(event,win)
+{
+    if (_kn_popup_proxyValid())
+    {
+        opener.kn_sendCallback(event,win);
+    }
+}
+
+kn_sendCallback = _kn_popup_proxySendCallback;
+  
+function _kn_popup_proxyRedrawCallback(win)
+{
+    if (_kn_popup_proxyValid())
+    {
+        return opener.kn_redrawCallback(win);
+    }
+}
+  
+kn_redrawCallback = _kn_popup_proxyRedrawCallback;
+  
+function _kn_popup_proxyRepop()
+{
+    if (_kn_popup_proxyValid())
+    {
+        opener.setTimeout("if (this.kn) kn_popup_repop()", 1);
+    }
+}
+
+_kn_popup_proxyHiding = false;
+
+function _kn_popup_proxyHide()
+{
+    if (_kn_popup_proxyValid() &&
+        ! _kn_popup_proxyHiding &&
+        ! kn_popup_proxyDebug)
+    {
+        _kn_popup_proxyHiding = true;
+        kn.ownerWindow.blur();
+        opener.focus();
+        _kn_popup_proxyHiding = false;
+    }
+}
+
+self.onfocus = _kn_popup_proxyHide;
+
+// -->  
+</script>
+</head>
+
+<script type="text/javascript"><!--
+
+{
+    var html = [];
+    // Extra frameset parameters.
+    var boilerplate =
+        ' onload="_kn_popup_proxyFramesetOnLoad();"' +
+        ' onunload="_kn_popup_proxyRepop();"';
+
+    {
+        var toolTip =
+            $("Leave this window open to send and receive live notifications.");
+        if (document && document.title)
+        {
+            toolTip =
+                $_("%{0} \r\n%{1}",
+                   document.title,
+                   toolTip);
+        }
+        boilerplate += ' title="' + kn_htmlEscape(toolTip) + '"';
+    }
+
+    if (kn_popup_proxyDebug)
+    {
+        html[html.length] =
+            "<frameset" + boilerplate + " cols=\"50%,*\">";
+        html[html.length] =
+            "<frame name=\"" +
+            kn_popup_proxyUniq +
+            "_tunnel\" src=\"" +
+            kn_popup_proxyBlank +
+            "\" marginwidth=\"10\" marginheight=\"10\" scrolling=\"auto\" frameborder=\"1\">";
+        html[html.length] =
+            "<frame name=\"" +
+            kn_popup_proxyUniq +
+            "_post\" src=\"" +
+            kn_popup_proxyBlank +
+            "\" marginwidth=\"10\" marginheight=\"10\" scrolling=\"auto\" frameborder=\"1\">";
+    } else
+    {
+        html[html.length] =
+            "<frameset" + boilerplate + " rows=\"100%,*,*\" framespacing=\"0\">";
+        html[html.length] =
+            "<frame name=\"" +
+            kn_popup_proxyUniq +
+            "_msg\" src=\"" +
+            kn_popup_proxyUserMessage +
+            "\" marginwidth=\"10\" marginheight=\"10\" scrolling=\"auto\" frameborder=\"0\">";
+        html[html.length] =
+            "<frame name=\"" +
+            kn_popup_proxyUniq +
+            "_tunnel\" src=\"" +
+            kn_popup_proxyBlank +
+            "\" marginwidth=\"10\" marginheight=\"10\" scrolling=\"auto\" frameborder=\"0\">";
+        html[html.length] =
+            "<frame name=\"" +
+            kn_popup_proxyUniq +
+            "_post\" src=\"" +
+            kn_popup_proxyBlank +
+            "\" marginwidth=\"10\" marginheight=\"10\" scrolling=\"auto\" frameborder=\"0\">";
+    }
+    html[html.length] =
+        "</frameset>";
+
+    document.write(html.join(""));
+}
+
+// -->
+</script>
+
+<noscript>
+
+<body>
+
+<h1>JavaScript Disabled</h1>
+
+<p>JavaScript is missing or disabled in your browser, so the JavaScript
+PubSub Library will not run. You may wish to enable JavaScript in your
+browser, or switch to a browser with a JavaScript interpreter, and
+reload this page.</p>
+
+</body>
+
+</noscript>
+
+</html>
