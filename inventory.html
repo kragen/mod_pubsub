@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: inventory.html,v 1.4 2003/07/20 07:50:04 ifindkarma Exp $
+ $Id: inventory.html,v 1.5 2003/07/20 09:00:10 ifindkarma Exp $
 
 -->
 
@@ -191,8 +191,10 @@ function update_clock() {
 <td bgcolor="white"><a href="Makefile">Makefile</a></td>
 <td bgcolor="white">Makefile to create <i>pubsub.js</i> from
 <!-- <a href="kn_apps/kn_lib/pubsub_raw.js"> -->
-<i>pubsub_raw.js</i>
-and a properly-permissioned <i>kn_events/</i> directory.</td>
+<i>pubsub_raw.js</i>, the framework and tools in the 
+<i>js_pubsub</i> directory, and a properly-permissioned
+<i>kn_events/</i> directory.  Use "make all" to create,
+and "make clean" to remove made files.</td>
 </tr>
 
 <tr>
@@ -245,12 +247,6 @@ external SOAP service invocation.
 </tr>
 
 <tr>
-<td bgcolor="#eeeeee"><a href="soap_pubsub/">soap_pubsub/</a></td>
-<td bgcolor="#eeeeee">The SOAP Gateway
-resides in the <i>cgi-bin/</i> directory.</td>
-</tr>
-
-<tr>
 <td bgcolor="white"><a href="perl_pubsub/">perl_pubsub/</a></td>
 <td bgcolor="white">The <b>Perl PubSub Client Library</b>
 and <b>Perl PubSub Server</b> reside in the <i>cgi-bin/</i>
@@ -260,14 +256,22 @@ apps that use the Client Library are
 <a href="kn_tools/list_events.plx">list_events</a>,
 <a href="kn_tools/list_routes.plx">list_routes</a>, and
 <a href="kn_tools/list_subtopics.plx">list_subtopics</a>
-in the <a href="kn_tools/">kn_tools/</a> directory.</td>
+in the <a href="kn_tools/">kn_tools/</a> directory, and
+some sensors in the <a href="kn_sense/">kn_sense</a> directory.</td>
 </tr>
 
 <tr>
 <td bgcolor="#eeeeee"><a href="js_pubsub/">js_pubsub/</a></td>
-<td bgcolor="#eeeeee">The JavaScript PubSub Client Library,
-helper libraries, and JavaScript sample applications reside
-in the <i><a href="kn_apps/">kn_apps/</a></i> directory.</td>
+<td bgcolor="#eeeeee">A <a href="js_pubsub/">directory</a> of 
+utilities and libraries that offer a framework for JavaScript
+<a href="js_pubsub/js/">components</a>, including
+<a href="js_pubsub/samples/">sample applications</a>,
+<a href="js_pubsub/docs/">docs</a>, and
+<a href="js_pubsub/tests/">tests</a>.  In addition, the JavaScript
+PubSub Client Library, plus some helper libraries and JavaScript
+sample applications, <a href="js_pubsub/MOVED">reside</a> in the
+<a href="kn_apps/">kn_apps/</a> directory.  We hope
+to eventually port the kn_apps to use the js_pubsub framework.</td>
 </tr>
 
 <tr>
@@ -284,8 +288,15 @@ helper libraries <a href="kn_apps/kn_lib/">kn_lib</a> and
 </tr>
 
 <tr>
-<td bgcolor="#eeeeee"><a href="php_pubsub/">php_pubsub/</a></td>
-<td bgcolor="#eeeeee"><b>PubSub Client Library for PHP</b>
+<td bgcolor="#eeeeee"><a href="flash_pubsub/">flash_pubsub/</a></td>
+<td bgcolor="#eeeeee">Some early research into a <b>Flash and ActionScript
+PubSub Client Library</b> (<a href="flash_pubsub/README">README</a>,
+<a href="flash_pubsub/pubsub.as">pubsub.as</a>).</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="php_pubsub/">php_pubsub/</a></td>
+<td bgcolor="white"><b>PubSub Client Library for PHP</b>
 (<a href="php_pubsub/pubsublib.php">pubsublib.php</a>),
 including a Publish example 
 (<a href="php_pubsub/publish.php" target="_blank">publish.php</a>
@@ -297,6 +308,13 @@ including a Publish example
 for network I/O.  For client-side subscribe, use the
 <a href="kn_docs/javascript_reference.html" target="_blank">JavaScript
 PubSub Client Library</a> to do updates in the Web browser.</td>
+</tr>
+
+<tr>
+<td bgcolor="#eeeeee"><a href="ruby_pubsub/">ruby_pubsub/</a></td>
+<td bgcolor="#eeeeee"><b>Ruby PubSub Client Library</b>
+(<a href="ruby_pubsub/libkn/libkn.rb">libkn.rb</a>).
+It is multi-threaded and blocking.</td>
 </tr>
 
 <tr>
@@ -313,12 +331,29 @@ have the functionality of <i>pubsub.py</i> match that of
 It is single-threaded and non-blocking.  There are also some
 <a href="python_pubsub/apps/">sample apps</a> that use this library:
 <a href="python_pubsub/apps/chat.py">chat.py</a>,
-<a href="python_pubsub/apps/publish.py">publish.py</a>, and
+<a href="python_pubsub/apps/publish.py">publish.py</a>,
+<a href="python_pubsub/apps/subscribe.py">subscribe.py</a>, and
 <a href="python_pubsub/apps/repeater.py">repeater.py</a>.
+Works on Python 2.1+ for Windows, and Python 1.5+ for Linux,
+Solaris, and Mac OS X.
 <li> <b>Python PubSub Client Library</b>
 (<a href="python_pubsub/libkn/libkn.py">libkn.py</a>).
 It is multi-threaded and blocking.
 </ol></td>
+</tr>
+
+<tr>
+<td bgcolor="#eeeeee"><a href="soap_pubsub/">soap_pubsub/</a></td>
+<td bgcolor="#eeeeee">The SOAP Gateway
+resides in the <i>cgi-bin/</i> directory.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="java_pubsub/">java_pubsub/</a></td>
+<td bgcolor="white"><b>Java PubSub Client Library</b>
+(<a href="java_pubsub/src/net/xmlrouter/mod_pubsub/client/">client</a> and
+<a href="java_pubsub/src/org/mod_pubsub/chat/">chat app</a>).
+It is multi-threaded and blocking.</td>
 </tr>
 
 <tr>
@@ -343,11 +378,10 @@ It is single-threaded and partially non-blocking
 </tr>
 
 <tr>
-<td bgcolor="#eeeeee"><a href="java_pubsub/">java_pubsub/</a></td>
-<td bgcolor="#eeeeee"><b>Java PubSub Client Library</b>
-(<a href="java_pubsub/src/net/xmlrouter/mod_pubsub/client/">client</a> and
-<a href="java_pubsub/src/org/mod_pubsub/chat/">chat app</a>).
-It is multi-threaded and blocking.</td>
+<td bgcolor="#eeeeee"><a href="kn_sense/">kn_sense/</a></td>
+<td bgcolor="#eeeeee">Sample sensors for scraping data from websites
+and publishing them to a PubSub Server.  For example, see the
+<a href="kn_sense/rss/">RSS</a> sensor.</td>
 </tr>
 
 <tr>
@@ -378,20 +412,6 @@ It is multi-threaded and blocking.</td>
 <li> Some useful JavaScript
  <a href="kn_tools/bookmarklets.html">bookmarklets</a>.
 </ol></td>
-</tr>
-
-<tr>
-<td bgcolor="#eeeeee"><a href="ruby_pubsub/">ruby_pubsub/</a></td>
-<td bgcolor="#eeeeee"><b>Ruby PubSub Client Library</b>
-(<a href="ruby_pubsub/libkn/libkn.rb">libkn.rb</a>).
-It is multi-threaded and blocking.</td>
-</tr>
-
-<tr>
-<td bgcolor="white"><a href="kn_sense/">kn_sense/</a></td>
-<td bgcolor="white">Sample sensors for scraping data from websites
-and publishing them to a PubSub Server.  For example, see the
-<a href="kn_sense/rss/">RSS</a> sensor.</td>
 </tr>
 
 <tr>
