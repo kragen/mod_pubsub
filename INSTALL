@@ -9,7 +9,10 @@ configuring Apache 1.3, assuming you have root on the web server,
 are below.  Other web servers may work but have not been tested
 with this release.
 
-$Id: INSTALL,v 1.9 2003/03/12 01:24:14 ifindkarma Exp $
+So far, we have tested mod_pubsub with Apache and mod_perl on
+Linux, Mac OS X, and Solaris 2.8.
+
+$Id: INSTALL,v 1.10 2003/03/12 02:34:41 ifindkarma Exp $
 
 
 
@@ -237,6 +240,8 @@ mod_pubsub/ as its document root.  In a browser, you can go to
    http://localhost/kn_apps/
 
 and run some of the sample PubSub-enabled browser applications.
+So far, we have tested and run pubsub.py on Linux, Solaris, and
+Windows.
 
 
 
