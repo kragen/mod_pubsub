@@ -145,7 +145,7 @@ $(srcdir)/configure: configure.in
 
 $(srcdir)/kn_config.h.in: config.stamp.in
 config.stamp.in: configure.in buildconf/acconfig.h
-	$(_v) cd $(srcdir) && (cd $(srcdir)/buildconf && autoheader ../configure.in && cp kn_config.h.in ..)
+	$(_v) cd $(srcdir) && ./setup
 	$(_v) date > $@
 
 $(CONFIGURE_OUTPUT): config.stamp
