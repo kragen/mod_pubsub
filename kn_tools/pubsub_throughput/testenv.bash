@@ -32,11 +32,11 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: testenv.bash,v 1.1 2003/04/29 07:31:52 ifindkarma Exp $
+# $Id: testenv.bash,v 1.2 2003/05/07 03:12:04 bsittler Exp $
 
 # Replace with PubSub Server URL.
 export pubsub_server="http://127.0.0.1/kn"
-export testrun=$$
+export testrun="$(date -u +'%Y-%m-%d').$$.$RANDOM"
 
 export PUBTOPICURI="${pubsub_server}/what/test/${testrun}/publishers"
 export SUBTOPICURI="${pubsub_server}/what/test/${testrun}/subscribers"

@@ -34,7 +34,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: runall.bash,v 1.2 2003/05/01 01:00:17 bsittler Exp $
+# $Id: runall.bash,v 1.3 2003/05/07 03:12:04 bsittler Exp $
 
 #
 #  1 - added grep $0 into the subsRunning line to ensure that we picked up
@@ -134,12 +134,12 @@ python pub.py -f $INIFILE > $pubOutFileName 2>&1
 
 sleep 20
 echo "Checking to see if subscribers are still running"
-subsRunning=`ps -ef | grep throughput_sub | grep -v grep | wc -l `
+subsRunning=$(ps -ef | fgrep :"$testrun": | grep -v grep | wc -l )
 
 while [ $subsRunning -gt 0 ]
 do
   sleep 20
-  subsRunning=`ps -ef | grep throughput_sub | grep -v grep | wc -l `
+  subsRunning=$(ps -ef | fgrep :"$testrun": | grep -v grep | wc -l )
   echo "`date`|Running throughput_process (subscribers)=$subsRunning"
 done
 

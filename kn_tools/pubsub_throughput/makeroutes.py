@@ -32,7 +32,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: makeroutes.py,v 1.1 2003/04/29 07:31:51 ifindkarma Exp $
+## $Id: makeroutes.py,v 1.2 2003/05/07 03:12:04 bsittler Exp $
 
 # This app makes routes from all the publisher topics to the journals of 
 # the various subscribers.  The program divvies up the total number of 
@@ -272,7 +272,7 @@ if __name__ == "__main__":
                 # the kn_journal to be used.  Each throughput_sub program can run 
                 # up to 1000 threads where each connects to its own kn_journal.
 
-                subshOutf.write ( "throughput_sub -t " + 
+                subshOutf.write ( "(exec -a throughput_sub:\"$testrun\": throughput_sub -t " + 
                                   str(((tmpEndNum - tmpStartNum) + 1)) + \
                                   " " + verboseRun + \
                                   " -n " + str(numEvents) + \
@@ -282,7 +282,7 @@ if __name__ == "__main__":
                                   " -endseq " + str(tmpEndNum) + \
                                   " -urlbase " + subscriberURLBase + \
                                   " > " + configFileName + "-sub" + str(i) \
-                                        + ".log 2>&1 &\n" )
+                                        + ".log) 2>&1 &\n" )
                 
                 # Allow the previous process to start up, connect, and
                 # open the connections.
