@@ -34,7 +34,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: runall.bash,v 1.3 2003/05/07 03:12:04 bsittler Exp $
+# $Id: runall.bash,v 1.4 2003/05/22 20:08:26 bsittler Exp $
 
 #
 #  1 - added grep $0 into the subsRunning line to ensure that we picked up
@@ -49,28 +49,28 @@ E_SUBUNDEF=-5
 
 if [ $# -ne $EXPECTED_ARGS ]
 then
-  echo "Usage: `basename $0` iniFileName"
+  echo "Usage: $(basename "$0") iniFileName"
   exit $E_BADARGS
 fi
 
 if [ ! -f "$1" ]
 then
-  echo "Usage: `basename $0` iniFileName"
+  echo "Usage: $(basename "$0") iniFileName"
   echo "The file $1 doesn't exist"
   exit $E_FILEDOESNTEXIST
 fi
 
-INIFILE=$1
+INIFILE="$1"
 
-if [ `ulimit -n` != "unlimited" ]
+if [ "$(ulimit -n)" != "unlimited" ]
 then
   echo "WARNING! WARNING! WARNING!"
-  echo "\tnumber of open files handles  is set to `ulimit -n`"
-  echo "\tYou will not be able to run more than that many"
-  echo "\tsubscribers and publishers. "
+  echo $'\t'"number of open files handles  is set to $(ulimit -n)"
+  echo $'\t'"You will not be able to run more than that many"
+  echo $'\t'"subscribers and publishers. "
 fi
 
-if [ `env | grep "PUBTOPICURI" | wc -l` -ne 1 ]
+if [ "$(env | grep "PUBTOPICURI" | wc -l)" -ne 1 ]
 then
   echo "ERROR!! ERROR!! ERROR!!"
   echo "PUBTOPICURI is undefined.  Need it to know which PubSub Server"
@@ -78,7 +78,7 @@ then
   exit $E_PUBUNDEF
 fi
 
-if [ `env | grep "SUBTOPICURI" | wc -l` -ne 1 ]
+if [ "$(env | grep "SUBTOPICURI" | wc -l)" -ne 1 ]
 then
   echo "ERROR!! ERROR!! ERROR!!"
   echo "SUBTOPICURI is undefined.  Need it to know which PubSub Server"
@@ -86,7 +86,7 @@ then
   exit $E_SUBUNDEF
 fi
 
-if [ `which throughput_sub | grep "^no" | wc -l` -eq 1 ]
+if [ "$(which throughput_sub | grep "^no" | wc -l)" -eq 1 ]
 then
   echo "ERROR!! ERROR!! ERROR!!"
   echo "Don't have a path set to be able to run throughput_sub"
@@ -97,14 +97,14 @@ fi
 #  Create the routes out of the topic and into the journal
 #
 outputdir="Results-$INIFILE"
-rm -rf $outputdir
-mkdir $outputdir
+rm -rf "$outputdir"
+mkdir "$outputdir"
 makeRoutesOutFileName="$outputdir/$INIFILE-mr.log"
 echo "$makeRoutesOutFileName"
 echo "Making routes based on $INIFILE file"
-python makeroutes.py -f $INIFILE > $makeRoutesOutFileName 2>&1
-errFound=`grep "Successful" $makeRoutesOutFileName | wc -l`
-if [ $errFound -ne 1 ]
+python makeroutes.py -f "$INIFILE" > "$makeRoutesOutFileName" 2>&1
+errFound="$(grep "Successful" "$makeRoutesOutFileName" | wc -l)"
+if [ "$errFound" -ne 1 ]
 then
     echo "Error! Error! Error!"
     echo "Makeroutes encountered an error.  Look in $makeRoutesOutFileName.out"
@@ -118,29 +118,29 @@ echo "Creating tunnels to the PubSub Server"
 bash sub.bash
 
 echo "Counting the number of subscribers that are running"
-num2expect=$(grep "^-numpublishers" $INIFILE | sed $'s/[ \t]\\+/\t/' | cut -f 2)
+num2expect="$(grep "^-numpublishers" "$INIFILE" | sed $'s/[ \t]\\+/\t/' | cut -f 2)"
 echo "Expecting to see $num2expect entries in throughput_sub output"
-liveTunnels=`grep "All Subscribers connected" $INIFILE*sub*log | wc -l`
-while [ $liveTunnels -lt $num2expect ]
+liveTunnels="$(grep "All Subscribers connected" "$INIFILE"*sub*log | wc -l)"
+while [ "$liveTunnels" -lt "$num2expect" ]
 do
   sleep 5
-  liveTunnels=`grep "All Subscribers connected" $INIFILE*sub*log | wc -l`
-  echo " `date` Are all subscribers connected: $liveTunnels"
+  liveTunnels="$(grep "All Subscribers connected" "$INIFILE"*sub*log | wc -l)"
+  echo " $(date) Are all subscribers connected: $liveTunnels"
 done
 
 echo "Publishing events"
 pubOutFileName="$outputdir/$INIFILE-pub.log"
-python pub.py -f $INIFILE > $pubOutFileName 2>&1
+python pub.py -f "$INIFILE" > "$pubOutFileName" 2>&1
 
 sleep 20
 echo "Checking to see if subscribers are still running"
-subsRunning=$(ps -ef | fgrep :"$testrun": | grep -v grep | wc -l )
+subsRunning="$(ps -ef | fgrep :"$testrun": | grep -v grep | wc -l )"
 
-while [ $subsRunning -gt 0 ]
+while [ "$subsRunning" -gt 0 ]
 do
   sleep 20
-  subsRunning=$(ps -ef | fgrep :"$testrun": | grep -v grep | wc -l )
-  echo "`date`|Running throughput_process (subscribers)=$subsRunning"
+  subsRunning="$(ps -ef | fgrep :"$testrun": | grep -v grep | wc -l )"
+  echo "$(date)|Running throughput_process (subscribers)=$subsRunning"
 done
 
 # Wait for any file I/O to complete.
@@ -153,22 +153,21 @@ sleep 30
 # free up as well.
 #
 
-mv *.out *.log $outputdir
+mv "$INIFILE"*.out "$INIFILE"*.log "$outputdir"
 allSubsFileName="$outputdir/allsubs.out"
-cat $outputdir/*sub*timing*out > $allSubsFileName
+cat "$outputdir"/*sub*timing*out > "$allSubsFileName"
 
 echo "SUCCESS with $INIFILE config. Publishers and subscribers have finished.  "
-tmpFileName=`date | sed 's/ /-/g'`.ini
+tmpFileName="$(date | sed 's/ /-/g')".ini
 resultsFileName="$outputdir/$tmpFileName"
 
-echo "Subscriber results" > $resultsFileName
-python analyze.py -f $allSubsFileName  >> $resultsFileName
-echo "*** Publisher performance metrics follow" >> $resultsFileName
+echo "Subscriber results" > "$resultsFileName"
+python analyze.py -f "$allSubsFileName"  >> "$resultsFileName"
+echo "*** Publisher performance metrics follow" >> "$resultsFileName"
 
 #
 #  The pub.py script writes it's perf results into *pub*timing*.out file
 # so this is hard coded down here - YUCK!!!
 #
-python analyze.py -f $outputdir/*pub*timing*.out >> $resultsFileName
+python analyze.py -f "$outputdir"/*pub*timing*.out >> "$resultsFileName"
 echo "Results are in $resultsFileName"
-
