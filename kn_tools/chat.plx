@@ -41,16 +41,16 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: chat.plx,v 1.3 2003/03/29 08:01:58 ifindkarma Exp $
+# $Id: chat.plx,v 1.4 2003/11/01 06:23:16 ifindkarma Exp $
 
 use strict;
 use lib '../cgi-bin';
 use PubSub::Client;
 
-my $sgr0 = `tput sgr0`;
-my $bold = `tput bold`;
-my $red = `tput setaf 1`;
-my $cyan = `tput setaf 6`;
+my $sgr0 = (`tput sgr0 2>&-` || '');
+my $bold = (`tput bold 2>&-` || '');
+my $red = (`tput setaf 1 2>&-` || '');
+my $cyan = (`tput setaf 6 2>&-` || '');
 my $serv = new PubSub::Client(shift @ARGV);
 my $topic = (shift @ARGV or "/what/chat");
 my $me = (getpwuid($<))[0];
