@@ -5,10 +5,13 @@
     that subscribes to a source topic on one PubSub Server
     and publishes to a mirror on another PubSub Server.
 
+    To call:
+        ./repeater.py from_server to_server topic
+        
     Example of usage:
-        ./repeater.py
+        ./repeater.py http://www.mod-pubsub.org:9000/kn http://127.0.0.1:8000/kn /what/apps/blogchatter/pings
 
-    $Id: repeater.py,v 1.1 2003/06/11 06:32:11 ifindkarma Exp $
+    $Id: repeater.py,v 1.2 2003/06/14 03:03:17 ifindkarma Exp $
     
     Contact Information:
         http://mod-pubsub.sf.net/
@@ -67,26 +70,38 @@ class StatusMonitor:
 
 
 class Repeater(StatusMonitor):
-    def __init__(self, client):
+    def __init__(self, client, topic):
         self.client = client
+        self.topic = topic
     def onMessage(self, event):
         # print "Message: " + event["kn_payload"]
-        self.client.publish("/what/apps/blogchatter/pings",
+        self.client.publish(self.topic,
                             event,
                             StatusMonitor())
 
 
-ua = pubsublib.HTTPUserAgent()
-client1 = pubsublib.SimpleClient(ua, "http://www.mod-pubsub.org:9000/kn")
-client2 = pubsublib.SimpleClient(ua, "http://127.0.0.1:8000/kn")
-client1.subscribe("/what/apps/blogchatter/pings",
-                  Repeater(client2),
-                  { "do_max_n": "10" },
-                  StatusMonitor())
+def main(argv):
 
-while 1:
-    asyncore.poll(scheduler.timeout())
-    scheduler.run()
+    if len(argv) != 3:
+        exit
+        
+    client1_url = argv[1]
+    client2_url = argv[2]
+    topic = argv[3]
+    
+    ua = pubsublib.HTTPUserAgent()
+    client1 = pubsublib.SimpleClient(ua, client1_url)
+    client2 = pubsublib.SimpleClient(ua, client2_url)
+    client1.subscribe(topic,
+                      Repeater(client2, topic),
+                      { "do_max_n": "10" },
+                      StatusMonitor())
 
+    while 1:
+        asyncore.poll(scheduler.timeout())
+        scheduler.run()
+
+
+if __name__ == "__main__": main(sys.argv)
 
 # End of repeater.py
