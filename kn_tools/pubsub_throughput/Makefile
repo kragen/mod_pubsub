@@ -32,27 +32,18 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: Makefile,v 1.5 2003/05/06 23:48:12 bsittler Exp $
+# $Id: Makefile,v 1.6 2003/05/08 02:02:12 bsittler Exp $
 
 .PHONY: all clean
 
-# GNU libtool
-
-# Darwin calls it 'glibtool'
-ifneq (,$(findstring Darwin,$(shell uname -a)))
-LIBTOOL=glibtool
-else
-LIBTOOL=libtool
-endif
-
 # C compiler and linker
-CC=$(LIBTOOL) `curl-config --cc` -static
+CC=`curl-config --cc`
 CFLAGS=`curl-config --cflags`
 LIBS=`curl-config --libs` -lpthread
 LDFLAGS=$(LIBS)
 
 # utility to remove files
-RM=$(LIBTOOL) rm
+RM=rm
 RMFLAGS=-f
 REMOVE=$(RM) $(RMFLAGS)
 
@@ -61,6 +52,6 @@ TARGETS=throughput throughput_pub throughput_sub throughput_test
 all: $(TARGETS)
 
 clean:
-	$(REMOVE) $(TARGETS) *.lo
+	$(REMOVE) $(TARGETS) *.o
 
 throughput_sub: throughput_sub.o throughput_sub_main.o
