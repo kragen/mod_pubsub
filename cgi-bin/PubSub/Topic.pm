@@ -1,6 +1,6 @@
 package PubSub::Topic;
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,7 +34,7 @@ package PubSub::Topic;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Topic.pm,v 1.2 2003/03/25 06:04:26 ifindkarma Exp $
+# $Id: Topic.pm,v 1.3 2003/04/26 00:31:49 ifindkarma Exp $
 
 # All of pubsub.cgi's output, except for things like do_method=help and
 # do_method=lib, is handled by this module.
@@ -55,8 +55,9 @@ use PubSub::EventFormat ();
 
 sub new
 {
-    my ($class, $q, $post) = @_;
+    my ($class, $q, $post, $html_prologue) = @_;
     my $self = bless {}, $class;
+    $self->{'html_prologue'} = $html_prologue;
     $self->{'kn_status_to'} = $q->param('kn_status_to');
     $self->{'kn_response_format'} = $q->param('kn_response_format');
     if (not defined $self->{'kn_response_format'})
@@ -129,6 +130,7 @@ sub send
             print($q->header(-type => 'text/html; charset=utf-8',
                              -status => $event->{'status'}),
                   $q->start_html(-title => $status,
+                                 -head => $self->{'html_prologue'},
                                  ($self->{'watching'} ?
                                   (-onLoad => 
                                    'if(parent.kn_tunnelLoadCallback)' . 

@@ -34,7 +34,7 @@ package PubSub::Server;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Server.pm,v 1.4 2003/04/25 22:58:40 ifindkarma Exp $
+# $Id: Server.pm,v 1.5 2003/04/26 00:31:48 ifindkarma Exp $
 
 use strict;
 
@@ -777,7 +777,7 @@ sub blank
     my ($q) = @_;
     print $q->header(-type=>'text/html; charset=utf-8',
                      -expires=>'+1y');
-    print $q->start_html(-head=><<HEAD, -title=><<TITLE), $q->end_html;
+    print $q->start_html(-head=>html_prologue_string($q).<<HEAD, -title=><<TITLE), $q->end_html;
 <script type="text/javascript">
 <!--
 if (parent.kn_redrawCallback) { parent.kn_redrawCallback(window); }
@@ -835,30 +835,7 @@ sub whoami
     my ($q) = @_;
     print $q->header(-type=>'application/x-javascript',
                      -expires=>'+1d');
-    my $kn_userid = $q->remote_user();
-    my $kn_displayname = $q->user_name();
-    my $kn_server = $q->script_name();
-    if (!$kn_userid) 
-    {
-        $kn_userid = 'anonymous'; 
-        $kn_displayname = 'Anonymous User'; 
-    }
-    if (!$kn_displayname) 
-    {
-        $kn_displayname = $kn_userid;
-    }
-    for ($kn_userid, $kn_displayname, $kn_server)
-    {
-        s/([\\""])/\\$1/g;
-        s/\f/\\f/g;
-        s/\n/\\n/g;
-        s/\r/\\r/g;
-        s/\t/\\t/g;
-        s/(<|[^ -~])/sprintf("\\x%2.2x",ord($1))/ge;
-    }
-    print("window.kn_userid = '$kn_userid' ;",
-          "window.kn_displayname = '$kn_displayname' ;",
-          "window.kn_server = '$kn_server' ;");
+    print js_prologue_string($q);
 }
 
 # Unpack several requests.
@@ -1194,6 +1171,58 @@ sub set_cgi_url
     ($cgi_url) = @_;
 }
 
+# For cross domain and other JavaScript customization.
+
+sub html_prologue_string
+{
+    my ($q) = @_;
+    return ("<script type=\"text/javascript\">\n" .
+            "<!--\n" .
+            js_prologue_string($q) . "\n" .
+            "// -->\n" .
+            "</script>");
+}
+
+# For cross domain and other JavaScript customization.
+
+sub js_prologue_string
+{
+    my ($q) = @_;
+    my $str = "";
+    eval
+    {
+	open(PROLOGUE , "$mod_pubsub_dir/kn_apps/kn_lib/prologue.js")
+	    or die;
+        $str = join "", <PROLOGUE>;
+        close(PROLOGUE);
+    };
+    my $kn_userid = $q->remote_user();
+    my $kn_displayname = $q->user_name();
+    my $kn_server = $q->script_name();
+    if (!$kn_userid) 
+    {
+        $kn_userid = 'anonymous'; 
+        $kn_displayname = 'Anonymous User'; 
+    }
+    if (!$kn_displayname) 
+    {
+        $kn_displayname = $kn_userid;
+    }
+    for ($kn_userid, $kn_displayname, $kn_server)
+    {
+        s/([\\""])/\\$1/g;
+        s/\f/\\f/g;
+        s/\n/\\n/g;
+        s/\r/\\r/g;
+        s/\t/\\t/g;
+        s/(<|[^ -~])/sprintf("\\x%2.2x",ord($1))/ge;
+    }
+    return("window.kn_userid = '$kn_userid' ;" .
+           "window.kn_displayname = '$kn_displayname' ;" .
+           "if (! window.kn_server) window.kn_server = '$kn_server' ;\r\n" .
+	   $str);
+}
+
 sub dispatch_request
 {
     my ($q) = @_;
@@ -1260,7 +1289,8 @@ sub dispatch_request
         $method ||= \&unknown;
         
         my $status_topic;
-        $status_topic = new PubSub::Topic($q, \&post_remote_event);
+        $status_topic = new PubSub::Topic($q, \&post_remote_event,
+					  html_prologue_string($q));
         my $event = $status_topic->status_event();
         # This is how Perl spells "try".  This bothers some people.
         eval 
