@@ -1,0 +1,179 @@
+<html>
+
+<head>
+<title>AmazonPop</title>
+</head>
+<style>
+	A.topics { color:white }
+	.topics { color:white }
+</style>
+
+<style>
+	.nickname { font-size : 8pt; font-weight : bold;  }
+    .comment { font-size : 8pt}
+    .title { font-weight : bold;  font-size : 10pt;}
+    .rank { font-size : 10pt; }
+    .author { font-size : 10pt; }
+    .description { font-size : 10pt; }
+</style>
+
+<!-- The KnowNow Library -->
+<script src="/kn/?do_method=lib"></script>
+<script>
+<!--
+var topic = (kn_argv.kn_topic ?
+             kn_argv.kn_topic :
+             ("/amazon.com/sales/books/" ));
+
+var isRefreshNeeded=false;
+
+var items=new Array();
+var comments=new Array();
+
+var unrecognized=0;
+
+function doLoad()
+{
+    kn_subscribe(topic,this,{do_max_age : 60*60*9 });
+}
+
+function onMessage(event)
+{
+	if (event.type == "status")
+		addItem(event);
+	else
+	if (event.type == "comment")
+		addComment(event);
+		
+    refresh();
+}
+
+function findEvent(event)
+{
+    var item;
+    for (var i=0; i < items.length; i++)
+    {
+        item = items[i];
+        if ((event.kn_id && event.kn_id == item.kn_id) ||
+            (event.link && event.link == item.link) ||
+            (event.title && event.title == item.title) )
+            return i;
+    }
+    return -1;
+}
+
+function addItem(event)
+{
+    var index;
+
+    index = findEvent(event);
+
+    if (index < 0)
+    {
+        items[items.length] = event;
+    }
+    else
+    {
+        items[index] = event;
+    }
+    isRefreshNeeded=true;
+}
+
+function addComment(event)
+{
+    var index;
+
+	if (!event.nickname)
+		event.nickname = "anonymous";
+	comments[comments.length] = event;
+
+    isRefreshNeeded=true;
+}
+
+function refresh()
+{
+    var html="";
+    var item;
+    var comment;
+
+    if (!isRefreshNeeded)
+        return;
+
+	// News items
+	html = "";
+    for (var i=items.length-1; i >= 0 ; --i)
+    {
+        item = items[i];
+        if (item.link && item.title)
+        {
+            html += "<a target='amazonpop_content' href='"+item.link+"'>";
+            html += "<span class='rank'>"+item.rank+"</span> ";
+            html += "<span class='title'>"+item.title+"</span></a><br />";
+            html += "<span class='author'>"+item.author+"</span>";
+            html += "<p />";
+        }
+    }
+	// items
+	document.all.status.innerHTML = html;
+	
+	// Comments
+	html = "";
+    for (var i=comments.length-1; i >= 0 ; --i)
+    {
+        comment = comments[i];
+        if (comment.comment)
+        {
+			html += "<span class='nickname'>" + comment.nickname +  "</span>&nbsp;";
+			html += "<span class='comment'>" + comment.comment +  "</span>";
+            html += "<br />";
+        }
+    }
+	// items
+	document.all.comments.innerHTML = html;
+	
+    isRefreshNeeded=false;
+}
+
+//-->
+</script>
+
+<body onLoad='doLoad()' leftmargin='0' topmargin='0'>
+<basefont face='arial' />
+<table class='topics' width='100%' bgcolor='#60a040'>
+<tr><td><font size='+2' color='white'><b>AmazonPop</b></font> <font size='-1'>(viewing <script>document.write(topic);</script>)</font></td>
+<td align='right'>
+<script>document.write("<a class='topics' target='amazonpop_add' href='add.html?"+topic+"'>")</script>
+[Add news item]</a>
+<br />
+<script>document.write("<a class='topics' target='amazonpop_comment' href='comment.html?"+topic+"'>")</script>
+[Add comment]</a>
+</td></tr>
+</table>
+<table width='100%' bgcolor='#80c060' >
+<tr>
+<td>
+<a class='topics' href='.?/amazon.com/sales/books/'>Books</a> | 
+<a class='topics' href='.?/amazon.com/sales/music/'>Music</a> | 
+<a class='topics' href='.?/amazon.com/sales/movies/'>Movies</a> | 
+<a class='topics' href='.?/amazon.com/sales/software/'>Software</a> | 
+<a class='topics' href='.?/amazon.com/sales/toys/'>Toys</a> | 
+</td>
+</tr>
+</table>
+<br />
+
+<table width='100%'>
+<tr valign='top'>
+<td width='75%'>
+<div id='status'></div>
+</td>
+<td>
+<b>Comments</b><hr size='1' />
+<div id='comments'></div>
+</td>
+</tr>
+</table>
+
+</body>
+
+</html>
