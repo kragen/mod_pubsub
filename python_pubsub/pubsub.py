@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.43 2003/06/17 04:04:35 ifindkarma Exp $
+# $Id: pubsub.py,v 1.44 2003/06/17 23:58:28 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -639,9 +639,14 @@ class Tunnel(Route):
                 else:
                     try:
                         self.conn.send(' ')
-                        self.scheduler.schedule_processing(self, time.time() + .5, 'tickle tunnel')
+                        # Send a heartbeat every 30 seconds.
+                        self.scheduler.schedule_processing(self, time.time() + 30,
+                                                           'tickle tunnel')
+                        # FIXME: In JavaScriptTunnel, send js format's
+                        # heartbeart callback.
                     except:
-                        self.conn.log_err("tickling problem on %s:" % self.conn + cgitb.html())
+                        self.conn.log_err("tickling problem on %s:" %
+                                          self.conn + cgitb.html())
                         self.conn.close()
         if self.dead:
             return 0
@@ -1321,6 +1326,8 @@ class Connection(asyncore.dispatcher_with_send):
     def handle_write(self):
         if self.tickle_renderer and not self.done_sending:
             self.tickle_renderer = 0
+            # FIXME: In simple format, there should be no flush space.
+            # In js format, we flush 4K spaces to force the browser renderer.
             self.send(' ' * 4096)
         else:
             self.initiate_send()
