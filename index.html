@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.9 2003/03/21 04:53:23 ifindkarma Exp $
+ $Id: index.html,v 1.10 2003/03/22 07:28:07 ifindkarma Exp $
 
 -->
 
@@ -214,11 +214,13 @@ that can be called by Apache (or in Apache using <i>mod_perl</i>),
 that turns Apache into a PubSub Server.  It is our (eventual)
 goal to turn <i>pubsub.cgi</i> and <i>mod_perl</i> into a
 full-fledged Apache module called <b>mod_pubsub</b>.
-<li> Other useful CGI scripts, including email notification
+<li> Some useful CGI scripts, including email notification
 (<a href="cgi-bin/form2smtp.cgi">form2smtp.cgi</a>),
-regression testing the server
+PubSub Server regression test
 (<a href="cgi-bin/pubsub_test.cgi">pubsub_test.cgi</a>),
-and transformation scripts.
+a sample SOAP service proxy
+(<a href="cgi-bin/soap_filter.cgi">soap_filter.cgi</a>),
+and some sample transformation scripts.
 <li> <b>Perl PubSub Client Library</b>
 (<a href="cgi-bin/PubSub/">PubSub</a>).
 It is single-threaded and partially non-blocking
@@ -300,15 +302,34 @@ Library Reference</a>.</td>
 <tr>
 <td bgcolor="#eeeeee"><a href="kn_sense/">kn_sense/</a></td>
 <td bgcolor="#eeeeee">Sample sensors for scraping data from websites
-and publishing them to a PubSub server.  For example, see the
+and publishing them to a PubSub Server.  For example, see the
 <a href="kn_sense/rss/">RSS</a> sensor.</td>
 </tr>
 
 <tr>
 <td bgcolor="white"><a href="kn_tools/">kn_tools/</a></td>
-<td bgcolor="white">Useful ancillary tools, including a JavaScript
-compressor, a JavaScript localizer, and some command-line tools
-written in Perl.</td>
+<td bgcolor="white">Useful ancillary utilities, including<ol>
+<li> Command-line chat using the Perl PubSub Client Library
+ (<a href="kn_tools/chat.plx">chat.plx</a>).
+<li> Command-line ping using the C PubSub Client Library
+ (<a href="kn_tools/pubsub_ping/">pubsub_ping</a>).
+<li> Command-line tools using the Perl PubSub Client Library
+ (<a href="kn_tools/list_events.plx">list_events.plx</a>,
+ <a href="kn_tools/list_routes.plx">list_routes.plx</a>, and
+ <a href="kn_tools/list_subtopics.plx">list_subtopics.plx</a>).
+<li> Command-line performance testing tool in C
+ (<a href="kn_tools/perftool/perftool.html">perftool</a>).
+<li> Command-line throughput performance testing tool in Java
+ (<a href="kn_tools/perftest_throughput.java">perftest_throughput.java</a>).
+<li> JavaScript compressor
+ (<a href="kn_tools/js_compress.sh">js_compress.sh</a>).
+<li> JavaScript localizer
+ (<a href="kn_tools/kn_localize.sh">kn_localize.sh</a>).
+<li> JavaScript character set browser
+ (<a href="kn_tools/charat/">charat</a>).
+<li> Some useful JavaScript
+ <a href="kn_tools/bookmarklets.html">bookmarklets</a>.
+</ol></td>
 </tr>
 
 <tr>
