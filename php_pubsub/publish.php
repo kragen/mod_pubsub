@@ -53,7 +53,7 @@ if (kn__gpc("show_source", false, array("_GET")))
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: publish.php,v 1.4 2003/03/28 06:57:19 bsittler Exp $';
+$RCSID = '$Id: publish.php,v 1.5 2003/04/28 23:42:44 ifindkarma Exp $';
 
 ?>
 <title>pubsub publisher for php</title>
@@ -81,8 +81,8 @@ if (kn__gpc("publish", PUBSUB_NULL, array("_GET", "_POST")) == PUBSUB_NULL)
 }
 else
 {
-    $kn->publish($publish_topic,
-                 $publish_payload,
+    kn_publish($publish_topic,
+               $publish_payload,
 '
     $statusEvent = $args[0];
     echo "<h1>" . kn_htmlEscape($statusEvent["status"]) . "</h1>";

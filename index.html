@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.19 2003/04/28 23:10:59 ifindkarma Exp $
+ $Id: index.html,v 1.20 2003/04/28 23:42:44 ifindkarma Exp $
 
 -->
 
@@ -242,12 +242,12 @@ directory (<a href="cgi-bin/PubSub/">PubSub</a>).</td>
 <tr>
 <td bgcolor="white"><a href="kn_apps/">kn_apps/</a></td>
 <td bgcolor="white">A <a href="kn_apps/">directory</a> of
-the best PubSub-enabled Web Browser applications.  Includes
-several component JavaScript libraries, such as <b>JavaScript
-PubSub Client Library</b>
+<b>PubSub-enabled Web Browser samples</b>.
+Includes several component JavaScript libraries,
+such as <b>JavaScript PubSub Client Library</b>
 (<a href="kn_apps/kn_lib/pubsub_raw.js">pubsub_raw.js</a>)
-that is single-threaded and non-blocking;
-<a href="kn_apps/kn_lib/">kn_lib</a> helper libraries; and
+that is single-threaded and non-blocking; and sets of
+helper libraries <a href="kn_apps/kn_lib/">kn_lib</a> and
 <a href="kn_apps/jscomponents/">jscomponents</a>.
 </td>
 </tr>
@@ -255,12 +255,17 @@ that is single-threaded and non-blocking;
 <tr>
 <td bgcolor="#eeeeee"><a href="php_pubsub/">php_pubsub/</a></td>
 <td bgcolor="#eeeeee"><b>PubSub Client Library for PHP</b>
-(<a href="php_pubsub/pubsublib.php">pubsublib.php</a>), including
-a Publish example 
-(<a href="php_pubsub/publish.php">publish.php</a>).
-For subscribe, use the
+(<a href="php_pubsub/pubsublib.php">pubsublib.php</a>),
+including a Publish example 
+(<a href="php_pubsub/publish.php">publish.php</a>
+-- works in PHP3 and PHP4) and a server-side Subscribe example
+(<a href="php_pubsub/subscribe.php">subscribe.php</a>
+-- only works in PHP4 with Sockets extension, and uses the
+<a href="php_pubsub/eventloop.php">eventloop.php</a> and
+<a href="php_pubsub/pipefitting.php">pipefitting.php</a> libraries
+for network I/O.  For client-side subscribe, use the
 <a href="kn_docs/javascript_reference.html" target="_blank">JavaScript
-PubSub Client Library</a>.</td>
+PubSub Client Library</a> to do updates in the Web browser.</td>
 </tr>
 
 <tr>
