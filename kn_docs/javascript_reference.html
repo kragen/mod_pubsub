@@ -4,25 +4,26 @@
 <!--
 
  Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+ Portions copyright 2003 Robert Leftwich
 
  @KNOWNOW_LICENSE_START@
- 
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
- 
+
  1. Redistributions of source code must retain the above copyright
  notice, this list of conditions and the following disclaimer.
- 
+
  2. Redistributions in binary form must reproduce the above copyright
  notice, this list of conditions and the following disclaimer in
  the documentation and/or other materials provided with the
  distribution.
- 
+
  3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
  be used to endorse or promote any product without prior written
  permission from KnowNow, Inc.
- 
+
  THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -34,10 +35,10 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- 
+
  @KNOWNOW_LICENSE_END@
 
- $Id: javascript_reference.html,v 1.4 2003/03/22 12:01:20 ifindkarma Exp $
+ $Id: javascript_reference.html,v 1.5 2003/05/07 04:55:13 rloz Exp $
 
 -->
 
@@ -156,6 +157,83 @@ properties of the <code>kn_argv</code> object (e.g.
 <samp>.../MyApp.esp?topic/subtopic;kn_debug;myParam=foo</samp> will
 set <samp>kn_argv.kn_debug</samp>, <samp>kn_argv.kn_topic</samp>,
 and <samp>kn_argv.myParam</samp>.)</p>
+
+<h3>Command-line Arguments</h3>
+
+<div class="dl">
+<dl>
+<dt><code>kn_debug</code></dt>
+
+<dd>
+<p>The kn_debug flag controls the debugging features of the Javascript client.
+It performs two main functions :</p>
+
+<ul><li>Disabling the client library's build-in javascript error trapping,
+letting any errors drop through to the browsers default Javascript error
+handling.</li>
+
+<li>Displaying the hidden tunnel and post frames. The tunnel frame is the
+channel by which events are delivered to the browser and the post frame is
+the channel for making requests of the server (e.g. generating events). The
+tunnel frame is usually rendered with a red background, while the tunnel
+frame is most often yellow, but the colour depends on the current status
+of each component (see later for a more complete rundown of the various
+colour indicators).</li></ul>
+</dd>
+
+<dd>
+<p>There are a number of parameters that can be used with the kn_debug flag to
+activate/deactivate various debugging features. They are specified in a comma
+separated list after the kn_debug flag, i.e.
+     ?kn_debug=param1,param2,param3</p></dd>
+
+<dd>
+<p>The available parameters are :</p>
+
+<ul>
+<li><var>posts</var> - render the details of any server requests into the post frame.</li>
+<li><var>receipts</var> - render the details of any received events into the tunnel
+frame.</li>
+<li><var>events</var> - display a popup/message box with the details of a received event
+just prior to routing that event to the appropriate handler.</li>
+<li><var>routes</var> - display a message box when an event for a 'stale' subscription
+is detected (a 'stale' subscription is one for which the event handler is no
+longer valid). It also displays a message when an event is received from an
+'unexpected' window (i.e. one which is not registered with the microserver).</li>
+<li><var>duplicates</var> - displays a message box when a duplicate event was received
+and (subsequently) ignored.</li></ul></dd>
+
+<dd>
+<p>The background colour schemes are as follows:</p>
+
+<dl>
+<dd>
+<h5>Tunnel frame</h5>
+
+<ul>
+<li><span style="background-color: blue; color: white;">Blue</span> - indicates the tunnel is initialized and ready to be activated
+as the leader (master) tunnel if no others do so before it.<p></p></li>
+<li><span style="background-color: red; color: white;">Red</span> - indicates the tunnel frame has assumed the leadership.<p></p></li>
+<li><span style="background-color: green; color: white;">Green</span> - indicates the tunnel has been closed or it is processing a
+callback after a successful document load.<p></p></li>
+<li><span style="background-color: orange; color: white;">Orange</span> - indicates the tunnel is becoming the new leader and is receiving
+state from the old leader, prior to the old leader closing for example.<p></p></li>
+<li><span style="background-color: seagreen; color: white;">SeaGreen</span> - (very rare) indicates the tunnel is transferring its state to
+a new leader.</li></ul>
+
+<h5>Post frame</h5>
+<ul>
+<li><span style="background-color: yellow;">Yellow</span> - indicates receipt of the notification of a successful post to
+the server<p></p></li>
+<li><span style="background-color: white;">White</code> - indicates a redraw callback has been received and processed
+successfully</li></ul>
+</dd></dl>
+</dd>
+
+</dl>
+</div>
+
+<h3>Properties & Global Variables</h3>
 
 <p>A few details of the particular mod_pubsub instance and the library
 are made available as global variables or properties of the
@@ -286,6 +364,7 @@ in ascending order.</p>
 </dl>
 </div>
 
+<h3>Utility Functions</h3>
 <p>Several useful utility functions are also provided:</p>
 
 <div class="dl">
@@ -460,7 +539,7 @@ Houghton</td>
 <hr />
 
 <p>
-$Id: javascript_reference.html,v 1.4 2003/03/22 12:01:20 ifindkarma Exp $</p>
+$Id: javascript_reference.html,v 1.5 2003/05/07 04:55:13 rloz Exp $</p>
 
 </body>
 </html>
