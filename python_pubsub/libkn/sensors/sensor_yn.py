@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# $Id: sensor_yn.py,v 1.1 2003/03/15 04:52:49 ifindkarma Exp $
+# $Id: sensor_yn.py,v 1.2 2003/04/29 06:44:18 ifindkarma Exp $
 
 from sensor import HTMLParser,WebScrapeSensor
 
@@ -64,7 +64,7 @@ class YNParser(HTMLParser):
         self.urls=[]
         self.urlText=[]
         self.itemData=[]
-		
+                
     def end_li(self):
         pass
 

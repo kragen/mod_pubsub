@@ -77,7 +77,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: bridge.py,v 1.2 2003/03/22 11:38:55 ifindkarma Exp $
+## $Id: bridge.py,v 1.3 2003/04/29 06:44:17 ifindkarma Exp $
 
 from libkn import kn
 import time

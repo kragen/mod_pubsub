@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# $Id: sensor_inlumen.py,v 1.1 2003/03/15 04:52:49 ifindkarma Exp $
+# $Id: sensor_inlumen.py,v 1.2 2003/04/29 06:44:18 ifindkarma Exp $
 
 """
 This sensor scrapes pricing data off of the INLUMEN website.
@@ -116,37 +116,37 @@ Simulated=1
 """
 
 quoteElements={
-    'AskPrice':			'ask',
-    'AskSize':			'asksz',
-    'BidPrice':			'bid',
-    'BidSize':			'bidsz',
-    'ClosePrice':		['prev_close','close'],
-    'CloseTick':		'closetk',
-    'CompanyName':		'fullname',
-    'Country':			'country',
-    'Dividend':			'div',
-    'DividendFrequency':	'divfreq',
-    'EarningsPerShare':		'eps',
-    'ExDividendDate':		'exdivdt',
-    'HighPrice':		'high',
-    'ItemExchangeCode':		'exchcode',
-    'LastSalePrice':		'last',
-    'LastSaleSize':		'lastsz',
-    'LastSaleTime':		'lasttm',
-    'LowPrice':			'low',
-    'NetChangePercent':		'changepct',
-    'NetChangePrice':		'change',
-    'OpenPrice':		'open',
-    'OpenTick':			'opentk',
-    'PERatio':			'pe',
-    'SharesOutstanding':	'sharesout',
-    'Symbol':			'symbol',
-    'TimeDate':			'timedate',
-    'Volatility':		'volatility',
-    'Volume':			['vol','volume'],
-    'YearHigh':			'high52',
-    'YearLow':			'low52',
-    'Yield':			'yield'};
+    'AskPrice':                 'ask',
+    'AskSize':                  'asksz',
+    'BidPrice':                 'bid',
+    'BidSize':                  'bidsz',
+    'ClosePrice':               ['prev_close','close'],
+    'CloseTick':                'closetk',
+    'CompanyName':              'fullname',
+    'Country':                  'country',
+    'Dividend':                 'div',
+    'DividendFrequency':        'divfreq',
+    'EarningsPerShare':         'eps',
+    'ExDividendDate':           'exdivdt',
+    'HighPrice':                'high',
+    'ItemExchangeCode':         'exchcode',
+    'LastSalePrice':            'last',
+    'LastSaleSize':             'lastsz',
+    'LastSaleTime':             'lasttm',
+    'LowPrice':                 'low',
+    'NetChangePercent':         'changepct',
+    'NetChangePrice':           'change',
+    'OpenPrice':                'open',
+    'OpenTick':                 'opentk',
+    'PERatio':                  'pe',
+    'SharesOutstanding':        'sharesout',
+    'Symbol':                   'symbol',
+    'TimeDate':                 'timedate',
+    'Volatility':               'volatility',
+    'Volume':                   ['vol','volume'],
+    'YearHigh':                 'high52',
+    'YearLow':                  'low52',
+    'Yield':                    'yield'};
 
 #These are the elements we will compare to decide if it's worth sending an event:
 quoteElementsToCompare=['symbol','fullname','bid','ask','close',
@@ -228,19 +228,19 @@ class InlumenSensor(WebScrapeSensor):
     #===========================================================================
     # Configuration of the WebScrapeSensor
     #===========================================================================
-    rootTopic='/what/nasdaq'		#Our topic space starts here
-    subtopicBased=1			#Yes, please watch for new subtopics for me
-    maxPreviousPages=1			#Not really used by this sensor, set to safe value
-    knPayloadHeader='last'		#Duplicate the 'last' attribute as 'kn_payload' for me
-    expireString='+%d'%(60*60*3)	#3 hour expiration for the events we generate
-    htmlTimeout=60			#Timeout when requesting data
-    initialSubtopics=['ibm','aapl']	#Don't pre-populate the subtopic space
-    maintainSingletonEvent=0		#Don't maintain a 'singleton' event (See sensor.py)
+    rootTopic='/what/nasdaq'            #Our topic space starts here
+    subtopicBased=1                     #Yes, please watch for new subtopics for me
+    maxPreviousPages=1                  #Not really used by this sensor, set to safe value
+    knPayloadHeader='last'              #Duplicate the 'last' attribute as 'kn_payload' for me
+    expireString='+%d'%(60*60*3)        #3 hour expiration for the events we generate
+    htmlTimeout=60                      #Timeout when requesting data
+    initialSubtopics=['ibm','aapl']     #Don't pre-populate the subtopic space
+    maintainSingletonEvent=0            #Don't maintain a 'singleton' event (See sensor.py)
 
-    parser = InlumenParser()		#The parser instance to use
+    parser = InlumenParser()            #The parser instance to use
 
-    lastEventCache={}			#A cache of events for difference comparison
-    needsSubSubTopics={}		#Do we need to split events up into sub-sub-topics?
+    lastEventCache={}                   #A cache of events for difference comparison
+    needsSubSubTopics={}                #Do we need to split events up into sub-sub-topics?
 
     lastNoDataTime=0
     pendingSymbols={}

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# $Id: sensor_nasdaq3.py,v 1.1 2003/03/15 04:52:49 ifindkarma Exp $
+# $Id: sensor_nasdaq3.py,v 1.2 2003/04/29 06:44:18 ifindkarma Exp $
 
 import KNCONFIG
 import copy,time
@@ -11,22 +11,22 @@ from sensor import HTMLParser,WebScrapeSensor
 NASDAQ_MAXREQUESTS=10
 
 translation={
-    'last trade'	:'last',
-    'change'		:'change',
-    'prev cls'		:'prev_close',
-    'volume'		:'volume',
-    'div date'		:'divdate',
-    "day's range"	:'dayrange',
-    'bid'		:'bid',
-    'ask'		:'ask',
-    'open'		:'open',
-    'avg vol'		:'avgvol',
-    '52-week range'	:'range52',
-    'earn/shr'		:'earnshr',
-    'p/e'		:'pe',
-    'mkt cap'		:'mktcap',
-    'div/shr'		:'divshr',
-    'yield'		:'yield'}
+    'last trade'        :'last',
+    'change'            :'change',
+    'prev cls'          :'prev_close',
+    'volume'            :'volume',
+    'div date'          :'divdate',
+    "day's range"       :'dayrange',
+    'bid'               :'bid',
+    'ask'               :'ask',
+    'open'              :'open',
+    'avg vol'           :'avgvol',
+    '52-week range'     :'range52',
+    'earn/shr'          :'earnshr',
+    'p/e'               :'pe',
+    'mkt cap'           :'mktcap',
+    'div/shr'           :'divshr',
+    'yield'             :'yield'}
 
 #These are the elements we will compare to decide if it's worth sending an event:
 quoteElementsToCompare=['bid','ask','high','low','last','change','volume']
@@ -110,19 +110,19 @@ class Nasdaq3Sensor(WebScrapeSensor):
     #===========================================================================
     # Configuration of the WebScrapeSensor
     #===========================================================================
-    rootTopic='/what/nasdaq'		#Our topic space starts here
-    subtopicBased=1			#Yes, please watch for new subtopics for me
-    maxPreviousPages=1			#Not really used by this sensor, set to safe value
-    knPayloadHeader='last'		#Duplicate the 'last' attribute as 'kn_payload' for me
-    expireString='+%d'%(60*60*24)	#24 hour expiration for the events we generate
-    htmlTimeout=60			#Timeout when requesting data
-    initialSubtopics=['ibm']		#Don't pre-populate the subtopic space
-    maintainSingletonEvent=0		#Don't maintain a 'singleton' event (See sensor.py)
+    rootTopic='/what/nasdaq'            #Our topic space starts here
+    subtopicBased=1                     #Yes, please watch for new subtopics for me
+    maxPreviousPages=1                  #Not really used by this sensor, set to safe value
+    knPayloadHeader='last'              #Duplicate the 'last' attribute as 'kn_payload' for me
+    expireString='+%d'%(60*60*24)       #24 hour expiration for the events we generate
+    htmlTimeout=60                      #Timeout when requesting data
+    initialSubtopics=['ibm']            #Don't pre-populate the subtopic space
+    maintainSingletonEvent=0            #Don't maintain a 'singleton' event (See sensor.py)
 
-    parser = Nasdaq3Parser()		#The parser instance to use
+    parser = Nasdaq3Parser()            #The parser instance to use
 
-    lastEventCache={}			#A cache of events for difference comparison
-    needsSubSubTopics={}		#Do we need to split events up into sub-sub-topics?
+    lastEventCache={}                   #A cache of events for difference comparison
+    needsSubSubTopics={}                #Do we need to split events up into sub-sub-topics?
 
 
     #===========================================================================

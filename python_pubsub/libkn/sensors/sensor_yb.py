@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# $Id: sensor_yb.py,v 1.1 2003/03/15 04:52:49 ifindkarma Exp $
+# $Id: sensor_yb.py,v 1.2 2003/04/29 06:44:18 ifindkarma Exp $
 
 import os
 import pprint
@@ -45,8 +45,8 @@ class YBParser(HTMLParser):
                 if len(self.rowData)>0 and self.rowData[0].strip()[:8]=='Previous' and len(self.rowUrls[0])>0:
                     url=self.rowUrls[0][0]
                     self._previousUrl=YB_BASEURL+url
-					
-			
+                                        
+                        
         elif self.state=='LOOKING FOR HEADER':
             self.rowData=["".join(x).strip() for x in self.rowData]
             if (len(self.rowData)>=8

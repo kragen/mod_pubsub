@@ -122,7 +122,7 @@ class AsyncHTTPResponse:
         if version == 'HTTP/1.0':
             self.version = 10
         elif version.startswith('HTTP/1.'):
-            self.version = 11	# use HTTP/1.1 code for HTTP/1.x where x>=1
+            self.version = 11   # use HTTP/1.1 code for HTTP/1.x where x>=1
         else:
             raise UnknownProtocol(self._replyline, name=str(self))
 
@@ -611,7 +611,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
 
         i = string.find(chunkline, ';')
         if i >= 0:
-            chunkline = chunkline[:i]	# strip chunk-extensions
+            chunkline = chunkline[:i]   # strip chunk-extensions
 
         try:
             chunksize = string.atoi(chunkline, 16)

@@ -52,9 +52,9 @@ def encode(input, quotetabs):
             new = new + c
             prev = c
         if prev in (' ', '\t'):
-	    encoded.append(new + ESCAPE + '\n\n')
+            encoded.append(new + ESCAPE + '\n\n')
         else:
-	    encoded.append(new + '\n')
+            encoded.append(new + '\n')
     return string.join(encoded)
 
 def decode(input):
@@ -87,10 +87,10 @@ def decode(input):
             else: # Bad escape sequence -- leave it in
                 new = new + c; i = i+1
         if not partial:
-	    decoded.append(new + '\n')
+            decoded.append(new + '\n')
             new = ''
     if new:
-	decoded.append(new)
+        decoded.append(new)
     return string.join(decoded)
 
 def ishex(c):

@@ -1,7 +1,7 @@
 ----------------------------
 To Do List for Python PubSub
 ----------------------------
-$Id: TODO,v 1.13 2003/04/02 03:25:30 ifindkarma Exp $
+$Id: TODO,v 1.14 2003/04/29 06:44:17 ifindkarma Exp $
 
  1. Finish test suite for pubsublib.py .
  2. Write chat.py and ping.py that use pubsublib.py .

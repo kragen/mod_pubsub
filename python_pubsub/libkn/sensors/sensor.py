@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# $Id: sensor.py,v 1.1 2003/03/15 04:52:49 ifindkarma Exp $
+# $Id: sensor.py,v 1.2 2003/04/29 06:44:17 ifindkarma Exp $
 
 import KNCONFIG
 import threading, time, urllib, sys, traceback, inspect, pprint, types, os, copy

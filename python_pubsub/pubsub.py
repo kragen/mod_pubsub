@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.15 2003/04/29 00:27:32 ifindkarma Exp $
+# $Id: pubsub.py,v 1.16 2003/04/29 06:44:17 ifindkarma Exp $
 
 
 """
@@ -103,6 +103,7 @@ Error = "pubsub.py error"
 
 import sys, os, asyncore, string, socket, time, cgi, urlparse, urllib, os.path, re, cgitb, getopt, traceback
 from cPickle import dump, load
+from serverutils import *
 
 def quopri_encode(s, chars):
     """Quoted-printable encode: return a version of 's' with the chars
@@ -1275,36 +1276,103 @@ def write_event_pool(filename, root):
 def main(argv):
     verbose = 0
     filename = None
-    optlist, argv[1:] = getopt.getopt(argv[1:], "vhf:", ["verbose", "help", "file="])
+    autoPortNum = 0
+    optlist, argv[1:] = getopt.getopt(argv[1:], "vhaf:", ["verbose", "help", "auto", "file="])
     for opt, val in optlist:
         if opt in ('-v', '--verbose'):
             verbose = verbose + 1
         elif opt in ('-h', '--help'):
             print (
-                "%s: Usage: %s [options...] portnum docroot [knuri]\n" % (argv[0], argv[0]) +
-                "\n"
+                "%s: Usage: %s [options...] ( portnum | --auto ) docroot [topicroot]\n"
+                % (argv[0], argv[0]) + "\n"
                 "  -h, --help                 print this message and exit\n"
-                "  -v, --verbose              increase verbosity of logging to stderr\n"
-                "  -f, --file                 filename to use as persistent event pool (default None)\n"
+                "  -v, --verbose              increase verbosity of logging to stderr and stdout\n"
+                "  -f, --file                 filename to use as persistent event pool\n"
                 "                             (multiple occurrences have a cumulative effect)\n"
+                "                             (default is *not* to have a persistent event pool)\n"
+                "  -a, --auto                 automatically extract the portnum \n"
+                "                             from the {docroot}/kn_apps/kn_lib/prologue.js file;\n"
+                "                             in this case the portnum must *not* be supplied\n"
             )
             return
         elif opt in ('-f', '--file'):
             filename = val
+        elif opt in ('-a', '--auto'):
+            autoPortNum = 1
+
     logfile = open("pubsub.log", "ab")
     errlog = open("pubsub.err.log", "ab")
-    if len(argv) < 3 or len(argv) > 4:
-        sys.stderr.write(
-            "%s: Usage: %s [--help] [options...] portnum docroot [knuri]\n" % (argv[0], argv[0])
-        )
-        sys.stderr.flush()
-        sys.exit(2)
+    if not autoPortNum:
+        minRequiredArgs = 3
+        maxRequiredArgs = 4
     else:
-        if len(argv) == 4: knroot = argv[3]
-        else: knroot = ""
+        minRequiredArgs = 2
+        maxRequiredArgs = 3
+
+    if len(argv) < minRequiredArgs or len(argv) > maxRequiredArgs:
+        exitWithError(
+            "%s: Usage: %s [--help] [options...] ( portnum | --auto ) docroot [topicroot]\n" % (argv[0], argv[0])
+        )
+    else:
+
+        # get the document root from the command line
+        docRoot = argv[minRequiredArgs - 1]
+        if not os.access(docRoot, os.F_OK):
+            exitWithError(
+                "Specified document root: %s is not an accessible directory, exiting...\n" % docRoot
+            )
+
+        # get the kn root uri from the command line
+        if len(argv) == maxRequiredArgs: topicRoot = argv[maxRequiredArgs-1]
+        else: topicRoot = ""
+
+        if not autoPortNum:
+            # get port from command line
+            portNumStr = argv[1]
+
+        else:
+            # attempt to override the port using the one in the prologue.js file
+            try:
+                prologuePath = os.path.join(docRoot, 'kn_apps', 'kn_lib', 'prologue.js')
+                serverAddress = readPubSubServerAddress (prologuePath)
+                if serverAddress != None:
+                    serverLocation = urlparse.urlparse(serverAddress)[1]
+                    # split on the : (if present) otherwise must be on the std port
+                    splitServerLocation = serverLocation .split(":")
+                    if len(splitServerLocation) == 2:
+                        portNumStr = splitServerLocation[1]
+                    else:
+                        portNumStr = "80"
+            except IOError, (errno, strerror):
+                exitWithError(
+                    "Error accessing %s, (%s): %s\n"
+                    "It is required when auto is used." % (prologuePath, errno, strerror)
+                )
+
+        try:
+            portNum = int(portNumStr)
+            if portNum < 1 or portNum > 65535 :
+                exitWithError(
+                    "Specified port number: %s is not in the valid range 1-65535, exiting...\n" % portNumStr
+                )
+        except ValueError:
+            exitWithError(
+                "Specified port number: %s is not a valid number, exiting...\n" % portNumStr
+            )
+
         sch = Scheduler()
-        server = Server(int(argv[1]), logfile, errlog, sch, argv[2], knroot, verbose, filename)
-        print "PubSub Server initialized"
+        server = Server(portNum, logfile, errlog, sch, docRoot, topicRoot, verbose, filename)
+
+        if verbose:
+            print(
+                "\nPubSub Server initialized\n"
+                "    Port: %s\n"
+                "    Document root: %s\n"
+                "    Topic root: %s\n"
+                "    Event pool file: %s\n" % (str(portNum), docRoot, topicRoot, filename))
+        else:
+            print "\nPubSub Server initialized\n"
+
         while server.alive:
             asyncore.poll(sch.timeout())
             sch.run()

@@ -121,7 +121,7 @@ Good Luck!
 #    1.1. First version of safesocket.py
 #
 
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __author__  = "Timothy O'Malley <timo@alum.mit.edu>"
 
 #
