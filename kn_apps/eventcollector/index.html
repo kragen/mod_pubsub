@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+   This sample demonstrates the PubSub JavaScript Event Collector
+   object.  It should be fairly easy to replace the rendering stuff
+   with references to FORM elements, if desired.
+
+   To use event_collector.js, create an instance of PubSubEventCollection
+   and pass it as the second argument to kn.subscribe. The object then
+   maintains a "view" of the events in that topic.  It automatically
+   removes deleted events and overwrites duplicates with any new
+   header values.  The onEvent handler notifies your app of events,
+   it is up to the application developer to decide how to interpret
+   (and render) the results.
+
+   There's also an "apply" method that basically takes a function and
+   applies it to every event in the view. Very handy, not used
+   efficiently in this demo (which redraws the entire list each time a
+   new event is received).
+
+-->
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/04/16 03:11:37 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>pubsub event manager</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="/kn?do_method=lib"></script>
+
+<!-- The PubSub JavaScript Event Collector Library -->
+<script type="text/javascript" src="../kn_lib/event_collector.js"></script>
+
+<!-- Local functions -->
+<script type="text/javascript"><!--
+
+function init()
+{
+    var topic = "/what/chat";
+    var mgr = new PubSubEventCollection();
+    mgr.onEvent = renderEventList;
+    mgr.deletions = true;  // FIXME: Not used by PubSub Servers yet.
+
+    kn.subscribe(
+        topic,
+        mgr,
+        {
+            do_max_age:"infinity",
+            kn_expires:"infinity",
+            kn_deletions:"true"
+        }
+    );
+    
+}
+
+function renderEventList()
+{
+    var html = "<p><strong>Events in Collection: " + this.length + "</strong></p>"
+    html += "<table border='1'>\n";
+    var inner = this.apply(makeTableRow);
+    html += inner.join("");
+    html += "</table>";
+    document.getElementById("foo").innerHTML = html;
+}
+
+function makeTableRow(evt)
+{
+    var html = "<tr><td>";
+    html += evt.kn_id;
+    html += ": ";
+    html += evt.kn_payload;
+    html += "</td></tr>\n";
+    return html;
+}
+
+onload = init;
+-->
+</script>
+</head>
+
+<body>
+
+<div id="foo">
+</div>
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+    This is dead-simple but useful script that subscribes an HTML tag
+    to a topic, making anything inside that tag a template for each
+    event that arrives.  In this way, you can easily make a "live"
+    list of events, formatted any way you wish.
+
+    To seed your PubSub Server with some purchase orders, submit to your
+    Web browser's URL:
+
+        http://mypubsubserver/kn/what/pos?do_method=notify&order_number=1&order_pcs=1000&order_item=Socks
+        http://mypubsubserver/kn/what/pos?do_method=notify&order_number=2&order_pcs=1001&order_item=Shoes
+
+    Now, if you want to build a live list of purchase orders,
+    you can do something like this:
+
+    <div class="event_list" kn_from="/what/pos" do_max_age="infinity" kn_deletions="true">
+      <p>
+        <b>Purchase Order #{{order_number}}</b><br>
+        Item #: {{item_number}}<br>
+        Quantity: {{item_quantity}}<br>
+        Description: {{item_description}}<br>
+      </p>
+    </div>
+
+    When you load this page in IE, the script will take the innards of
+    the DIV tag and make it a template, replacing the {{braced}} text
+    with the value of the corresponding PubSub header.  It will repeat
+    this process for each event received, creating a formatted list.
+
+-->
+
+
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/04/16 03:11:37 ifindkarma Exp $
+
+-->
+
+
+<html>
+<head>
+<title>pubsub event list</title>
+
+<!-- The PubSub JavaScript Library. -->
+<script type="text/javascript" src="/kn?do_method=lib"></script>
+
+<!-- The PubSub JavaScript Event List Library. -->
+<script type="text/javascript" src="../kn_lib/event_list.js"></script>
+    
+<style type="text/css">
+tr {
+    font-family:verdana;
+    font-size:12px;
+    
+}
+td {
+    border-right:1px solid #cccccc;
+    border-bottom:1px solid #cccccc;
+}
+</style>
+    
+</head>
+
+<!-- Need to call PubSubEventListInit from the onload handler. -->
+<body onload="PubSubEventListInit();">
+
+<h3>Recent Purchase Order Detail</h3>
+
+<div class="event_list" kn_from="/what/pos" do_max_age="infinity" kn_deletions="true">
+<!-- Everything inside this DIV becomes the template for the list. -->
+<table border="0" width="300" cellpadding="4" cellspacing="0">
+    <tr>
+        <td colspan="3" bgcolor="#ffcc33"><strong>Purchase Order #{{order_number}}</strong></td>
+    </tr>
+    <tr>
+        <td>Quantity</td>
+        <td>Item #</td>
+        <td>Description</td>
+    </tr>
+    <tr>
+        <td>{{order_pcs}}</td>
+        <td>{{kn_time_t}}</td>
+        <td>{{order_item}}</td>
+    </tr>
+</table>
+<br clear="left">
+<!-- End of template. -->
+</div>
+
+</body>
+</html>
