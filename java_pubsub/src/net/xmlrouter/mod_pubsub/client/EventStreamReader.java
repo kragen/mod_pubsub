@@ -20,6 +20,12 @@ public class EventStreamReader implements Runnable
 
 	public void stop()
 	{
+		try {
+			events.is.close();
+		} catch (IOException e) {
+			// ignore
+			e.printStackTrace();
+		}
 		bKeepGoing=false;
 	}
 		
