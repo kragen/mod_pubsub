@@ -20,7 +20,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.31 2003/05/31 03:00:37 ifindkarma Exp $
+# $Id: pubsub.py,v 1.32 2003/05/31 03:04:41 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -485,8 +485,7 @@ class Tunnel(Route):
                         self.conn.send(' ')
                         self.scheduler.schedule_processing(self, time.time() + .5, 'tickle tunnel')
                     except:
-                        self.conn.log_err("tickling problem on %s:" % self.conn +
-                                          cgitb.html())
+                        self.conn.log_err("tickling problem on %s:" % self.conn + cgitb.html())
                         self.conn.close()
         if self.dead:
             return 0
@@ -503,13 +502,12 @@ class Tunnel(Route):
     def is_static_route(self): return 0
     def is_stale(self): return self['stale'] != '0'
     def become_stale(self):
-        # FIXME: This doesn't cause the update to be properly routed.
+        # FIXME: This does not cause the update to be properly routed.
         self.contents['stale'] = '1'
     def close(self):
         if self.dead: return
         self.conn.finish_sending()
-        self.conn.server.scheduler.schedule_processing(lambda self=self: self.become_stale(), time.time() + 100,
-                                                       'stalify old tunnel')
+        self.conn.server.scheduler.schedule_processing(lambda self=self: self.become_stale(), time.time() + 100, 'stalify old tunnel')
     # For pickling.
     def __getstate__(self):
         return {'contents': {'kn_payload': self['kn_payload'], 'stale': 1},
@@ -517,8 +515,7 @@ class Tunnel(Route):
 
 
 class SimpleTunnel(Tunnel):
-    """Responsibilities: format events in the
-    kn_response_format=simple format."""
+    """Responsibilities: format events in the kn_response_format=simple format."""
 
     def headerfrom(self, event):
         return http_header(event['status'], 'text/plain')
