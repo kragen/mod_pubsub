@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: field_validation_pubsub.html,v 1.2 2003/08/07 20:49:30 ifindkarma Exp $
+ $Id: field_validation_pubsub.html,v 1.3 2003/08/07 21:49:02 ifindkarma Exp $
 
 -->
 
@@ -86,6 +86,7 @@ function fillData(e) {
         document.getElementById("error").innerText = "";
 
     } else {
+
         document.getElementById("error").innerText = "No record of this customer.";
         document.forms[0].number.value="";
         document.forms[0].number.focus();
@@ -126,6 +127,7 @@ CUSTOMER NUMBER:<br />
 
 CUSTOMER NAME:<br />
 <input type="text" name="name" id="custname">
+<!-- <input type="text" name="name" id="custname" onKeyUp="kn.publish('/what/chat/', {kn_payload:this.value})"> -->
 <br /><br />    
 
 CUSTOMER ADDRESS:<br />
