@@ -18,7 +18,7 @@
           nonblocking, using asyncore.
           (libkn.py is multi-threaded and blocking.)
 
-    $Id: pubsublib.py,v 1.13 2003/07/19 12:24:53 rloz Exp $
+    $Id: pubsublib.py,v 1.14 2003/07/19 20:57:17 ifindkarma Exp $
 
     Known Issues:
        1. Need to complete test suite.
@@ -68,7 +68,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: pubsublib.py,v 1.13 2003/07/19 12:24:53 rloz Exp $
+# $Id: pubsublib.py,v 1.14 2003/07/19 20:57:17 ifindkarma Exp $
 
 
 
@@ -793,6 +793,9 @@ def canonicalizeMessage(message):
     except ValueError:
         # message is a map.
         canonicalMessage = message
+    except TypeError:
+        # message is a map.
+        canonicalMessage = message
     # print str(canonicalMessage)
     return canonicalMessage
 
@@ -811,6 +814,11 @@ def encodeFormUTF_8(form):
             break
         canonicalForm = form
     except ValueError:
+        # map
+        canonicalForm = []
+        for nameU in form.keys():
+            canonicalForm.append((nameU, form[nameU]))
+    except TypeError:
         # map
         canonicalForm = []
         for nameU in form.keys():
