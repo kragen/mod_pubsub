@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub_test.cgi,v 1.5 2003/04/26 02:44:01 ifindkarma Exp $
+# $Id: pubsub_test.cgi,v 1.6 2003/04/26 03:55:51 ifindkarma Exp $
 
 use strict;
 use PubSub::UUID;
@@ -144,6 +144,7 @@ sub js_quote
         s/\r/\\r/g;
         s/([\x00-\x1f\x7f-\xff])/sprintf('\\x%02x', ord($1))/ge;
     }
+    $str =~ s/<\//<" + "\//g;
     return qq("$str");
 }
 
