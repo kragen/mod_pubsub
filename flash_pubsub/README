@@ -1,0 +1,37 @@
+From: Jos Yule, http://www.theorganization.net/
+$Id: README,v 1.1 2003/07/20 07:41:30 ifindkarma Exp $
+
+I've been working (slowly) on the Flash PubSub Lib.
+This is what i've got so far.
+
+Two new classes:
+
+The first is an extension of the XMLSocket object. It has some nice
+features, like queueing send requests. It's a "0.1" release, so there
+are still things that are going to change. This is the class that
+connects, sends and receives data from the PubSub Server.
+
+Second, I've built a helper PubSub data class, which is used to
+construct the messages you'd send to the server.
+
+The main PubSub class has yet to be built. I'm working on parsing of the
+received data now, which is what the class will be responsible for (and
+persistence, and... etc etc).
+
+Check it out, let me know what you think. Work goes forward!
+
+-- jos
+
+
+
+R 0.1 Notes:
+
+- pubsubSocket and pubsubData class's are in a working state.
+- Parsing of received data is missing.
+- The "main" pubsub class is not done (this is where the data parsing will
+be done, i think).
+- I've got concerns about how when you send any data, other then a 'watch',
+the socket is always closed after. Its a pain, and resource intensive to
+have to re-connect for every data send. this may be another place to look to
+the server to implement a "long term" socket connection when using Flash. 
+
