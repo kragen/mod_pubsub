@@ -1,12 +1,10 @@
 #!/usr/bin/python
 
 """
-    pubsub.py -- standalone Python PubSub Server
-    compatible with mod_pubsub & mod_pubsub/cgi-bin/pubsub.cgi
+    pubsub.py -- standalone Python PubSub Server compatible
+    with mod_pubsub and mod_pubsub/cgi-bin/PubSub/ModPubSub.pm
 
     This is a PubSub Server that runs standalone from the command line.
-    It is our goal to have the functionality of pubsub.py match that
-    of cgi-bin/pubsub.cgi so we have two reference implementations.
 
     For documentation of the protocol, please see
 
@@ -20,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.33 2003/05/31 04:04:49 ifindkarma Exp $
+# $Id: pubsub.py,v 1.34 2003/06/05 01:29:09 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -74,39 +72,48 @@
 
     The Server reacts to new TCP connections by creating Connections.
 
-    A Connection handles a request from a client; it might serve up
-      a server status page, create an Event and post it to a Topic,
-      create a Route and post it to a Topic, or become a tunnel.
+    A Connection handles a request from a client; it might serve up a
+    server status page, create an Event and post it to a Topic, create
+    a Route and post it to a Topic, or become a tunnel.
 
     Connections log information about their activities to the Server.
 
-    A Topic is a collection of Events --- possibly Topics or Routes.  It
-      also has another (possibly null) Topic that contains its Routes,
-      and another Topic that is contains its subtopics (including the
-      kn_routes topic).
+    A Topic is a collection of Events -- possibly Topics or Routes.
+    It also has another (possibly null) Topic that contains its
+    Routes, and another Topic that is contains its subtopics
+    (including the topic containing the Routes).
 
     You can ask a Topic to navigate to some path below it.
 
     Route and Topic are kinds of Event.
 
-    There are two ways to post an Event to a Topic --- "notify",
-    which does checks appropriate to do_method=notify, and "post",
-    whcih does not.  Routes and do_method=notify use "notify";
-    everything else uses "post".
+    There are two ways to post an Event to a Topic --
+    "notify", which does checks appropriate to do_method=notify,
+    and "post", which does not.
+
+    Routes and do_method=notify use "notify"; everything else uses "post".
 
     Posting an Event to a Topic causes the Event to get posted to all
-    the Routes on the route topic of the Topic --- at first immediately,
-    but it is planned to make this happen gradually.
+    the Routes on the route topic (called kn_routes) of the Topic --
+    at first immediately, but it is planned to make this not block the
+    Server while it happens.
 
-    Every Topic knows its name.
+    Every Topic knows its name, and every Topic knows how to clean
+    itself and its children of expired events.
 
-    The subtopics of a Topic are the events in the Topic's kn_subtopics topic.
+    The subtopics of a Topic are the events in the Topic's
+    kn_subtopics topic.
 
     When creating a Route, a Connection does not talk directly to the
     kn_routes subtopic; instead it calls create_route() on the topic
-    out of which it is routing.  This handles Initial Route Population (IRP)
-    and calls post on the kn_routes subtopic.
+    out of which it is routing.  This handles Initial Route Population
+    (IRP) and calls post on the kn_routes subtopic.
 
+    There is a ServerSaver that runs periodically and cleans the root
+    Topic, and may also save a snapshot of all events in the system to
+    a file.  On startup, such a file can be read, providing an initial
+    set of events.
+    
 """
 
 
@@ -115,7 +122,7 @@ StaleTopic = "404 Expired"
 Error = "pubsub.py error"
 
 import sys, os, os.path, re, string, socket, time, getopt, traceback, errno
-import cgi, urlparse, urllib, cgitb
+import urlparse, urllib, cgi, cgitb
 import asyncore # FIXME: replace the mod_pubsub-modified asyncore with the standard asyncore.
 from cPickle import dump, load
 from serverutils import *
@@ -135,6 +142,7 @@ class UuidGen:
         self.prefix = prefix
         self.n = 0
     def __call__(self):
+        # FIXME: Make this random so UUID's are not predictable in sequence.
         self.n = self.n + 1
         return "%s_%s" % (self.prefix, self.n)
 
@@ -148,7 +156,7 @@ class Logger:
         err = str(err)
         errlines = string.split(err, '\n')
         log_err = "%s\n%s" % (time.time(),
-                               string.join(map(lambda x: '    %s\n' % x, errlines), ''))
+                              string.join(map(lambda x: '    %s\n' % x, errlines), ''))
         # FIXME: Handle log file size overflow. Perhaps log rotation or compaction?
         self.errlog.write(log_err)
         self.errlog.flush()
@@ -163,7 +171,8 @@ class Scheduler:
     specific times in the future. Run items to be done at present or
     in the past. Tell event loop how long until the next scheduled task. """
 
-    # FIXME: Consolidate this with scheduler.py's Scheduler class.  We don't need them both.
+    # FIXME: Consolidate this with scheduler.py's Scheduler class.
+    # We don't need them both.
     class Task:
         def __init__(self, func, when, name):
             self.func = func
@@ -199,7 +208,7 @@ class Scheduler:
         else: return diff
 
 class Event:
-    """ Responsibilities: hold a dictionary of names and values.
+    """ Responsibilities: Hold a dictionary of names and values.
     Provide read access to keys and values.  Expire when it is time.
     Compare itself with other Events. """
     
@@ -255,7 +264,7 @@ def is_bad_topic_name(name):
     return 0
 
 class Topic(Event):
-    """ Responsibilities: hold a collection of Events, accessible by name,
+    """ Responsibilities: Hold a collection of Events, accessible by name,
     but kept in sequence of last update.  Provide access to descendents.
     Clean events, subtopics, and routes when they expire. """
 
@@ -399,7 +408,7 @@ def create_topic(name):
 
 class Route(Event):
     """ Virtual base class; relies on subclasses to implement post()
-    and is_static_route().  Responsibilities: handle initial route
+    and is_static_route().  Responsibilities: Handle initial route
     population.  Inform code readers that the various kinds of route
     have more in common than just being kinds of Events. """
 
@@ -432,7 +441,7 @@ class Route(Event):
     def poisoned(self): return self
 
 class StaticRoute(Route):
-    """ Responsibilities: route events to somewhere else. """
+    """ Responsibilities: Route events to somewhere else. """
 
     def __init__(self, kn_to=None, location=None, misc={}):
         misc2 = {'kn_expires': 'infinity'}
@@ -471,8 +480,8 @@ class StaticRoute(Route):
     def close(self): pass
 
 class Tunnel(Route):
-    """ Responsibilities: format a sequence of events and send them to a Connection.
-    Behave as a route. """
+    """ Responsibilities: Format a sequence of events and
+    send them to a Connection.  Behave as a route. """
 
     def __init__(self, connection):
         Route.__init__(self, {'kn_payload': str(connection), 'kn_expires': 'infinity', 'stale': '0'})
@@ -528,7 +537,7 @@ class Tunnel(Route):
 
 
 class SimpleTunnel(Tunnel):
-    """ Responsibilities: format events in the kn_response_format=simple format. """
+    """ Responsibilities: Format events in the kn_response_format=simple format. """
 
     def headerfrom(self, event):
         return http_header(event['status'], 'text/plain')
@@ -607,7 +616,8 @@ class JavaScriptTunnel(Tunnel):
         Tunnel.close(self)
 
 class ServerSaver:
-    """ Responsibilities: clean expired events.  Write event pool file. """
+    """ Responsibilities: Clean expired events.  Write event pool file. """
+
     def __init__(self, root, filename, interval, scheduler):
         self.root = root
         self.filename = filename
@@ -622,7 +632,8 @@ class ServerSaver:
         self.scheduler.schedule_processing(self, time.time() + self.interval)
 
 class Server:
-    """ Responsibilities: accept incoming connections and create
+    """ Responsibilities: Accept incoming connections and create
+
     Connection objects for them.  Track overall server state. """
     def __init__(self, portnum, logfile, errlog, scheduler, docroot, knroot, verbose, poolfile, ignorePrologue):
         self.logfile = logfile
@@ -688,8 +699,9 @@ class Server:
     def getknroot(self): return self.knroot
 
 def route_get_topic(conn, uri, query):
-    """ Given a connection, a request-URI, and a query object, return the topic from which
-    a route request (tunnel or other) with those parameters should route. """
+    """ Given a connection, a request-URI, and a query object, return
+    the topic from which a route request (tunnel or other) with those
+    parameters should route. """
     if query.has_key('kn_from'):
         uri = query['kn_from'][0]
     return conn.get_topic(uri)
@@ -972,8 +984,9 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
         conn.finish_sending()
 
 class Connection(asyncore.dispatcher_with_send):
-    """ Responsibilities: parse incoming HTTP data.  Dispatch requests.
+    """ Responsibilities: Parse incoming HTTP data.  Dispatch requests.
     Report status to server. """
+    
     def __init__(self, sock, server, addr, verbose):
         asyncore.dispatcher_with_send.__init__(self, sock)
         self.closed = 0
