@@ -1,7 +1,7 @@
 mod_pubsub build process
 ------------------------
 
-$Id: build_process.txt,v 1.4 2003/08/19 02:02:54 ifindkarma Exp $
+$Id: build_process.txt,v 1.5 2003/10/23 21:57:11 ifindkarma Exp $
 
  1. Add a release on Sourceforge.  At
 
@@ -11,17 +11,17 @@ $Id: build_process.txt,v 1.4 2003/08/19 02:02:54 ifindkarma Exp $
 
  2. Create the release by adding the new release name, for example
 
-    0.992
+    0.993
 
     Click "Create this release"
 
  3. Tag everything at the top level with the current date.
 
-    pubsub-cvs tag -R mod-pubsub-2003-08-18
+    pubsub-cvs tag -R mod-pubsub-2003-10-23
 
- 4. Export mod_pubsub with the tag created in step 6.
+ 4. Export mod_pubsub with the tag created in step 3.
 
-    pubsub-cvs export -r mod-pubsub-2003-08-18 mod_pubsub
+    pubsub-cvs export -r mod-pubsub-2003-10-23 mod_pubsub
 
  5. Run "cd mod_pubsub; make"
 
@@ -30,52 +30,49 @@ $Id: build_process.txt,v 1.4 2003/08/19 02:02:54 ifindkarma Exp $
 
  6. Create the tarball.  For example,
 
-    cd ..; tar czvf mod_pubsub_2003-08-18.tar.gz mod_pubsub
+    cd ..; tar czvf mod_pubsub_2003-10-23.tar.gz mod_pubsub
 
- 7. Upload the tarball.  For example,
+ 7. Upload the tarball(s).  For example,
 
     ftp upload.sf.net
     user anonymous
     cd incoming
-    put mod_pubsub_2003-07-21.tar.gz
+    put mod_pubsub_2003-10-23.tar.gz
+    put win32_libkndesktopinstall_2003-10-23.zip
     quit
 
  8. In the Web browser that says "Project mod-pubsub: Admin: FRS: Releases"
-    go through steps 1 and 2 to insert notes and add the file.
+    go through steps 1 and 2 to insert notes and add the file.  If adding
+    two files, add the zipfile first and the tarball second.
 
-    In step 3, choose architecture "Platform Independent" and
-    type "Source .gz"
+    In step 3, for the tarball choose architecture "Platform Independent"
+    and type "Source .gz", and for the zipfile choose architecture "i386"
+    and type ".zip".
 
  9. Add news on Sourceforge Summary page
 
     http://sourceforge.net/projects/mod-pubsub/
 
-    with a title like "mod_pubsub release 0.992 is available" and text like
+    with a title like "mod_pubsub release 0.993 is available" and text like
 
 <blockquote> 
 
 We put together this tarball to include several 
 recent patches to parts of the distribution, and
-add some prototype apps, including
+add a useful app for webdevs, including:
 
-1. Joyce's fix to the top-level index.html and
-her fixes to kn_docs/faq.html .
+A. Joyce's addition of topicsubtool.php found in
+the directory mod_pubsub/webdev_toolkit .
 
-2. Patches and additions to cxx_pubsub/LibKN/ .
+B. A patch to the ServerSaver to hammer the CPU
+less in mod_pubsub/python_pubsub/pubsub.py .
 
-3. Jeff's perftest framework, added to
-java_pubsub/apps/perftest_framework/ .
-Note this needs porting to Mike and Robert's
-Java pubsub client library.
+C. Patches to mod_pubsub/python_pubsub/apps/repeater.py
+to make it more useful.
 
-4. Prototype of an AIM bridge, added to
-java_pubsub/apps/maim/ .
-Note this needs porting to Mike and Robert's
-Java pubsub client library.
+Download v0.993 of mod_pubsub at: 
 
-Download v0.992 of mod_pubsub at: 
-
-https://sourceforge.net/project/showfiles.php?group_id=66293&release_id=178873
+http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=192963
 
 </blockquote>
 
