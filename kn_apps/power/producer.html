@@ -1,0 +1,236 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: producer.html,v 1.1 2003/03/12 03:19:33 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>producer - pubsub power demo</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="/kn?do_method=lib"></script>
+
+<!-- The PubSub Document Helper Library -->
+<script type="text/javascript" src="../kn_lib/document.js"></script>
+
+<!-- Localizations Helper Library -->
+<script type="text/javascript" src="producer_en.js"></script>
+
+<script><!--
+
+topic = kn_argv.kn_topic ? kn_argv.kn_topic : "/what/power";
+id = "power";
+
+function Graph(v)
+{
+    this._value = v;
+    this.writeTo = function (doc)
+    {
+        doc.write('<img border="0" src="images/led' +
+                  this._value +
+                  '-vert.gif" width="16" height="160" alt="' +
+                  this._value +
+                  '" />');
+    };
+    this.value = function ()
+    {
+        return this._value;
+    };
+    this.setValue = function (number)
+    {
+        if ((number >= 0) && (number <= 10))
+        {
+            this._value = number;
+        }
+    };
+    this.increase = function ()
+    {
+        if (this._value < 10) this._value ++;
+    };
+    this.decrease = function ()
+    {
+        if (this._value > 0) this._value --;
+    };
+}
+
+function startup()
+{
+    textReady = false;
+    graph = new Graph(4);
+    graphDoc = new KNDocument(frames[0]);
+    textDoc = new KNDocument(frames[1]);
+    imgDoc = new KNDocument(frames[2]);
+    update();
+    with (imgDoc)
+        {
+            for (var i = 0; i <= 10; i ++)
+            {
+                write('<img border="0" src="images/led' +
+                      i +
+                      '-vert.gif" alt="" width="1" height="1" />');
+            }
+        }
+    with (textDoc)
+        {
+            open();
+            writeln('<style><' + '!-' + '-');
+            writeln('input { border: 0px; }');
+            writeln('body, input { font-family: arial, helvetica, sans-serif; font-size: 12px; }');
+            writeln('-' + '->');
+            writeln('</style>');
+            write('<body bgcolor="white" text="black" link="blue" alink="red" vlink="maroon"' +
+                  ' onload="parent.updateText()">');
+            write('<form action="javascript:void null//">');
+            write('<input align="right" readonly="readonly" onfocus="blur()"' +
+		  ' name="price" value="" size="19" />');
+            write('</form>');
+            write('</body>');
+            close();
+        }
+    kn_subscribe(topic,
+                 (function (e) {
+                     if (e.kn_id != id) return;
+                     graph.setValue(parseInt(e.kn_payload));
+                     update();
+                 }),
+                 ({ do_max_age: "infinity" }),
+                 ({ onError: (function (e) {
+                     alert($("Rolling Blackouts Are In Effect"));
+                 }) }));
+}
+
+function updateText()
+{
+    textReady = true;
+    frames[1].document.forms[0].elements[0].value =
+      $_("Price: %{0}\xA2 per kWh",
+	 graph.value());
+}
+
+function update()
+{
+    with (graphDoc)
+        {
+            var increase = kn_htmlEscape($("Increase Price"));
+            var decrease = kn_htmlEscape($("Decrease Price"));
+            open();
+            write('<body bgcolor="white" text="black" link="blue" alink="red" vlink="maroon">');
+            write('<table width="32" border="0" cellpadding="0" cellspacing="0">');
+            write('<tr>');
+            write('<td>');
+            graph.writeTo(graphDoc);
+            write('</td>');
+            write('<td valign="center">');
+            write('&nbsp;');
+            write('<a href="javascript:parent.plus()" title="' +
+                  increase +
+                  '">');
+            write('<img src="images/plus.gif" width="16" height="16" border="0" alt="' +
+                  increase +
+                  '" />');
+            write('</a>');
+            write('<br />');
+            write('&nbsp;');
+            write('<a href="javascript:parent.minus()" title="' +
+                  decrease +
+                  '">');
+            write('<img src="images/minus.gif" width="16" height="16" border="0" alt="' +
+                  decrease +
+                  '" />');
+            write('</a>');
+            write('</td>');
+            write('</tr>');
+            write('</table>');
+            write('</body>');
+            close();
+        }
+    if (textReady)
+    {
+        updateText();
+    }
+}
+
+function send()
+{
+    kn_publish(topic,
+               ({
+                   kn_id: id,
+                   kn_payload: "" + graph.value()
+               }),
+               ({ onError: (function (e) {
+                   alert($("Power Exchange Committee Alleges Price-Fixing"));
+               }) }));
+}
+
+function plus()
+{
+    graph.increase();
+    send();
+}
+
+function minus()
+{
+    graph.decrease();
+    send();
+}
+
+// -->
+</script>
+</head>
+<script><!--
+
+document.write(
+    '<frameset onload="startup()" cols="64,*" border="0">' +
+    '<frame frameborder="no" noresize="noresize" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '<frameset rows="100%,*" border="0">' +
+    '<frame frameborder="no" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '<frame frameborder="no" noresize="noresize" scrolling="no" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '</frameset>' +
+    '</frameset>');
+
+// -->
+</script>
+</html>

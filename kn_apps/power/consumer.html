@@ -1,0 +1,355 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: consumer.html,v 1.1 2003/03/12 03:19:32 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>consumer - pubsub power demo</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="/kn?do_method=lib"></script>
+
+<!-- The PubSub Document Helper Library -->
+<script type="text/javascript" src="../kn_lib/document.js"></script>
+
+<!-- Localizations Helper Library -->
+<script type="text/javascript" src="consumer_en.js"></script>
+
+<script><!--
+
+topic = kn_argv.kn_topic ? kn_argv.kn_topic : "/what/power";
+id = "power";
+state = "green";
+oldstate = "black";
+level = 4;
+oldlevel = -1;
+paperColor = "white";
+
+function startup()
+{
+    primaryDoc = new KNDocument(frames[2]);
+    doc = new KNDocument(frames[3]);
+    secondaryDoc = new KNDocument(frames[4]);
+    formDoc = new KNDocument(frames[5]);
+    formReady = false;
+    update();
+    kn_subscribe(topic,
+                 (function (e) {
+                     if (e.kn_id != id) return;
+                     level = parseInt(e.kn_payload);
+                     update();
+                 }),
+                 ({ do_max_age: "infinity" }),
+                 ({ onError: (function (e) {
+                     alert($("Rolling Blackouts Are In Effect"));
+                 }) }));
+    with (formDoc)
+        {
+            var email = $("email:");
+            open();
+            write('<body text="black" bgcolor="' +
+                  paperColor +
+                  '" onload="parent.formReady = true">');
+            write('<table border="0" cellspacing="0" width="100%" bgcolor="white">');
+            write('<tr>');
+            write('<th align="center" colspan="3">');
+            write($("Notification Preferences"));
+            write('<br /><hr size="1" />');
+            write('</th>');
+            write('</tr>');
+//  <form name="preferences" action="javascript://">
+//  <tr>
+//  <td></td>
+//  <th>Primary</th>
+//  <th>Secondary</th>
+//  </tr>
+//  <tr>
+//  <th>Web Popup</th>
+//  <td><input type="checkbox" /></td>
+//  <td><input type="checkbox" /></td>
+//  </tr>
+//  <tr>
+//  <th>Email: <input size="20" /></th>
+//  <td><input type="checkbox" /></td>
+//  <td><input type="checkbox" /></td>
+//  </tr>
+//  </form>
+            write('<tr>');
+            write('<form name="primary" action="javascript://">');
+            write('<td valign="top">');
+            write('&nbsp;<input name="notify" type="checkbox" selected="1" />&nbsp;');
+            write('</td>');
+            write('<td valign="top">');
+            write($_('Notify me when %{0}primary%{1} systems are affected.',
+                     '<b><font color="maroon">',
+                     '</font></b>'));
+            write('</td>');
+            write('<td valign="top" align="right">');
+            write('<i>&nbsp;' +
+                  email +
+                  '</i> <input name="email" size="20" value="" />&nbsp;');
+            write('</td>');
+            write('</form>');
+            write('</tr>');
+            write('<tr>');
+            write('<form name="secondary" action="javascript:void null//">');
+            write('<td valign="top">');
+            write('&nbsp;<input name="notify" type="checkbox" selected="1" />&nbsp;');
+            write('</td>');
+            write('<td valign="top">');
+            write($_('Notify me when %{0}secondary%{1} systems are affected.',
+                     '<b>', '</b>'));
+            write('</td>');
+            write('<td valign="top" align="right">');
+            write('<i>&nbsp;' +
+                  email +
+                  '</i> <input name="email" size="20" value="" />&nbsp;');
+            write('</td>');
+            write('</form>');
+            write('</tr>');
+            write('</table>');
+            write('</body>');
+            close();
+        }
+}
+
+alertWin = null;
+
+function myAlert(string)
+{
+    if (alertWin && kn_isReady(alertWin)) alertWin.close();
+    alertWin = window.open('javascript:void document.write("' +
+                        '<title>Notice - KnowNow Power</title>' +
+                        '<body text=\\"white\\" bgcolor=\\"black\\" leftmargin=\\"0\\" topmargin=\\"0\\" marginwidth=\\"0\\" marginheight=\\"0\\">' +
+                        '<h1 align=\\"center\\"><tt>' +
+                        kn_htmlEscape(string) +
+                        '</tt></h1>' +
+			'<table width=\\"100%\\" border=\\"0\\" cellpadding=\\"0\\" cellspacing=\\"0\\"><tr>' +
+			'<form action=\\"javascript:close()//\\">' +
+			'<td align=\\"center\\">' +
+			'<input type=\\"submit\\" value=\\"Close\\" />' +
+			'</td>' +
+			'</form>' +
+			'</tr></table>' +
+			'</body>")', '_blank', 'width=250,height=200');
+}
+
+function myMail(email, string)
+{
+    var tmp = topic + '/email/' +
+        Math.random().toString().substr(2,8);
+    kn.subscribe(tmp,
+                 "http://localhost:8000/cgi-bin/form2smtp.cgi/" +
+                 kn_escape(email),
+                 ({ kn_expires: "+600", do_max_n: "1" }),
+                 ({ onError: (function (e) {
+                     myAlert($_("%{0} [Can't Route To Mailer %{1} %{2}]",
+                                string, email, e.status));
+                 }) }));
+    kn.publish(tmp,
+               ({ kn_expires: "+600", kn_payload: string }),
+               ({ onError: (function (e) {
+                   myAlert($_("%{0} [Can't Notify %{1} %{2}]",
+                              string, email, e.status));
+               }) }));
+}
+
+function update()
+{
+    if (level < 6)
+    {
+        state = "green";
+        paperColor = "#e0ffe0";
+    }
+    else if (level < 9)
+    {
+        state = "yellow";
+        paperColor = "#ffffe0";
+    }
+    else
+    {
+        state = "red";
+        paperColor = "#ffe0e0";
+    }
+    if (state != oldstate)
+    {
+        var color = state.replace("green", "lime");
+        frames[0].document.bgColor = color;
+        frames[1].document.bgColor = color;
+        frames[6].document.bgColor = color;
+        frames[7].document.bgColor = color;
+        frames[2].document.bgColor = paperColor;
+        frames[3].document.bgColor = paperColor;
+        frames[4].document.bgColor = paperColor;
+        frames[5].document.bgColor = paperColor;
+        top.status = oldstate + " " + String.fromCharCode(8594) + " " + state;
+        if (state == "red" || oldstate == "red" || oldstate == "black")
+        {
+            var message =
+                (state == "red") ?
+                $('Primary Systems Are Offline') :
+                $('Primary Systems Are Online');
+            if (formReady)
+            {
+                var email = frames[5].document.forms.primary.email.value;
+                if (email)
+                {
+                    myMail(email, message);
+                }
+                if (frames[5].document.forms.primary.notify.checked)
+                {
+                    myAlert(message);
+                }
+            }
+            with (primaryDoc)
+                {
+                    open();
+                    write('<body text="black" bgcolor="' + paperColor + '">');
+                    write('<a title="');
+                    write(kn_htmlEscape(message));
+                    write('">');
+                    write('<img width="50" height="75" src="images/light');
+                    if (state == "red") write('_static');
+                    write('.gif" alt="');
+                    write(kn_htmlEscape(message));
+                    write('" align="left" />');
+                    write('</a>');
+                    write('</body>');
+                    close();
+                }
+        }
+        if (state == "green" || oldstate == "green" || oldstate == "black")
+        {
+            var message =
+                (state == "green") ?
+                $('Secondary Systems Are Online') :
+                $('Secondary Systems Are Offline');
+            if (formReady)
+            {
+                var email = frames[5].document.forms.secondary.email.value;
+                if (email)
+                {
+                    myMail(email, message);
+                }
+                if (frames[5].document.forms.secondary.notify.checked)
+                {
+                    myAlert(message);
+                }
+            }
+            with (secondaryDoc)
+                {
+                    open();
+                    write('<body text="black" bgcolor="' + paperColor + '">');
+                    write('<a title="');
+                    write(kn_htmlEscape(message));
+                    write('">');
+                    write('<img width="61" height="72" src="images/fan');
+                    if (state != "green") write('_static');
+                    write('.gif" alt="');
+                    write(kn_htmlEscape(message));
+                    write('" align="right" />');
+                    write('</a>');
+                    write('</body>');
+                    close();
+                }
+        }
+    }
+    oldstate = state;
+    if (level != oldlevel)
+    {
+        with (doc)
+            {
+                open();
+                write('<body text="black" bgcolor="' + paperColor + '">');
+                write('<h1 align="center">');
+                write('<font face="' +
+                      $("Comic Sans MS") +
+                      '">');
+                write($_('Electricity is now %{0}&#162; per kilowatt-hour.', level));
+                write('</font>');
+                write('</h1>');
+                write('</body>');
+                close();
+            }
+    }
+    oldlevel = level;
+}
+
+// -->
+</script>
+</head>
+<script><!--
+
+document.write(
+    '<frameset onload="startup()" cols="20,*,20" border="0"' +
+    ' onunload="if (alertWin && kn_isReady(alertWin)) alertWin.close();">' +
+    '<frame frameborder="no" noresize="noresize" scrolling="no" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '<frameset rows="20,180,*,20" border="0">' +
+    '<frame frameborder="no" noresize="noresize" scrolling="no" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '<frameset cols="80,*,80" border="0">' +
+    '<frame frameborder="no" marginwidth="5" marginheight="10" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '<frame frameborder="no" marginwidth="5" marginheight="10" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '<frame frameborder="no" marginwidth="5" marginheight="10" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '</frameset>' +
+    '<frame frameborder="no" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '<frame frameborder="no" noresize="noresize" scrolling="no" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '</frameset>' +
+    '<frame frameborder="no" noresize="noresize" scrolling="no" src="' +
+    kn_htmlEscape(kn_blank) +
+    '" />' +
+    '</frameset>');
+// -->
+</script>
+</html>
