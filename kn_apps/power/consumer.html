@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: consumer.html,v 1.2 2003/03/12 03:31:53 ifindkarma Exp $
+ $Id: consumer.html,v 1.3 2003/03/13 02:17:51 ifindkarma Exp $
 
 -->
 
@@ -177,7 +177,7 @@ function myMail(email, string)
     var tmp = topic + '/email/' +
         Math.random().toString().substr(2,8);
     kn.subscribe(tmp,
-                 "http://oyster.knownow.com:8000/cgi-bin/form2smtp.cgi/" +
+                 "http://127.0.0.1/mod_pubsub/cgi-bin/form2smtp.cgi/" +
                  kn_escape(email),
                  ({ kn_expires: "+600", do_max_n: "1" }),
                  ({ onError: (function (e) {
