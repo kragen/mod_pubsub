@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: pubsublib.php,v 1.7 2003/04/29 08:19:01 ifindkarma Exp $';
+$RCSID = '$Id: pubsublib.php,v 1.8 2003/04/30 23:39:55 ifindkarma Exp $';
 
 if (! defined("PUBSUBLIB_PHP_INCLUDED"))
 {
@@ -75,16 +75,19 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
     unset($PUBSUB_NULL);
     define("PUBSUB_NULL", $PUBSUB_NULL);
 
-    # get a parameter (named $name) from one of the sources (_GET, _POST,
-    # and _COOKIES by default) or from the same-named global if those
-    # sources aren't available; returns $default otherwise
-    function kn__gpc($name, $default = PUBSUB_NULL, $sources = PUBSUB_NULL)
+    # get a parameter (named $name) from one of the sources (_GET,
+    # _POST, and _COOKIE by default; fallback sources are used if the
+    # primary sources don't exist) or from the same-named global if
+    # those sources aren't available; returns $default otherwise
+    function kn__gpc($name, $default = PUBSUB_NULL, $sources = PUBSUB_NULL,
+                     $fallback_sources = PUBSUB_NULL)
     {
         $newstyle = false;
         if (! $sources)
         {
-            $sources = array("_GET", "_POST", "_COOKIES");
+            $sources = array("_GET", "_POST", "_COOKIE");
         }
+        # Round 1: Try PHP4-style variable collections
         while (list($idx, $set) = each($sources))
         {
             global $$set;
@@ -102,6 +105,52 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
         {
             return $default;
         }
+        # Round 2: Try PHP3-style equivalents
+        if (! $fallback_sources)
+        {
+            $fallback_sources = array();
+            reset($sources);
+            while (list($idx, $set) = each($sources))
+            {
+                if ($set == "_FILES")
+                {
+                    $set = "HTTP_POST_FILES";
+                }
+                else if ($set == "_SERVER" or
+                         $set == "_GET" or
+                         $set == "_POST" or
+                         $set == "_COOKIE" or
+                         $set == "_ENV" or
+                         $set == "_SESSION")
+                {
+                    $set = "HTTP" . $set . "_VARS";
+                }
+                else
+                {
+                    continue;
+                }
+                $fallback_sources[count($fallback_sources)] = $set;
+            }
+        }
+        $sources = $fallback_sources;
+        while (list($idx, $set) = each($sources))
+        {
+            global $$set;
+            if (isset($$set))
+            {
+                $newstyle = true;
+                $tmp = $$set;
+                if (isset($tmp[$name]))
+                {
+                    return $tmp[$name];
+                }
+            }
+        }
+        if ($newstyle)
+        {
+            return $default;
+        }
+        # Round 3: Try a plain global.
         global $$name;
         if (isset($$name))
         {
@@ -309,7 +358,7 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
         $kn_userid =
             kn__gpc("kn_userid",
                     "guest",
-                    array("_GET", "_COOKIES"));
+                    array("_GET", "_COOKIE"));
     }
 
     if (! isset($kn_displayname))
@@ -317,7 +366,7 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
         $kn_displayname =
             kn__gpc("kn_displayname",
                     "Guest User",
-                    array("_GET", "_COOKIES"));
+                    array("_GET", "_COOKIE"));
     }
 
     if (! isset($kn_server))
@@ -325,7 +374,7 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
         $kn_server =
             kn__gpc("kn_server",
                     PUBSUB_NULL,
-                    array("_GET", "_COOKIES"));
+                    array("_GET", "_COOKIE"));
     }
 
     if ($kn_server == PUBSUB_NULL and
