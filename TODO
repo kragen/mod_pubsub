@@ -1,51 +1,41 @@
 -------------------------------------
 High-level items on the "to do" list.
 -------------------------------------
-$Id: TODO,v 1.8 2003/03/22 11:51:15 ifindkarma Exp $
+$Id: TODO,v 1.9 2003/03/22 14:14:25 ifindkarma Exp $
 
- 1. Create a mod_pubsub self-contained Apache module that
-    subsumes the best practices of pubsub.cgi and pubsub.py .
-
- 2. Instruct Apache to redirect /kn to pubsub.cgi .
-    (Now INSTALL has instructions for how to do this; use
-    pubsub_test.cgi?url=http://localhost/kn to test it; however, various
-    things, including pubsub.cgi and pubsub_test.cgi, still expect
-    other things to live near pubsub.cgi in URL-space.  We'll correct
-    this soon...)
-
- 3. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
+ 1. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
     that has publish, subscribe, and unsubscribe.  This still needs a
     test suite and several other things; see python_pubsub/TODO for
     next things on the list.
 
- 4. pubsub.cgi and pubsub.py should be less lazy about detecting
-    closed sessions.  Bring active presence detection to mod_pubsub.
-    Perhaps do this by writing an external cleanup.py program.
+ 2. PubSub/ModPubSub.pm and pubsub.py should be less lazy about
+    detecting closed sessions.  Bring active presence detection to
+    mod_pubsub. Perhaps do this by writing an external cleanup.py
+    program.
 
-5A. Create an installer for cxx_pubsub/LibKN so Windows developers have
+ 3. PubSub/ModPubSub.pm and pubsub_test.cgi still expect
+    other things to live near PubSub/ModPubSub.pm in URL-space. Fix this.
+
+ 4. Create an installer for cxx_pubsub/LibKN so Windows developers have
     a pre-compiled build they can use easily.
 
-5B. Compile pubsub.py into a pubsub.exe that Windows folks can run easily.
+ 5. Compile pubsub.py into a pubsub.exe that Windows folks can run easily.
     Then we'll have a "Windows PubSub Server".  (Alternatively, figure out
     how to use Jython to compile pubsub.py and pubsublib.py into Java
     bytecodes so we can run them within a JVM.)
 
-5C. Build c_pubsub/libkn on cygwin.
+ 6. Build c_pubsub/libkn on cygwin.
 
- 6. Create a java_pubsub client library.  Greg suggests creating a clean
+ 7. Create a java_pubsub client library.  Greg suggests creating a clean
     Java API usable in any type of Java client (app server based or not)
     and then layer a JMS interface on top of that.  This makes it easier to
     develop and easier to maintain over time while covering all the bases.
 
- 7. pubsub.js -- fix it to deal with long lived IE6 sessions.
+ 8. pubsub.js -- fix it to deal with long lived IE6 sessions.
 
- 8. Make Tunnel.pm event-driven.
+ 9. Make Tunnel.pm event-driven.
     Unify the Perl PubSub client and server and
     submit the PubSub perl package to CPAN.
-
- 9. Revamp RSS Support because kn_sense/rss is an awful hack.
-    Use Jeff Barr's wonderful http://www.syndic8.com/ tools.
-    (Update 3/2003: cxx_pubsub contains a Windows RSS-sensing tool.)
 
 10. While we're at it, clean up any broken and/or ugly kn_apps.
     "replay" is a particularly useful kn_app that is broken.
@@ -74,3 +64,9 @@ $Id: TODO,v 1.8 2003/03/22 11:51:15 ifindkarma Exp $
 
 18. doxygen comments.  Heck, more documentation all around!
     Flesh out mod_pubsub/kn_docs/design_notes/...
+
+19. Revamp RSS Support because kn_sense/rss is an awful hack.
+    Use Jeff Barr's wonderful http://www.syndic8.com/ tools.
+    (Update 3/2003: cxx_pubsub contains a Windows RSS-sensing tool.)
+
+20. Investigate Apache 2.0.

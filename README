@@ -2,24 +2,22 @@
 About This Distribution
 -----------------------
 
-This distribution contains a set of files that add publish-and-subscribe
-to the web for users of Perl, Python, JavaScript, C, COM/ActiveX/.NET,
-Java, and Ruby.  (Coming soon: PHP, we hope.)
+This distribution contains a set of files that add
+publish and subscribe to the web for users of Perl, Python, PHP,
+JavaScript, C, COM/ActiveX/.NET, Java, and Ruby.
 
-This is an early snapshot that includes the PubSub Server as Perl CGI
-scripts that are called from Apache (or run inside mod_perl in
-Apache), a reference standalone Python PubSub Server that uses the
-same PubSub Protocol, a push_manager that helps with additional
-connection pooling, and many sample apps.  (Perl and Python work,
-push_manager needs a lot of work, and the apps are all in different
-states of usability and needing work.)
+This distribution includes the PubSub Server as a Perl Apache module
+(using mod_perl), a reference standalone Python PubSub Server that
+uses the same PubSub Protocol, a push_manager that helps with
+additional connection pooling, and many sample apps.  (Perl and Python
+work, push_manager needs a lot of work, and the apps are all in
+different states of usability and needing work.)
 
 Please have a look at the file INSTALL for installation instructions
 for the current Apache-based Perl PubSub Server and standalone Python
 PubSub Server.
 
-We plan to subsume the best of the Perl and Python servers into an
-Apache module called mod_pubsub.  Other plans are in the TODO file.
+Plans are in the TODO file.
 
 See also the index.html files in the mod_pubsub directory and the
 mod_pubsub/kn_apps directory.  If you have questions not covered in
@@ -35,7 +33,7 @@ liability while promoting free use of this set of code, tools, and
 documentation.  Enjoy!
 
   -- Adam Rifkin
-     $Id: README,v 1.5 2003/03/18 01:43:43 ifindkarma Exp $
+     $Id: README,v 1.6 2003/03/22 14:14:25 ifindkarma Exp $
 
 
 

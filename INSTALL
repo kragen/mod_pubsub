@@ -3,14 +3,15 @@ mod_pubsub Installation
 -----------------------
 
 In this distribution there are two separate PubSub Servers:
-cgi-bin/pubsub.cgi (which requires Apache 1.3 and mod_perl) and
-python_pubsub/pubsub.py (which runs standalone on a command line).
+cgi-bin/PubSub/ModPubSub.pm (which requires Apache 1.3 and mod_perl)
+and python_pubsub/pubsub.py (which runs standalone on a command line).
 
-So far, we have run cgi-bin/pubsub.cgi with Apache and mod_perl on
-Windows 2000/XP, Linux, Mac OS X, and Solaris 2.8.  Instructions for
-configuring it to run with Apache 1.3 and mod_perl, assuming you have
-root on the web server, are in the "Installation of pubsub.cgi" section
-below.  Other web servers may work but have not been tested so far.
+So far, we have run cgi-bin/PubSub/ModPubSub.pm with Apache and
+mod_perl on Windows 2000/XP, Linux, Mac OS X, and Solaris 2.8.
+Instructions for configuring it to run with Apache 1.3 and mod_perl,
+assuming you have root on the web server, are in the "Installation of
+PubSub/ModPubSub.pm" section below.  Other web servers may work but
+have not been tested so far.
 
 Also, we have run python_pubsub/pubsub.py in standalone from the
 command line on Windows 2000/XP, Linux, Mac OS X, and Solaris 2.8.
@@ -24,13 +25,13 @@ For questions and comments, please refer to the mailing list.
    http://mod-pubsub.sf.net/
    mod-pubsub-developer@lists.sourceforge.net
 
-$Id: INSTALL,v 1.11 2003/03/17 03:10:52 ifindkarma Exp $
+$Id: INSTALL,v 1.12 2003/03/22 14:14:25 ifindkarma Exp $
 
 
 
---------------------------
-Installation of pubsub.cgi
---------------------------
+-----------------------------------
+Installation of PubSub/ModPubSub.pm
+-----------------------------------
 
 0.  You need Perl 5 or higher to be able to use this distribution;
 we've run it recently with 5.6.1, but it should probably still work
@@ -94,21 +95,18 @@ On other systems, the module may be in somewhere like
 will create a directory named mod_pubsub.
 
 
-5.  Configure your Apache server to allow scripts in mod_pubsub/cgi-bin
-to be parsed by mod_perl, and to alias the URL "/kn" to pubsub.cgi.
+5.  Configure your Apache server to run the mod_pubsub Perl module.
 You can do this by adding lines like the following to httpd.conf.
-(You may need to adjust the filenames for your Apache document root.)
+(You may need to adjust the filenames for your Apache document root
+[default mod_pubsub directory: "/var/www/mod_pubsub"; default
+mod_pubsub directory URL "/mod_pubsub"].)
 
-    <Directory /var/www/mod_pubsub/cgi-bin>
-      <Files *.cgi>
-        Options +ExecCGI
-        SetHandler perl-script
-        PerlHandler Apache::Registry
-        PerlSendHeader On
-      </Files>
-    </Directory>
-    Alias /kn /var/www/mod_pubsub/cgi-bin/pubsub.cgi
-
+<Perl>
+use lib "/var/www/mod_pubsub/cgi-bin";
+use PubSub::ModPubSub 'mod_pubsub';
+mod_pubsub("/var/www/mod_pubsub", "/mod_pubsub", "/kn",
+           \%Location, \%Directory);
+</Perl>
 
 At this point, your Apache and mod_perl should be working correctly.  To
 check, view the following page:
@@ -226,11 +224,11 @@ try changing the ownership of the kn_events directory:
 You can see Perl source when you view test apps
 
   Apache should be running these with mod_perl.  Perhaps Apache hasn't
-loaded mod_perl (the PerlHandler directive above should give you an error
-message in error_log, and keep Apache from starting, if that's the case)
-or mod_perl doesn't handle the cgi-bin directory in which mod_pubsub
-has been installed.  Perhaps the <Directory> directive above has the
-wrong path?
+loaded mod_perl (the PerlHandler directive above should give you an
+error message in error_log, and keep Apache from starting, if that's
+the case) or mod_perl doesn't handle the cgi-bin directory in which
+mod_pubsub has been installed.  Perhaps the <Perl> or <Directory>
+directive above has the wrong path?
 
 
 
