@@ -1,23 +1,24 @@
 ----------------------------
 To Do List for Python PubSub
 ----------------------------
-$Id: TODO,v 1.15 2003/05/16 06:26:07 ifindkarma Exp $
+$Id: TODO,v 1.16 2003/06/14 03:33:06 ifindkarma Exp $
 
+ 0. Notifications for closing tunnel.
  1. Off host routes and kn_content_transform in pubsub.py .
- 2. Make a cleaner.py which removes expired events.
-    Note: this client can work for both pubsub.py and pubsub.cgi .
- 3. Add "Depth: " header to prevent infinite introspection.
- 4. Fix bridge.py to use pubsublib.py to
+ 2. Modify pubsub.py to not send so many flush spaces when writing simple
+    response format.  This will make our simple wire format less chatty.
+ 3. Add CGI support and/or Perl interpreter to pubsub.py.
+ 4. Add pubsub.py watchdog.  Consolidate pubsub.py scheduler with
+    scheduler.py.  Add statistics that are dumped out by pubsub.py.
+ 5. Add "Depth: " header to prevent infinite introspection.
+ 6. Fix bridge.py to use pubsublib.py to
     bridge instances of pubsub.py and pubsub.cgi.
- 5. Add "ulimit"-like functionality to pubsub.py.
-    Add statistics that are dumped out by pubsub.py.
- 6. Add SSL and authentication/authorization support.
- 7. Add CGI support to pubsub.py.
- 8. Find out which of (asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py)
+ 7. Add "ulimit"-like functionality to pubsub.py.
+ 8. Add SSL and authentication/authorization support.
+ 9. Find out which of (asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py)
     can be removed from cvs because they ship with the standard Python
     distribution and have not been modified here.
- 9. Handle log file size overflow.  Perhaps log rotation or compaction?
-10. Verbose vs. non-verbose code not covered.
+10. Handle log file size overflow.  Perhaps log rotation or compaction?
 11. Task.__repr__ never called.
 12. Scheduled tasks never have errors.
 13. Schedule never empty, so poll(None) never happens.
@@ -39,7 +40,7 @@ $Id: TODO,v 1.15 2003/05/16 06:26:07 ifindkarma Exp $
     and have to join them with commas
 28. libform and lib2form don't get tested by the automated tests.
 29. do_method=route defaulting for GET requests not tested.
-30. 'Welcome to pubsub.py' never gets run.
+30. Verbose vs. non-verbose code not covered.
 31. '404 Not Found' never gets sent.
 32. Non-{GET,HEAD,POST} requests never get sent.
 33. send_response's '500 Internal Server Error' catch
@@ -71,3 +72,4 @@ $Id: TODO,v 1.15 2003/05/16 06:26:07 ifindkarma Exp $
     very useful abstractions that we don't have yet, such as a
     non-polling Reactor.
 
+*** 45. Investigate using ZODB for persistence layer. ******************************
