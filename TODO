@@ -1,39 +1,37 @@
 -------------------------------------
 High-level items on the "to do" list.
 -------------------------------------
-$Id: TODO,v 1.10 2003/04/02 03:26:19 ifindkarma Exp $
+$Id: TODO,v 1.11 2003/04/28 23:41:29 ifindkarma Exp $
 
- 0. Modify the Perl server and the Python server to not send
+ 1. Modify the Perl server and the Python server to not send
     so many flush spaces when writing simple response format.
     This will make our simple wire format less chatty.
 
- 1. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
+ 2. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
     that has publish, subscribe, and unsubscribe.  This still needs a
     test suite and several other things; see python_pubsub/TODO .
 
- 2. PubSub/ModPubSub.pm and pubsub.py should be less lazy about
+ 3. PubSub/ModPubSub.pm and pubsub.py should be less lazy about
     detecting closed sessions.  Bring active presence detection to
     mod_pubsub. Do this by writing an external cleanup.py program.
 
- 3. PubSub/ModPubSub.pm and pubsub_test.cgi still expect
+ 4. PubSub/ModPubSub.pm and pubsub_test.cgi still expect
     other things to live near PubSub/ModPubSub.pm in URL-space. Fix this.
 
- 4. Create an installer for cxx_pubsub/LibKN so Windows developers have
+ 5. Create an installer for cxx_pubsub/LibKN so Windows developers have
     a pre-compiled build they can use easily.
 
- 5. Compile pubsub.py into a pubsub.exe that Windows folks can run easily.
+ 6. Compile pubsub.py into a pubsub.exe that Windows folks can run easily.
     Then we'll have a "Windows PubSub Server".  (Alternatively, figure out
     how to use Jython to compile pubsub.py and pubsublib.py into Java
     bytecodes so we can run them within a JVM.)
 
- 6. Build c_pubsub/libkn on cygwin.
+ 7. Build c_pubsub/libkn on cygwin.
 
- 7. Create a java_pubsub client library.  Greg suggests creating a clean
+ 8. Create a java_pubsub client library.  Greg suggests creating a clean
     Java API usable in any type of Java client (app server based or not)
     and then layer a JMS interface on top of that.  This makes it easier to
     develop and easier to maintain over time while covering all the bases.
-
- 8. pubsub.js -- fix it to deal with long lived IE6 sessions.
 
  9. Make Tunnel.pm event-driven.
     Unify the Perl PubSub client and server and
@@ -70,5 +68,3 @@ $Id: TODO,v 1.10 2003/04/02 03:26:19 ifindkarma Exp $
 19. Revamp RSS Support because kn_sense/rss is an awful hack.
     Use Jeff Barr's wonderful http://www.syndic8.com/ tools.
     (Update 3/2003: cxx_pubsub contains a Windows RSS-sensing tool.)
-
-20. Investigate Apache 2.0.
