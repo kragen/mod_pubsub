@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.39 2003/06/17 03:35:52 ifindkarma Exp $
+# $Id: pubsub.py,v 1.40 2003/06/17 03:37:26 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -1651,14 +1651,13 @@ def main(argv):
             else:
                 ignorePrologueStr = "false"
 
-            print(
-                "\nPubSub Server initialized.\n"
-                "    Port: %s\n"
-                "    Document root: %s\n"
-                "    Topic root: %s\n"
-                "    Event pool file: %s\n"
-                "    Prologue ignored: %s\n" %
-                (str(portNum), docroot, topicroot, filename, ignorePrologueStr))
+            print("\nPubSub Server initialized.\n"
+                  "    Port: %s\n"
+                  "    Document root: %s\n"
+                  "    Topic root: %s\n"
+                  "    Event pool file: %s\n"
+                  "    Prologue ignored: %s\n" %
+                  (str(portNum), docroot, topicroot, filename, ignorePrologueStr))
         else:
             print "\nPubSub Server initialized.\n"
 
