@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.7 2003/03/18 06:59:16 ifindkarma Exp $
+ $Id: index.html,v 1.8 2003/03/19 23:01:20 ifindkarma Exp $
 
 -->
 
@@ -219,6 +219,12 @@ full-fledged Apache module called <b>mod_pubsub</b>.
 (<a href="cgi-bin/PubSub/">PubSub</a>).
 It is single-threaded and partially non-blocking
 (tunnel is non-blocking, other requests block).
+<li> <b>SOAP Gateway</b>
+(<a href="cgi-bin/soap_gateway/">PubSubService.cgi</a>).
+A preliminary SOAP interface to mod_pubsub.
+When complete, the SOAP interface will include support for
+incoming SOAP requests, off-host SOAP routes, and
+external SOAP service invocation.
 </ol></td>
 </tr>
 
@@ -306,7 +312,7 @@ written in Perl.</td>
 <td bgcolor="#eeeeee">A connection pooler for use with
 <i>cgi-bin/pubsub.cgi</i> to enable it to serve thousands of
 simultaneous connections.  Note that this program does not
-currently work.</td>
+currently work with most platforms.</td>
 </tr>
 
 </table>
