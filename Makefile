@@ -32,7 +32,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Makefile,v 1.2 2003/01/29 05:28:03 kragen Exp $
+# $Id: Makefile,v 1.3 2003/02/10 01:24:46 ifindkarma Exp $
 
 all:	kn_apps/kn_lib/pubsub.js kn_events
 
@@ -43,11 +43,11 @@ all:	kn_apps/kn_lib/pubsub.js kn_events
 kn_apps/kn_lib/pubsub.js:	kn_apps/kn_lib/pubsub_raw.js kn_tools/js_compress.sh
 	bash kn_tools/js_compress.sh < kn_apps/kn_lib/pubsub_raw.js > kn_apps/kn_lib/pubsub.js
 
-# Make sure mod_pubsub can write to the kn_events directory --- otherwise it
-# won't run.
+# Make sure mod_pubsub can write to the kn_events directory ---
+# otherwise it won't run.
 
 kn_events:
-	[ x"$(HTTPD_USER)" != x ]  # define HTTPD_USER as the user that runs your web server, e.g. make HTTPD_USER=httpd (or nobody, or www-data)
+	[ x"$(HTTPD_USER)" != x ]  # Define HTTPD_USER as the user that runs your web server, e.g. make HTTPD_USER=httpd (or nobody, or www-data)
 	mkdir $@
 	if ! chown $(HTTPD_USER) $@; then rmdir $@; false; fi
 
