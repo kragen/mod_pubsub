@@ -1,26 +1,23 @@
 #!/usr/bin/python
 
 """
-        scheduler.py -- An asynchronous scheduling mechanism for use
-        with the python_pubsub "asyncore" event loop (from
-        mod_pubsub).
+    scheduler.py -- An asynchronous scheduling mechanism for use
+    with the python_pubsub "asyncore" event loop (from
+    mod_pubsub).
 
-        Responsibilities: Maintain a list of items to be done at
-        specific times in the future; run items to be done at present
-        or in the past; tell event loop how long until the next
-        scheduled task.
+    Responsibilities: Maintain a list of items to be done at
+    specific times in the future; run items to be done at present
+    or in the past; tell event loop how long until the next
+    scheduled task.
 
-        Version 1.0 -- February 8, 2003.  Initial implementation.
-        Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
+    $Id: scheduler.py,v 1.2 2003/03/12 02:37:23 ifindkarma Exp $
+    Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
-        Known Issues:
+    Known Issues: see the FIXME's in this file.
 
-            *. No demo sample provided in this file.
-               For now, see sitewatch_sensor.py for a sample usage.
-
-        Contact Information:
-            http://mod-pubsub.sf.net/
-            mod-pubsub-developer@lists.sourceforge.net
+    Contact Information:
+        http://mod-pubsub.sf.net/
+        mod-pubsub-developer@lists.sourceforge.net
 """
 
 ## Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
@@ -57,7 +54,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: scheduler.py,v 1.1 2003/02/18 08:26:03 ifindkarma Exp $
+## $Id: scheduler.py,v 1.2 2003/03/12 02:37:23 ifindkarma Exp $
 
 
 import time
@@ -65,7 +62,7 @@ import time
 import asyncore
 """
     Note that we are using the event-driven python_pubsub asyncore,
-    not the polling "standard" asyncore. -- Ben and Adam, 2/8/2003
+    not the polling "standard" asyncore.
 """
 
 # FIXME: we need to be able to cancel timers we've scheduled previously
@@ -90,7 +87,13 @@ class Scheduler:
         now = time.time()
         for i in oschedule:
             if i.when <= now:
-                i()
+                try:
+                    i()
+                except:
+                    # FIXME: we could really use an error handler of
+                    # some sort...  but even this is better than
+                    # crashing the event loop.
+                    pass
             else:
                 self.schedule.append(i)
     def timeout(self):
@@ -119,7 +122,9 @@ def run(*args, **kw):
     return scheduler.run(*args, **kw)
 
 def main(argv):
-    return # FIXME: Add a demo sample usage.
+    return
+    # FIXME: Add a demo sample usage.
+    # For now, see sitewatch_sensor.py for a sample usage.
 
 if __name__ == "__main__": main(sys.argv)
 
