@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.18 2003/04/30 00:16:00 ifindkarma Exp $
+# $Id: pubsub.py,v 1.19 2003/04/30 23:40:33 ifindkarma Exp $
 
 
 """
@@ -818,8 +818,6 @@ def array_begins(haystack, needle):
 
 def handle_http_request(conn, uri, httpreq, query_string):
     urichunks = urlpath(uri)
-    if array_begins(urichunks, urlpath(conn.urlroot())):
-        knroot = urlpath(conn.getknroot())
     urlroot = "/%s" % conn.urlroot()
     if (uri == urlroot) or (string.find(uri, urlroot + "/") == 0):
         handle_urlroot_request(conn, uri[len(urlroot):], httpreq, query_string)
@@ -831,8 +829,8 @@ def handle_http_request(conn, uri, httpreq, query_string):
         conn.finish_sending()
 
 def html_prologue_string(conn):
-    return ('<script type="text/javascript" src="%s?do_method=whoami"></script>'
-            % cgi.escape(conn.getknroot()))
+    return ('<script type="text/javascript" src="/%s?do_method=whoami"></script>'
+            % cgi.escape(conn.urlroot()))
 
 def js_prologue_string(conn):
     str = ''
@@ -840,7 +838,8 @@ def js_prologue_string(conn):
         str = conn.pathread(urlpath(conn.getknroot()) + ['kn_apps', 'kn_lib', 'prologue.js'])[1]
     except: pass
     return ('kn_userid = "anonymous"; kn_displayname = "Anonymous User";\r\n'
-            + str + '\r\n')
+            + str + '\r\n' +
+            ("if (! window.kn_server) window.kn_server = '/%s';" % conn.urlroot()))
 
 def handle_urlroot_request(conn, uri, httpreq, query_string):
     conn.report_status('handling urlroot request: %s' % uri)
