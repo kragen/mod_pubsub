@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: rss.plx,v 1.1 2002/11/07 07:09:28 troutgirl Exp $
+# $Id: rss.plx,v 1.2 2003/05/12 23:50:32 ifindkarma Exp $
 
 # To run the RSS feed:
 #   rss.plx -url ... [-rsslist ...] [-log ...] [-user ... -password ...]
@@ -64,7 +64,7 @@ use Time::localtime;
 
 my %params = @ARGV;
 
-my $version = '$Id: rss.plx,v 1.1 2002/11/07 07:09:28 troutgirl Exp $';
+my $version = '$Id: rss.plx,v 1.2 2003/05/12 23:50:32 ifindkarma Exp $';
 my $postURL = $params{-url} or die "No URL specified with -url.\n";
 my $rssList = $params{-rsslist} || "rss.rsslist";
 my $logfile = $params{-log} || "rss.log";
@@ -158,8 +158,9 @@ sub build_event
         ('rss_source' => $source),
         ($item->{title} ? ('rss_title' => $item->{title}) : ()),
         ($item->{description} ? ('rss_description' => $item->{description}) : ()),
-        ('content-type' => "text/xml"),
+        ('content-type' => 'text/xml'),
         ('kn_payload' => rss_summary($source, $item)),
+        ('kn_expires' => '+300'),
         ($item->{link} ? ('rss_link' => $item->{link}) : ()),
         ('displayname' => 'RSS')
     };
