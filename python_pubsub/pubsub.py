@@ -47,7 +47,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.26 2003/05/16 06:12:22 ifindkarma Exp $
+# $Id: pubsub.py,v 1.27 2003/05/17 04:45:34 ifindkarma Exp $
 
 
 """
@@ -198,11 +198,9 @@ class Event:
             self.contents['kn_id'] = uuid()
         if not self.contents.has_key('kn_time_t'):
             self.contents['kn_time_t'] = time.time()
-        self.kn_expires = None
+        self.kn_expires = absolute_expiry('+60') # Default event expiry of 1 minute.
         if self.contents.has_key('kn_expires'):
             self.kn_expires = absolute_expiry(self.contents['kn_expires'])
-        else:
-            self.kn_expires = absolute_expiry('+60')
         if not self.contents.has_key('kn_payload'):
             self.contents['kn_payload'] = ''
     def is_expired(self):
@@ -251,10 +249,9 @@ class Topic(Event):
     descendants."""
 
     def __init__(self, name):
-        Event.__init__(self, {'kn_payload': len(name) and name[-1] or "nobody should ever see the root topic's kn_payload"})
+        Event.__init__(self, {'kn_payload': len(name) and name[-1] or "nobody should ever see the root topic's kn_payload", 'kn_expires': 'infinity'})
         self.name = name
         self.kn_subtopics = None
-        self.kn_expires = None
         self.events = []
         self.eventdict = {}
     def get_descendant(self, name):
@@ -295,7 +292,7 @@ class Topic(Event):
             if self.kn_subtopics is not None:  # a kludge to avoid infinite recursion
                 kn_routes = self.get_subtopic('kn_routes')
                 for route in kn_routes.get_events():
-                    if not route.post(event):
+                    if route.is_stale() or not route.post(event):
                         poison = route.poisoned()
                         kn_routes.post(poison)
             return 1
@@ -383,10 +380,13 @@ class Route(Event):
 class StaticRoute(Route):
     """Responsibilities: route events to somewhere else."""
     def __init__(self, kn_to=None, location=None, misc={}):
-        Event.__init__(self, misc)
+        misc2 = {'kn_expires': 'infinity'}
+        for i in misc.keys():
+            misc2[i] = misc[i]
+        misc = misc2
+        Route.__init__(self, misc)
         self.kn_to = kn_to
         self.location = location
-        self.kn_expires = None
         if misc.has_key('kn_uri'):
             self.kn_uri = misc['kn_uri']
         elif location is not None:
@@ -424,7 +424,7 @@ class Tunnel(Route):
     """
 
     def __init__(self, connection):
-        Event.__init__(self, {'kn_payload': str(connection), 'stale': '0'})
+        Route.__init__(self, {'kn_payload': str(connection), 'kn_expires': 'infinity', 'stale': '0'})
         self.conn = connection
         self.conn.report_status("tunnel")
         self.header_sent = 0
