@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- $Id: index.html,v 1.1 2003/02/05 00:49:06 ifindkarma Exp $ -->
+
+<html>
+<head>
+<title>mod_pubsub Demo Weblications</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<style><!--
+
+td.knownow, th {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+h1 {
+  font-size: 18pt;
+  font-weight: normal;
+}
+
+input.clock {
+  border: 0px;
+  background: white;
+  color: black;
+  font-size: 10pt;
+  text-align: right;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+body, td {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+.rule {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: #ff9900; 
+  margin: 0px 0%;
+}
+
+a:link, a:hover, a:active, a:visited {
+  color: #3366cc;
+}
+
+a:link, a:visited, a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+--></style>
+
+<script type="text/javascript"><!--
+
+function start_clock() {
+  setInterval("update_clock()", 500);
+  if (document.all && ! document.getElementById)
+    {
+      for (var i = 0; i < document.all.length; i ++)
+      {
+        var node = document.all[i];
+	  if (node.className == "rule")
+	      {
+	            node.outerHTML = '<hr size="1" color="#ff9900" />';
+              }
+      }
+    }
+}
+
+function update_clock() {
+  var now = new Date();
+  var form = document.forms.clock;
+  if (form)
+    { 
+      var ele = form.elements.clock;
+      if (ele) {
+        var msg = now.toString();
+        // If you'd rather have UTC/GMT...
+        // var msg = now.toUTCString ? now.toUTCString() : now.toGMTString();
+        if (ele.value != msg) ele.value = msg;
+      }
+    }
+}
+
+// -->
+</script>
+</head>
+
+<body bgcolor="#ffffff" link="#3366cc" vlink="#3366cc" alink="#3366cc" text="#000000"
+      leftmargin="10" topmargin="15" marginwidth="10" marginheight="15"
+      onload="start_clock()"> 
+<base target="_top" />
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+
+   <td align="left" valign="top">
+   <h1>&nbsp;<a href="http://mod-pubsub.sourceforge.net/"
+   target="_blank">mod_pubsub</a> Demo Weblications &nbsp;&nbsp;</h1>
+   </td>
+
+   <form action="javascript://" name="clock">
+   <td align="right" bgcolor="white" class="knownow">
+   <font size="-2"> &nbsp;
+   Best of the <a href="http://sourceforge.net/mail/?group_id=66293" target="_blank">mod_pubsub mailing list</a> &nbsp; <br/> &nbsp;
+   <input readonly="readonly" size="48" name="clock" class="clock" onfocus="blur()" /> &nbsp;
+   </font></td>
+   </form>
+
+</tr>
+</table>
+
+<div class="rule"></div>
+
+<br><br>
+
+<center>
+<table cellpadding="5" cellspacing="0" border="0" width="85%">
+
+<tr>
+<th valign="top" align="left"
+bgcolor="#eeeeee"><font color="#000000">Personal Desktop Collaboration</font></th>
+<td width="10%"></td>
+<th valign="top" align="left" width="45%"
+bgcolor="#eeeeee"><font color="#000000">Developer Tools &amp; Utilities</font></th>
+</tr>
+
+<tr>
+<td valign="top">
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="chat1/" target="_blank">chat1</a> (tiny chat) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="chat2/" target="_blank">chat2</a> (more advanced chat) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="chatbar/" target="_blank">chatbar</a> (for windows toolbar) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="cobrowse/" target="_blank">cobrowse</a> (surf together) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="postit/" target="_blank">postit</a> (yellow stickies) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="presence1/" target="_blank">presence1</a> (chat with presence)</a> <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="presence2/" target="_blank">presence2</a> (requires authentication)</a> <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="todo1/" target="_blank">todo1</a> (tiny to do list) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="todo2/" target="_blank">todo2</a> (ranked to do list) <br>
+</td>
+<td></td>
+<td valign="top">
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="introspect/" target="_blank">introspect</a> (topic &amp; event explorer)</a> <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="javascript/" target="_blank">javascript</a> (tips &amp; tricks)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="jscomponents/" target="_blank">jscomponents</a> (browser libraries)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="ping1/" target="_blank">ping1</a> (traditional ping)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="ping2/" target="_blank">ping2</a> (performance monitor)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="replay/" target="_blank">replay</a> (event stream recorder)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="responsewatch/" target="_blank">responswatch</a> (connection monitor)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="test/" target="_blank">test</a> (tests client &amp; server side)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="who/" target="_blank">who</a> (topic presence)<br>
+</td>
+</tr>
+
+<tr><td height="40pt"></td></tr>
+
+<tr>
+<th valign="top" align="left"
+bgcolor="#eeeeee"><font color="#000000">Interactive Two-Way Web Apps</font></th>
+<td width="10%"></td>
+<th valign="top" align="left" width="45%"
+bgcolor="#eeeeee"><font color="#000000">Other Interesting Samples</font></th>
+</tr>
+
+<tr>
+<td valign="top">
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="autorequest/" target="_blank">autorequest</a> (car auction with xml) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="chatroom/" target="_blank">chatroom</a> (chat2 + who) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="formdemo1/" target="_blank">formdemo1</a> (no javascript needed!) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="formdemo2/" target="_blank">formdemo2</a> (two-way forms) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="knowbuddy/" target="_blank">knowbuddy</a> (buddy list) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="oogle/" target="_blank">oogle</a> (search collaboration) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="tictactoe/" target="_blank">tictactoe</a> (interactive game) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="vote1/" target="_blank">vote1</a> (election 2000 sample) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="vote2/" target="_blank">vote2</a> (with notifications) <br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="yew/" target="_blank">yew</a> (web + email + news + im) <br>
+</td>
+<td></td>
+<td valign="top">
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="flashdemo1/" target="_blank">flashdemo1</a> (vote with sounds)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="flashdemo2/" target="_blank">flashdemo2</a> (presence with robots)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="forex/" target="_blank">forex</a> (monitoring, needs fx.plx)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="insitu/" target="_blank">insitu</a> (wysiwyg browser editting)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="pager/" target="_blank">pager</a> (transformation demo)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="rsstable/" target="_blank">rsstable</a> (table, needs rss.plx)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="rssticker/" target="_blank">rssticker</a> (ticker, needs rss.plx)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="soapdomain/" target="_blank">rsstable</a> (soap for dns lookup)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="soapstock/" target="_blank">soapstock</a> (soap for stock quote)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="zack/" target="_blank">zack</a> (end-to-end messaging)<br>
+</td>
+</tr>
+
+<tr><td height="10pt"></td></tr>
+
+<tr>
+<noscript>
+<th valign="top" align="left" width="45%"
+bgcolor="#eeeeee"><font color="maroon">JavaScript Required</font></th>
+</noscript>
+<script><!--
+document.write('<td width="45%"><' + '/td>');
+// -->
+</script>
+<td></td>
+<th valign="top" align="left"
+bgcolor="#eeeeee"
+style="display: none; background: #ffffff"
+><font color="maroon">Cascading Style Sheets Required</font></th>
+</tr>
+
+<tr>
+<noscript>
+<td valign="top"
+>These demos require JavaScript 1.2 support. If your
+browser has JavaScript support, but that support is
+disabled, it is suggested that you enable it and reload.</td>
+</noscript>
+<script><!--
+document.write('<td><' + '/td>');
+// -->
+</script>
+<td></td>
+<td valign="top"
+style="display: none"
+>These demos use Cascading Style Sheets (CSS). If
+your browser has CSS support, but that support is
+disabled, it is suggested that you enable it and reload.</td>
+</tr>
+
+</table>
+</center>
+
+<br><br>
+
+<div class="rule"></div>
+
+<table width="100%" border="0" cellpadding="1" cellspacing="0">
+<tr>
+<td align="left" class="knownow"><font size="-2"> &nbsp;
+<a href="../kn_docs/developer_guide.html" target="_blank">Developer Guide</a> &#183;
+<a href="../kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol Document</a> &#183;
+<a href="../kn_docs/javascript_reference.html" target="_blank">JavaScript Library Reference</a>
+</font></td>
+
+<td align="right" class="knownow"><font size="-2">&copy; 2000-2003
+<a href="http://sourceforge.net/projects/mod-pubsub" target="_blank">mod_pubsub project</a> &nbsp; </font></td>
+
+ </tr>
+</table>
+
+</body>
+</html>
