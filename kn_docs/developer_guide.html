@@ -37,7 +37,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: developer_guide.html,v 1.3 2003/03/22 12:01:19 ifindkarma Exp $
+ $Id: developer_guide.html,v 1.4 2003/05/22 00:54:34 ifindkarma Exp $
 
 -->
 
@@ -54,7 +54,7 @@
 <h2><a id="1" name="1">1. Summary</a></h2>
 
 <p>Using mod_pubsub with existing web tools and browsers, web pages can
-now respond to incoming events from the network - in real-time; with
+now respond to incoming events from the network -- in real-time; with
 plain text, HTML, XML, and/or SOAP; and without relying on Java or
 ActiveX. It works with Mozilla, Netscape, and Microsoft browsers.</p>
 
@@ -67,7 +67,7 @@ browser can receive information without continually asking the web
 server for the information. Instead, the server notifies the browser
 when new information becomes available.</p>
 
-<h3><a id="2.1" name="2.1">2.1. What can I do with this?</a></h3>
+<h3><a id="2.1" name="2.1">2.1. What can I do with mod_pubsub?</a></h3>
 
 <p>By writing pages that receive messages you can make your pages
 come to life. You decide what messages to receive, what messages to
@@ -130,35 +130,34 @@ function onMessage(event)
 
 <p>See section <a href="#3.3">3.3</a> for examples using SOAP.</p>
 
-<h3><a id="2.4" name="2.4">2.4. Are there any samples?</a></h3>
-
-<p>This distribution provides several sample applications.</p>
-
-<h3><a id="2.5" name="2.5">2.5. What if I don't want to use a
+<h3><a id="2.4" name="2.4">2.4. What if I don't want to use a
 browser?</a></h3>
 
 <p>The mod_pubsub system is accessed via HTTP. Everything that can be
 done from within a Web browser can be done with software that sends and
 receives HTTP messages. See the <a href="pubsub_protocol.html">PubSub
-Protocol</a> document for details.</p>
+Protocol</a> document for details.  We provide sample client libraries
+that can use mod_pubsub with Perl, Python, PHP, C, Java, Ruby, and
+COM/ActiveX/.NET.</p>
 
 <h2><a id="3" name="3">3. Details</a></h2>
 
-<p>The mod_pubsub system consists of a client and a server. The client
-is an extension of a standard Web browser and is implemented as a
-JavaScript library. The server is an extension of a standard Web
-server and is implemented in the Perl programming language. See <a
-href="http://httpd.apache.org/">http://httpd.apache.org/</a> for
-information on Apache, a freely available Web server capable of
-hosting mod_pubsub; see <a
-href="http://language.perl.com/">http://language.perl.com/</a> for
-more information on Perl.</p>
+<p>The mod_pubsub system consists of clients and servers.</p>
 
-<p>In order to use the system, both the client and the server must
-be hosted within the same domain. The Perl programming language was
-chosen as the initial language for the server because it is
-supported by many site hosting services. Perl is freely available,
-easy to install and works with all the major Web servers.</p>
+<p>Clients are offered as publish-and-subscribe libraries for
+many languages, including Perl, Python, PHP, JavaScript, C,
+COM/ActiveX/.NET, Java, and Ruby.  The rest of this document
+uses as its example client the
+<a href="javascript_reference.html">JavaScript PubSub Library</a>,
+which works as an extension of a standard Web browser.  Other
+client libraries have similar publish-and-subscribe features.</p>
+
+<p>This distribution includes two separate PubSub Servers:
+one is a Perl Apache module (using mod_perl), and the other is
+a reference standalone Python PubSub Server that uses the same
+<a href="pubsub_protocol.html">PubSub Protocol</a>.  Please
+refer to the <a href="../INSTALL">Installation Instructions</a>
+for details on how to run these servers.</p>
 
 <p>Sites that use mod_pubsub can publish to and subscribe to other
 mod_pubsub instances, creating a constellation of servers that route
@@ -213,7 +212,7 @@ the location on your server.</p>
 <h3><a id="3.3" name="3.3">3.3. JavaScript API Overview</a></h3>
 
 <p>There are several functions provided by the library. See <a
-href="javascript_reference.html">the library
+href="javascript_reference.html">the JavaScript PubSub library
 reference</a> for full details.</p>
 
 <dl>
@@ -738,7 +737,7 @@ function onMessage(event)
 <hr />
 
 <p>
-$Id: developer_guide.html,v 1.3 2003/03/22 12:01:19 ifindkarma Exp $</p>
+$Id: developer_guide.html,v 1.4 2003/05/22 00:54:34 ifindkarma Exp $</p>
 
 </body>
 </html>
