@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: subscribe.php,v 1.2 2003/04/29 00:04:30 ifindkarma Exp $';
+$RCSID = '$Id: subscribe.php,v 1.3 2003/04/29 03:01:18 ifindkarma Exp $';
 
 include('pubsublib.php');
 include('eventloop.php');
@@ -46,6 +46,9 @@ include('pipefitting.php');
 # PubSub Server; it just displays it.
 
 # FIXME: Only works with PHP4 and requires the Socket extension.
+# Note: May not work with early versions of PHP4.
+# For example, it *is* known to work with php-4.3.1 -- 
+# but for php-4.1.2, all bets are off.  :)
 
 header("Content-Type: text/html; charset=utf-8");
 
