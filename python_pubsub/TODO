@@ -1,12 +1,10 @@
 ----------------------------
 To Do List for Python PubSub
 ----------------------------
-$Id: TODO,v 1.17 2003/06/14 04:44:40 ifindkarma Exp $
+$Id: TODO,v 1.18 2003/06/21 05:25:36 ifindkarma Exp $
 
- 0. Notifications for closing tunnel.
- 1. Off host routes and kn_content_transform in pubsub.py .
- 2. Modify pubsub.py to not send so many flush spaces when writing simple
-    response format.  This will make our simple wire format less chatty.
+ 1. Notifications for closing tunnel.
+ 2. Off host routes and kn_content_transform in pubsub.py .
  3. Add CGI support and/or Perl interpreter to pubsub.py.
  4. Add pubsub.py watchdog.
     Add statistics that are dumped out by pubsub.py.
@@ -38,27 +36,22 @@ $Id: TODO,v 1.17 2003/06/14 04:44:40 ifindkarma Exp $
 26. We never get HTTP request lines without colons.
 27. We never get multiple HTTP headers with the same name
     and have to join them with commas
-28. libform and lib2form don't get tested by the automated tests.
-29. do_method=route defaulting for GET requests not tested.
-30. Verbose vs. non-verbose code not covered.
-31. '404 Not Found' never gets sent.
-32. Non-{GET,HEAD,POST} requests never get sent.
-33. send_response's '500 Internal Server Error' catch
+28. do_method=route defaulting for GET requests not tested.
+29. '404 Not Found' never gets sent.
+30. Non-{GET,HEAD,POST} requests never get sent.
+31. send_response's '500 Internal Server Error' catch
     never gets run for some reason.
-34. self.sockname never gets interpolated into a string
+32. self.sockname never gets interpolated into a string
     because Host: headers are always sent.
-35. Connection.repr never gets called because it has the wrong name.
-36. FinishRouting, ReportRouteStatus, and HttpClient are unused.
-37. Not serving any .gif or .jpg or default files in the automated tests.
-38. Most of read_event_pool and write_event_pool don't run.
-39. Most of the option parsing doesn't run normally.
-40. Pythonize kn_tools/list_*.plx
-41. asyncore is a global.
+33. Connection.repr never gets called because it has the wrong name.
+34. FinishRouting, ReportRouteStatus, and HttpClient are unused.
+35. Pythonize kn_tools/list_*.plx
+36. asyncore is a global.
     Need to make it parameterized to allow multi-threaded use.
-42. Write python_pubsub/apps/ping.py that uses pubsublib.py .
-43. Finish test suite for pubsublib.py .
+37. Write python_pubsub/apps/ping.py that uses pubsublib.py .
+38. Finish test suite for pubsublib.py .
 
-*** 44. Investigate replacing asyncore with Twisted Matrix:  ************************
+*** 39. Investigate replacing asyncore with Twisted Matrix:  ************************
 
     http://twistedmatrix.com/
 
@@ -72,4 +65,4 @@ $Id: TODO,v 1.17 2003/06/14 04:44:40 ifindkarma Exp $
     very useful abstractions that we don't have yet, such as a
     non-polling Reactor.
 
-*** 45. Investigate using ZODB for persistence layer. ******************************
+*** 40. Investigate using ZODB for persistence layer. ******************************
