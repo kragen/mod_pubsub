@@ -62,7 +62,7 @@ public class SimpleRouter
 		try
 		{
 			URL url =new URL(serverURI+basePath);
-			java.net.HttpURLConnection conn;
+			HttpURLConnection conn;
 			String body;
 					
 			// add some things
@@ -73,14 +73,12 @@ public class SimpleRouter
 			body = HTTPUtil.encodeToForm(msg);
 			
 			// send message
+			conn = HTTPUtil.Post(url,body);
+			
+			// get response
+			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
 			{
-				conn = HTTPUtil.Post(url,body);
-				
-				// get response
-				if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
-				{
-					// @todo: consume response entity
-				}
+				// @todo: consume response entity
 			}
 		}
 		catch(Exception e)
@@ -99,48 +97,45 @@ public class SimpleRouter
 	public String subscribe(String topic,Listener listener,Map options)
 	{
 		String route_id=null;
-		String msg_id = getMessageId();
+		String random = getMessageId();
 		
 		// generate magic route id
-		route_id = getRouteId(topic,msg_id);
+		route_id = getRouteId(topic,random);
 		
 		Map msg = new HashMap();
 		try
 		{
 			URL url =new URL(serverURI+basePath);
-			java.net.HttpURLConnection conn;
+			HttpURLConnection conn;
 			String body;
 			
-			msg_id = getMessageId();
+			random = getMessageId();
 			
 			// add some things
 			msg.put("kn_response_format","simple");
 			msg.put("kn_method","route");
 			msg.put("kn_from",topic);
 			msg.put("do_max_age","3600");
-			//msg.put("kn_uri",route_id);
+			msg.put("kn_id",random);
 
 			// copy Map into namevalue pair array
 			body = HTTPUtil.encodeToForm(msg);
 			
 			// send message
+			conn = HTTPUtil.Post(url,body);
+			
+			// get response
+			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
 			{
-				conn = HTTPUtil.Post(url,body);
-				
-				// get response
-				if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
-				{
-					// add the listener
-					EventStreamReader reader;
-					System.out.println(conn.getResponseMessage());
-					reader = new EventStreamReader(conn.getInputStream(),listener);
-					eventStreams.put(route_id,reader);
-	
-					// start processing events
-					reader.run();
-					
-					//new Thread(reader).run();
-				}
+				// add the listener
+				EventStreamReader reader;
+				System.out.println(conn.getResponseMessage());
+				reader = new EventStreamReader(conn.getInputStream(),listener);
+				eventStreams.put(route_id,reader);
+
+				// start processing events
+				reader.run();			
+				//new Thread(reader).run();
 			}
 		}
 		catch(Exception e)
@@ -162,7 +157,6 @@ public class SimpleRouter
 	{
 		String route_id=null;
 		String msg_id = getMessageId();
-		String random = getMessageId();
 		
 		// generate magic route id
 		route_id = getRouteId(from,msg_id);
@@ -175,28 +169,24 @@ public class SimpleRouter
 			uri = serverURI+basePath;
 			URL url =new URL(uri);
 			String body;
-			
-			msg_id = getMessageId();
-			
+				
 			// add some things
 			msg.put("kn_method","route");
 			msg.put("kn_from",from);
 			msg.put("kn_to",to);
-			msg.put("kn_id",route_id);
+			//msg.put("kn_id",route_id);
 			msg.put("do_max_age","3600");
 
 			// copy Map into namevalue pair array
 			body = HTTPUtil.encodeToForm(msg);
 
 			// send message
-			{
-				conn = HTTPUtil.Post(url,body);
+			conn = HTTPUtil.Post(url,body);
 
-				// get response
-				if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
-				{
-					conn.getContentLength();
-				}
+			// get response
+			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
+			{
+				conn.getContentLength();
 			}
 		}
 		catch(Exception e)
@@ -247,7 +237,6 @@ public class SimpleRouter
 			msg.put("kn_from",getTopicFromRoute(route_id));
 			msg.put("kn_id",getIdFromRoute(route_id));
 			msg.put("kn_to","");
-			msg.put("kn_response_format","simple");
 			
 			// copy Map into namevalue pair array
 			body = HTTPUtil.encodeToForm(msg);

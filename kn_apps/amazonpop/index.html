@@ -20,7 +20,7 @@
 var topic = (kn_argv.kn_topic ?
              kn_argv.kn_topic :
              ("/amazon.com/sales/books/" ));
-
+var routeId;
 var isRefreshNeeded=false;
 
 var items=new Object();
@@ -29,7 +29,11 @@ var comments=new Array();var unrecognized=0;
 
 function doLoad()
 {
-    kn_subscribe(topic,this,{do_max_age : 60*60 });	// 1 hour (why doesn't 1 minute work?)
+    routeId = kn_subscribe(topic,this,{do_max_age : 60*2 });	// 2 minutes
+}
+function doUnload()
+{
+    kn_unsubscribe(routeId);
 }
 
 function onMessage(event)
@@ -58,8 +62,9 @@ function findRank(event)
     else
     {		items[event.title] = event;		item = event;
     }	// update ranking
-	ranking[Math.floor(item.rank)] = item;	if (item.oldRank && item.oldRank != item.rank)
-		ranking[Math.floor(item.oldRank)] = null;    isRefreshNeeded=true;
+	ranking[Math.floor(item.rank)] = item;	if (item.oldRank && item.oldRank != item.rank)	{			if (ranking[Math.floor(item.oldRank)].title == item.title)
+			ranking[Math.floor(item.oldRank)] = null;
+	}    isRefreshNeeded=true;
 }
 function addComment(event)
 {
@@ -85,7 +90,7 @@ function refresh()
         {
             html += "<span class='rank'>"+item.rank+"</span> ";
             if (item.oldRank > item.rank)
-				html += "<font color=maroon>&#9660;</font>";            if (item.oldRank < item.rank)				html += "<font color=green>&#9650;</font>";            html += "<a target='amazonpop_content' href='"+item.link+"'>";            html += "<span class='title'>"+item.title+"</span></a> - ";
+				html += "<font color=green>&#9650;</font>";            if (item.oldRank < item.rank)				html += "<font color=maroon>&#9660;</font>";            html += "<a target='amazonpop_content' href='"+item.link+"'>";            html += "<span class='title'>"+item.title+"</span></a> - ";
             html += "<span class='author'>"+item.author+"</span>";
             html += "<br />";
         }    }
@@ -108,7 +113,7 @@ function refresh()
 //-->
 </script>
 
-<body onLoad='doLoad()' leftmargin='0' topmargin='0'>
+<body onLoad='doLoad()' onUnload='doUnload()' leftmargin='0' topmargin='0'>
 <basefont face='arial' />
 <table class='topics' width='100%' bgcolor='#60a040'>
 <tr><td><font size='+2' color='white'><b>AmazonPop</b></font> <font size='-1'>(viewing <script>document.write(topic);</script>)</font></td><td align='right'>

@@ -2,6 +2,7 @@
 // <%
 
 var g_routerURI = "http://www.topiczero.com:8000/kn/";
+
 main(WScript.Arguments);
 
 function alert(text)
@@ -49,7 +50,13 @@ function forwardSales(topic,items)
 		else
 			rank = "none";
 
+		// get some metadata
 		author = item.selectSingleNode("Authors/Author");
+		if (!author)
+			author = item.selectSingleNode("Artists/Artist");
+		if (!author)
+			author = item.selectSingleNode("Starring/Actor");
+
 		if (author)
 			author = author.text;			
 		else
