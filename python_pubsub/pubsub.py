@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.54 2003/07/23 06:31:11 ifindkarma Exp $
+# $Id: pubsub.py,v 1.55 2003/07/23 18:13:35 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -1663,7 +1663,11 @@ def main(argv):
             ignorePrologue = 1
 
     logname = "pubsub.log"
-    hdlr = logging.handlers.RotatingFileHandler(logname, "a", 1024*1024*1024, 3)
+    logmode = "ab"
+    logmaxbytes = 1024*1024*1024
+    numrolloverlogs = 3
+    hdlr = logging.handlers.RotatingFileHandler(logname, logmode,
+                                                logmaxbytes, numrolloverlogs)
     fmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s", "%x %X")
     hdlr.setFormatter(fmt)
     logfile = logging.getLogger("pubsub.py")
@@ -1672,7 +1676,11 @@ def main(argv):
     logfile.info("--------- START pubsub.py")
 
     errlogname = "pubsub.err.log"
-    ehdlr = logging.handlers.RotatingFileHandler(errlogname, "a", 1024*1024*1024, 3)
+    errlogmode = "ab"
+    errlogmaxbytes = 1024*1024*1024
+    errlogrolloverlogs = 3
+    ehdlr = logging.handlers.RotatingFileHandler(errlogname, errlogmode,
+                                                 errlogmaxbytes, errlogrolloverlogs)
     efmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s", "%x %X")
     ehdlr.setFormatter(efmt)
     errlog = logging.getLogger("pubsub.err.py")
