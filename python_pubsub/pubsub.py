@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.40 2003/06/17 03:37:26 ifindkarma Exp $
+# $Id: pubsub.py,v 1.41 2003/06/17 03:51:37 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -671,6 +671,7 @@ class Tunnel(Route):
         # FIXME: Journals stop working as soon as the last tunnel disconnects.
         # FIXME: Attempts to re-connect to a nonworking journal works.
         self.conn.server.scheduler.schedule_processing(lambda self=self: self.become_stale(), time.time() + 100, 'stalify old tunnel')
+
     def __getstate__(self):
         # Omit 'header_sent' and 'conn'
         return {'contents': {'kn_payload': self['kn_payload'], 'stale': 1}, 'dead': 1}
@@ -859,12 +860,15 @@ class Server:
         self.closedconns = self.closedconns + 1
 
     def server_status(self):
-        hdr = """<html><head><title>Server status</title></head><body bgcolor="white">
+        hdr = """<html><head><title>Server status</title></head>
+        <body bgcolor="white">
         <h1>Server status</h1>
-        <p> Up for %d seconds; %d connections opened (%d still active).</p>
+        <p> Up for %d seconds; %d connections opened (%d still active). </p>
         <ul>
-        """ % (time.time() - self.starttime, self.openedconns, self.openedconns - self.closedconns)
-        conns = map(lambda x, self=self: "<li> %x: %s: %s</li>\n" % (x, self.peers[x], self.connstatus[x]), self.connstatus.keys())
+        """ % (time.time() - self.starttime,
+               self.openedconns, self.openedconns - self.closedconns)
+        conns = map(lambda x, self=self: "<li> %x: %s: %s</li>\n" %
+                    (x, self.peers[x], self.connstatus[x]), self.connstatus.keys())
         return hdr + string.join(conns, '') + "</ul></body></html>\n"
 
     def kill(self):
