@@ -54,7 +54,7 @@ distclean: clean
 
 library: $(LIBKN)
 
-install: $(C_HEADERS) $(C_OPT_HEADERS) $(PRODUCTS) test LICENSE RELEASE_NOTES.html
+install: $(C_HEADERS) $(C_OPT_HEADERS) $(PRODUCTS) test LICENSE
 	@echo "Installing $(NAME)... (DSTROOT=$(DSTROOT))"
 	$(INSTALL_DIRECTORY) $(DSTROOT)$(bindir)
 	$(INSTALL_DIRECTORY) $(DSTROOT)$(libdir)
@@ -75,7 +75,6 @@ install: $(C_HEADERS) $(C_OPT_HEADERS) $(PRODUCTS) test LICENSE RELEASE_NOTES.ht
 	done
 	$(INSTALL_DIRECTORY) $(DSTROOT)$(docsdir)
 	$(INSTALL_DATA) -c LICENSE $(DSTROOT)$(prefix)
-	$(INSTALL_DATA) -c RELEASE_NOTES.html $(DSTROOT)$(prefix)
 	$(PERL) fixprogs prng_cmds &&						\
 	    $(INSTALL_DATA) -c prng_cmds $(DSTROOT)$(sysconfdir)/prng_cmds
 	$(_v) $(MAKE) -C docs $(MAKEFLAGS) install
