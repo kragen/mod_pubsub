@@ -1,0 +1,181 @@
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: vendors.html,v 1.1 2003/03/22 08:17:49 ifindkarma Exp $
+
+-->
+
+<!-- FIXME: startChat() not implemented -->
+
+<html>
+<title>Auction</title>
+
+<!-- The JavaScript PubSub Library -->
+<script src="/kn/?do_method=lib"></script>
+
+<!-- JavaScript Helper Library -->
+<script src="pubsub_dom.js"></script>
+
+<script language="JavaScript"><!--
+// set up these vars for the im client...
+me = buyer;
+you = vendora;
+-->
+</script>
+
+<script>
+///////////////////////////////////////////////////////////////
+////////// configure us
+
+// top limit for price
+var high_price = 30;
+
+// bottom limit for price
+var low_price = 10;
+
+// top limit for quantity
+var high_quantity = 200;
+
+// bottom limit for quantity
+var low_quantity = 100;
+
+// rate of change in number of seconds
+var change_rate = 20;
+
+// number of days that an order is delayed
+var auction_order_delay = 1;
+
+///////////////////////////////////////////////////////////////
+////////// dont mess with us
+
+// publishes a new bid with random price & quantity
+function newBid(vendor) {
+	var q = randomNumber(high_quantity,low_quantity);
+	var p = randomNumber(high_price,low_price);
+
+	var cell = document.getElementById("price" + vendor).innerText = p;
+	cell = document.getElementById("quantity" + vendor).innerText = q;	
+}
+
+// returns a random number between A and B
+function randomNumber(min,max) {
+	return (Math.round(Math.random()*(max-min))+min);
+}
+
+// buys the materials as currently listed
+function buy(vendor) {
+	var p = document.getElementById("price"+vendor);
+	price = p.innerHTML;
+
+	var q = document.getElementById("quantity"+vendor);
+	quantity = q.innerHTML;
+	
+	quantity = prompt("How many raw units would you like to buy at $" + price + "?",quantity);
+	if (quantity > 0) {
+		top.opener.buyRaw(quantity,price,auction_order_delay);
+	}
+}
+
+// publishes a new bid for each vendor and then recurses
+function bidorama(){
+	newBid('a');
+	newBid('b');
+	newBid('c');	
+	setTimeout("bidorama()",change_rate*1000);
+}
+
+// deprecated
+function handleSettings(e){
+	if (e.kn_id == "settings"){
+		day_length = e.day_length;
+		number_of_pickups = e.number_of_pickups;
+		order_delay = e.order_delay;
+		sale_price = e.sale_price;
+		required_raw = e.required_raw;
+		raw_price = e.raw_price;
+	}
+}
+
+function init() {
+	// schedule the bids (this is a recursive function)
+	setTimeout("bidorama()",change_rate*1000);
+//	kn.subscribe("/what/x", handleSettings);
+	init_im();
+}
+
+</script>
+
+<link href="style.css" rel="stylesheet">
+
+<body onload="init()">
+
+<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%"><tr><td valign="middle" align="center">
+<table border="0" cellspacing="4" cellpadding="2">
+<tr>
+	<td nowrap>&nbsp;</td>
+	<td class="clsCalWeekday" nowrap>Vendor A</td>
+	<td class="clsCalWeekday" nowrap>Vendor B</td>
+	<td class="clsCalWeekday" nowrap>Vendor C</td>
+</tr>
+<tr>
+	<td class="clsCalWeekday">Quantity</td>
+	<td id="quantitya" kn_topic="/what/x/vendora" kn_property="quantity" class="auctionText">0</td>
+	<td id="quantityb" kn_topic="/what/x/vendorb" kn_property="quantity" class="auctionText">0</td>
+	<td id="quantityc" kn_topic="/what/x/vendorc" kn_property="quantity" class="auctionText">0</td>
+</tr>
+<tr>
+	<td class="clsCalWeekday">Price</td>
+	<td id="pricea" kn_topic="/what/x/vendora" kn_property="price" class="auctionText">0</td>
+	<td id="priceb" kn_topic="/what/x/vendorb" kn_property="price" class="auctionText">0</td>
+	<td id="pricec" kn_topic="/what/x/vendorc" kn_property="price" class="auctionText">0</td>
+</tr>
+<tr>
+	<td>&nbsp;</td>
+	<td><input onclick="buy('a')" value="Buy!" type="button" class="auctionButton"></td>
+	<td><input onclick="buy('b')" value="Buy!" type="button" class="auctionButton"></td>
+	<td><input onclick="buy('c')" value="Buy!" type="button" class="auctionButton"></td>
+</tr>
+<tr>
+	<td>&nbsp;</td>
+	<td><input type="button" value="Chat" onclick="you=vendora;startChat();"></td>
+	<td><input type="button" value="Chat" onclick="you=vendorb;startChat();"></td>
+	<td><input type="button" value="Chat" onclick="you=vendorc;startChat();"></td>
+</tr>
+</table>
+</td></tr></table>
+
+</body>
+</html>

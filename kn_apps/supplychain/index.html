@@ -1,0 +1,545 @@
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/03/22 08:17:49 ifindkarma Exp $
+
+-->
+
+<html>
+
+<title>pubsub supply chain</title>
+
+<head>
+<!-- The JavaScript PubSub Library -->
+<script src="/kn/?do_method=lib"></script>
+
+<!-- JavaScript Helper Libraries -->
+<script src="pubsub_dom.js"></script>
+<script src="graph.js"></script>
+
+<script language="JavaScript"><!--
+// set up chat	
+me = buyer;
+you = vendora;
+// -->
+</script>
+
+<script><!--
+///////////////////////////////////////////////////////////////
+////////// configure us
+// set the length of a "day" in seconds
+var day_length = 270;
+
+// set the number of times sales are picked up
+var number_of_pickups = 3;
+
+// number of days an order of raw material takes to arrive
+var order_delay = 3;
+
+// value at which produced units are sold
+var sale_price = 40;
+
+// number of raw materials required to produce one unit
+var required_raw = 10;
+
+// value of raw goods
+var raw_price = 20;
+
+// number of cycles the calendar changes state
+var days_of_state_change = 2;
+
+///////////////////////////////////////////////////////////////
+////////// dont mess with us
+
+// if it's in a frame then it's in admin mode
+// so we have to disable a bunch of stuff
+var admin_mode = false;
+if (top.frames[0].frames.length > 0) {
+	admin_mode = true;
+}
+
+// defaults to 5, can go down to 10 and up to 1
+var production_rate = 5;
+var current_production_cycle = 0;
+var production_interval = day_length/production_rate;
+var day_of_week = 0;
+var pickup_interval = day_length/number_of_pickups;
+var current_pickup = 0;
+var current_sales = 0;
+var total_sales = 0;
+
+///////////////////////////////////////////////////////////////
+////////// calendar functions
+
+function calendarWrite(day, text, state){
+	var t = document.getElementById("rawSchedule");
+	var cells = t.getElementsByTagName("TD");
+	
+	if (arguments.length < 3) {
+		state = "";
+	}
+	cells[day].innerHTML = text;
+	cells[day].className = "clsCalDate" + state;
+}
+
+function calendarGet(day){
+	var t = document.getElementById("rawSchedule");
+	var cells = t.getElementsByTagName("TD");
+	
+	return cells[day].innerText;
+}
+
+function calendarHighlight(day) {
+	day_of_week = day;
+	var t = document.getElementById("rawSchedule");
+	var cells = t.getElementsByTagName("TD");
+	for (i=0; i< cells.length; i++) {
+		if (i == day) {
+			cells[i].className = "clsCalDateHighlight";
+		} else {
+			if (calendarGet(i) == "0") {
+				cells[i].className = "clsCalDate";
+			}
+		}
+	}
+}
+
+var t2 = "";
+function advanceDay(){
+		// kill any timeouts which may be running around out there.
+		if (t2!="") clearTimeout(t2);
+		if (t4!="") clearTimeout(t4);
+
+		if (day_of_week == 6) {
+			day_of_week = 0;
+		} else {
+			day_of_week++;
+		}
+		
+		// since the day advance command may have been accelerated, we have to 
+		// do the day's worth of production
+		if (current_production_cycle < production_rate && !admin_mode) {
+			produceUnits(parseInt(getValue("productionRate"))*(production_rate - current_production_cycle));
+		}
+		
+		// add the day's raw delivery to the raw pile
+		var total = parseInt(getValue("raw")) + parseInt(calendarGet(day_of_week));
+		update_raw({raw_amount:total,currentElement:document.getElementById("raw")});
+		calendarWrite(day_of_week,0)
+
+		if (parseInt(getValue("raw")) <= 0) {
+			alert("You have no more raw materials to produce with!");
+		}
+
+		// change the calendar to reflect the new day
+		current_pickup = 0;
+		current_production_cycle = 0;
+		calendarHighlight(day_of_week);
+		
+		// start the pickup and production cycles again
+		if (!admin_mode) {
+			t2 = setTimeout("produce()",production_interval*1000);
+		} else {
+			t2 = setTimeout("pickup_goods()",production_interval*1000);
+		}
+}
+
+function requestAdvanceDay(){
+	kn.publish("/what/x/", { kn_payload:"request advance" });
+}
+
+///////////////////////////////////////////////////////////////
+////////// functs that make the factory go
+
+function pickup_goods() {
+	// add the total cash value to your cash pile and then clear your sales channel
+	window.status = "pickup";
+	setValue("cash",parseInt(getValue("cash"))+parseInt(getValue("sales")*sale_price));
+	setValue("sales",0);
+	if (admin_mode) {
+		t4 = setTimeout("pickup_goods()",production_interval*1000);
+	}
+}
+
+var auctionWindow = "";
+function buyAuction() {
+	if (auctionWindow.closed) {
+		auctionWindow = window.open("vendors.html","auction","height=300,width=400");
+	} else if (auctionWindow == "") {
+		auctionWindow = window.open("vendors.html","auction","height=300,width=400");
+	} else {
+		auctionWindow.focus();
+	}
+}
+
+buyWindow = "";
+function openRaw(x) {
+	if (buyWindow.closed) {
+		buyWindow = window.open("buy.html","buy","height=150,width=300");
+	} else if (buyWindow == "") {
+		buyWindow = window.open("buy.html","buy","height=150,width=300");
+	} else {
+		buyWindow.focus();
+	}
+	
+}
+
+function buyRaw(num,special_price,special_delay) {
+	this_delay = (special_delay>-1) ? special_delay : order_delay;
+	this_price = (special_price>-1) ? special_price : raw_price;
+
+	if (special_price > -1) {
+	} else {
+		num = parseInt(prompt("How many raw units would you like to purchase? (You have enouch cash to buy " + Math.floor(parseInt(getValue("cash"))/this_price) + " at $" + raw_price + "/each)", num));
+	}
+
+	if (parseInt(getValue("cash")) >= num*this_price) {
+		kn.publish("/what/x/purchases",{raw_amount:num,delay:this_delay,raw_price:this_price});
+	} else {
+		alert("Sorry, you just dont have the cash for that!");
+	}
+}
+
+// recursive function that will enact the production of units
+var t4 = "";
+function produce() {
+	pickup_goods()
+
+	// produce 'em if you got 'em
+	if (parseInt(getValue("raw")) >= required_raw*parseInt(getValue("productionRate"))) {
+		produceUnits(parseInt(getValue("productionRate")));
+	}
+	
+	if (current_production_cycle == production_rate-1) {
+		requestAdvanceDay();
+
+		// die;
+	} else {
+		current_production_cycle++;
+		// recurse!
+		t4 = setTimeout("produce()",production_interval*1000);
+	}
+}
+
+function delayRaw(days) {
+	days = parseInt(days);
+
+	delayed_raw = new Array();
+	var t = document.getElementById("rawSchedule");
+	var cells = t.getElementsByTagName("TD");
+
+	for (i=0; i < 7; i++) {
+		if (calendarGet(i) > 0) {
+
+			delay_date = i + days;
+
+			if (delay_date > 6) {
+				delay_date = delay_date - 7;
+			}				
+
+			delayed_raw[delay_date] = calendarGet(i);
+			calendarWrite(i,"0");
+			cells[i].className = "clsCalDate";
+		}
+	}
+
+	for (i=0; i < delayed_raw.length; i++) {
+			if (delayed_raw[i] > 0) {
+				calendarWrite(i,delayed_raw[i],"OrderDelay");
+			}
+	}
+
+	cells[day_of_week].className = "clsCalDateHighlight";
+}
+
+///////////////////////////////////////////////////////////////
+////////// call and response handlers
+
+function handlePurchases(e){
+	// subtract the cash
+	document.getElementById("cash").innerText = Math.round(parseInt(document.getElementById("cash").innerText) - e.raw_amount*e.raw_price);
+
+	// some logic to fix date-wrapping at the end of the week
+	day = parseInt(day_of_week) + parseInt(e.delay);
+	if (day > 6) {
+		day = day-7;
+	}
+
+	// add the order to the appropriate day
+	var current_stock = calendarGet(day)
+	calendarWrite(day, parseInt(current_stock) + parseInt(e.raw_amount),"Order");
+}
+
+function produceUnits(num) {
+	if (parseInt(getValue("raw")) >= required_raw*num) {
+		kn.publish("/what/x/production",{required_raw_amount:required_raw*num,units_produced:num});
+	} else {
+		alert("You don't have enough raw materials for today's shifts.");
+	}
+}
+
+function sellUnits(num) {
+	if (num <= parseInt(getValue("produced"))) {
+			kn.publish("/what/x/sales",{units_sold:num});
+	} else {
+			alert("You dont have enough units to sell!");
+	}
+}
+
+function handleSale(e){
+//	document.factory.units.value = parseInt(document.factory.units.value) - parseInt(e.units_sold);
+//	document.factory.sales.value = parseInt(document.factory.sales.value) + parseInt(e.units_sold);
+	total_sales += parseInt(e.units_sold);
+}
+
+function handleSettings(e){
+	if (e.kn_id == "settings"){
+		changeProductionRate(e.production_rate);
+	}
+	
+	if (e.kn_payload == "advance granted") {
+		advanceDay();	
+	}
+
+	if (e.kn_payload == "delay raw") {
+		delayRaw(e.delay_length);	
+	}
+}
+
+///////////////////////////////////////////////////////////////
+////////// these functs update/get data on the page via kingdom
+
+function changeProductionRate(num) {
+	if (typeof num == "string") {
+		num = num;
+	} else if (typeof num == "object") {
+		num = num.production_rate;	
+	}
+	
+  if (num > 0) {	
+	if (num == 1) {
+		document.getElementById("productionRateText").innerText = "Half"; 
+		document.getElementById("productionRate").innerText = num; 
+	} else if (num == 3) {
+		document.getElementById("productionRateText").innerText = "Regular"; 
+		document.getElementById("productionRate").innerText = num; 
+	} else if (num == 5) {
+		document.getElementById("productionRateText").innerText = "Full"; 
+		document.getElementById("productionRate").innerText = num; 
+	} else {
+		document.getElementById("productionRateText").innerText = num + " units/shift"; 
+		document.getElementById("productionRate").innerText = num; 
+	}
+  }
+}
+
+function getValue(name) {
+	value = document.getElementById(name).innerText;
+	return value;
+}
+
+function setValue(name,value) {
+	document.getElementById(name).innerText = value;
+}
+
+function update_raw(e) {
+	e.currentElement.innerText = parseInt(e.raw_amount);
+	graph();
+}
+
+function update_produced(e) {
+	document.getElementById("raw").innerText = parseInt(document.getElementById("raw").innerText) - parseInt(e.units_produced)*parseInt(required_raw);
+	e.currentElement.innerText = parseInt(e.currentElement.innerText) + parseInt(e.units_produced);
+	graph();
+}
+
+function update_sales(e) {
+	document.getElementById("produced").innerText = parseInt(document.getElementById("produced").innerText) - parseInt(e.units_sold);
+	document.getElementById("cash").innerText = parseInt(document.getElementById("cash").innerText) + parseInt(e.units_sold)*parseInt(sale_price);
+	e.currentElement.innerText = parseInt(e.currentElement.innerText) + parseInt(e.units_sold);
+	graph();
+}
+
+///////////////////////////////////////////////////////////////
+////////// graph stuffs thanks to iPlanet
+
+function graph() {
+	// the reference to the raw frame
+    var gdoc = document.frames["graphFrame"].document;
+    var g = new Graph(250,230);
+
+	// set the scale so high that you cant see it.
+	g.scale = 1000;
+	g.yMax = 900;
+
+	var raw = parseInt(getValue("raw"));
+	var units = parseInt(getValue("produced"));
+	var sales = parseInt(getValue("sales"));
+	g.addRow(raw);
+	g.addRow(units);
+	g.addRow(sales);
+	g.addRow(500); // the scale to compare against
+
+    gdoc.close();
+    gdoc.open();
+	gdoc.write("<html><style>.bar{ padding: 0px 5px 0px 0px; }</style><body>");
+    g.build(gdoc);
+	gdoc.write("</body></html>");
+    
+    return void(0);
+}
+
+///////////////////////////////////////////////////////////////
+////////// init!
+
+function init() {
+	kn.subscribe("/what/x/purchases", handlePurchases);
+	kn.subscribe("/what/x/sales", handleSale);
+	kn.subscribe("/what/x", handleSettings);
+	// schedule the pickup&production cycles (this is a recursive function)
+	if (!admin_mode) {
+		// if we're not the boss, start producing!
+		setTimeout("produce()",production_interval*1000);
+	} else {
+		// start watching!
+		setTimeout("pickup_goods()",production_interval*1000);
+	}
+	graph();
+
+	if (!admin_mode) {
+		init_im();
+	}
+}
+
+// -->
+</script>
+
+<link href="style.css" rel="stylesheet">
+</head>
+
+<body onLoad="init()">
+<table width="450" border="0" cellspacing="0" cellpadding="0">
+<tr>
+	<td valign="bottom"><img src="images/logo.gif" width="212" height="72" alt="" border="0"></td>
+	<td align="left" valign="bottom"><img src="images/puffy.gif" width="65" height="72" alt="" border="0" align="right"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table width="450" border="0" cellspacing="0" cellpadding="0" bgcolor="#999999">
+<tr>
+	<td width="423"><img src="images/1space.gif" width="473" height="1" alt="" border="0"></td>
+	<td width="13" bgcolor="white"><img src="images/1space.gif" width="13" height="1" alt="" border="0"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<table border="0" cellspacing="2" cellpadding="2">
+   		<tr id="daysOfWeek">
+		<td class="clsCalWeekday">MON</td>
+		<td class="clsCalWeekday">TUE</td>
+		<td class="clsCalWeekday">WED</td>
+		<td class="clsCalWeekday">THU</td>
+		<td class="clsCalWeekday">FRI</td>
+		<td class="clsCalWeekday">SAT</td>
+		<td class="clsCalWeekday">SUN</td>
+   		</tr>
+   		<tr id="rawSchedule">
+		<td class="clsCalDateHighlight">0</td>
+		<td class="clsCalDate">0</td>
+		<td class="clsCalDate">0</td>
+		<td class="clsCalDate">0</td>
+		<td class="clsCalDate">0</a></td>
+		<td class="clsCalDate">0</td>
+		<td class="clsCalDate">0</td>
+   		</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+<br/>
+<table><tr>
+<td><iframe id="graphFrame" frameborder=0 scrolling=NO src="graph.html" width="300" height="250"></iframe></td>
+</tr></table>
+
+<table cellpadding="0" class="graph">
+<tr>
+	<td class="graphTitle" width="68">Raw<br/>goods</td>
+	<td class="graphTitle" width="65">Produced</td>
+	<td class="graphTitle" width="65">Sold</td>	
+</tr>
+<tr>
+	<td class="graphValue" id="raw">450</td>
+	<td class="graphValue" id="produced" kn_topic="/what/x/production" kn_onmessage="update_produced()">0</td>
+	<td class="graphValue" id="sales" kn_topic="/what/x/sales" kn_onmessage="update_sales()">0</td>
+</tr>
+</table>
+
+</td>
+<td valign="top">
+<br/>
+<div class="buybox">
+<p class="cash">Cash: $<b id="cash">1000</b></p>
+
+<form name="factory">
+<input type="button" name="edi" value="Buy via EDI" class="button" onclick="openRaw(10)"><br />
+<br />
+<input type="button" name="auction" value="Buy via Auction" class="button" onclick="buyAuction(10)"><br />
+</form>
+
+<script><!--
+///////////////////////////////////////////////////////////////
+////////// if we're in admin mode, disable some controls
+if (admin_mode) {
+	document.forms[0].edi.disabled = true;
+	document.forms[0].auction.disabled = true;
+}
+// -->
+</script>
+
+<p class="cash">Rate: <b id="productionRateText" kn_topic="/what/x" kn_onmessage="changeProductionRate()">Regular</b> (<span id="productionRate">3</span>)</p>
+
+</div>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: admin.html,v 1.1 2003/03/22 08:17:49 ifindkarma Exp $
+
+-->
+
+<html>
+
+<!-- The JavaScript PubSub Library -->
+<script src="/kn/?do_method=lib"></script>
+
+<!-- JavaScript Helper Library -->
+<script src="pubsub_dom.js"></script>
+
+<script language="JavaScript"><!--
+
+// set up chat	
+me = vendora;
+you = buyer;
+</script>
+
+<script>
+
+function init() {
+	kn.subscribe("/what/x",onMessage);
+	init_im();
+}
+
+function onMessage(e) {
+	if (e.kn_payload == "request advance") {
+		alert("Customer's day has ended");
+	}
+}
+
+function advanceDay() {
+	kn.publish("/what/x/", { kn_payload:"advance granted" });
+}
+
+function buyUnits(num) {
+	kn.publish("/what/x/sales",{units_sold:num});
+}
+
+function changeRate(num) {
+	kn.publish("/what/x",{kn_id:"settings",production_rate:num});
+}
+
+function delayRaw(num) {
+	kn.publish("/what/x",{kn_payload: "delay raw",delay_length:num});
+}
+
+// -->
+</script>
+
+<link href="style.css" rel="stylesheet">
+
+
+<body onLoad="init()" topmargin="5" marginheight="5">
+
+<!--
+<form action="kn:/what/x" onSubmit="return false;">
+<input type="hidden" name="kn_id" value="settings">
+<input type="hidden" name="sale_price" value="20">
+<input type="hidden" name="raw_price" value=".9">
+<input type="hidden" name="required_raw" value="10">
+</form>
+<table>
+<tr><td># of days it takes for orders to arrive</td><td><input name="order_delay" value="3"></td></tr>
+<tr><td>Price for produced units:</td><td><input name="sale_price" value="20"></td></tr>
+<tr><td>Amount of raw materials required for each unit:</td><td><input name="required_raw" value="10"></td></tr>
+<tr><td>Price for EDI raw materials:</td><td><input name="raw_price" value=".9"></td></tr>
+<tr><td>High price:</td><td><input name="high_price"></td></tr>
+<tr><td>Low price:</td><td><input name="low_price"></td></tr>
+<tr><td>High quantity:</td><td><input name="high_quantity"></td></tr>
+<tr><td>Low quantity:</td><td><input name="low_quantity"></td></tr>
+<tr><td>Rate of change (seconds):</td><td><input name="change_rate"></td></tr>
+<tr><td># of days it takes for orders to arrive:</td><td><input name="auction_order_delay"></td></tr>
+<tr><td></td><td><input type="submit" value="rock!"></td></tr>
+</table>
+-->
+
+<table height="50">
+<tr><td>
+	<input type="button" value="Advance Day" name="advance" onclick="advanceDay()">
+</td><td>
+&nbsp;&nbsp;
+</td>
+<form name="production">
+<td class="outline">
+	Production rate:<br>
+	<select name="rate" onchange="changeRate(document.production.rate.options[document.production.rate.options.selectedIndex].value);">
+	<option value="1">Half
+	<option value="3" SELECTED>Regular
+	<option value="5">Full
+	</select>
+	<!--	<input name="rate" size="4" value="3">
+		<input type="button" value="Change">
+-->
+</td>
+</form>
+<td>
+&nbsp;&nbsp;
+</td>
+<form name="buy" onSubmit="buyUnits(document.buy.q.value);return false">
+<td class="outline">
+	Buy items:<br>
+	
+	<input name="q" size="4">
+	<input type="button" onclick="buyUnits(document.buy.q.value);" value="Buy">
+</td>
+</form>
+<form name="delay" onSubmit="delayRaw(document.delay.l.value);return false">
+<td class="outline">
+	Delay Raw materials:<br>
+	
+	<input name="l" size="2"> days
+	<input type="button" onclick="delayRaw(document.delay.l.value);" value="Delay">
+</td>
+</form>
+<td>
+&nbsp;&nbsp;
+</td><td>
+	<input type="button" value="Chat" onclick="startChat();">
+</td><tr>
+</table>
+
+</body>
+</html>
