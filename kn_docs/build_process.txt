@@ -83,9 +83,28 @@ Build process
 
    http://sourceforge.net/projects/mod-pubsub/
 
-   including a link to the download
+   with a title like "mod_pubsub release 0.96 is available" and text like
 
-   http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=161313
+<blockquote> 
+
+Download v0.96 of mod_pubsub at: 
+
+http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=164088 
+
+We put together this tarball to include several 
+recent patches to the PubSub Servers and 
+documentation. This release includes: 
+
+1. Joyce's fix to kn_expires in pubsub.py so it is self-cleaning. 
+2. Jos's FlashTunnel class addition to pubsub.py so it 
+supports kn_response_format=flash . 
+3. Robert's fix to the Java client library. 
+4. Simplified top-level index.html, moving the old top-level 
+index.html to the top-level inventory.html . 
+5. Links to the mod_pubsub weblog and the blogchatter 
+application from kn_docs/faq.html . 
+
+</blockquote>
 
 14. Send an email to mod-pubsub-developer@lists.sourceforge.net
    telling them about the newly released version.
