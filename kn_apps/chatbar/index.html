@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2002/12/07 10:08:19 ifindkarma Exp $
+
+-->
+
+<!--
+
+How to add the pubsub chatbar to your Windows Toolbar:
+
+   1. Right-click on the empty space on your Windows Toolbar.
+
+   2. At the menu, choose th e option, and click on
+
+   3. This will pop up a dialogue.  In the form field type the URL:
+   http://.../mod_pubsub/kn_apps/chatbar/
+
+   4. This will show your chatbar.  If you wish to remove the title,
+   right click in the orange space of the chatbar and unselect.
+
+If the chatbar gets disconnected from the PubSub server, you must
+refresh it to reconnect it.  To do this, right click in the orange
+space and select.
+
+To remove this Toolbar, right click in the orange space and select.
+
+This chatbar uses the /what/chat topic on sales, which means it can
+watch the Chat-with-Presence channel, for example:
+
+    http://.../mod_pubsub/kn_apps/presence1/
+
+-->
+
+<html>
+<head>
+<title>pubsub chatbar</title>
+
+<!-- The PubSub JavaScript Library for Live 2-Way Forms -->
+<script src="../../cgi-bin/pubsub.cgi?do_method=lib2form"></script>
+
+<style>
+<!--
+
+body, form {
+    font-size: 1pt;
+}
+
+input {
+    font-family: arial, sans-serif, helvetica;
+    font-size: 7pt;
+    border: 0px;
+    background: white;
+    color: #3366cc;
+}
+
+-->
+</style>
+</head>
+
+<body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0"
+      bgcolor="#ff9900">
+
+<!-- Check it out, a two-line program! -->
+<form action="kn:/what/chat/">
+<input name="kn_payload" size="20" /></form>
+
+</body>
+</html>
+

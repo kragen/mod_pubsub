@@ -1,0 +1,27 @@
+kn_id: app_list_event
+soapaction: true
+content-type: text/xml
+
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance" xmlns:xsd="http://www.w3.org/1999/XMLSchema">
+<SOAP-ENV:Body>
+<applist xsi:type='xsd:string'>
+<app SOAP-ENC:arrayType='xsd:string[4]'>
+<app xsi:type='xsd:string'>
+<title xsi:type='xsd:string'>Multi-User Chat</title>
+<description xsi:type='xsd:string'></description>
+<url xsi:type='xsd:string'>../chatroom/</url>
+</app>
+<app xsi:type='xsd:string'>
+<title xsi:type='xsd:string'>Tic-Tac-Toe</title>
+<description xsi:type='xsd:string'></description>
+<url xsi:type='xsd:string'>../tictactoe/</url>
+</app>
+<app xsi:type='xsd:string'>
+<title xsi:type='xsd:string'>Co-Browser</title>
+<description xsi:type='xsd:string'>Surf the Web with a Buddy</description>
+<url xsi:type='xsd:string'>../cobrowse/</url>
+</app>
+</app>
+</applist>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

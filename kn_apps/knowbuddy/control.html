@@ -1,0 +1,948 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: control.html,v 1.1 2002/12/07 10:08:19 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+
+<title>pubsub knowbuddy</title>
+
+<script src='../kn_lib/kn_xml.js' ></script>
+<script src='buddy_ui.js' ></script>
+<script src='KNArray.js' ></script>
+<script src='XmlHook.js' ></script>
+<script src='Group.js' ></script>
+<script src='Buddy.js' ></script>
+<script src='BuddyList.js' ></script>
+<script src='TextUtils.js' ></script>
+
+<script language='javascript'>
+
+var myBuddies = new BuddyList();
+    myBuddies.$kn_id = Math.random().toString().substr(2,8);
+    
+var theAppList = new Object();
+    theAppList.app = new Array();
+
+var theOfflineGroup = new Group('Offline');
+var bShowOfflineMembers = true;
+
+// profile stuff
+var curUserURI = "/who/anonymous";
+var defaultDomain = ""; // note: requires a leading slash
+
+// selection stuff
+var selection = new Object();
+    selection.group = null;
+    selection.buddy = null;
+    selection.buddyref = null;
+    selection.object = null;
+
+
+var bDirty=false;
+var bActive=false;
+var bWasActive=false;
+var bNewApps=true;
+var watchdogInterval = 10000;   // 10s
+var activeTimeOut = 60000;      // 60s
+
+// initialize the system.
+function doLoad()
+{
+	if (parent.kn.userid)
+	{
+		curUserURI = defaultDomain+"/who/"+parent.kn.userid;
+	}
+
+	setInterval("doWatchdog()",watchdogInterval);	
+	postStatus("online","Available");
+	initSubscriptions();
+	doRefreshCheck();
+}
+
+function initSubscriptions()
+{
+    subscribeToBuddyList();
+    subscribeToInbox();
+    subscribeToInvite();
+    subscribeToApps();
+}
+
+///////////////////
+// Subscriptions
+function subscribeToBuddyList()
+{
+    parent.kn_subscribe(curUserURI + "/buddy-list", onBuddyListMessage, {do_max_n : 1 } );
+}
+
+function subscribeToApps()
+{
+    parent.kn_subscribe("/what/apps/knowbuddy", onAppMessage, {do_max_n : 1 });
+}
+
+function subscribeToInbox()
+{
+    parent.kn_subscribe(curUserURI + "/buddies", onBuddyMessage, {do_max_age : '300' });
+}
+
+function subscribeToInvite()
+{
+    parent.kn_subscribe(curUserURI + "/invite", onInviteMessage, {do_max_age : '300' });
+}
+
+function subscribeToBuddies()
+{
+    for (var i=0; i < myBuddies.buddy.length; i++)
+    {
+        if (!myBuddies.buddy[i])
+            continue;
+
+        subscribeToBuddy(myBuddies.buddy[i]);
+    }
+}
+
+function subscribeToBuddy(buddy)
+{
+    var routeid;
+    
+    if (buddy)
+    {
+        routeid = parent.kn_subscribe(buddy.person.userid + "/status", curUserURI + "/buddies" , { do_max_n : '1'});
+        if (routeid)
+            buddy.subscription.routeid = routeid;
+    }
+}
+
+function unsubscribeFromBuddy(buddy)
+{
+    if (buddy && buddy.subscription.routeid)
+        parent.kn_unsubscribe(buddy.subscription.routeid);
+}
+
+///////////////////////////
+
+var bIsRefreshing=false;
+function doRefresh()
+{
+    if (bIsRefreshing)
+        return;
+
+    bIsRefreshing=true;
+    
+    updateOfflineGroup();
+    drawGroups(parent.frames.contents.document,myBuddies);
+    drawProfile(parent.frames.profile.document,selection.buddy);
+
+    bIsRefreshing=false;
+}
+
+function doRefreshApps()
+{
+    if (document.tools)
+    {
+        var list;
+        var app;
+        list = document.tools.app_list;
+        
+        list.options.length = 0;
+        list.options[0] = new Option(" - ESP List -","app_none",true,true);
+        for (var i=0; i < theAppList.app.length; i++)
+        {
+            app = theAppList.app[i];
+            if (!app)
+                continue;
+    
+            list.options[i+1] = new Option(app.title,"app_"+i,false,false);
+        }
+        list.options[i+1] = new Option("Other...","app_other",false,false);
+    }
+    else
+    {
+        alert('Unable to update application list.\nNo application list UI control found.');
+    }
+}
+
+function setIsDirty(enable)
+{
+    bDirty = enable;
+}
+
+function doRefreshCheck()
+{
+    if (bDirty)
+    {
+        bDirty=false;
+        doRefresh();
+    }
+    if (bNewApps)
+    {
+        bNewApps = false;
+        doRefreshApps();
+    }
+    
+    if (bActive)
+    {
+        bActive=false;
+        bWasActive=true;
+        document.images["connection"].src = '../images/g_green_on.gif';
+    }
+    else
+    if (bWasActive)
+    {
+        bWasActive=false;
+        document.images["connection"].src = '../images/g_green.gif';
+    }
+    
+    setTimeout("doRefreshCheck()",500);
+}
+
+function doWatchdog()
+{
+    // change status of old buddies
+    var buddy;
+    var now = new Date();
+    var timeout = now.getTime() - activeTimeOut;
+    var bChanged=false;
+    
+    for (var i=0; i < myBuddies.buddy.length; i++)
+    {
+        if (!myBuddies.buddy[i])
+            continue;
+
+        buddy = myBuddies.buddy[i];
+        if (buddy.status.active)
+        {
+            if (buddy.status.lastContactedOn.getTime() < timeout )
+            {
+                buddy.status.active = false;
+                bChanged = true;
+            }
+        }
+    }
+    if (bChanged)
+        setIsDirty(true);
+}
+
+////////////////////////
+// Event handling
+function postInvite(buddy,topicID,href)
+{
+    var p = new Object();
+    p.from = curUserURI;
+    p.topic = topicID;
+    p.app = href;
+    parent.kn_publishAsSoap(buddy.person.userid+"/invite", "invite", p);
+}
+
+function postInviteGroup(group,topicID,href)
+{
+    var buddy;
+
+    for (var i=0; i < group.buddyref.length; i++)
+    {
+        if (!group.buddyref[i])
+            continue;
+
+        buddy = myBuddies.findBuddy(group.buddyref[i]);
+        postInvite(buddy,topicID,href);
+    }
+}
+
+function postStatus(code,message)
+{
+	var p = new Object();
+	p.status = { code : code, message : message };
+	p.person = { userid : curUserURI };
+	
+	// the status message will expire in 5 minutes.
+	parent.kn_publishAsSoap(curUserURI+"/status", "presence", p, {kn_expires : "+300"});
+}
+
+function postBuddyList(theList)
+{
+    // Cool re-use of kn_id - this will overwrite the old file.
+    parent.kn_publishAsSoap(curUserURI+"/buddy-list", "buddylist", theList, { kn_id : theList.$kn_id} );
+}
+
+function onBuddyListMessage(e)
+{
+    var msg;
+
+	msg = filter_message(e);
+	
+	bActive=true;
+	
+	if (msg.body)
+	{
+		var newBuddyList = new BuddyList();
+		newBuddyList.attach(msg.body.buddylist);
+		newBuddyList.$kn_id = msg.kn_id;
+		
+		/**
+		// Copy the status of users from their current status
+		var buddy;
+		var newBuddy;
+		for (var i = 0; i < myBuddies.buddy.length; i++)
+		{
+			buddy = myBuddies.buddy[i];
+			if (!buddy) continue;
+			newBuddy = newBuddyList.findBuddy(buddy.person.userid);
+			if (newBuddy)
+			{
+//				alert(buddy.person.userid +" was "+newBuddy.status.code+" and now is "+buddy.status.code);
+				newBuddy.status = buddy.status;
+			}
+		}
+		**/
+				
+		// Don't add the offline group.
+		newBuddyList.removeGroupByName(theOfflineGroup.name);
+		newBuddyList.group.add(theOfflineGroup);
+
+		// update selection
+		{
+			var selected;
+			if (selection.group)
+			{
+				selected = selection.group.$selected;
+				selection.group = newBuddyList.findGroup(selection.group.name);
+			}
+			if (selection.buddy)
+			{
+				selected = selection.buddy.$selected;
+				selection.buddy = newBuddyList.findBuddy(selection.buddy.person.userid);
+			}
+		}
+		myBuddies = newBuddyList;
+		
+		// no need to update offline group - doRefresh will do it.
+		setIsDirty(true);
+	}
+	else
+	{
+		alert("Warning: Message without XML.");
+	}
+}
+
+/*
+<invite>
+ <from>/knownow.com/who/mike</from>
+ <topic>/apps/chat_123</topic>
+ <app>../Chat.esp/</app>
+</invite>
+*/
+function onInviteMessage(e)
+{
+    var msg;
+    msg = filter_message(e);
+    if (msg.body && msg.body.invite)
+    {
+        var href;
+        
+        href = addTopic(msg.body.invite.app,msg.body.invite.topic);
+        window.open(href,"_blank");
+    }
+}
+
+/*
+<applist>
+ <app>
+    <title>Multi-User Chat</title>
+    <description></description>
+    <url>../ChatRoom.esp/</url>
+ </app>
+</applist>
+*/
+function onAppMessage(e)
+{
+    var msg;
+    bActive=true;
+
+    msg = filter_message(e);
+    if (msg.body && msg.body.applist)
+    {
+        theAppList = new Array();
+        
+        // copy properties
+        hook_props(theAppList,msg.body.applist);
+    
+        // hook non-array property
+        hook_array(theAppList,'app');
+        
+        bNewApps=true;
+    }
+    else
+    {
+        alert("Unable to process new application list.\nList is not in XML.");
+    }
+}
+
+function updateBuddyStatus(userid, code, date, message)
+{
+	var buddy = findUser(userid);
+	if (buddy)
+	{
+		var status = buddy.status;
+		status.code = code;
+		status.active = true;
+		status.lastContactedOn = (date ? new Date(parseInt(date)*1000) 
+								  : new Date());
+		status.message = message;
+            
+		// refresh
+		setIsDirty(true);
+	}
+}
+
+function onBuddyMessage(e)
+{
+    var msg;
+    bActive=true;
+
+    msg = filter_message(e);
+    if (msg.body && msg.body.presence)
+    {
+		var p = msg.body.presence;
+		updateBuddyStatus(p.person.userid.valueOf(),
+						  (p.status && p.status.code) ? 
+						    p.status.code : 
+						    'online',
+						  msg.kn_time_t,
+						  p.status.message);
+	}
+	else
+	{
+		updateBuddyStatus(msg.userid, msg.status ? msg.status : 'online',
+						  msg.kn_time_t, msg.kn_payload);
+	}
+    return true;
+}
+
+//////////////
+// Utilities
+function findUser(userid)
+{
+    var buddy;
+    for (var i=0; i < myBuddies.buddy.length; i++)
+    {
+        if (!myBuddies.buddy[i])
+            continue;
+        buddy = myBuddies.buddy[i];
+        if (buddy.person.userid.valueOf() == userid)
+            return buddy;
+    }
+    return null;
+}
+
+function updateOfflineGroup()
+{
+    var buddy;
+
+    theOfflineGroup.clear();
+    for (var i = 0; i < myBuddies.buddy.length; i++)
+    {
+        if (!myBuddies.buddy[i])
+            continue;
+        buddy = myBuddies.buddy[i];
+        if (buddy.status.code.valueOf() == 'offline')
+        {
+            theOfflineGroup.buddyref.add(buddy.person.userid.valueOf());
+        }
+    }
+}
+
+function getGroupMembers(name)
+{
+    var group;
+    var list="";
+        
+    group=myBuddies.group.findByProp('name',name);
+    if (group)
+    {
+        for (var i=0; i < group.buddyref.length; i++)
+        {
+            if (!group.buddyref[i])
+                continue;
+
+            list += group.buddyref[i];
+            if (i < (group.buddyref.length-1))
+                list += ",";
+        }
+    }
+    return list;
+}
+
+///////////////////
+// Command handlers
+function doGetBuddyList(anchor) 
+{
+    subscribeToBuddyList();
+}
+
+function doSubscribeToInbox(anchor) 
+{
+    subscribeToInbox();
+}
+
+function doSubscribeToBuddies(anchor)
+{
+    subscribeToBuddies();
+}
+
+function doToggleShowOfflineMembers(checkbox)
+{
+    bShowOfflineMembers = !bShowOfflineMembers;
+    checkbox.checked = bShowOfflineMembers;
+    doRefresh();
+}
+
+// Expand/collapse the tree at this group
+function doToggleGroup(groupname)
+{
+    var span;
+    var group;
+    
+    group = myBuddies.group.findByProp('name',groupname);
+    if (!group)
+        return;
+
+    group.isExpanded = !group.isExpanded;
+    
+    // redraw
+    setTimeout("doRefresh()",1);
+    
+    /***
+    // This only works on IE4
+    // swap styles & images 
+    // get img
+    var img;
+    img = parent.frames.contents.document.images["img_"+groupname];
+    if (img)
+    {
+        span = parent.frames.contents.document.all(groupname);
+        if (span)
+        {
+            if (span.style.display == 'none')
+            {
+                span.style.display = '';
+                img.src = 'img/minus_aol.gif';
+            }
+            else
+            {
+                span.style.display = 'none';
+                img.src = 'img/plus_aol.gif';
+            }
+        }
+    }
+    ***/
+    
+}
+
+// Select a group entry and show metadata about the group
+function doSelectGroup(groupname,span)
+{
+    if (span == selection.object)
+        return;
+    selection.object = span;
+
+    // clear selection
+    if (selection.group)
+    {
+        selection.group.$selected = false;
+    }
+    if (selection.buddy)
+    {
+        selection.buddy.$selected = false;
+    }
+    if (selection.buddyref)
+    {
+        selection.buddyref.$selected = false;
+    }
+
+    selection.group = myBuddies.findGroup(groupname);
+
+    // new selection
+    if (selection.group)
+    {
+        selection.group.$selected = true;
+        selection.buddy = null;
+        selection.buddyref = null;
+    }
+
+    setTimeout("doRefresh()",1);
+}
+
+// Select a user entry - show the users profile
+function doSelectUser(groupname,username,anchor)
+{
+    if (anchor == selection.object)
+        return;
+    selection.object = anchor;
+
+    // clear selection
+    if (selection.group)
+    {
+        selection.group.$selected = false;
+    }
+    if (selection.buddy)
+    {
+        selection.buddy.$selected = false;
+    }
+    if (selection.buddyref)
+    {
+        selection.buddyref.$selected = false;
+    }
+
+    // new selection
+    selection.group = myBuddies.findGroup(groupname);
+    selection.buddy = myBuddies.findBuddy(username);
+    selection.buddyref = selection.group.findBuddyRef(username);
+    if (selection.buddy)
+    {
+        selection.buddy.$selected = true;
+    }
+    if (selection.buddyref)
+    {
+        selection.buddyref.$selected = true;
+    }
+    
+    setTimeout("doRefresh()",1);
+}
+
+// Open window for 'invite to group chat'
+function doSendChat(groupname)
+{
+    if (selection.group)
+    {
+        var uniqueID = Math.random().toString().substr(2,8);
+        var topic = "/chat/room_"+uniqueID;
+        var appRef;
+        var href;
+        
+        appRef = '../ChatRoom.esp/?inviter='+escape(curUserURI);
+        href = '../ChatRoom.esp/?invitedGroup='+escape(selection.group.name);
+        doInvite(uniqueID,topic,appRef,href);
+    }
+}
+
+// Open window for 'chat with single user'
+function doSendIM(username)
+{
+    if (selection.buddy)
+    {
+        var uniqueID = Math.random().toString().substr(2,8);
+        var topic = "/chat/room_"+uniqueID;
+        var appRef;
+        var href;
+
+        appRef = '../Chat.esp/?inviter='+escape(curUserURI);
+        href = '../Chat.esp/?invited='+escape(selection.buddy.person.userid);
+        doInvite(uniqueID,topic,appRef,href);
+    }
+}
+
+function doSetStatus(selectbox)
+{
+    if (selectbox.selectedIndex >=0)
+    {
+        var option = selectbox.options[selectbox.selectedIndex];
+        
+        postStatus(option.value,option.text);
+    }
+}
+
+function doAddBuddy()
+{
+	if (selection.group)
+	{
+		var name;
+		var userURI;
+		var displayName="";
+		var buddy;
+		var group;
+		var groupName = selection.group.name;
+		
+		group = myBuddies.findGroup(groupName);
+		
+		name = prompt("Add buddy to '"+groupName+"'\nWhat is the name of your buddy?","");
+		if (name)
+		{
+			name = name.toLowerCase();
+			userURI = defaultDomain+"/who/"+name;
+			displayName = name;
+			
+			if (!group)
+			{
+				group = new Group(groupName);
+				myBuddies.addGroup(group);
+			}
+			
+			if (group.hasBuddy(userURI))
+			{
+				alert(name+" is already in the "+groupName+" group.");
+			}
+			else
+			{
+				buddy = myBuddies.findBuddy(userURI);
+				if (!buddy)
+				{
+					buddy = new Buddy(userURI,displayName);
+					myBuddies.addBuddy(buddy);
+					subscribeToBuddy(buddy);
+				}
+
+				// add buddy-ref
+				group.addBuddyRef(userURI);
+
+				setIsDirty(true);
+				postBuddyList(myBuddies);
+			}
+		}
+	}
+}
+
+function doRemoveBuddy()
+{
+	// get current selection
+	if (selection.buddy && selection.group)
+	{
+		// figure out which group the selection is in.
+		selection.group.removeBuddy(selection.buddy);
+		setIsDirty(true);
+
+		// if this buddy is really really gone
+		if (!myBuddies.isBuddyReferenced(selection.buddy))
+		{
+			myBuddies.removeBuddy(selection.buddy);
+			unsubscribeFromBuddy(selection.buddy);
+			selection.buddy = null;
+		}
+
+		postBuddyList(myBuddies);
+	}
+	else
+	if (selection.buddy == null && selection.group)
+	{
+		if (selection.group != theOfflineGroup)
+		{
+			myBuddies.removeGroup(selection.group);
+			selection.group = null;
+			setIsDirty(true);
+			postBuddyList(myBuddies);
+		}
+	}
+}
+
+function doAddGroup()
+{
+    var name;
+    var group;
+        
+    name = prompt("Add group to Buddies.\nWhat is the name of your new group?","");
+    if (name)
+    {
+        group = myBuddies.findGroup(name);
+        if (group)
+        {
+            alert(name+" is already a group!\nPlease choose another name.");
+        }
+        else
+        {
+            group = new Group(name);
+            myBuddies.addGroup(group);
+        }
+        setIsDirty(true);
+        postBuddyList(myBuddies);
+    }
+}
+
+function doLaunchPrompt()
+{
+    var app;
+    var principalName;
+    
+    if (selection.buddy)
+        principalName = selection.buddy.person.displayname;
+    else
+    if (selection.group)
+        principalName = selection.group.name;
+    else
+        return;
+        
+    app = prompt("Invite "+principalName+" to a KnowNow ESP Application.\nWhat ESP would you like to use?","ChatRoom.esp");
+    if (app)
+    {
+        var uniqueID = Math.random().toString().substr(2,8);
+        var topic = "/app/room_"+uniqueID;
+        var appRef;
+        var href;
+        
+        appRef = "../"+app+"/?inviter="+escape(curUserURI);
+        if (selection.buddy)
+            href = '../'+app+'/?invited='+escape(selection.buddy.person.displayname);
+        else
+        if (selection.group)
+            href = '../'+app+'/?invitedGroup='+escape(selection.group.name);
+
+        // send out the invite
+        doInvite(uniqueID,topic,appRef,href);
+    }
+}
+
+function addTopic(href,topic)
+{
+    if (href.indexOf('?') < 0)
+    {
+        href += "?kn_topic="+topic; 
+    }
+    else
+    {
+        href += "&kn_topic="+topic; 
+    }
+
+    return href;
+}
+
+function doInvite(uniqueID,topic,appRef,href)
+{
+    href = addTopic(href,topic);
+        
+    if (selection.buddy)
+    {
+        postInvite(selection.buddy,topic,appRef);
+        window.open(href,uniqueID);
+    }
+    else
+    if (selection.group)
+    {
+        postInviteGroup(selection.group,topic,appRef);
+        window.open(href,uniqueID);
+    }
+}
+
+/*
+* Launch the selected app...
+*/
+function doLaunchApp(selectbox)
+{
+    if (selectbox.selectedIndex >=0)
+    {
+        var option = selectbox.options[selectbox.selectedIndex];
+        
+        if ((option.value.valueOf() == 'app_other') ||
+            (option.value.valueOf() == 'app_none'))
+        {
+            // this prompts the user
+            doLaunchPrompt();
+        }
+        else
+        {
+            var app;
+            
+            app = theAppList.app[selectbox.selectedIndex-1];
+            if (app)
+            {
+                var uniqueID = Math.random().toString().substr(2,8);
+                var topic = "/apps/app_"+uniqueID;
+                
+                // send out the invite
+                doInvite(uniqueID,topic,app.url,app.url);
+            }
+        }
+    }
+    else
+    {
+        alert("selection index -1");
+    }
+}
+
+</script>
+
+</head>
+
+<body bgcolor='#C3C3C3' topmargin='1' leftmargin='2' style='font-family: Arial; font-size: 8pt'>
+    <basefont face='Arial' />
+
+<form name='tools' style='margin-top : 0'>
+<font size='+1'><b>KnowBuddy</b></font>
+<img name='connection' src='../images/g_green.gif' width='12' height='12'>
+<b><script language='javascript'>document.write(parent.kn.displayname);</script></b>
+is 
+<select onChange='doSetStatus(this)' style='font-size:12'> 
+<option value='online' selected>Available</option>
+<option value='unavailable'>Offline</option>
+<option value='unavailable'>Be Right Back</option>
+<option value='unavailable'>Busy</option>
+<option value='unavailable'>On The Phone</option>
+<option value='unavailable'>On Vacation</option>
+<option value='unavailable'>Out To Lunch</option>
+<option value='unavailable'>Not At Home</option>
+<option value='unavailable'>Not at my Desk</option>
+<option value='unavailable'>Not In The Office</option>
+<option value='unavailable'>Stepped Out</option>
+<option value='invisible'>Invisible</option>
+</select>
+<br />
+
+<!-- Command Toolbar -->
+<a name='send_im' href='javascript:doSendIM()' title='Send Instant Message'><img border='0' src='img/send_im.gif' onMouseOver="this.src = 'img/send_im_active.gif'" onMouseOut="this.src = 'img/send_im.gif'"></a>
+<a name='send_chat' href='javascript:doSendChat()' title='Send Chat Invitation'><img border='0' src='img/send_invite.gif' onMouseOver="this.src = 'img/send_invite_active.gif'" onMouseOut="this.src = 'img/send_invite.gif'"></a>
+&nbsp;| &nbsp;
+<a name='group_add' href='javascript:doAddGroup()' title='Add a Group'><img border='0' src='img/group_add.gif' onMouseOver="this.src = 'img/group_add_active.gif'" onMouseOut="this.src = 'img/group_add.gif'"></a>
+<a name='buddy_add' href='javascript:doAddBuddy()' title='Add a Buddy'><img border='0' src='img/buddy_add.gif' onMouseOver="this.src = 'img/buddy_add_active.gif'" onMouseOut="this.src = 'img/buddy_add.gif'"></a>
+<a name='buddy_remove' href='javascript:doRemoveBuddy()' title='Remove a Buddy or Group'><img border='0' src='img/buddy_remove.gif' onMouseOver="this.src = 'img/buddy_remove_active.gif'" onMouseOut="this.src = 'img/buddy_remove.gif'"></a>
+&nbsp;| &nbsp;
+<select name='app_list'  style='font-size:12'>
+    <option value='app_other' selected>Other...</option>
+</select>
+<a name='launch' href='javascript:doLaunchApp(document.tools.app_list)' title='Send ESP Invitation'><img border='0' src='img/app_invite.gif' onMouseOver="this.src = 'img/app_invite_active.gif'" onMouseOut="this.src = 'img/app_invite.gif'"></a>
+<!--
+<a name='' href='javascript:doGetBuddyList(this)'  title='Get buddy-list'><img border='0' src='img/buddy_add.gif' onMouseOver="this.src = 'img/buddy_add_active.gif'" onMouseOut="this.src = 'img/buddy_add.gif'"></a>
+<a name='' href='javascript:doSubscribeToInbox(this)' title='Subscribe to Inbox'><img border='0' src='img/buddy_add.gif' onMouseOver="this.src = 'img/buddy_add_active.gif'" onMouseOut="this.src = 'img/buddy_add.gif'"></a>
+<a name='' href='javascript:doSubscribeToBuddies(this)' title='Subscribe to Buddies'><img border='0' src='img/buddy_add.gif' onMouseOver="this.src = 'img/buddy_add_active.gif'" onMouseOut="this.src = 'img/buddy_add.gif'"></a>
+-->
+<br />
+
+<input name='showMembers' type='checkbox' checked onClick='doToggleShowOfflineMembers(this);'> 
+<a href="javascript:doToggleShowOfflineMembers(document.all('showMembers'));">Show offline members</a>
+</form>
+</body>
+</html>

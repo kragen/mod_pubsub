@@ -1,0 +1,53 @@
+BODY
+{
+}
+.Buddy
+{
+    CURSOR: hand;
+    LEFT: 20pt;
+    POSITION: relative
+}
+.Buddy .Active
+{
+    COLOR: black;
+    FONT-WEIGHT: bolder
+}
+.Buddy .Offline
+{
+    COLOR: slategray
+}
+.Buddy .Online
+{
+    COLOR: black
+}
+.Buddy A:hover
+{
+    FONT-WEIGHT: bolder
+}
+.Group
+{
+    CURSOR: hand;
+    FONT-WEIGHT: bolder
+}
+.Profile
+{
+}
+.Profile .displayname
+{
+    FONT-SIZE: medium;
+    FONT-WEIGHT: bolder
+}
+.Profile .userid
+{
+}
+.Profile .status
+{
+}
+.Group .Selected
+{
+    BACKGROUND-COLOR: yellow
+}
+.Buddy .Selected
+{
+    BACKGROUND-COLOR: yellow
+}
