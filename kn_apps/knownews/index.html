@@ -82,11 +82,15 @@ function onMessage(event)
 	{
 		if (!event.title)
 			event.title = event.s8_sitename;
+		if (!event.title)
+			event.title = event.blog_name;
 		if (!event.link)
 			event.link = event.s8_dataurl;
+		if (!event.link)
+			event.link = event.blog_url;
 		addItem(event);
 	}
-		
+
     refresh();
 }
 
