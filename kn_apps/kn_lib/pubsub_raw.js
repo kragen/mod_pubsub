@@ -39,7 +39,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.9 2003/07/19 09:39:45 ifindkarma Exp $
+// $Id: pubsub_raw.js,v 1.10 2003/07/23 05:25:04 bsittler Exp $
 
 ////////////////////////////////////////////////////////////////////////
 // Notes on notation:
@@ -408,7 +408,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.9 2003/07/19 09:39:45 ifindkarma Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.10 2003/07/23 05:25:04 bsittler Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -1396,19 +1396,29 @@ function _kn_submitFormInFrame(e, f)
     _l_html += '<' + '/body>\n';
     _l_html += '<' + '/html>\n';
 
-    // generate the page.
-    _kn_paidInformants[f.name] = true;
-    if (! kn.documents[f.name])
+    if (_kn_options("nopost"))
     {
-        kn.documents[f.name] = _kn_object();
-        kn.documents[f.name].state = "ready";
-    }
-    kn.documents[f.name].html = _l_html;
-    if (kn.documents[f.name].state != "loading")
-    {
-        kn.documents[f.name].state = "loading";
+        kn._pendingRequest = //_
+	  kn_encodeRequest(e);
         if (f.stop) f.stop();
-        f.location.replace(kn_blank);
+        f.location.replace(kn_server + '?' + kn._pendingRequest);
+    }
+    else
+    {
+        // generate the page.
+        _kn_paidInformants[f.name] = true;
+        if (! kn.documents[f.name])
+        {
+            kn.documents[f.name] = _kn_object();
+            kn.documents[f.name].state = "ready";
+        }
+        kn.documents[f.name].html = _l_html;
+        if (kn.documents[f.name].state != "loading")
+        {
+            kn.documents[f.name].state = "loading";
+            if (f.stop) f.stop();
+            f.location.replace(kn_blank);
+        }
     }
 
     if (f == kn._postFrame)
@@ -1484,7 +1494,14 @@ function _kn_retry()
         kn_retryInterval = kn_retryInterval * 2;
         if (kn_retryInterval > kn_maxRetryInterval) kn_retryInterval = kn_maxRetryInterval;
         if (kn._postFrame.stop) kn._postFrame.stop();
-        kn._postFrame.location.replace(kn_blank);
+	if (_kn_options("nopost"))
+	{
+	    kn._postFrame.location.replace(kn_server + '?' + kn._pendingRequest);
+	}
+	else
+	{
+	    kn._postFrame.location.replace(kn_blank);
+	}
         // Netscape Navigator 4.x has a serious setTimeout bug, so we use
         // a different window's timer list there; other browsers (Netscape
         // 6/Mozilla, at least) need to do this from the parent window to
@@ -1946,9 +1963,18 @@ function _kn_onPostError(ev)
 
 function _kn_onPostSuccess(ev)
 {
-    // this function supports the 'noforward' option
-    if (! kn__options("noforward")) _kn_silenceWindow(kn._postFrame);
-    if (_kn_debug() && kn_isReady(kn._postFrame)) kn._postFrame.document.bgColor = "yeLLow"; //#
+    if (! _kn_options("nopost"))
+    {
+        // this function supports the 'noforward' option
+        if (! _kn_options("noforward")) _kn_silenceWindow(kn._postFrame);
+
+        if (_kn_debug() && kn_isReady(kn._postFrame)) kn._postFrame.document.bgColor = "yeLLow"; //#
+    }
+    else
+    {
+      if (_kn_debug("posts")) kn.ownerWindow.status = //#
+                                  ev.kn_route_location + ": " + ev.status; //#
+    }
     kn._postFrameBusy = false;
 
     // Netscape Navigator 4.x has a serious setTimeout bug, so we
@@ -4168,6 +4194,12 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
+// Revision 1.10  2003/07/23 05:25:04  bsittler
+// Added kn_options=nopost which uses GET rather than POST to submit
+// requests.  Used in conjunction with kn_options=single
+// (i.e. kn_options=single,nopost) this works around enough Konqueror
+// bugs to get kn_apps/chat1 working.
+//
 // Revision 1.9  2003/07/19 09:39:45  ifindkarma
 // Patched another bug.  pubsub_raw.js now passes all unit tests.
 //
