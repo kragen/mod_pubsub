@@ -33,15 +33,18 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: doubletime.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: doubletime.c,v 1.2 2003/05/06 04:42:16 bsittler Exp $
  **/
 
+#include <time.h>
+#include <math.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <errno.h>
 #include "util.h"
 #include "doubletime.h"
 
-static unused char rcsid[] = "@(#) $Id: doubletime.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: doubletime.c,v 1.2 2003/05/06 04:42:16 bsittler Exp $";
 
 /* IEEE-754 8-byte double has 53 mantissa bits --- enough to not
    lose any precision with 32 bits of tv_sec and 20 bits of tv_usec */
@@ -52,3 +55,30 @@ double gettimeofday_double()
     return now_tv.tv_sec + (now_tv.tv_usec / 1e6);
 }
 
+double sleep_double(double how_long)
+{
+  struct timespec ts[2];
+  int rv;
+  ts[0].tv_sec = floor(how_long);
+  ts[0].tv_nsec = (how_long - floor(how_long)) * 1e9;
+  while (ts[0].tv_nsec < 0L)
+    {
+      ts[0].tv_sec --;
+      ts[0].tv_nsec += 1000000000L;
+    }
+  while (ts[0].tv_nsec >= 1000000000L)
+    {
+      ts[0].tv_sec ++;
+      ts[0].tv_nsec -= 1000000000L;
+    }
+  ts[1].tv_sec = 0;
+  ts[1].tv_nsec = 0;
+  how_long = 0.0;
+  do
+    {
+      how_long += ts[1].tv_sec + (ts[1].tv_nsec / 1e9);
+      rv = nanosleep(ts, ts + 1);
+    }
+  while (rv == -1 && errno == EINTR);
+  return how_long;
+}

@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: master.c,v 1.3 2003/05/06 04:33:11 ifindkarma Exp $
+ * $Id: master.c,v 1.4 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 #include <stdio.h>
@@ -53,7 +53,7 @@
 #include "parser.h"
 #include "post_event.h"
 
-static unused char rcsid[] = "@(#) $Id: master.c,v 1.3 2003/05/06 04:33:11 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: master.c,v 1.4 2003/05/06 04:42:16 bsittler Exp $";
 
 static dstring *tunnel_req(char *basetopic, int sessionid, int journalid,
                            int simple_format)
@@ -331,16 +331,20 @@ void enqueue_another_post(evl_t *evl, connqueue_t *cq, struct sockaddr_in *sin,
 
 void dump_parms(struct masterparms *parms, pipe_fitting_t *pf)
 {
-    dstring *ds = dstring_interp_s("host: %s port: %d "
-                                   "tunnels-per-origin-topic: %d "
-                                   "origin-topics: %d requests-per-sec: %f "
-                                   "batchsize: %d\n",
+    dstring *ds = dstring_interp_s("host: %s port: %d"
+                                   " tunnels-per-origin-topic: %d"
+                                   " origin-topics: %d requests-per-sec: %f"
+                                   " batchsize: %d"
+                                   " max-opening-conns: %d"
+                                   " conns-per-sec: %f\n",
                                    parms->servername,
                                    parms->port,
                                    parms->tunnels_per_journal * parms->journals_per_topic,
                                    parms->origin_topics,
                                    parms->requests_per_sec, 
-                                   parms->batchsize);
+                                   parms->batchsize,
+                                   parms->max_opening_conns,
+                                   parms->conns_per_sec);
     if (!ds) abort();
     if (!pipe_fitting_write(pf, ds->start, ds->len)) abort();
     dstring_free(ds);
@@ -378,7 +382,7 @@ void run_master(struct masterparms *parms) {
 
     dump_parms(parms, output);
 
-    cq = new_connqueue(evl);
+    cq = new_connqueue(evl, parms->max_opening_conns, parms->conns_per_sec);
     if (!cq) {
         perror("creating connection queue");
         pipe_fitting_free(output);

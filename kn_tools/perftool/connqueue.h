@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: connqueue.h,v 1.2 2003/04/25 02:37:44 bsittler Exp $
+ * $Id: connqueue.h,v 1.3 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 /* 
@@ -60,7 +60,19 @@
 
 typedef struct connqueue connqueue_t;
 
-connqueue_t *new_connqueue(evl_t *evl);
+/* We have to limit the number of connections that are in the
+ * "opening" state; the typical use of this code is to open a
+ * bunch of connections to the same server at the same time, and
+ * many systems have severe limits on their capacity to accept or
+ * open many connections in a short time.  Typically if you try to
+ * open more than 200 or so connections to the same server at the
+ * same time, the later ones will time out.  So we limit the
+ * number of connections that have had connect() called on them
+ * but have not yet had any data pass over them. 
+ *
+ * Enforcing this limit is the entire raison d'etre for this
+ * class. */
+connqueue_t *new_connqueue(evl_t *evl, int max_opening_conns, float conns_per_sec);
 int connqueue_is_empty(connqueue_t *cq);
 void connqueue_free(connqueue_t *cq);
 

@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: nc.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
+ * $Id: nc.c,v 1.3 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 /*
@@ -57,7 +57,7 @@
 #include "pipefit.h"
 #include "openconn.h"
 
-static unused char rcsid[] = "@(#) $Id: nc.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
+static unused char rcsid[] = "@(#) $Id: nc.c,v 1.3 2003/05/06 04:42:16 bsittler Exp $";
 
 static int open_pipes = 0;
 
@@ -99,7 +99,8 @@ static int open_pipes = 0;
 
 static void copy_data(pipe_fitting_t *self, char *data, size_t len)
 {
-    pipe_fitting_t *other_end = pipe_fitting_get_handlers(self)->client_data;
+    pipe_fitting_t *other_end = (pipe_fitting_t *)
+      (pipe_fitting_get_handlers(self)->client_data);
     int rv = pipe_fitting_write(other_end, data, len);
     if (rv < 0) {
         perror("writing data");

@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: analyze.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
+ * $Id: analyze.c,v 1.3 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 /*
@@ -46,19 +46,15 @@
 #include "util.h"
 #include "analyze_conn.h"
 #include "linear.h"
+#include "nan.h"
 
-static unused char rcsid[] = "@(#) $Id: analyze.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
+static unused char rcsid[] = "@(#) $Id: analyze.c,v 1.3 2003/05/06 04:42:16 bsittler Exp $";
 
 char *findtag(char *input, char *tag)
 {
     char *s = strstr(input, tag);
     if (!s) return 0;
     return s + strlen(tag);
-}
-
-double return_nan()
-{
-    return 0/0.0;
 }
 
 double float_tag(char *input, char *tag)

@@ -33,12 +33,13 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: doubletime.h,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: doubletime.h,v 1.2 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 #ifndef __DOUBLETIME_H
 #define __DOUBLETIME_H
 
 double gettimeofday_double();
+double sleep_double(double how_long);
 
 #endif

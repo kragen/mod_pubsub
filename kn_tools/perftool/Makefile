@@ -32,7 +32,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# @(#) $Id: Makefile,v 1.2 2003/04/25 02:37:44 bsittler Exp $
+# @(#) $Id: Makefile,v 1.3 2003/05/06 04:42:16 bsittler Exp $
 
 PLAT = $(shell uname -a)
 evloop=evloop_select.o evloop_common.o
@@ -73,9 +73,9 @@ nc: nc.o dstring.o nonblock.o pipefit.o openconn.o \
 perftool: perftool.o masterparms.o dstring.o \
 	my_getopt/my_getopt.o master.o openconn.o connqueue.o \
 	nonblock.o pipefit.o dstr_interp.o parser.o evrpt.o doubletime.o \
-	post_event.o $(evloop) urlencode.o
+	post_event.o $(evloop) urlencode.o nan.o
 
-analyze: analyze.o linear.o analyze_conn.o dstring.o
+analyze: analyze.o linear.o analyze_conn.o dstring.o nan.o
 
 lineartest: lineartest.o linear.o
 

@@ -33,17 +33,20 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: connqueue.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: connqueue.c,v 1.2 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 #include <stdlib.h>
 #include <errno.h>
+#include <math.h>
 #include "util.h"
 #include "connqueue.h"
 #include "dstring.h"
 #include "openconn.h"
+#include "doubletime.h"
+#include "nan.h"
 
-static unused char rcsid[] = "@(#) $Id: connqueue.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: connqueue.c,v 1.2 2003/05/06 04:42:16 bsittler Exp $";
 
 typedef struct conn {
     evl_t *evl;
@@ -58,6 +61,8 @@ struct connqueue {
     evl_t *evl;
     int opening_conns;
     int max_opening_conns;
+    float conns_per_sec;
+    double last_conn_at;
     conn *next_queue_item;
     conn **queue_tail_pointer;
 };
@@ -139,6 +144,27 @@ static int launch_conn(connqueue_t *cq, conn *next)
 static void run_queue(connqueue_t *cq) 
 {
     conn *next;
+    if (! isnan(cq->conns_per_sec) &&
+	cq->conns_per_sec > 0.0)
+      {
+	double min_conn_interval = 1.0 / cq->conns_per_sec;
+	double now = gettimeofday_double();
+	if (! isnan(cq->last_conn_at))
+	  {
+	    double diff = now - cq->last_conn_at;
+	    if (diff < 0.0)
+	      {
+		cq->last_conn_at = now;
+		diff = 0.0;
+	      }
+	    if (diff < min_conn_interval)
+	      {
+		/* FIXME: this should schedule a timer instead! */
+		sleep_double(min_conn_interval - diff);
+	      }
+	  }
+	cq->last_conn_at = gettimeofday_double();
+      }
     while (cq->opening_conns < cq->max_opening_conns && cq->next_queue_item) {
         next = cq->next_queue_item;
         if (!launch_conn(cq, next)) 
@@ -159,24 +185,14 @@ static void run_queue(connqueue_t *cq)
  *   hand the connection off to the user; open connections if possible
  */
 
-connqueue_t *new_connqueue(evl_t *evl) 
+connqueue_t *new_connqueue(evl_t *evl, int max_opening_conns, float conns_per_sec)
 {
     connqueue_t *rv = (connqueue_t*)malloc(sizeof(*rv));
     if (!rv) return NULL;
     rv->evl = evl;
-    /* We have to limit the number of connections that are in the
-     * "opening" state; the typical use of this code is to open a
-     * bunch of connections to the same server at the same time, and
-     * many systems have severe limits on their capacity to accept or
-     * open many connections in a short time.  Typically if you try to
-     * open more than 200 or so connections to the same server at the
-     * same time, the later ones will time out.  So we limit the
-     * number of connections that have had connect() called on them
-     * but have not yet had any data pass over them. 
-     *
-     * Enforcing this limit is the entire raison d'etre for this
-     * class. */
-    rv->max_opening_conns = 120;
+    rv->max_opening_conns = max_opening_conns;
+    rv->conns_per_sec = conns_per_sec;
+    rv->last_conn_at = return_nan();
     rv->opening_conns = 0;
     /* this points to the next queue item to run */
     rv->next_queue_item = NULL;

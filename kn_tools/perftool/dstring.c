@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: dstring.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: dstring.c,v 1.2 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 #include <stdlib.h>
@@ -43,11 +43,11 @@
 #include "util.h"
 #include "dstring.h"
 
-static unused char rcsid[] = "@(#) $Id: dstring.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: dstring.c,v 1.2 2003/05/06 04:42:16 bsittler Exp $";
 
 dstring *new_dstring()
 {
-    dstring *s = malloc(sizeof(dstring));
+    dstring *s = (dstring *) malloc(sizeof(dstring));
     if (s) {
         s->start = NULL;
         s->len = 0;
@@ -73,7 +73,7 @@ int dstring_expand(dstring *s, int extra_len)
 {
     if (s->buflen < s->len + extra_len) {
         int newlen = (s->len + extra_len) * 2;
-        char *newbuf = realloc(s->start, newlen);
+        char *newbuf = (char *) realloc((void *) s->start, newlen);
         if (!newbuf) return 0;
         s->start = newbuf;
         s->buflen = newlen;

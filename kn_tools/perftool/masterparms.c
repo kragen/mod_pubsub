@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: masterparms.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: masterparms.c,v 1.2 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 #include <stdio.h>
@@ -41,8 +41,9 @@
 #include "util.h"
 #include "master.h"
 #include "getopt.h"
+#include "nan.h"
 
-static unused char rcsid[] = "@(#) $Id: masterparms.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: masterparms.c,v 1.2 2003/05/06 04:42:16 bsittler Exp $";
 
 static void usage(char *argv0) {
     fprintf(stderr, ("Usage: %s [--master=hostname] [-m hostname]\n"
@@ -55,6 +56,8 @@ static void usage(char *argv0) {
                      "          [--payloadsize n] [-p n]\n"
                      "          [--simple-format] [-f]\n"
                      "          [--batchsize n] [-b n]\n"
+		     "          [--max-opening-conns n] [-c n]\n"
+		     "          [--conns-per-sec n] [-C n]\n"
                      "          request_per_sec servername port\n"
                      "or %s --slave or %s -s\n"),
             argv0, argv0, argv0);
@@ -73,6 +76,8 @@ static struct option options[] = {
     {"payloadsize",    required_argument,  NULL,  'p'},
     {"simple-format",  no_argument,        NULL,  'f'},
     {"batchsize",      required_argument,  NULL,  'b'},
+    {"max-opening-conns", required_argument, NULL, 'c'},
+    {"conns-per-sec",  required_argument,  NULL,  'C'},
     {0,                0,                  0,     0}
 };
 
@@ -110,14 +115,24 @@ int parse_masterparms(int argc, char **argv, struct masterparms *parms)
     parms->payloadsize = 0;
     parms->simple_format = 0;
     parms->batchsize = 0;
+    parms->max_opening_conns = 120;
+    parms->conns_per_sec = return_nan();
 
     for (;;) {
-        opt = getopt_long(argc, argv, "m:o:j:t:T:r:sdfp:b:", 
+        opt = getopt_long(argc, argv, "m:c:C:o:j:t:T:r:sdfp:b:", 
                           options, &option_index); 
         switch (opt)
         {
         case '?': usage(argv[0]); break;
         case 'm': add_slave(optarg); break;
+        case 'c': 
+            if (!parse_int(optarg, &parms->max_opening_conns)) 
+                usage(argv[0]); 
+            break;
+        case 'C': 
+            if (!parse_float(optarg, &parms->conns_per_sec)) 
+                usage(argv[0]); 
+            break;
         case 'o': 
             if (!parse_int(optarg, &parms->origin_topics)) 
                 usage(argv[0]); 

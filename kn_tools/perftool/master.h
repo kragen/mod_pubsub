@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: master.h,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: master.h,v 1.2 2003/05/06 04:42:16 bsittler Exp $
  **/
 
 #ifndef __MASTER_H
@@ -52,6 +52,8 @@ typedef struct masterparms {
     int payloadsize;
     int simple_format;  /* boolean: use simple format? */
     int batchsize;  /* zero for no batching, otherwise a number of events */
+    int max_opening_conns;
+    float conns_per_sec;
 } masterparms;
 
 void run_master(masterparms *parms);
