@@ -1,6 +1,17 @@
 #!/usr/bin/python
 
-# pubsub.py -- PubSub Python Server compatible with mod_pubsub & pubsub.cgi
+"""
+    pubsub.py -- standalone PubSub Python Server
+    compatible with mod_pubsub & cgi-bin/pubsub.cgi
+
+    This is a PubSub Server that runs standalone from the command line.
+    It is our goal to have the functionality of pubsub.py match that
+    of cgi-bin/pubsub.cgi so we have two reference implementations.
+
+    Contact Information:
+       http://mod-pubsub.sf.net/
+       mod-pubsub-developer@lists.sourceforge.net          
+"""
 
 # Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
@@ -36,52 +47,55 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.6 2003/03/07 21:38:34 ifindkarma Exp $
+# $Id: pubsub.py,v 1.7 2003/03/15 05:04:25 ifindkarma Exp $
 
 
+"""
+    This server uses a protocol compatible with the other PubSub
+    Servers, and serves as a fine reference tutorial for learning
+    the PubSub Protocol.
 
-# This server uses a protocol compatible with the other PubSub
-# servers, and serves as a fine reference tutorial for learning
-# the PubSub Protocol.
+    We use the following standard Python libraries:
+    asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py
 
-# We use the following standard Python libraries:
-# asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py
+    Our system contains a Server, some Connections to clients, some
+    Topics, some Routes, and some other Events.
 
-# Our system contains a Server, some Connections to clients, some
-# Topics, some Routes, and some other Events.
+    The Server has a root Topic.
+    The Server reacts to new TCP connections by creating Connections.
+    A Connection handles a request from a client; it might serve up
+      a server status page, create an Event and post it to a Topic,
+      create a Route and post it to a Topic, or become a tunnel.
+    Connections log information about their activities to the Server.
 
-# The Server has a root Topic.
-# The Server reacts to new TCP connections by creating Connections.
-# A Connection handles a request from a client; it might serve up
-#   a server status page, create an Event and post it to a Topic,
-#   create a Route and post it to a Topic, or become a tunnel.
-# Connections log information about their activities to the Server.
+    A Topic is a collection of Events --- possibly Topics or Routes.  It
+      also has another (possibly null) Topic that contains its Routes,
+      and another Topic that is contains its subtopics (including the
+      kn_routes topic).
+    You can ask a Topic to navigate to some path below it.
+    Route and Topic are kinds of Event.
 
-# A Topic is a collection of Events --- possibly Topics or Routes.  It
-#   also has another (possibly null) Topic that contains its Routes,
-#   and another Topic that is contains its subtopics (including the
-#   kn_routes topic).
-# You can ask a Topic to navigate to some path below it.
-# Route and Topic are kinds of Event.
+    There are two ways to post an Event to a Topic --- "notify", which
+    does checks appropriate to do_method=notify, and "post", which
+    doesn't.  Routes and do_method=notify use "notify"; everything else
+    uses "post".
 
-# There are two ways to post an Event to a Topic --- "notify", which
-# does checks appropriate to do_method=notify, and "post", which
-# doesn't.  Routes and do_method=notify use "notify"; everything else
-# uses "post".
+    Posting an Event to a Topic causes the Event to get posted to all
+    the Routes on the route topic of the Topic --- at first immediately,
+    but it is planned to make this happen gradually.
 
-# Posting an Event to a Topic causes the Event to get posted to all
-# the Routes on the route topic of the Topic --- at first immediately,
-# but it is planned to make this happen gradually.
+    Every Topic knows its name.
 
-# Every Topic knows its name.
+    The subtopics of a Topic are the events in the Topic's kn_subtopics
+    topic.
 
-# The subtopics of a Topic are the events in the Topic's kn_subtopics
-# topic.
+    When creating a Route, a Connection doesn't talk directly to the
+    kn_routes subtopic; instead it calls create_route() on the topic
+    it is routing out of.  This handles IRP and calls post on the
+    kn_routes subtopic.
 
-# When creating a Route, a Connection doesn't talk directly to the
-# kn_routes subtopic; instead it calls create_route() on the topic
-# it's routing out of.  This handles IRP and calls post on the
-# kn_routes subtopic.
+"""
+
 
 PermissionDenied = "403 Permission denied"
 StaleTopic = "404 Expired"
@@ -218,7 +232,8 @@ class Event:
 
 def is_bad_topic_name(name):
     """Duplicates the stupid gratuitous topic-name rejection done by
-    pubsub.cgi so as to provide an easy way of causing posting and subscribing to fail."""
+    pubsub.cgi so as to provide an easy way of causing posting and
+    subscribing to fail."""
     for c in name:
         if (not ('a' <= c <= 'z') and
             not ('A' <= c <= 'Z') and
@@ -465,9 +480,7 @@ class Tunnel(Route):
 class SimpleTunnel(Tunnel):
 
     """Responsibilities: format events in the
-    kn_response_format=simple format.
-
-    """
+    kn_response_format=simple format."""
 
     def headerfrom(self, event):
         return http_header(event['status'], 'text/plain')
@@ -1118,7 +1131,7 @@ class HttpClient(asyncore.dispatcher_with_send):
         except socket.error, val:
             print "Socket error %s" % val
 
-    # FIXME: this should be replaced with a reasonable configuration system!
+    # FIXME: This should be replaced with a reasonable configuration system!
 
 def urlpath(filename):
     filenamechunks = string.split(filename, '/')
@@ -1230,7 +1243,7 @@ def main(argv):
         else: knroot = ""
         sch = Scheduler()
         server = Server(int(argv[1]), logfile, errlog, sch, argv[2], knroot, verbose, filename)
-        print "server initialized"
+        print "PubSub Server initialized"
         while server.alive:
             asyncore.poll(sch.timeout())
             sch.run()
