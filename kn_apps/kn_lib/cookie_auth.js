@@ -32,7 +32,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: cookie_auth.js,v 1.1 2002/11/07 07:08:10 troutgirl Exp $
+// $Id: cookie_auth.js,v 1.2 2003/04/14 20:56:40 ifindkarma Exp $
 
 // Client-side "authentication" stored in brower cookies.
 // Note that this is not real security like Apache auth is.
@@ -45,6 +45,8 @@
 // can be included before do_method=lib.
 
 // FIXME: This interacts very badly with browsers with cookies disabled.
+// Instead, we need to set and test a trial cookie.  If that fails, the
+// rest should be skipped.
 
 // FIXME: Give people a way to modify/clear their auth information.
 
