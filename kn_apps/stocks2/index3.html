@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!-- Uses the sensor mod_pubsub/kn_sense/nasdaq.plx -->
+<!-- This is another variation on the index.html theme. -->
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index3.html,v 1.1 2003/03/22 04:09:02 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title name="title">pubsub simple stock portfolio 3</TITLE>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+
+<!-- The JavaScript PubSub Library -->
+<script src="/kn/?do_method=lib"></script>
+
+<script><!--
+
+var lastEvent = {};
+var syms=['sunw','msft','orcl','beas','yhoo','aapl','csco','webm'];
+
+function init() {
+    for (var i in syms) {
+        var topic = "/what/nasdaq/" + syms[i];
+        kn_subscribe(topic , update, { do_max_n: 1 } );
+    }
+}
+
+function find_ele(name) {
+    for (var i=0; i < document.all.length; i++) {
+        n = document.all[i].name;
+        if (n && (n == name)) {
+	    return document.all[i];
+        }
+    }
+    return void null;
+}
+
+function find_ele_from(name, o) {
+    for (var i=0; i < o.length; i++) {
+        n = o[i].name;
+        if (n && (n == name)) {
+	    return o[i];
+        }
+    }
+    return void null;
+}
+
+function update(e){
+  var s=e.symbol.toLowerCase();
+  var cur = find_ele(s);
+
+  if(lastEvent[s])
+    lastEv=lastEvent[s];
+  else
+    lastEv={last:0.0,prev_close:0.0,ask:0.0,bid:0.0,vol:0.0};
+
+  lastEvent[s]=e;
+
+  var change = 0;
+  var pchange = 0;
+
+  if (e.prev_close){
+    change = (Math.round((e.last - e.prev_close) * 100)) / 100;
+    if (change)
+      pchange = (Math.round((100*(change / e.prev_close) * 100)) / 100);
+  }
+
+  update_node(cur.childNodes(1),e.last,1,e.last-e.prev_close);
+  update_node(cur.childNodes(2),change,0,0);
+  update_node(cur.childNodes(3),pchange,0,0);
+  update_node(cur.childNodes(4),e.ask,1,e.ask-lastEv.ask);
+  update_node(cur.childNodes(5),e.bid,1,e.bid-lastEv.bid);
+  update_node(cur.childNodes(6),e.volume,0,0);
+  update_node(cur.childNodes(7),e.prev_close,0,0);
+}
+
+function update_node(node,html,showdir,dir){
+  node.innerHTML=html;
+  if(showdir){
+    if (dir>0)
+      node.bgColor = "#ffcccc";
+    else if(dir<0)
+      node.bgColor = "#ccffcc";
+    else
+      node.bgColor = "#ffffff";
+  }
+}
+
+// -->
+</script>
+
+<!-- <link href="style.css" rel=stylesheet> -->
+
+<body bgColor="#ffffff" leftMargin=0 topMargin=0 onload=init()>
+
+<center>
+
+<table cellSpacing=0 cellPadding=0>
+  <tbody>
+  <tr>
+    <th></th>
+    <th width="50">Last</th>
+    <th width="50">Change</th>
+    <th width="50">% Change</th>
+    <th width="50">Ask</th>
+    <th width="50">Bid</th>
+    <th width="50">Volume</th>
+    <th width="50">Prev Close</th></tr>
+  <tr name="sunw">
+    <td><b>SUNW</b><br><img src="images/sunw.gif"></td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td></tr>
+  <tr name="msft">
+    <td><b>MSFT</b><br><img src="images/msft.gif"></td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td></tr>
+  <tr name="orcl">
+    <td><b>ORCL</b><br><img src="images/orcl.gif"></td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td></tr>
+  <tr name="beas">
+    <td><b>BEAS</b><br><img src="images/beas.gif"></td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td></tr>
+  <tr name="yhoo">
+    <td><b>YHOO</b><br><img src="images/yhoo.gif"></td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td></tr>
+  <tr name="aapl">
+    <td><b>AAPL</b><br><img src="images/aapl.gif"></td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td></tr>
+  <tr name="csco">
+    <td><b>CSCO</b><br><img src="images/csco.gif"></td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td></tr>
+  <tr name="webm">
+    <td><b>WEBM</b><br><img src="images/webm.gif"></td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td>
+    <td vAlign=bottom align=right bgColor="#ffffff">0</td></tr>
+
+</tbody></table><br>
+
+<p align=left>NOTE: The NASDAQ stock market is open from 6:30AM(EST) to 
+4:00PM(EST) most week days. This display uses the existing NASDAQ.com web 
+service for stock quotes. This NASDAQ.com web service provides quotes that are 
+20 minutes delayed. That means that in effect you should see market activity 
+from 6:50AM(EST) until 4:20PM(EST). If you are viewing this page after hours or 
+on a non-trading day you will not see market activity. The page will however 
+fill with the last quotes from the last active day.</p>
+
+</center>
+</body>
+</html>

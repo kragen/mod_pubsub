@@ -1,0 +1,288 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!-- Uses the sensor mod_pubsub/kn_sense/nasdaq.plx -->
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/03/22 04:09:02 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub simple stock portfolio</title>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+
+<!-- The JavaScript PubSub Library -->
+<script src="/kn/?do_method=lib"></script>
+
+<script><!--
+
+var watchList = new Object();
+watchList["sunw"] = 0.0;
+watchList["msft"] = 0.0;
+watchList["orcl"] = 0.0;
+watchList["csco"] = 0.0;
+watchList["beas"] = 0.0;
+watchList["yhoo"] = 0.0;
+watchList["aapl"] = 0.0;
+watchList["webm"] = 0.0;
+
+var watchList_ask = new Object();
+var watchList_bid = new Object();
+
+function init() {
+    for (var i in watchList) {
+        var topic = "/what/nasdaq/" + i + "/last";
+        kn_subscribe(topic , update_last, { do_max_n: 1 } );
+
+        topic = "/what/nasdaq/" + i + "/bid";
+        kn_subscribe(topic , update_bid, { do_max_n: 1 } );
+
+        topic = "/what/nasdaq/" + i + "/ask";
+        kn_subscribe(topic , update_ask, { do_max_n: 1 } );
+
+        topic = "/what/nasdaq/" + i + "/vol";
+        kn_subscribe(topic , update_vol, { do_max_n: 1 } );
+
+        topic = "/what/nasdaq/" + i + "/close";
+        kn_subscribe(topic , update_close, { do_max_n: 1 } );
+    }
+}
+
+function find_ele(name) {
+    for (var i=0; i < document.all.length; i++) {
+        n = document.all[i].name;
+        if (n && (n == name)) {
+	    return document.all[i];
+        }
+    }
+    return void null;
+}
+
+function find_ele_from(name, o) {
+    for (var i=0; i < o.length; i++) {
+        n = o[i].name;
+        if (n && (n == name)) {
+	    return o[i];
+        }
+    }
+    return void null;
+}
+
+function update_last(e) {
+    var cur = find_ele(e.symbol.toLowerCase());
+    var change = 0;
+    var pchange = 0;
+    if (watchList[e.symbol.toLowerCase()]) {
+        change = (Math.round(
+                      (e.kn_payload - watchList[e.symbol.toLowerCase()]) * 100)) / 100;
+    }
+    cur.childNodes(1).innerHTML = e.kn_payload;
+    if (watchList[e.symbol.toLowerCase()] != 0) {
+        if (watchList[e.symbol.toLowerCase()] > e.kn_payload) {
+            cur.childNodes(1).bgColor = "#ffcccc";
+        } else if (watchList[e.symbol.toLowerCase()] < e.kn_payload) {
+            cur.childNodes(1).bgColor = "#ccffcc";
+        } else {
+            cur.childNodes(1).bgColor = "#ffffff";
+        }
+    }
+    cur.childNodes(2).innerHTML = change;
+    if (change) {
+        pchange = (Math.round(( 100 *
+            (change / watchList[e.symbol.toLowerCase()]) * 100)) / 100);
+        cur.childNodes(3).innerHTML = pchange;
+    }
+}
+
+function update_close(e) {
+    var cur = find_ele(e.symbol.toLowerCase());
+    cur.childNodes(7).innerHTML = e.kn_payload;
+    watchList[e.symbol.toLowerCase()] = e.kn_payload;
+}
+
+function update_ask(e) {
+    var cur = find_ele(e.symbol.toLowerCase());
+    cur.childNodes(4).innerHTML = e.kn_payload;
+
+    if (watchList_ask[e.symbol.toLowerCase()] > e.kn_payload) {
+        cur.childNodes(4).bgColor = "#ffcccc";
+    } else if (watchList_ask[e.symbol.toLowerCase()] < e.kn_payload) {
+        cur.childNodes(4).bgColor = "#ccffcc";
+    } else {
+        cur.childNodes(4).bgColor = "#ffffff";
+    }
+
+    watchList_ask[e.symbol.toLowerCase()] = e.kn_payload;
+}
+
+function update_bid(e) {
+    var cur = find_ele(e.symbol.toLowerCase());
+    cur.childNodes(5).innerHTML = e.kn_payload;
+
+    if (watchList_bid[e.symbol.toLowerCase()] > e.kn_payload) {
+        cur.childNodes(5).bgColor = "#ffcccc";
+    } else if (watchList_bid[e.symbol.toLowerCase()] < e.kn_payload) {
+        cur.childNodes(5).bgColor = "#ccffcc";
+    } else {
+        cur.childNodes(5).bgColor = "#ffffff";
+    }
+
+    watchList_bid[e.symbol.toLowerCase()] = e.kn_payload;
+}
+
+function update_vol(e) {
+    var cur = find_ele(e.symbol.toLowerCase());
+    cur.childNodes(6).innerHTML = e.kn_payload;
+}
+
+// -->
+</SCRIPT>
+<style>
+table { border: 1px solid black; } 
+td,th { padding: 4px;
+        border-bottom: 1px solid black;
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+        border-top: 1px solid black;   }
+</style>
+<body onload='init()'>
+<center>
+<table cellpadding=0 cellspacing=0>
+<tr>
+  <th></th>
+  <th>Last</th>
+  <th>Change</th>
+  <th>% Change</th>
+  <th>Ask</th>
+  <th>Bid</th>
+  <th>Volume</th>
+  <th>Previous Day's Close</th>
+</tr>
+
+<tr name="sunw">
+  <td><b><a target="_top" target="_top" href="stock.html?sym=sunw">SUNW</a></b><br><img src="images/sunw.gif"></img></td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+</tr>
+
+<tr name="msft">
+  <td><b><a target="_top" href="stock.html?sym=msft">MSFT</a></b><br><img src="images/msft.gif"></td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+</tr>
+
+<tr name="orcl">
+  <td><b><a target="_top" href="stock.html?sym=orcl">ORCL</a></b><br><img src="images/orcl.gif"></td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+</tr>
+
+<tr name="beas">
+  <td><b><a target="_top" href="stock.html?sym=msft">BEAS</a></b><br><img src="images/beas.gif"></td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+</tr>
+
+<tr name="yhoo">
+  <td><b><a target="_top" href="stock.html?sym=yhoo">YHOO</a></b><br><img src="images/yhoo.gif"></td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+</tr>
+
+<tr name="aapl">
+  <td><b><a target="_top" href="stock.html?sym=aapl">AAPL</a></b><br><img src="images/aapl.gif"></td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+</tr>
+
+<tr name="csco">
+  <td><b><a target="_top" href="stock.html?sym=csco">CSCO</a></b><br><img src="images/csco.gif"></td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+</tr>
+
+<tr name="webm">
+  <td><b><a target="_top" href="stock.html?sym=webm">WEBM</a></b><br><img src="images/webm.gif"></td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+  <td align="right" valign="bottom" bgcolor="#ffffff">0</td>
+</tr>
+
+</table>
+</body>
+</html>
