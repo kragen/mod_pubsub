@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.49 2003/06/21 04:25:37 ifindkarma Exp $
+# $Id: pubsub.py,v 1.50 2003/06/23 22:13:37 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -838,8 +838,9 @@ class ServerSaver:
         2. Write event pool file.
     """
 
-    def __init__(self, root, filename, interval):
-        self.root = root
+    def __init__(self, server, filename, interval):
+        self.server = server
+        self.root = server.root_topic
         self.filename = filename
         self.interval = interval
         self.reschedule()
@@ -850,15 +851,41 @@ class ServerSaver:
         self.update_stats()
         self.reschedule()
 
-    def update_stats(self):
-        # FIXME: Call get_topic to create statistics topic.
-        # self.root is the root topic.
-        # FIXME: Post new stats (uptime, active connections) to it.
-        pass
-        
     def reschedule(self):
         scheduler.schedule_processing(self, time.time() + self.interval)
 
+    def update_stats(self):
+        """
+        Topics are /kn_statistics/%statname%/ where %statname% are:
+            starttime
+            uptime = time.time() - starttime
+            openedconns
+            closedconns
+            liveconns = openedconns - closedconns
+
+        kn_id of each update is also %statname% and
+        kn_payload is the sampled value at the last update.
+
+        Also post all stats to /kn_statistics for compatibility
+        with the watchdog library.
+        """
+
+        stats = { }
+        stats['starttime'] = self.server.getstarttime()
+        stats['uptime'] = time.time() - stats['starttime']
+        stats['openedconns'] = self.server.getopenedconns()
+        stats['closedconns'] = self.server.getclosedconns()
+        stats['liveconns'] = stats['openedconns'] - stats['closedconns']
+        
+        stats_topic = self.root.get_descendent(['kn_statistics'])
+
+        for s in stats.keys():
+            stat_topic = stats_topic.get_descendent([s])
+            stat_topic.post(Event({'kn_id' : s,
+                                   'kn_payload' : str(stats[s])}))
+            stats_topic.post(Event({'kn_id' : s,
+                                   'kn_payload' : str(stats[s])}))
+    
 
 class Server:
     """
@@ -878,7 +905,7 @@ class Server:
         self.verbose = verbose
         self.ignorePrologue = ignorePrologue
         self.root_topic = read_event_pool(poolfile)
-        ServerSaver(self.root_topic, poolfile, 1)
+        ServerSaver(self, poolfile, 1)
         self.portnum = portnum
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
