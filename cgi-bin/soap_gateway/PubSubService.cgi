@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# PubSubService.cgi -- example of a mod_pubsub SOAP gateway
+# PubSubService.cgi -- Example of a mod_pubsub SOAP gateway.
 
 # Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
@@ -36,7 +36,9 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: PubSubService.cgi,v 1.2 2003/03/25 06:04:26 ifindkarma Exp $
+# $Id: PubSubService.cgi,v 1.3 2003/06/12 01:59:23 ifindkarma Exp $
+
+package main;
 
 use CGI;
 use SOAP::Lite;

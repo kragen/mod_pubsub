@@ -37,19 +37,19 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 @KNOWNOW_LICENSE_END@
 
-$Id: soapdesign.html,v 1.1 2003/03/18 05:52:09 ifindkarma Exp $
+$Id: soapdesign.html,v 1.2 2003/06/12 01:59:23 ifindkarma Exp $
 
 -->
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>PubSub SOAP Interface Design $Revision: 1.1 $</title>
+    <title>PubSub SOAP Interface Design $Revision: 1.2 $</title>
     <link rel="stylesheet" href="doc_style.css" type="text/css" />
   </head>
   <body link="#ff9900" vlink="#cc6600" alink="#ffbbee" bgcolor="#ffffff">
     <h1><a name="top" id="top">SOAP Interface Design</a></h1>
     <blockquote>
-      <p>Version: $Id: soapdesign.html,v 1.1 2003/03/18 05:52:09 ifindkarma Exp $</p>
+      <p>Version: $Id: soapdesign.html,v 1.2 2003/06/12 01:59:23 ifindkarma Exp $</p>
     </blockquote>
 
     <h2><a name="toc" id="toc">Table of Contents</a></h2>
@@ -94,6 +94,9 @@ $Id: soapdesign.html,v 1.1 2003/03/18 05:52:09 ifindkarma Exp $
 
     <blockquote><form><textarea style="width:100%" cols="80" rows="15" readonly="readonly">
 $Log: soapdesign.html,v $
+Revision 1.2  2003/06/12 01:59:23  ifindkarma
+Got SOAP interface working with PubSub Server.
+
 Revision 1.1  2003/03/18 05:52:09  ifindkarma
 Added a (poorly documented) sample mod_pubsub SOAP gateway.
 FIXME: Add more documentation!
@@ -784,7 +787,7 @@ FIXME: Add more documentation!
       <samp>PubSubService.pm</samp> will be used in the following
       example:
 
-      <blockquote><pre>perl stubmaker.pl &quot;http://127.0.0.1:8000/kn?kn_request_format=wsdl&quot;</pre></blockquote></li>
+      <blockquote><pre>stubmaker.pl &quot;http://127.0.0.1/cgi-bin/soap_gateway/PubSubService.cgi?kn_request_format=wsdl;do_method=wsdl&quot;</pre></blockquote></li>
 
       <li>A Perl publisher using the RPC stub module generated in the previous example:
 
@@ -795,7 +798,7 @@ FIXME: Add more documentation!
 
       <blockquote><pre>perl -MSOAP::Lite -e '
         print (SOAP::Lite
-                -&gt;service(&quot;http://127.0.0.1:8000/kn?kn_request_format=wsdl&quot;)
+                -&gt;service(&quot;http://127.0.0.1/cgi-bin/soap_gateway/PubSubService.cgi?kn_request_format=wsdl;do_method=wsdl&quot;)
                 -&gt;pubsubrequest([
                         do_method=&gt;batch,
                         kn_batch=&gt;{do_method=&gt;notify, kn_to=&gt;&quot;/what/chat&quot;, kn_payload=&gt;&quot;Hello&quot;},
@@ -864,8 +867,6 @@ FIXME: Add more documentation!
     <h2><a name="references" id="references">References</a></h2>
 
     <ul>
-
-      <li><a href="pubsubrequest.wsdl">pubsubrequest.wsdl</a>, an initial WSDL for the SOAP interface</li>
 
       <li><a href="PubSubService.cgi">PubSubService.cgi</a>, an initial implementation of the SOAP interface</li>
 
