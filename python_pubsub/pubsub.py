@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.12 2003/04/25 20:21:25 bsittler Exp $
+# $Id: pubsub.py,v 1.13 2003/04/26 03:30:44 ifindkarma Exp $
 
 
 """
@@ -830,18 +830,16 @@ def handle_http_request(conn, uri, httpreq, query_string):
         conn.finish_sending()
 
 def html_prologue_string(conn):
-    return ('<script type="text/javascript">\n' +
-            '<!--\n' +
-            js_prologue_string(conn) + '\n' +
-            '// -->\n' +
-            '</script>')
+    return ('<script type="text/javascript" src="%s?do_method=whoami"></script>'
+            % cgi.escape(conn.getknroot()))
 
 def js_prologue_string(conn):
     str = ''
     try:
         str = conn.pathread(urlpath(conn.getknroot()) + ['kn_apps', 'kn_lib', 'prologue.js'])[1]
     except: pass
-    return 'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n' + str
+    return ('kn_userid = "anonymous"; kn_displayname = "Anonymous User";\r\n'
+            + str + '\r\n')
 
 def handle_urlroot_request(conn, uri, httpreq, query_string):
     conn.report_status('handling urlroot request: %s' % uri)
