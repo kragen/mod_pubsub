@@ -46,6 +46,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 class Message : public CCriticalSection
 {
+friend class Connector;
+friend class Transport;
+
 public:
 	typedef LockImpl<Message> Lock;
 	typedef map<wstring, wstring> Container;
@@ -139,12 +142,23 @@ public:
 	bool operator==(const Message& rhs);
 
 	/**
+	 * \return Retrieve this message as a simple string. 
+	 * Can be used with InitFromSimple().
+	 */
+	string GetAsSimpleFormat() const;
+
+	/**
+	 * \return True if able to initialize from the string. False if not able to initialize.
+	 */
+	bool InitFromSimple(const string& str);
+
+private:
+	/**
 	 * \return Retrieve the Http-encoded version of this message.
 	 * Used by the transport class to send to the server.
 	 */
 	const string& GetAsHttpParam() const;
 
-private:
 	void ConvertToHttpParam() const;
 
 	Container m_Container;

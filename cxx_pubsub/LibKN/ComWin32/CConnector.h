@@ -124,6 +124,10 @@ class ATL_NO_VTABLE CConnector :
 	public CComCoClass<CConnector, &CLSID_Connector>,
 	public IConnectionPointContainerImpl<CConnector>,
 	public IDispatchImpl<IConnector, &IID_IConnector, &LIBID_LIBKNCOMLib>,
+	public IProvideClassInfo2Impl<&CLSID_Connector, &DIID__IConnectorEvents, &LIBID_LIBKNCOMLib, 1, 0>,
+#if !defined(_WIN32_WCE)
+	public IObjectSafetyImpl<CConnector, INTERFACESAFE_FOR_UNTRUSTED_CALLER | INTERFACESAFE_FOR_UNTRUSTED_DATA>,
+#endif
 	public CProxy_IConnectorEvents< CConnector >
 {
 public:
@@ -139,6 +143,11 @@ DECLARE_REGISTRY_RESOURCEID(IDR_CONNECTOR)
 DECLARE_PROTECT_FINAL_CONSTRUCT()
 
 BEGIN_COM_MAP(CConnector)
+#if !defined(_WIN32_WCE)
+	COM_INTERFACE_ENTRY(IObjectSafety)
+#endif
+	COM_INTERFACE_ENTRY(IProvideClassInfo2)
+	COM_INTERFACE_ENTRY(IProvideClassInfo)
 	COM_INTERFACE_ENTRY(IConnector)
 	COM_INTERFACE_ENTRY(IDispatch)
 	COM_INTERFACE_ENTRY(IConnectionPointContainer)
@@ -151,7 +160,7 @@ END_CONNECTION_POINT_MAP()
 
 // IConnector
 public:
-	STDMETHOD(Subscribe)(/*[in]*/ BSTR topic, /*[in]*/ IComListener* listener, /*[in]*/ IComRequestStatusHandler* sh, BSTR* pVal);
+	STDMETHOD(Subscribe)(/*[in]*/ BSTR topic, /*[in]*/ IComListener* listener, IMessage* options, /*[in]*/ IComRequestStatusHandler* sh, BSTR* pVal);
 	STDMETHOD(Publish)(/*[in]*/ IMessage* m, /*[in]*/ IComRequestStatusHandler* sh);
 	STDMETHOD(EnsureConnected)(/*[out, retval]*/ VARIANT_BOOL* pVal);
 	STDMETHOD(Close)(/*[out, retval]*/ VARIANT_BOOL* pVal);

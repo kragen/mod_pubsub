@@ -37,6 +37,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stdafx.h"
 #include <LibKN\Message.h>
 #include <LibKN\StrUtil.h>
+#include <LibKN\SimpleParser.h>
 
 Message::Message() :
 	m_ItemsHaveChanged(true)
@@ -103,7 +104,7 @@ void Message::ConvertToHttpParam() const
 
 	for (Container::iterator it = This->m_Container.begin(); it != This->m_Container.end(); ++it)
 	{
-		This->m_HttpParamString.AddPostParam((*it).first, (*it).second);
+		This->m_HttpParamString.AddParam((*it).first, (*it).second);
 	}
 
 	This->m_ItemsHaveChanged = false;
@@ -183,5 +184,58 @@ bool Message::HasItemsChanged() const
 	Lock autoLock(this);
 
 	return m_ItemsHaveChanged;
+}
+
+string Message::GetAsSimpleFormat() const
+{
+	Lock autoLock(this);
+
+	string retVal;
+
+	SimpleString simpleParamString;
+	wstring payload;
+
+	{
+		Message* This = const_cast<Message*>(this);
+		This->m_HttpParamString.erase();
+
+		for (Container::iterator it = This->m_Container.begin(); it != This->m_Container.end(); ++it)
+		{
+			if ((*it).first.compare(L"kn_payload") != 0)
+			{
+				simpleParamString.AddParam((*it).first, (*it).second);
+			}
+			else
+				payload = (*it).second;
+		}
+	}
+
+	if (simpleParamString.length() > 0)
+		retVal += simpleParamString;
+
+	if (payload.length() > 0)
+	{
+		retVal += "\n";
+		retVal += ConvertToUtf8(payload);
+	}
+
+	return retVal;
+}
+
+bool Message::InitFromSimple(const string& str)
+{
+	Lock autoLock(this);
+
+	SimpleParser sp(0);
+	Message tmp;
+	bool b = sp.make_map_from_simple(str, tmp);
+
+	if (b)
+	{
+		Empty();
+		*this = tmp;
+	}
+
+	return b;
 }
 

@@ -1,0 +1,60 @@
+<HTML>
+<OBJECT 
+    id="conn"
+    classid="clsid:AF9469CA-A307-4BF9-BD3E-2F65E6FC87A9"
+    width="0px"
+    height="0px"
+    style="display: none">
+</OBJECT>
+
+<SCRIPT for="conn" event="OnUpdate(byval msg)" language="VBSCRIPT">
+    DumpMessage "OnUpdate", msg
+</SCRIPT>
+<SCRIPT for="conn" event="OnStatus(byval msg)" language="VBSCRIPT">
+    DumpMessage "OnStatus", msg
+</SCRIPT>
+<SCRIPT for="conn" event="OnConnectionStatus(byval msg)" language="VBSCRIPT">
+    DumpMessage "OnConnectionStatus", msg
+</SCRIPT>
+
+<SCRIPT LANGUAGE="VBScript">
+
+SUB DumpMessage(msg, m)
+   DIM display
+   display = msg & vbCrLf
+   DIM messageEntry
+   FOR EACH messageEntry in m
+       display = display & messageEntry.Field & ":" & messageEntry.Value & vbCrLf
+   NEXT
+   Output.value = Output.value & vbCrlf & display
+   ' MsgBox display
+END SUB
+
+dim params
+set params = CreateObject("LibKNCom.Parameters")
+
+params.ServerUrl = "http://localhost:8000/kn"
+
+DIM b
+b = conn.Open(params)
+
+DIM rid
+
+IF b THEN
+    DIM n
+    set n = nothing
+    
+    rid = conn.Subscribe("/what/knchat/messages", n, n, n)
+    
+    ' conn.Close
+END IF
+
+</SCRIPT>
+
+<BODY>
+<P>Hello World!</P>
+<TEXTAREA ID="Output" rows="25" COLS="80"></TEXTAREA>
+</BODY>
+
+</HTML>
+

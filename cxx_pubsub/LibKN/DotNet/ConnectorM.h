@@ -64,7 +64,7 @@ namespace LibKNDotNet
 
 		bool Publish(Message* msg, IRequestStatusHandler* sh);
 
-		String* Subscribe(String* topic, IListener* listener, IRequestStatusHandler* sh);
+		String* Subscribe(String* topic, IListener* listener, Message* options, IRequestStatusHandler* sh);
 		bool Unsubscribe(String* rid, IRequestStatusHandler* sh);
 
 		void AddConnectionStatusHandler(IConnectionStatusHandler* sh);
@@ -72,6 +72,9 @@ namespace LibKNDotNet
 
 	private:
 		::Connector* m_ConnectorImpl;
+
+		CCriticalSection* m_CS;
+		typedef LockImpl<CCriticalSection> Lock;
 
 		TBridgeCollection<ConnectionStatusHandlerBridge*>* m_ConnectionStatusHandlers;
 		TBridgeCollection<ListenerBridge*>* m_Listeners;

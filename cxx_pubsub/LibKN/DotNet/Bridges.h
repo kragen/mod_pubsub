@@ -37,17 +37,20 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if !defined(BRIDGES_H)
 #define BRIDGES_H
 
+#include <LibKN\CS.h>
 #include <list>
 
 //
 // T signifies the c++ class
 //
 template <class T>
-class TBridgeCollection
+class TBridgeCollection : public CCriticalSection
 {
 	typedef std::list<T> Collection;
 
 public:
+	typedef LockImpl<TBridgeCollection<T> > Lock;
+
 	TBridgeCollection()
 	{
 	}
@@ -59,12 +62,16 @@ public:
 
 	T Add(T i)
 	{
+		Lock autoLock(this);
+
 		m_Bridges.push_back(i);
 		return i;
 	}
 
 	T Find(T t)
 	{
+		Lock autoLock(this);
+
 		for (Collection::iterator it = m_Bridges.begin(); it != m_Bridges.end(); it++)
 		{
 			T i = *it;
@@ -77,6 +84,8 @@ public:
 
 	T Remove(T t)
 	{
+		Lock autoLock(this);
+
 		for (Collection::iterator it = m_Bridges.begin(); it != m_Bridges.end(); it++)
 		{
 			T i = *it;
@@ -92,6 +101,8 @@ public:
 
 	void Clear()
 	{
+		Lock autoLock(this);
+
 		for (Collection::iterator it = m_Bridges.begin(); it != m_Bridges.end(); it++)
 		{
 			T i = *it;

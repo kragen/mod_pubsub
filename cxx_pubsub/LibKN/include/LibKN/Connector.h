@@ -105,7 +105,7 @@ public:
 	 * Subscribes to a topic.
 	 * \return The subscription identifier for the topic. This is an empty string if the Subscribe call failed.
 	 */
-	wstring Subscribe(const wstring& topic, IListener* listener, IRequestStatusHandler* sh);
+	wstring Subscribe(const wstring& topic, IListener* listener, const Message& options, IRequestStatusHandler* sh);
 
 	/**
 	 * Unsubscribes to a previously subscribed topic.

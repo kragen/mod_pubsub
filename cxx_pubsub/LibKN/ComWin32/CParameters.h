@@ -51,6 +51,9 @@ extern void ConvertParameter(const ITransport::Parameters& p, IParameters** pVal
 class ATL_NO_VTABLE CParameters : 
 	public CComObjectRootEx<CComSingleThreadModel>,
 	public CComCoClass<CParameters, &CLSID_Parameters>,
+#if !defined(_WIN32_WCE)
+	public IObjectSafetyImpl<CParameters, INTERFACESAFE_FOR_UNTRUSTED_CALLER | INTERFACESAFE_FOR_UNTRUSTED_DATA>,
+#endif
 	public IDispatchImpl<IParameters, &IID_IParameters, &LIBID_LIBKNCOMLib>
 {
 public:
@@ -62,6 +65,9 @@ DECLARE_REGISTRY_RESOURCEID(IDR_PARAMETERS)
 DECLARE_PROTECT_FINAL_CONSTRUCT()
 
 BEGIN_COM_MAP(CParameters)
+#if !defined(_WIN32_WCE)
+	COM_INTERFACE_ENTRY(IObjectSafety)
+#endif
 	COM_INTERFACE_ENTRY(IParameters)
 	COM_INTERFACE_ENTRY(IDispatch)
 END_COM_MAP()

@@ -46,6 +46,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ATL_NO_VTABLE CMessageEntry : 
 	public CComObjectRootEx<CComSingleThreadModel>,
 	public CComCoClass<CMessageEntry, &CLSID_MessageEntry>,
+#if !defined(_WIN32_WCE)
+	public IObjectSafetyImpl<CMessageEntry, INTERFACESAFE_FOR_UNTRUSTED_CALLER | INTERFACESAFE_FOR_UNTRUSTED_DATA>,
+#endif
 	public IDispatchImpl<IMessageEntry, &IID_IMessageEntry, &LIBID_LIBKNCOMLib>
 {
 public:
@@ -59,6 +62,9 @@ DECLARE_REGISTRY_RESOURCEID(IDR_MESSAGEENTRY)
 DECLARE_PROTECT_FINAL_CONSTRUCT()
 
 BEGIN_COM_MAP(CMessageEntry)
+#if !defined(_WIN32_WCE)
+	COM_INTERFACE_ENTRY(IObjectSafety)
+#endif
 	COM_INTERFACE_ENTRY(IMessageEntry)
 	COM_INTERFACE_ENTRY(IDispatch)
 END_COM_MAP()

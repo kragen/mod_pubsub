@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!-- RSS from Syndic8.com -->
+<rss version="0.92">
+<channel>
+<title></title>
+<link></link>
+<description>Syndic8 List RSS Feed for list </description>
+<webMaster></webMaster>
+<pubDate>2002-11-24</pubDate>
+<buildDate>2002-11-24</buildDate>
+<item>
+<title>General News</title>
+<link>http://p.moreover.com/cgi-local/page?index_entertainmentgeneral+rss</link>
+<description>General News</description>
+</item>
+<item>
+<title>Jokes</title>
+<link>http://www.moreover.com/cgi-local/page?o=rss&amp;amp;c=Jokes</link>
+<description>Jokes from Moreover.com</description>
+</item>
+<item>
+<title>Tech Stocks News</title>
+<link>http://p.moreover.com/cgi-local/page?index_techstocks+rss</link>
+<description>Tech Stocks News</description>
+</item>
+<item>
+<title>PC Industry News</title>
+<link>http://p.moreover.com/cgi-local/page?index_pcindustry+rss</link>
+<description>PC Industry News</description>
+</item>
+<item>
+<title>PC Software News</title>
+<link>http://p.moreover.com/cgi-local/page?index_pcsoftware+rss</link>
+<description>PC Software News</description>
+</item>
+<item>
+<title>Shell Extension City</title>
+<link>http://shellcity.net/citynews.xml</link>
+<description>Configure Your System Wickedly</description>
+</item>
+<item>
+<title>Windows 2000 News</title>
+<link>http://p.moreover.com/cgi-local/page?index_windows+rss</link>
+<description>Windows 2000 News</description>
+</item>
+<item>
+<title>pocketSOAP</title>
+<link>http://www.pocketsoap.com/news.rdf</link>
+<description>Simon's inane ramblings about the goings on in the SOAP and web services world.</description>
+</item>
+<item>
+<title>The Sells Spout</title>
+<link>http://www.sellsbrothers.com/spout/spout.rss</link>
+<description>Random Spoutings from Chris Sells</description>
+</item>
+<item>
+<title>Jokes2Go.com</title>
+<link>http://www.jokes2go.com/j2g.cdf</link>
+<description>The daily new humor site</description>
+</item>
+<item>
+<title>Laugh Center</title>
+<link>http://www.laugh-of-the-day.com/netscape/news.cdf</link>
+<description>Our main mission is to make you laugh! It may be a joke, a story, a funny saying or whatever, as long it makes you laugh! We want to put some bright faces out in the workplace!</description>
+</item>
+<item>
+<title>CNN - Technology</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/07/707.xml</link>
+<description>Real time updated news from the first worldwide TV channel specialized in world information</description>
+</item>
+<item>
+<title>Discovery Channel Daily News</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/38/1438.xml</link>
+<description>(powered by http://www.newsisfree.com/)</description>
+</item>
+<item>
+<title>Scientific American</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/39/1439.xml</link>
+<description>News In Brief</description>
+</item>
+<item>
+<title>New Scientist</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/40/1440.xml</link>
+<description>New Scientist is the world's leading science and technology weekly magazine brought to you by its award-winning international team of reporters and editors</description>
+</item>
+<item>
+<title>Sam Gentile's Radio Weblog</title>
+<link>http://radio.weblogs.com/0105852/rss.xml</link>
+<description>Partying with .NET</description>
+</item>
+<item>
+<title>.NET Musings</title>
+<link>http://radio.weblogs.com/0101134/rss.xml</link>
+<description>Musings about my daily development experiences with this thing we call .NET</description>
+</item>
+<item>
+<title>.netWire Headlines</title>
+<link>http://www.dotnetwire.com/newsfeed/rss/</link>
+<description>Keep up with .NET with .netWire.</description>
+</item>
+<item>
+<title>Simon Fell</title>
+<link>http://www.pocketsoap.com/weblog/rss.xml</link>
+<description>Its just code</description>
+</item>
+<item>
+<title>The .NET Guy: Rants</title>
+<link>http://www.quality.nu/dotnetguy/categories/rants/rss.xml</link>
+<description>The .NET Guy: Opinions About Everything</description>
+</item>
+<item>
+<title>IK.VM.NET Weblog</title>
+<link>http://radio.weblogs.com/0109845/rss.xml</link>
+<description>The development of a Java VM for .NET</description>
+</item>
+<item>
+<title>sellsbrothers.com: Windows Developer News</title>
+<link>http://www.sellsbrothers.com/news/rss.aspx</link>
+<description>News for Windows and .NET developers</description>
+</item>
+<item>
+<title>Sam Gentile: .NET</title>
+<link>http://radio.weblogs.com/0105852/categories/net/rss.xml</link>
+<description>.NET News</description>
+</item>
+<item>
+<title>Sam Gentile: XML and Web Services</title>
+<link>http://radio.weblogs.com/0105852/categories/xmlAndWebServices/rss.xml</link>
+<description>My XML and Web Services Content</description>
+</item>
+<item>
+<title>Francis Upton</title>
+<link>http://radio.weblogs.com/0110380/rss.xml</link>
+<description>.NET Developer Adventures</description>
+</item>
+<item>
+<title>LearnMobile.net</title>
+<link>http://learnmobile.net/rss.aspx</link>
+<description>#1 .NET Mobile Development Resource with articles, tutorials and links to resources on Mobile Internet Toolkit and Compact Framework development</description>
+</item>
+<item>
+<title>Adrian Bateman (VisionTech)</title>
+<link>http://www.visiontech.ltd.uk/rss.xml</link>
+<description>Exploring Windows/.NET development in code.</description>
+</item>
+<item>
+<title>ZDNet</title>
+<link>http://trainedmonkey.com/news/rss.php?s=30</link>
+<description></description>
+</item>
+<item>
+<title>CNET Tech News</title>
+<link>http://trainedmonkey.com/news/rss.php?s=31</link>
+<description>Tech News First</description>
+</item>
+<item>
+<title>USA Today: Newswire</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/42/1842.xml</link>
+<description>US Newspaper</description>
+</item>
+<item>
+<title>USA Today : Front Page</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/43/1843.xml</link>
+<description>US Newspaper</description>
+</item>
+<item>
+<title>USA Today: Sports</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/45/1845.xml</link>
+<description>US Newspaper</description>
+</item>
+<item>
+<title>USA Today : Money</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/46/1846.xml</link>
+<description>US Newspaper</description>
+</item>
+<item>
+<title>USA Today : Entertainment</title>
+<link>http://www.newsisfree.com/HPE/xml/feeds/47/1847.xml</link>
+<description>US Newspaper</description>
+</item>
+</channel>
+</rss>

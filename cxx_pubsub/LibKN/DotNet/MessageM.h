@@ -68,6 +68,9 @@ namespace LibKNDotNet
 		void Remove(String* f);
 		bool Get(String* f, String** v);
 
+		String* GetAsSimpleFormat();
+		bool InitFromSimple(String* str);
+
 		IEnumerator* GetEnumerator();
 
 		__gc class MessageEnumerator : public IEnumerator
@@ -88,6 +91,8 @@ namespace LibKNDotNet
 
 	private:
 		::Message* m_MessageImpl;
+		CCriticalSection* m_CS;
+		typedef LockImpl<CCriticalSection> Lock;
 	};
 }
 

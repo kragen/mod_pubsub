@@ -36,7 +36,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if !defined(LIBKN_DEFS_H)
 #define LIBKN_DEFS_H
-   
+
 #   if !defined(LIBKN_INTERNAL_BUILD)
 #		define LIBKN_PREFIX 	"LIBKN"
 #		if !defined(_WIN32_WCE)
@@ -55,18 +55,24 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #		endif
    
 #		if defined(_WIN32_WCE)
-#			if defined(_WIN32_WCE_EMULATION)
-#				define LIBKN_PLATFORM		"CeEmul"
-#			elif defined(CEF)
-#				define LIBKN_PLATFORM		"CeCef"
-#			elif defined(_ARM_)
-#				define LIBKN_PLATFORM		"CeArm"
-#			elif defined(_MIPS_)
-#				define LIBKN_PLATFORM		"CeMips"
-#			elif defined(_SH3_)
-#				define LIBKN_PLATFORM		"CeSh3"
+#			if (WIN32_PLATFORM_PSPC > 300)
+#				define LIBCE_PREFIX "Ce"
 #			else
-#				define LIBKN_PLATFORM		"Ce"
+#				define LIBCE_PREFIX "Ce"
+#			endif 
+
+#			if defined(_WIN32_WCE_EMULATION) || defined(_X86_)
+#				define LIBKN_PLATFORM		LIBCE_PREFIX##"Emul"
+#			elif defined(CEF)
+#				define LIBKN_PLATFORM		LIBCE_PREFIX##"Cef"
+#			elif defined(_ARM_)
+#				define LIBKN_PLATFORM		LIBCE_PREFIX##"Arm"
+#			elif defined(_MIPS_)
+#				define LIBKN_PLATFORM		LIBCE_PREFIX##"Mips"
+#			elif defined(_SH3_)
+#				define LIBKN_PLATFORM		LIBCE_PREFIX##"Sh3"
+#			else
+#				define LIBKN_PLATFORM		LIBCE_PREFIX##"Unknown"
 #			endif
 //#		else if defined(_MANAGED)
 #		else   // regular Windows
@@ -83,6 +89,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #		define LIBKN_LIB	LIBKN_PREFIX##""##LIBKN_VERSION##""##LIBKN_PLATFORM##""##LIBKN_DEBUG
 #		pragma comment(lib, LIBKN_LIB)
 #	endif
+
 
 #include <string>
 #include <map>

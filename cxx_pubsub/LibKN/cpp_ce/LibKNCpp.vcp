@@ -57,7 +57,7 @@ CFG=LibKNCpp - Win32 (WCE MIPS) Debug
 # PROP Target_Dir ""
 CPP=clmips.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "MIPS" /D "_MIPS_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "_LIB" /YX /Oxs /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /I "..\include" /D "MIPS" /D "_MIPS_" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Oxs /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /I "..\include" /I "..\include\cestl" /D "MIPS" /D "_MIPS_" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Oxs /M$(CECrtMT) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeMipsND.lib"
@@ -83,7 +83,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=clmips.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "MIPS" /D "_MIPS_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /D "DEBUG" /D "MIPS" /D "_MIPS_" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /I "..\include\cestl" /D "DEBUG" /D "MIPS" /D "_MIPS_" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeMipsD.lib"
@@ -109,7 +109,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=shcl.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH3" /D "_SH3_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "_LIB" /YX /Oxs /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /I "..\include" /D "SHx" /D "SH3" /D "_SH3_" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Oxs /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /I "..\include" /I "..\include\cestl" /D "SHx" /D "SH3" /D "_SH3_" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Oxs /M$(CECrtMT) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeSh3ND.lib"
@@ -135,7 +135,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=shcl.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "SHx" /D "SH3" /D "_SH3_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /D "DEBUG" /D "SHx" /D "SH3" /D "_SH3_" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /I "..\include\cestl" /D "DEBUG" /D "SHx" /D "SH3" /D "_SH3_" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeSh3D.lib"
@@ -161,7 +161,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "NDEBUG" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /Oxs /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /I "..\include" /D "NDEBUG" /D "ARM" /D "_ARM_" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Oxs /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /I "..\include" /I "..\include\cestl" /D "NDEBUG" /D "ARM" /D "_ARM_" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Oxs /M$(CECrtMT) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeArmND.lib"
@@ -187,7 +187,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /D "DEBUG" /D "ARM" /D "_ARM_" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /I "..\include\cestl" /D "DEBUG" /D "ARM" /D "_ARM_" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeArmD.lib"
@@ -213,7 +213,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /YX /Gs8192 /GF /Oxs /c
-# ADD CPP /nologo /W3 /I "..\include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Gs8192 /GF /Oxs /c
+# ADD CPP /nologo /W3 /I "..\include" /I "..\include\cestl" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Gs8192 /GF /Oxs /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeEmulND.lib"
@@ -239,7 +239,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_LIB" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /I "..\include\cestl" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Gs8192 /GF /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeEmulD.lib"
@@ -265,7 +265,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "WIN32" /D "STRICT" /D "_WIN32_WCE_EMULATION" /D "INTERNATIONAL" /D "USA" /D "INTLMSG_CODEPAGE" /D "$(CePlatform)" /D "i486" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /YX /Oxs /Gz /c
-# ADD CPP /nologo /W3 /I "..\include" /D "WIN32" /D "STRICT" /D "_WIN32_WCE_EMULATION" /D "INTERNATIONAL" /D "USA" /D "INTLMSG_CODEPAGE" /D "i486" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Oxs /Gz /c
+# ADD CPP /nologo /W3 /I "..\include" /I "..\include\cestl" /D "WIN32" /D "STRICT" /D "_WIN32_WCE_EMULATION" /D "INTERNATIONAL" /D "USA" /D "INTLMSG_CODEPAGE" /D "i486" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Oxs /Gz /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeEmulND.lib"
@@ -291,7 +291,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "WIN32" /D "STRICT" /D "_WIN32_WCE_EMULATION" /D "INTERNATIONAL" /D "USA" /D "INTLMSG_CODEPAGE" /D "$(CePlatform)" /D "i486" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_LIB" /YX /Gz /c
-# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /D "DEBUG" /D "WIN32" /D "STRICT" /D "_WIN32_WCE_EMULATION" /D "INTERNATIONAL" /D "USA" /D "INTLMSG_CODEPAGE" /D "i486" /D "_X86_" /D "x86" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Gz /c
+# ADD CPP /nologo /W3 /Zi /Od /I "..\include" /I "..\include\cestl" /D "DEBUG" /D "WIN32" /D "STRICT" /D "_WIN32_WCE_EMULATION" /D "INTERNATIONAL" /D "USA" /D "INTLMSG_CODEPAGE" /D "i486" /D "_X86_" /D "x86" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "LIBKN_INTERNAL_BUILD" /Yu"stdafx.h" /Gz /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\lib\LibKN10CeEmulD.lib"
@@ -374,13 +374,17 @@ DEP_CPP_CONNE=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\StrUtil.h"\
 	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -393,13 +397,17 @@ DEP_CPP_CONNE=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\StrUtil.h"\
 	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -408,22 +416,46 @@ DEP_CPP_CONNE=\
 
 DEP_CPP_CONNE=\
 	"..\cpp\stdafx.h"\
-	
-NODEP_CPP_CONNE=\
-	"..\include\Connection.h"\
-	"..\include\Connector.h"\
-	"..\include\Event.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Debug"
 
 DEP_CPP_CONNE=\
 	"..\cpp\stdafx.h"\
-	
-NODEP_CPP_CONNE=\
-	"..\include\Connection.h"\
-	"..\include\Connector.h"\
-	"..\include\Event.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Release"
@@ -434,13 +466,17 @@ DEP_CPP_CONNE=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\StrUtil.h"\
 	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -453,13 +489,17 @@ DEP_CPP_CONNE=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\StrUtil.h"\
 	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -512,6 +552,7 @@ NODEP_CPP_CS_CP=\
 DEP_CPP_CS_CP=\
 	"..\cpp\stdafx.h"\
 	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\Lock.h"\
 	
 
@@ -520,6 +561,7 @@ DEP_CPP_CS_CP=\
 DEP_CPP_CS_CP=\
 	"..\cpp\stdafx.h"\
 	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\Lock.h"\
 	
 
@@ -527,18 +569,18 @@ DEP_CPP_CS_CP=\
 
 DEP_CPP_CS_CP=\
 	"..\cpp\stdafx.h"\
-	
-NODEP_CPP_CS_CP=\
-	"..\cpp\CS.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Debug"
 
 DEP_CPP_CS_CP=\
 	"..\cpp\stdafx.h"\
-	
-NODEP_CPP_CS_CP=\
-	"..\cpp\CS.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\Lock.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Release"
@@ -546,6 +588,7 @@ NODEP_CPP_CS_CP=\
 DEP_CPP_CS_CP=\
 	"..\cpp\stdafx.h"\
 	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\Lock.h"\
 	
 
@@ -554,6 +597,7 @@ DEP_CPP_CS_CP=\
 DEP_CPP_CS_CP=\
 	"..\cpp\stdafx.h"\
 	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\Lock.h"\
 	
 
@@ -840,14 +884,18 @@ DEP_CPP_JOURN=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
 	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -860,14 +908,18 @@ DEP_CPP_JOURN=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
 	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -876,10 +928,23 @@ DEP_CPP_JOURN=\
 
 DEP_CPP_JOURN=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
 
@@ -887,10 +952,23 @@ DEP_CPP_JOURN=\
 
 DEP_CPP_JOURN=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
 
@@ -902,14 +980,18 @@ DEP_CPP_JOURN=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
 	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -922,14 +1004,18 @@ DEP_CPP_JOURN=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
 	"..\include\LibKN\Transport.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -982,6 +1068,9 @@ DEP_CPP_MESSA=\
 	"..\include\LibKN\HttpParamString.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE ARM) Debug"
@@ -993,22 +1082,37 @@ DEP_CPP_MESSA=\
 	"..\include\LibKN\HttpParamString.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Release"
 
 DEP_CPP_MESSA=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Debug"
 
 DEP_CPP_MESSA=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Release"
@@ -1020,6 +1124,9 @@ DEP_CPP_MESSA=\
 	"..\include\LibKN\HttpParamString.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Debug"
@@ -1031,6 +1138,9 @@ DEP_CPP_MESSA=\
 	"..\include\LibKN\HttpParamString.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\StrUtil.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ENDIF 
@@ -1076,48 +1186,132 @@ DEP_CPP_OFFLI=\
 
 DEP_CPP_OFFLI=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE ARM) Debug"
 
 DEP_CPP_OFFLI=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Release"
 
 DEP_CPP_OFFLI=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Debug"
 
 DEP_CPP_OFFLI=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Release"
 
 DEP_CPP_OFFLI=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Debug"
 
 DEP_CPP_OFFLI=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
+	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\OfflineQ.h"\
+	"..\include\LibKN\RandRHandler.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ENDIF 
@@ -1195,8 +1389,10 @@ DEP_CPP_RANDR=\
 
 DEP_CPP_RANDR=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	
@@ -1205,8 +1401,10 @@ DEP_CPP_RANDR=\
 
 DEP_CPP_RANDR=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	
@@ -1318,12 +1516,15 @@ DEP_CPP_SIMPL=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
 	"..\include\LibKN\Transport.h"\
@@ -1338,12 +1539,15 @@ DEP_CPP_SIMPL=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
 	"..\include\LibKN\Transport.h"\
@@ -1355,12 +1559,18 @@ DEP_CPP_SIMPL=\
 DEP_CPP_SIMPL=\
 	"..\cpp\stdafx.h"\
 	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
 	"..\include\LibKN\Transport.h"\
@@ -1372,12 +1582,18 @@ DEP_CPP_SIMPL=\
 DEP_CPP_SIMPL=\
 	"..\cpp\stdafx.h"\
 	"..\include\LibKN\Connector.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
 	"..\include\LibKN\Transport.h"\
@@ -1392,12 +1608,15 @@ DEP_CPP_SIMPL=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
 	"..\include\LibKN\Transport.h"\
@@ -1412,12 +1631,15 @@ DEP_CPP_SIMPL=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IConnectionStatusHandler.h"\
 	"..\include\LibKN\IListener.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Journal.h"\
 	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\OfflineQ.h"\
 	"..\include\LibKN\RandRHandler.h"\
 	"..\include\LibKN\SimpleParser.h"\
 	"..\include\LibKN\Transport.h"\
@@ -1640,6 +1862,7 @@ DEP_CPP_TRANS=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Lock.h"\
@@ -1656,6 +1879,7 @@ DEP_CPP_TRANS=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Lock.h"\
@@ -1669,20 +1893,34 @@ DEP_CPP_TRANS=\
 
 DEP_CPP_TRANS=\
 	"..\cpp\stdafx.h"\
-	
-NODEP_CPP_TRANS=\
-	"..\include\ITransport.h"\
-	"..\include\Transport.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86) Debug"
 
 DEP_CPP_TRANS=\
 	"..\cpp\stdafx.h"\
-	
-NODEP_CPP_TRANS=\
-	"..\include\ITransport.h"\
-	"..\include\Transport.h"\
+	"..\include\LibKN\CS.h"\
+	"..\include\LibKN\Defs.h"\
+	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
+	"..\include\LibKN\IStatusHandler.h"\
+	"..\include\LibKN\ITransport.h"\
+	"..\include\LibKN\Lock.h"\
+	"..\include\LibKN\Message.h"\
+	"..\include\LibKN\SimpleParser.h"\
+	"..\include\LibKN\Transport.h"\
+	"..\include\LibKN\Tunnel.h"\
 	
 
 !ELSEIF  "$(CFG)" == "LibKNCpp - Win32 (WCE x86em) Release"
@@ -1692,6 +1930,7 @@ DEP_CPP_TRANS=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Lock.h"\
@@ -1708,6 +1947,7 @@ DEP_CPP_TRANS=\
 	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\IRequestStatusHandler.h"\
 	"..\include\LibKN\IStatusHandler.h"\
 	"..\include\LibKN\ITransport.h"\
 	"..\include\LibKN\Lock.h"\
@@ -1792,8 +2032,10 @@ DEP_CPP_TUNNE=\
 
 DEP_CPP_TUNNE=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\Tunnel.h"\
 	
@@ -1802,8 +2044,10 @@ DEP_CPP_TUNNE=\
 
 DEP_CPP_TUNNE=\
 	"..\cpp\stdafx.h"\
+	"..\include\LibKN\CS.h"\
 	"..\include\LibKN\Defs.h"\
 	"..\include\LibKN\HttpParamString.h"\
+	"..\include\LibKN\Lock.h"\
 	"..\include\LibKN\Message.h"\
 	"..\include\LibKN\Tunnel.h"\
 	

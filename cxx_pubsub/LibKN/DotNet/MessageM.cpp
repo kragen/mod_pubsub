@@ -44,25 +44,30 @@ namespace LibKNDotNet
 Message::Message()
 {
 	m_MessageImpl = new ::Message();
+	m_CS = new CCriticalSection();
 }
 
 Message::Message(const ::Message& rhs)
 {
 	m_MessageImpl = new ::Message(rhs);
+	m_CS = new CCriticalSection();
 }
 
 Message::~Message()
 {
 	delete m_MessageImpl;
+	delete m_CS;
 }
 
 void Message::Copy(Message* rhs)
 {
+	Lock autoLock(m_CS);
 	*m_MessageImpl = *(rhs->m_MessageImpl);
 }
 
 void Message::Copy(const ::Message& rhs)
 {
+	Lock autoLock(m_CS);
 	*m_MessageImpl = rhs;
 }
 
@@ -108,6 +113,20 @@ bool Message::Get(String* f, String** v)
 bool Message::IsEmpty()
 {
 	return m_MessageImpl->IsEmpty();
+}
+
+String* Message::GetAsSimpleFormat()
+{
+	string s = m_MessageImpl->GetAsSimpleFormat();
+	return new String(s.c_str());
+}
+
+bool Message::InitFromSimple(String* str)
+{
+	StringToChar* _str = new StringToChar(str);
+	string s(_str->GetChar());
+	bool retVal = m_MessageImpl->InitFromSimple(s);
+	return retVal;
 }
 
 IEnumerator* Message::GetEnumerator()

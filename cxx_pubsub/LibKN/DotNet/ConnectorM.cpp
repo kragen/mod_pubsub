@@ -48,6 +48,7 @@ Connector::Connector()
 	m_ConnectionStatusHandlers = new TBridgeCollection<ConnectionStatusHandlerBridge*>();
 	m_Listeners = new TBridgeCollection<ListenerBridge*>();
 	m_ListenerMap = new ListenerMap();
+	m_CS = new CCriticalSection();
 }
 
 Connector::~Connector()
@@ -56,6 +57,7 @@ Connector::~Connector()
 	delete m_ConnectionStatusHandlers;
 	delete m_Listeners;
 	delete m_ListenerMap;
+	delete m_CS;
 }
 
 bool Connector::IsConnected()
@@ -65,6 +67,8 @@ bool Connector::IsConnected()
 
 bool Connector::Open(Parameters* p)
 {
+	Lock autoLock(m_CS);
+
 	::ITransport::Parameters* _p = M2N_Parameters(p);
 	bool retval = m_ConnectorImpl->Open(*_p);
 	delete _p;
@@ -73,6 +77,7 @@ bool Connector::Open(Parameters* p)
 
 Parameters* Connector::GetParameters()
 {
+	Lock autoLock(m_CS);
 	Parameters* p = N2M_Parameters(m_ConnectorImpl->GetParameters());
 	return p;
 }
@@ -89,19 +94,27 @@ bool Connector::EnsureConnected()
 
 bool Connector::Publish(Message* msg, IRequestStatusHandler* sh)
 {
+	Lock autoLock(m_CS);
 	RequestStatusHandlerBridge* _shb = new RequestStatusHandlerBridge(sh);
-	bool retVal = m_ConnectorImpl->Publish(*msg->GetImpl(), _shb);
+	const ::Message& m = *msg->GetImpl();
+	bool retVal = m_ConnectorImpl->Publish(m, _shb);
 	delete _shb;
 	return retVal;
 }
 
-String* Connector::Subscribe(String* topic, IListener* listener, IRequestStatusHandler* sh)
+String* Connector::Subscribe(String* topic, IListener* listener, Message* options, IRequestStatusHandler* sh)
 {
+	Lock autoLock(m_CS);
 	RequestStatusHandlerBridge* _shb = new RequestStatusHandlerBridge(sh);
 	StringToWChar* _t = new StringToWChar(topic);
 	ListenerBridge* _lb = Wrap(listener);
 
-	wstring retVal = m_ConnectorImpl->Subscribe(_t->GetChar(), _lb, _shb);
+	::Message _options;
+	
+	if (options)
+		_options = *options->GetImpl();
+
+	wstring retVal = m_ConnectorImpl->Subscribe(_t->GetChar(), _lb, _options, _shb);
 
 	delete _shb;
 	
@@ -112,6 +125,7 @@ String* Connector::Subscribe(String* topic, IListener* listener, IRequestStatusH
 
 bool Connector::Unsubscribe(String* rid, IRequestStatusHandler* sh)
 {
+	Lock autoLock(m_CS);
 	RequestStatusHandlerBridge* _shb = new RequestStatusHandlerBridge(sh);
 	StringToWChar* _rid = new StringToWChar(rid);
 	ListenerMap::iterator it = m_ListenerMap->find(_rid->GetChar());
@@ -131,6 +145,7 @@ bool Connector::Unsubscribe(String* rid, IRequestStatusHandler* sh)
 
 void Connector::AddConnectionStatusHandler(IConnectionStatusHandler* sh)
 {
+	Lock autoLock(m_CS);
 	ConnectionStatusHandlerBridge* _shb = new ConnectionStatusHandlerBridge(sh);
 	m_ConnectionStatusHandlers->Add(_shb);
 	m_ConnectorImpl->AddConnectionStatusHandler(_shb);
@@ -138,6 +153,7 @@ void Connector::AddConnectionStatusHandler(IConnectionStatusHandler* sh)
 
 void Connector::RemoveConnectionStatusHandler(IConnectionStatusHandler* sh)
 {
+	Lock autoLock(m_CS);
 	ConnectionStatusHandlerBridge* _shb = new ConnectionStatusHandlerBridge(sh);
 	ConnectionStatusHandlerBridge* realBridge = m_ConnectionStatusHandlers->Remove(_shb);
 

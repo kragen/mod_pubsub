@@ -61,7 +61,7 @@ public:
 	mb_buf_ptr parse(mb_buf_ptr buf_ptr);
 
 	/**
-	 * Build a stringified ParamMap from the simple tunnen format event.
+	 * Build a stringified ParamMap from the simple tunnel format event.
 	 */
 	bool make_map_from_simple(const string& simple, Message& param_map);
 

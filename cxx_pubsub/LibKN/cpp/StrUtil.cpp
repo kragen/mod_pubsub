@@ -87,5 +87,44 @@ tstring ConvertToTString(const wstring& str)
 #endif
 }
 
+string ConvertToUtf8(const wstring& str_to_encode)
+{
+	int bufLen = 512;
+	char* encodeBuf = new char[bufLen];
 
+	string ret_str;
+	int str_len;
+
+	if (!(str_len = WideCharToMultiByte(CP_UTF8, 0, str_to_encode.c_str(), str_to_encode.length(), encodeBuf, bufLen, NULL, NULL)))
+	{
+		//check if the buffer was too short
+		if (ERROR_INSUFFICIENT_BUFFER == GetLastError())
+		{
+			//get the required lenght
+			int temp_len = WideCharToMultiByte(CP_UTF8, 0, str_to_encode.c_str(), str_to_encode.length(), NULL, 0, NULL, NULL);
+			if (temp_len == 0)
+				return ret_str;
+
+			delete[] encodeBuf;
+
+			encodeBuf = new char[temp_len];
+			bufLen = temp_len;
+
+			if (!(str_len = WideCharToMultiByte(CP_UTF8, 0, str_to_encode.c_str(), str_to_encode.length(), encodeBuf, bufLen, NULL, NULL)))
+			{
+				delete[] encodeBuf;
+				return ret_str;
+			}
+		}
+		else
+		{
+			delete[] encodeBuf;
+			return ret_str;
+		}
+	}
+
+	ret_str.assign(encodeBuf, str_len);
+	delete[] encodeBuf;
+	return ret_str;
+}
 

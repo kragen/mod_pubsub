@@ -40,9 +40,35 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <LibKN\Defs.h>
 
 /**
+ * Base class for building encoded messages.
+ */
+class BaseEncodingString : public string
+{
+public:
+	BaseEncodingString();
+	virtual ~BaseEncodingString();
+
+	/**
+	 * Clear this object, making it ready for reuse.
+	 */
+	void Clear();
+
+	virtual bool AddParam(const wstring& name, const wstring& value) = 0;
+
+protected:
+	bool AddParamImpl(const wstring& name, const wstring& value, const string& fvSep, const string& evtSep);
+
+	const string utf8_encode(const wstring& str_to_encode);
+	const string url_encode(const string& str_to_encode);
+
+	char* m_EncodeBuf;
+	unsigned long m_BufLen;
+};
+
+/**
  * Utility class for building encoded http post payload.
  */
-class HttpParamString : public string
+class HttpParamString : public BaseEncodingString
 {
 public:
 	/**
@@ -52,21 +78,22 @@ public:
 	~HttpParamString();
 
 	/**
-	 * Clear this object, making it ready for reuse.
-	 */
-	void Clear();
-
-	/**
 	 * Add parameters to this string.
 	 */
-	bool AddPostParam(const wstring& name, const wstring& value);
+	bool AddParam(const wstring& name, const wstring& value);
 
-private:
-	const string utf8_encode(const wstring& str_to_encode);
-	const string url_encode(const string& str_to_encode);
+};
 
-	char* m_EncodeBuf;
-	unsigned long m_BufLen;
+class SimpleString : public BaseEncodingString
+{
+public:
+	SimpleString();
+	~SimpleString();
+
+	/**
+	 * Add parameters in simple format.
+	 */
+	bool AddParam(const wstring& name, const wstring& value);
 };
 
 #endif

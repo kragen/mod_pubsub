@@ -39,6 +39,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LibKNCom.h"
 #include "CMessage.h"
 #include "CMessageEntry.h"
+#include <LibKN\StrUtil.h>
 
 /////////////////////////////////////////////////////////////////////////////
 // CMessage
@@ -99,7 +100,7 @@ STDMETHODIMP CMessage::get__NewEnum(IUnknown** pVal)
 		m_Coll.push_back(v);
 	}
 
-	return CreateSTLEnumerator<VarVarEnum>(pVal, this, m_Coll);
+	return CreateSTLEnumerator<VarVarEnum>(pVal, static_cast<IDispatch*>(this), m_Coll);
 }
 
 
@@ -168,17 +169,30 @@ STDMETHODIMP CMessage::_GetImpl(long* pVal)
 	return S_OK;
 }
 
-#if 0
-STDMETHODIMP CMessage::GetAsHttpParam(BSTR* pVal)
+STDMETHODIMP CMessage::GetAsSimpleFormat(BSTR* pVal)
 {
 	if (pVal == 0)
 		return E_INVALIDARG;
 
-	string v = m_Impl.GetAsHttpParam();
+	string v = m_Impl.GetAsSimpleFormat();
 
 	CComBSTR _v(v.c_str());
 	return _v.CopyTo(pVal);
 }
-#endif
+
+STDMETHODIMP CMessage::InitFromSimple(BSTR str, VARIANT_BOOL* pVal)
+{
+	if (str == 0)
+		return E_INVALIDARG;
+
+	wstring ws = str;
+
+	bool b = m_Impl.InitFromSimple(ConvertToNarrow(ws));
+
+	if (pVal)
+		*pVal = b ? VARIANT_TRUE : VARIANT_FALSE;
+
+	return S_OK;
+}
 
 

@@ -189,6 +189,8 @@ bool Journal::StartTunnel()
 	}
 
 	ResetEvent(m_ThreadDeathEvent);
+	
+	m_ExpectClosing = false;
 
 	DWORD threadId = 0;
 
@@ -206,6 +208,12 @@ bool Journal::StartTunnel()
 	}
 
 	return true;
+}
+
+void Journal::ExpectClosing()
+{
+	Lock autoLock(this);
+	m_ExpectClosing = true;
 }
 
 bool Journal::RestartTunnel()
@@ -281,6 +289,47 @@ bool Journal::CloseTunnel()
 	return false;
 }
 
+int ReadFromJournal(Tunnel* t, mb_buf_ptr* buf_ptr, bool& isException)
+{
+	if (t == 0)
+		return -2;
+
+	int nRead = 0;
+	isException = false;
+	
+	__try
+	{
+		nRead = t->ReadData(buf_ptr);
+	}
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? 
+		EXCEPTION_EXECUTE_HANDLER : 
+		EXCEPTION_CONTINUE_SEARCH)
+	{
+		nRead = -2;
+		isException = true;
+	}
+
+	return nRead;
+}
+
+void Journal::SafeConnectionStatus(Tunnel* t, Connector* c)
+{
+	if (IsBadReadPtr(t, sizeof Tunnel))
+		return;
+
+	if (IsBadReadPtr(c, sizeof Connector))
+		return;
+
+	__try
+	{
+		c->OnConnectionStatus(t->GetStatus());
+	}
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? 
+		EXCEPTION_EXECUTE_HANDLER : 
+		EXCEPTION_CONTINUE_SEARCH)
+	{
+	}
+}
 
 DWORD WINAPI Journal::ReadSimpleTunnelThread(void* args)
 {
@@ -295,6 +344,14 @@ DWORD WINAPI Journal::ReadSimpleTunnelThread(void* args)
 	unsigned char read_buffer[buffer_size];	// buffer for the data
 
 	int nRead = 0;
+	int fib[] = 
+	{
+		1, 1, 2, 3, 5, 8, 13, 21
+	};
+
+	int fibSize = sizeof fib/sizeof (fib[0]);
+	int fibIndex = 0;
+
 
 	// This loop handles reading the data.
 read:
@@ -306,12 +363,16 @@ read:
 		buf_ptr.m_Len = 0;
 
 		// Read the data from the tunnel.
-		nRead = journal->m_Tunnel ? journal->m_Tunnel->ReadData(&buf_ptr) : -2;
+		bool isException = false;
+		nRead = ReadFromJournal(journal->m_Tunnel, &buf_ptr, isException);
+
+		if (isException)
+			goto LeaveThread;
 
 		if (nRead <= 0)
 		{
-			if (journal->m_Tunnel && journal->m_Connector)
-				journal->m_Connector->OnConnectionStatus(journal->m_Tunnel->GetStatus());
+			if (!IsBadReadPtr(journal, sizeof Journal))
+				SafeConnectionStatus(journal->m_Tunnel, journal->m_Connector);
 			break;
 		}
 		else
@@ -322,13 +383,7 @@ read:
 		}
 	} while (true);
 
-	int fib[] = 
-	{
-		1, 1, 2, 3, 5, 8, 13, 21
-	};
-
-	int fibSize = sizeof fib/sizeof (fib[0]);
-	int fibIndex = 0;
+	fibIndex = 0;
 
 	//Check to see if this was an intended close
 	if (nRead == -1 && journal->m_Tunnel != 0)
@@ -336,7 +391,7 @@ read:
 
 		//we did not intend for the connection to close
 		//keep trying until closed
-		while (true)
+		while (!journal->m_ExpectClosing)
 		{
 			//try and reconnect
 			if (journal->RestartTunnel())
@@ -358,6 +413,7 @@ read:
 		}
 	}
 
+LeaveThread:
 	//Once we get here we are leaving the thread
 	SetEvent(journal->m_ThreadDeathEvent);
 

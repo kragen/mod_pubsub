@@ -105,7 +105,7 @@ Transport::Transport(Connector* conn) :
 
 Transport::~Transport()
 {
-	Lock autoLock(this);
+//	Lock autoLock(this);
 
 	Disconnect();
 }
@@ -899,6 +899,7 @@ bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 
 	found = false;
 	string event;
+	DWORD total_read = 0;
 
 	//get the rest of the event
 	while (!found) 
@@ -922,9 +923,11 @@ bool Transport::GetTunnelStatus(HINTERNET hTunnel, Message& status_map)
 		}
 
 		//setup for reading
-		DWORD total_read = 0;
 		unsigned char* buffer = buf_ptr.m_Ptr;
 		DWORD to_read = (available < (len - total_read)) ? available : (len - total_read);
+
+		if (to_read > buf_ptr.m_Max)
+			to_read = buf_ptr.m_Max;
 
 		// Read the data from the HINTERNET handle.
 		if (InternetReadFile(hTunnel, (void*)buffer, to_read, &dwDownloaded))

@@ -54,7 +54,7 @@ Connector::~Connector()
 bool Connector::IsConnected()
 {
 	bool b = m_Transport.IsConnected();
-	return b && m_Journal.IsConnected();
+	return b; // && m_Journal.IsConnected();
 }
 
 bool Connector::Open(const ITransport::Parameters& p)
@@ -70,7 +70,7 @@ const ITransport::Parameters& Connector::GetParameters() const
 
 bool Connector::Close()
 {
-//	m_Journal.CloseTunnel();
+	m_Journal.ExpectClosing();
 	return m_Transport.Close();
 }
 
@@ -98,17 +98,38 @@ bool Connector::Publish(const Message& msg, IRequestStatusHandler* sh)
 		m_OfflineQueue.Add(msg.GetAsHttpParam());
 	}
 
+	if (!sent)
+	{
+		if (sh)
+		{
+			Message m;
+			m.Set("status", "500 Internal Server Error: publish failed.");
+			m.Set("status_code", "500");
+			sh->OnStatus(m);
+		}
+	}
+
 	return sent;
 }
 
-wstring Connector::Subscribe(const wstring& topic, IListener* listener, IRequestStatusHandler* sh)
+wstring Connector::Subscribe(const wstring& topic, IListener* listener, const Message& options, IRequestStatusHandler* sh)
 {
 	Lock autoLock(this);
 
 	if (!m_Journal.EnsureConnected())
-		return L"";
+	{
+		if (sh)
+		{
+			Message m;
+			m.Set("status_code", "500");
+			m.Set("status", "500 Internal Server Error: Subscribe failed");
+			sh->OnStatus(m);
+		}
 
-	Message msg;
+		return L"";
+	}
+
+	Message msg(options);
 	wstring rid = GetRouteId(topic, msg);
 
 	if (SubscribeRouteId(msg, rid, topic, listener, sh))
@@ -283,6 +304,14 @@ wstring Connector::Route(Message& msg, const wstring& rid, const wstring& from, 
 
 	if (!Post(msg, sh))
 	{
+		if (sh)
+		{
+			Message m;
+			m.Set("status", "500 Internal Server Error: Subscribe/Route failed.");
+			m.Set("status_code", "500");
+			sh->OnStatus(m);
+		}
+
 		return L"";
 	}
 
@@ -329,7 +358,20 @@ bool Connector::Unsubscribe(const wstring& rid, IRequestStatusHandler* sh)
   	msg.Set(L"kn_response_format", L"simple");
   	msg.Set(L"LIBKN_RID", rid);
 
-	return Post(msg, sh);
+	bool b = Post(msg, sh);
+
+	if (!b)
+	{
+		if (sh)
+		{
+			Message m;
+			m.Set("status", "500 Internal Server Error: Unsubscribe failed.");
+			m.Set("status_code", "500");
+			sh->OnStatus(m);
+		}
+	}
+
+	return b;
 }
 
 RandRHandler& Connector::GetRandR()

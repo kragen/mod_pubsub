@@ -52,6 +52,9 @@ typedef CComEnumOnSTL<IEnumVARIANT, &IID_IEnumVARIANT, VARIANT,
 class ATL_NO_VTABLE CMessage : 
 	public CComObjectRootEx<CComSingleThreadModel>,
 	public CComCoClass<CMessage, &CLSID_Message>,
+#if !defined(_WIN32_WCE)
+	public IObjectSafetyImpl<CMessage, INTERFACESAFE_FOR_UNTRUSTED_CALLER | INTERFACESAFE_FOR_UNTRUSTED_DATA>,
+#endif
 	public IDispatchImpl<IMessage, &IID_IMessage, &LIBID_LIBKNCOMLib>
 {
 public:
@@ -64,6 +67,9 @@ DECLARE_REGISTRY_RESOURCEID(IDR_MESSAGE)
 DECLARE_PROTECT_FINAL_CONSTRUCT()
 
 BEGIN_COM_MAP(CMessage)
+#if !defined(_WIN32_WCE)
+	COM_INTERFACE_ENTRY(IObjectSafety)
+#endif
 	COM_INTERFACE_ENTRY(IMessage)
 	COM_INTERFACE_ENTRY(IDispatch)
 END_COM_MAP()
@@ -77,7 +83,8 @@ public:
 	STDMETHOD(Remove)(/*[in]*/ BSTR field);
 	STDMETHOD(Get)(/*[in]*/ BSTR field, /*[out, retval]*/ BSTR* pVal);
 	STDMETHOD(Set)(/*[in]*/ BSTR field, /*[in]*/ BSTR value);
-//	STDMETHOD(GetAsHttpParam)(BSTR* pVal);
+	STDMETHOD(GetAsSimpleFormat)(BSTR* pVal);
+	STDMETHOD(InitFromSimple)(BSTR str, VARIANT_BOOL* pVal);
 	STDMETHOD(_GetImpl)(long* pVal);
 
 private:

@@ -321,7 +321,7 @@ STDMETHODIMP CConnector::Publish(IMessage* m, IComRequestStatusHandler* sh)
 	return S_OK;
 }
 
-STDMETHODIMP CConnector::Subscribe(BSTR topic, IComListener* listener, IComRequestStatusHandler* sh, 
+STDMETHODIMP CConnector::Subscribe(BSTR topic, IComListener* listener, IMessage* options, IComRequestStatusHandler* sh, 
 	BSTR* pVal)
 {
 	if (topic == 0)
@@ -330,7 +330,23 @@ STDMETHODIMP CConnector::Subscribe(BSTR topic, IComListener* listener, IComReque
 	RequestStatusHandlerAdapter* rsha = new RequestStatusHandlerAdapter(this, sh);
 	ListenerHandlerAdapter* la = new ListenerHandlerAdapter(this, listener);
 
-	wstring rid = m_Connector.Subscribe(topic, la, rsha);
+	Message _options;
+
+	if (options != 0)
+	{
+		long l = 0;
+
+		if (SUCCEEDED(options->_GetImpl(&l)))
+		{
+			Message* mImpl = reinterpret_cast<Message*>(l);
+			if (mImpl)
+			{
+				_options = *mImpl;
+			}
+		}
+	}
+
+	wstring rid = m_Connector.Subscribe(topic, la, _options, rsha);
 
 	ListenerAdapters::iterator it = m_ListenerAdapters.find(rid);
 

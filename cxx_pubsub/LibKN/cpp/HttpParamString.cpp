@@ -37,19 +37,19 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stdafx.h"
 #include <LibKN\HttpParamString.h>
 
-HttpParamString::HttpParamString() :
+BaseEncodingString::BaseEncodingString() :
 	m_EncodeBuf(0)
 {
 	Clear();
 }
 
-HttpParamString::~HttpParamString()
+BaseEncodingString::~BaseEncodingString()
 {
 	if (m_EncodeBuf)
 		delete[] m_EncodeBuf;
 }
 
-void HttpParamString::Clear()
+void BaseEncodingString::Clear()
 {
 	if (m_EncodeBuf)
 		delete[] m_EncodeBuf;
@@ -58,7 +58,7 @@ void HttpParamString::Clear()
 	m_EncodeBuf = new char[m_BufLen];
 }
 
-bool HttpParamString::AddPostParam(const wstring& name, const wstring& value)
+bool BaseEncodingString::AddParamImpl(const wstring& name, const wstring& value, const string& fvSep, const string& evtSep)
 {
 	//convert to utf8 
 	string encoded_name(utf8_encode(name));
@@ -78,14 +78,14 @@ bool HttpParamString::AddPostParam(const wstring& name, const wstring& value)
 	encoded_value = url_encode(encoded_value);
 
 	append(encoded_name);
-	append("=");
+	append(fvSep);
 	append(encoded_value);
-	append(";");
+	append(evtSep);
 
 	return true;
 }
 
-const string HttpParamString::utf8_encode(const wstring& str_to_encode)
+const string BaseEncodingString::utf8_encode(const wstring& str_to_encode)
 {
 	string ret_str("");
 	int str_len;
@@ -114,19 +114,21 @@ const string HttpParamString::utf8_encode(const wstring& str_to_encode)
 	return ret_str.assign(m_EncodeBuf, str_len);
 }
 
-#define is_safe(aCharacter)       \
-	( isalnum(aCharacter)  || \
-	  (aCharacter == '-' ) || \
-	  (aCharacter == '_' ) || \
-	  (aCharacter == '.' ) || \
-	  (aCharacter == '!' ) || \
-	  (aCharacter == '~' ) || \
-	  (aCharacter == '*' ) || \
-	  (aCharacter == '\'') || \
-	  (aCharacter == '(' ) || \
-	  (aCharacter == ')' ) )
+bool is_safe(unsigned char aCharacter)
+{
+	return isalnum(aCharacter) ||
+		(aCharacter == '-' ) || 
+		(aCharacter == '_' ) || 
+		(aCharacter == '.' ) || 
+		(aCharacter == '!' ) || 
+		(aCharacter == '~' ) || 
+		(aCharacter == '*' ) || 
+		(aCharacter == '\'') || 
+		(aCharacter == '(' ) || 
+		(aCharacter == ')' );
+}
 
-const string HttpParamString::url_encode(const string& aString)
+const string BaseEncodingString::url_encode(const string& aString)
 {
 	const char anEscapeCharacter = '%';
 	const char*  anInputBytes        = aString.c_str();
@@ -167,4 +169,39 @@ const string HttpParamString::url_encode(const string& aString)
 
 	return aResult;
 }
+
+
+
+HttpParamString::HttpParamString() :
+	BaseEncodingString()
+{
+}
+
+HttpParamString::~HttpParamString()
+{
+}
+
+bool HttpParamString::AddParam(const wstring& name, const wstring& value)
+{
+	AddParamImpl(name, value, "=", ";");
+	return true;
+}
+
+
+
+SimpleString::SimpleString() :
+	BaseEncodingString()
+{
+}
+
+SimpleString::~SimpleString()
+{
+}
+
+bool SimpleString::AddParam(const wstring& name, const wstring& value)
+{
+	AddParamImpl(name, value, ": ", "\n");
+	return true;
+}
+
 

@@ -190,7 +190,7 @@ bool SimpleParser::make_map_from_simple(const string& simple, Message& msg)
 	if (mid_pos == wstring::npos)
 	{
 		//no payload!?
-		msg.Set("kn_payload", "");
+		//msg.Set("kn_payload", "");
 	}
 	else
 	{

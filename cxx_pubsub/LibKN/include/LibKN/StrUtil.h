@@ -51,4 +51,6 @@ extern string ConvertToNarrow(const wstring& str);
 extern tstring ConvertToTString(const string& str);
 extern tstring ConvertToTString(const wstring& str);
 
+extern string ConvertToUtf8(const wstring& str);
+
 #endif

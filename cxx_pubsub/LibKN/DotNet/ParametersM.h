@@ -40,6 +40,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace System;
 
 #include <LibKN\ITransport.h>
+#include <LibKN\CS.h>
 
 namespace LibKNDotNet
 {
@@ -72,6 +73,9 @@ namespace LibKNDotNet
 
 	private:
 		::ITransport::Parameters* m_ParametersImpl;
+
+		CCriticalSection* m_CS;
+		typedef LockImpl<CCriticalSection> Lock;
 	};
 }
 

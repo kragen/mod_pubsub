@@ -41,7 +41,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <LibKN\Tunnel.h>
 #include <LibKN\CS.h>
 
-class Connector;
 class Transport;
 
 /**
@@ -92,6 +91,9 @@ public:
 	const wstring& GetJournalPath() const;
 
 private:
+	static void SafeConnectionStatus(Tunnel* t, Connector* c);
+	void ExpectClosing();
+
 	Journal(Connector* conn);
 	~Journal();
 
@@ -99,6 +101,7 @@ private:
 
 	void SetJournalPathImpl();
 
+	bool m_ExpectClosing;
 	Connector* m_Connector;
 	Transport* m_Transport;
 	Tunnel* m_Tunnel;

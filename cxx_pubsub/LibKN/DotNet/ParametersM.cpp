@@ -44,11 +44,13 @@ namespace LibKNDotNet
 Parameters::Parameters()
 {
 	m_ParametersImpl = new ::ITransport::Parameters();
+	m_CS = new CCriticalSection();
 }
 
 Parameters::~Parameters()
 {
 	delete m_ParametersImpl;
+	delete m_CS;
 }
 
 String* Parameters::get_ServerUrl()

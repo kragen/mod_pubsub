@@ -45,7 +45,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "PubTest"=..\Tests\PubTest\PubTest.dsp - Package Owner=<4>
+Project: "PubTest"=..\Tests\cpp\PubTest\PubTest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -60,7 +60,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "PubTestMT"=..\Tests\PubTestMT\PubTestMT.dsp - Package Owner=<4>
+Project: "PubTestMT"=..\Tests\cpp\PubTestMT\PubTestMT.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -75,7 +75,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "QTest"=..\Tests\QTest\QTest.dsp - Package Owner=<4>
+Project: "QTest"=..\Tests\cpp\QTest\QTest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -90,7 +90,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "SubTest"=..\Tests\SubTest\SubTest.dsp - Package Owner=<4>
+Project: "SubTest"=..\Tests\cpp\SubTest\SubTest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -105,7 +105,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "SubTestCounted"=..\Tests\SubTestCounted\SubTestCounted.dsp - Package Owner=<4>
+Project: "SubTestCounted"=..\Tests\cpp\SubTestCounted\SubTestCounted.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -120,7 +120,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "SubTestMT"=..\Tests\SubTestMT\SubTestMT.dsp - Package Owner=<4>
+Project: "SubTestMT"=..\Tests\cpp\SubTestMT\SubTestMT.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -64,15 +64,20 @@ tstring Convert(System::String* s)
 		return "";
 
 	StringToChar* _s = new StringToChar(s);
-	return _s->GetChar();
+	tstring t(_s->GetChar());
+	return t;
 }
 
 ::ITransport::Parameters* M2N_Parameters(Parameters* p)
 {
 	::ITransport::Parameters* retVal = new ::ITransport::Parameters();
 
-	retVal->m_ServerUrl = Convert(p->get_ServerUrl());
-	retVal->m_Username = Convert(p->get_Username());
+	tstring t = Convert(p->get_ServerUrl());
+	retVal->m_ServerUrl = t;
+
+	t = Convert(p->get_Username());
+	retVal->m_Username = t;
+
 	retVal->m_Password = Convert(p->get_Password());
 	retVal->m_UseProxy = p->get_UseProxy();
 	retVal->m_ProxyServer = Convert(p->get_ProxyServer());

@@ -34,7 +34,8 @@ import "ocidl.idl";
 		[id(4), helpstring("method Empty")] HRESULT Empty();
 		[id(5), helpstring("method IsEmpty")] HRESULT IsEmpty([out, retval] VARIANT_BOOL* pVal);
 		[id(6), helpstring("method Copy")] HRESULT Copy([in] IMessage* msg);
-//      [id(7), helpstring("method GetAsHttpParam")] HRESULT GetAsHttpParam([out, retval] BSTR* pVal);
+      [id(7), helpstring("method GetAsSimpleFormat")] HRESULT GetAsSimpleFormat([out, retval] BSTR* pVal);
+      [id(8), helpstring("method InitFromSimple")] HRESULT InitFromSimple([in] BSTR str, [out, retval] VARIANT_BOOL* pVal);
       [id(1000), helpstring("method GetImpl"), restricted, hidden] HRESULT _GetImpl([out, retval] long* pVal);
 	};
 	[
@@ -104,7 +105,7 @@ import "ocidl.idl";
 		[id(4), helpstring("method Close")] HRESULT Close([out, retval] VARIANT_BOOL* pVal);
 		[id(5), helpstring("method EnsureConnected")] HRESULT EnsureConnected([out, retval] VARIANT_BOOL* pVal);
 		[id(6), helpstring("method Publish")] HRESULT Publish([in] IMessage* m, [in, optional] IComRequestStatusHandler* sh);
-		[id(7), helpstring("method Subscribe")] HRESULT Subscribe([in] BSTR topic, [in, optional] IComListener* listener, [in, optional] IComRequestStatusHandler* sh, [out, retval] BSTR* pVal);
+		[id(7), helpstring("method Subscribe")] HRESULT Subscribe([in] BSTR topic, [in, optional] IComListener* listener, [in, optional] IMessage* options, [in, optional] IComRequestStatusHandler* sh, [out, retval] BSTR* pVal);
 		[id(8), helpstring("method Unsubscribe")] HRESULT Unsubscribe([in] BSTR rid, [in, optional] IComRequestStatusHandler* sh, [out, retval] VARIANT_BOOL* pVal);
 	};
 
@@ -160,7 +161,7 @@ library LIBKNCOMLib
       methods:
 		[id(1), helpstring("method OnStatus")] HRESULT OnStatus([in] IMessage* msg);
 		[id(2), helpstring("method OnUpdate")] HRESULT OnUpdate([in] IMessage* msg);
-		[id(3), helpstring("method OnUpdate")] HRESULT OnConnectionStatus([in] IMessage* msg);
+		[id(3), helpstring("method OnConnectionStatus")] HRESULT OnConnectionStatus([in] IMessage* msg);
    };
 	[
 		uuid(AF9469CA-A307-4BF9-BD3E-2F65E6FC87A9),

@@ -1,2 +1,11 @@
-Add const Message& options to Connector::Subscribe().
+$Header: /cvsroot/mod-pubsub/mod_pubsub/cxx_pubsub/LibKN/todolist.txt,v 1.2 2003/03/08 04:38:08 ifindkarma Exp $
+$Log: todolist.txt,v $
+Revision 1.2  2003/03/08 04:38:08  ifindkarma
+Bug fixes and reorganization, plus some additions.  Note: package needs testing.
+
+ * 
+ * 1     3/03/03 1:27p Thui
+
++ Add const Message& options to Connector::Subscribe() (2/20)
++ Add serialize/deserialize to Message (2/20)
 

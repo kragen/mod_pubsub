@@ -54,7 +54,7 @@ void IRequestStatusHandler::OnStatus(const Message& msg)
 
 		wchar_t wc = v.at(0);
 
-		if (wc == L'0' || wc == L'1' || wc == '2')
+		if (wc == L'0' || wc == L'1' || wc == L'2')
 			OnSuccess(msg);
 		else
 			OnError(msg);
