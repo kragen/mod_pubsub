@@ -28,6 +28,6 @@ public class DebugListener implements Listener
 			System.out.print(msg.get(name));
 			System.out.println();
 		}
-		
+		System.out.println();		
 	}
 }

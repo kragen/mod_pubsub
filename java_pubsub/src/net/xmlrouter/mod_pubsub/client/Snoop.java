@@ -15,14 +15,17 @@ public class Snoop
 
 	public static void main(String[] args)
 	{
+		if (args.length < 2)
+		{
+			System.out.println("Usage: Snoop URL topic");			
+			return;
+		}
+		
 		try
 		{
 			SimpleRouter router = new SimpleRouter(args[0]);
 			DebugListener listener = new DebugListener();
 			router.subscribe(args[1],listener,null);
-			
-			while(true)
-				router.connection.dispatchNextEvent();
 		}
 		catch(Exception e)
 		{
