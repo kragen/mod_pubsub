@@ -34,7 +34,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: pubsub_throughput_session,v 1.1 2003/05/14 00:23:13 bsittler Exp $
+# $Id: pubsub_throughput_session,v 1.2 2003/05/14 00:26:42 bsittler Exp $
 
 export date_fmt="${date_fmt:-%Y-%m-%d_%H.%M.%S}"
 
@@ -48,45 +48,50 @@ function log_msg
     echo "$(date -u +"$date_fmt"): $*" >&2
 }
 
-function die_cat
+function error_cat
 {
     cat "$@" >&2
     exit 2
 }
 
-function die_msg
+function error_msg
 {
-    echo ":$*" | sed 's/://' | die_cat
+    echo ":$*" | sed 's/://' | error_cat
 }
 
 if [ $# != 2 ]
 then
-    die_cat <<EOF
+    error_cat <<EOF
 Summary: $0 ENVFILE INIFILE
 
 example ENVFILE is testenv.bash;
 example INIFILE is config.ini
 EOF
+    exit 2
 fi
 
 if ! [ -f "$env" -a -r "$env" ]
 then
-    die_msg "$env: not a readable file"
+    error_msg "$env: not a readable file"
+    exit 1
 fi
 
 if ! [ -f "$cfg" -a -r "$cfg" ]
 then
-    die_msg "$cfg: not a readable file"
+    error_msg "$cfg: not a readable file"
+    exit 1
 fi
 
 if ! [ -f "$pubsub_ping" -a -x "$pubsub_ping" ]
 then
-    die_msg "$pubsub_ping: not a readable file"
+    error_msg "$pubsub_ping: not a readable file"
+    exit 1
 fi
 
 if ! "$pubsub_ping" --help > /dev/null
 then
-    die_msg "$pubsub_ping: does not work (tried --help parameter)"
+    error_msg "$pubsub_ping: does not work (tried --help parameter)"
+    exit 1
 fi
 
 export pubsub_server="$(
@@ -99,7 +104,8 @@ export pubsub_server="$(
 
 if [ :"$pubsub_server" == :"" ]
 then
-    die_msg "$env: cannot determine pubsub server URI; $""pubsub_server was not set"
+    error_msg "$env: cannot determine pubsub server URI; $""pubsub_server was not set"
+    exit 1
 fi
 
 log_msg "session $session started"
