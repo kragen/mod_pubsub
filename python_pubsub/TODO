@@ -1,33 +1,37 @@
-- make a python pubsub client
-- off host routes
-- verbose vs. non-verbose code not covered
-- Task.__repr__ never called
-- scheduled tasks never have errors
-- schedule never empty, so poll(None) never happens
-- events never get compared to non-events
-- illegal topic name characters never happen
-- never create tunnels from non-journal topics
-- never posted to a dead tunnel (when not restoring from persistent store)
-- never pickled tunnels (when not saving to persistent store)
-- ev_encode's exception handler for string.join (needs to go away)
-- is_utf8 never gets exceptions raised in it, and its exception handler is stupid anyway
-- server.handle_error never gets called
-- simple-format responses never get sent except to tunnels
-- bad HTTP request lines never happen
-- we never parse HTTP response headers
-- we never get HTTP requests with continuation lines
-- we never get HTTP request lines without colons
-- we never get multiple HTTP headers with the same name and have to join them with commas
-- libform and lib2form don't get tested
-- do_method=route defaulting for GET requests not tested
-- 'welcome to pubsub.py' never gets run
-- 404 Not Found never gets sent
-- non-{GET,HEAD,POST} requests never get sent
-- send_response's '500 Internal Server Error' catch never gets run for some reason
-- self.sockname never gets interpolated into a string because Host: headers are always sent
-- Connection.repr never gets called because it has the wrong name
-- Connection.kncgi's else never gets called when getknroot() returns ''
-- FinishRouting, ReportRouteStatus, and HttpClient are unused
-- not serving any .gif or .jpg or default files in the test suites
-- most of read_event_pool and write_event_pool don't run
-- most of the option parsing doesn't run normally
+To Do List for Python PubSub (February 8, 2003)
+----------------------------
+
+ 0. Make a python pubsub client, client.py
+******1. Get pubsub.py working!!
+ 2. off host routes
+ 3. verbose vs. non-verbose code not covered
+ 4. Task.__repr__ never called
+ 5. scheduled tasks never have errors
+ 6. schedule never empty, so poll(None) never happens
+ 7. events never get compared to non-events
+ 8. illegal topic name characters never happen
+ 9. never create tunnels from non-journal topics
+10. never posted to a dead tunnel (when not restoring from persistent store)
+11. never pickled tunnels (when not saving to persistent store)
+12. ev_encode's exception handler for string.join (needs to go away)
+13. is_utf8 never gets exceptions raised in it, and its exception handler is stupid anyway
+14. server.handle_error never gets called
+15. simple-format responses never get sent except to tunnels
+16. bad HTTP request lines never happen
+17. we never parse HTTP response headers
+18. we never get HTTP requests with continuation lines
+19. we never get HTTP request lines without colons
+20. we never get multiple HTTP headers with the same name and have to join them with commas
+21. libform and lib2form don't get tested
+22. do_method=route defaulting for GET requests not tested
+23. 'welcome to pubsub.py' never gets run
+24. 404 Not Found never gets sent
+25. non-{GET,HEAD,POST} requests never get sent
+26. send_response's '500 Internal Server Error' catch never gets run for some reason
+27. self.sockname never gets interpolated into a string because Host: headers are always sent
+28. Connection.repr never gets called because it has the wrong name
+29. Connection.kncgi's else never gets called when getknroot() returns ''
+30. FinishRouting, ReportRouteStatus, and HttpClient are unused
+31. not serving any .gif or .jpg or default files in the test suites
+32. most of read_event_pool and write_event_pool don't run
+33. most of the option parsing doesn't run normally
