@@ -47,7 +47,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.22 2003/05/06 23:32:12 ifindkarma Exp $
+# $Id: pubsub.py,v 1.23 2003/05/10 05:22:38 ifindkarma Exp $
 
 
 """
@@ -608,7 +608,7 @@ class Server:
         logger.log_err("server error: " + cgitb.html())
     def handle_read_event(self):
         (conn, addr) = self.socket.accept()
-        nc = Connection(conn, self, addr)
+        nc = Connection(conn, self, addr, self.verbose)
         self.openedconns = self.openedconns + 1
     def connection_address_is(self, conn, addr):
         self.peers[id(conn)] = addr
@@ -923,7 +923,7 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
 class Connection(asyncore.dispatcher_with_send):
     """Responsibilities: parse incoming HTTP data.  Dispatch requests.
     Report status to server."""
-    def __init__(self, sock, server, addr):
+    def __init__(self, sock, server, addr, verbose):
         asyncore.dispatcher_with_send.__init__(self, sock)
         self.closed = 0
         self.inbuf = ''
@@ -935,6 +935,7 @@ class Connection(asyncore.dispatcher_with_send):
         self.server.connection_address_is(self, addr)
         self.addr = addr
         self.sockname = sock.getsockname()
+        self.verbose = verbose
         self.report_status('reading HTTP header')
     def getname(self): return 'pubsub.Connection'
     def report_status(self, status):
@@ -951,13 +952,14 @@ class Connection(asyncore.dispatcher_with_send):
         try:
             data = self.socket.recv(4096)
             if data == '':
-                # print "%s: eof on read" % self
+                if self.verbose:
+                    print "%s: eof on read" % self
                 self.close()
             else:
                 self.inbuf = self.inbuf + data
                 self.try_to_respond()
         except socket.error, val:
-            if val[0] != errno.ECONNRESET:
+            if (val[0] != errno.ECONNRESET) or self.verbose:
                 print "%s: read error: %s" % (self, val)
             self.close()
     def try_to_respond(self):
