@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.52 2003/07/22 03:11:33 ifindkarma Exp $
+# $Id: pubsub.py,v 1.53 2003/07/23 02:16:42 bsittler Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -550,6 +550,7 @@ class Route(Event):
                 if ev['kn_route_checkpoint'] == self['do_since_checkpoint']:
                     found_id = 1
             if not found_id:
+		# FIXME: should 404 instead...
                 for ev in topic.get_events(): self.post(ev)
 
     def post(self, event):
