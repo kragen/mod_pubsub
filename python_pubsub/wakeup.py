@@ -66,9 +66,21 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: wakeup.py,v 1.1 2003/02/19 02:10:07 ifindkarma Exp $
+## $Id: wakeup.py,v 1.2 2003/02/19 03:39:00 ifindkarma Exp $
 
-import asyncore, socket, errno, sys, thread
+
+
+# Include standard system libraries:
+import socket, errno, sys, thread
+
+# Include local library:
+import asyncore
+"""
+    Note that we are using the event-driven python_pubsub asyncore,
+    not the polling "standard" asyncore. -- Ben and Adam, 2/8/2003
+"""
+
+
 
 class Wakeup:
     """
