@@ -10,7 +10,7 @@ import java.util.Map;
  * @author msg
  * Simple router for publish/subscribe.
  */
-public class SimpleRouter {
+public class SimpleRouter implements Router {
 	private static String ROUTES_STR = "/kn_routes/";
 	String serverURI;
 	String basePath;
