@@ -13,7 +13,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -50,7 +50,7 @@
 
 #include <sys/cdefs.h>
 #ifdef __RCSID
-__RCSID("$Id: kn_test.m,v 1.1 2002/12/21 03:38:44 bsittler Exp $");
+__RCSID("$Id: kn_test.m,v 1.2 2003/03/19 05:36:47 ifindkarma Exp $");
 #endif
 
 #include <sys/types.h>

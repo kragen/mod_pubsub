@@ -5,7 +5,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -40,7 +40,7 @@
  * @KNOWNOW_LICENSE_END@
  **/
 
-#define _RAND_ID_ "$Id: entropy.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _RAND_ID_ "$Id: entropy.c,v 1.2 2003/03/19 05:36:46 ifindkarma Exp $"
 
 #include <signal.h>
 #include <sys/time.h>

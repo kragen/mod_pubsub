@@ -5,7 +5,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -140,7 +140,7 @@ static kn_Error kn_ServerStartTunnel (kn_Server* aServer);
 #define _RAND_ID_ ""
 #endif
 
-RCSID("$Id: kn_Server.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"_PROTO_ID_""_RAND_ID_""_POST_ID_""_GET_ID_""_Callback_ID_);
+RCSID("$Id: kn_Server.c,v 1.3 2003/03/19 05:36:47 ifindkarma Exp $"_PROTO_ID_""_RAND_ID_""_POST_ID_""_GET_ID_""_Callback_ID_);
 
 /**
  * Allocators

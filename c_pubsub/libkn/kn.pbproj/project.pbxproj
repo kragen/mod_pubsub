@@ -118,7 +118,7 @@
 	<key>CFBundlePackageType</key>
 	<string>FMWK</string>
 	<key>CFBundleShortVersionString</key>
-	<string>PubSub Client Library version 0.0.1, © 2001-2002 KnowNow, Inc.</string>
+	<string>PubSub Client Library version 0.0.1, © 2001-2003 KnowNow, Inc.</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>

@@ -5,7 +5,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -40,7 +40,7 @@
  * @KNOWNOW_LICENSE_END@
  **/
 
-#define _Callback_ID_ "$Id: kn_Server_callback.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _Callback_ID_ "$Id: kn_Server_callback.c,v 1.2 2003/03/19 05:36:47 ifindkarma Exp $"
 
 typedef const struct __kn_EventCallback * kn_EventCallbackRef;
 

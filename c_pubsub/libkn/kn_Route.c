@@ -5,7 +5,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -42,7 +42,7 @@
 
 #include "kn_config.h"
 
-RCSID("$Id: kn_Route.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $");
+RCSID("$Id: kn_Route.c,v 1.3 2003/03/19 05:36:47 ifindkarma Exp $");
 
 #include <stdlib.h>
 #include <errno.h>

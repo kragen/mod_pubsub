@@ -17,7 +17,7 @@ const char *__prngcmds=
 "# The \"rate\" represents the number of bits of usuable entropy per \n"
 "# byte of command output. Be conservative.\n"
 "#\n"
-"# $Id: prng_cmds.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $\n"
+"# $Id: prng_cmds.h,v 1.2 2003/03/19 05:36:47 ifindkarma Exp $\n"
 "\n"
 "\"ls -alni /var/log\"			ls	0.02\n" 
 "#\"ls -alni /var/adm\"			ls	0.02\n"

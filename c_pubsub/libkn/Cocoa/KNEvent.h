@@ -5,7 +5,7 @@
  * Wilfredo Sanchez
  **/
 /**
- * Copyright (c) 2001-2002 KnowNow, Inc.  All rights reserved.
+ * Copyright (c) 2001-2003 KnowNow, Inc.  All rights reserved.
  *
  * @KNOWNOW_LICENSE_START@
  * 
@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KNEVENT_H_
-#define _KN_KNEVENT_H_ "$Id: KNEvent.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KNEVENT_H_ "$Id: KNEvent.h,v 1.2 2003/03/19 05:36:47 ifindkarma Exp $"
 
 #include <kn/kn_Error.h>
 #include <kn/kn_Event.h>
