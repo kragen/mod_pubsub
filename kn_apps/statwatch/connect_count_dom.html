@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+
+ Copyright 2003 Scott LePera All Rights Reserved.
+ Copyright 2003 Joyce Park
+
+-->
+<html>
+<head>
+    <title>Connection counter</title>
+
+    <script type="text/javascript" src="/kn?do_method=lib"></script>
+    <script type="text/javascript">
+    
+    function init()
+    {
+        kn.subscribe("/kn_statistics/liveconns",
+                    handleConnUpdate,
+                    {do_max_n:1},
+		    {onSuccess:renderDisplay}
+        );
+    }
+    
+    var conn = [];
+    var busy = false;
+    
+    function handleConnUpdate(evt)
+    {
+        conn[0] = evt;
+        renderDisplay();   
+    }
+    
+    function renderDisplay()
+    {
+        if (busy)
+        {
+        	setTimeout("renderDisplay();",5000);
+        	return;
+        }
+        busy = true;
+        var str = conn[0].kn_payload;
+
+	document.getElementById("conn").innerHTML = str;
+		
+	busy = false;        
+    }
+    
+    onload = init;
+    
+    </script>
+
+    <style type="text/css">
+    
+        body
+        {
+            margin:0px;
+	    background-color:#fff;
+        }
+
+        #conn
+        {   font-family:verdana, arial;
+            font-size:11px;
+            padding:5px;
+            text-align:left;
+	    background-color:#fff;
+        }
+        
+    </style>
+		
+</head>
+
+<body>
+<div id="conn">
+Updates on change
+</div>
+
+</body>
+</html>
