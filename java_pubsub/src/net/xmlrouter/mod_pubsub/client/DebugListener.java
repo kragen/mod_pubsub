@@ -8,7 +8,6 @@ import java.util.*;
  */
 public class DebugListener implements Listener
 {
-
 	/**
 	 * @see net.xmlrouter.mod_pubsub.client.Listener#onMessage(HashMap)
 	 */
