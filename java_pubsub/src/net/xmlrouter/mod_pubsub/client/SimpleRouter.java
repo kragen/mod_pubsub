@@ -63,17 +63,13 @@ public class SimpleRouter
 		{
 			URL url =new URL(serverURI+basePath);
 			HttpURLConnection conn;
-			String body;
 					
 			// add some things
 			msg.put("do_method","notify");
 			msg.put("kn_to",topic);
 
-			// copy Map into namevalue pair array
-			body = HTTPUtil.encodeToForm(msg);
-			
 			// send message
-			conn = HTTPUtil.Post(url,body);
+			conn = HTTPUtil.Post(url,msg);
 			
 			// get response
 			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
@@ -107,7 +103,6 @@ public class SimpleRouter
 		{
 			URL url =new URL(serverURI+basePath);
 			HttpURLConnection conn;
-			String body;
 			
 			random = getMessageId();
 			
@@ -121,11 +116,8 @@ public class SimpleRouter
 			msg.put("kn_id",route_id);
 			*/
 
-			// copy Map into namevalue pair array
-			body = HTTPUtil.encodeToForm(msg);
-			
 			// send message
-			conn = HTTPUtil.Post(url,body);
+			conn = HTTPUtil.Post(url,msg);
 			
 			// get response
 			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
@@ -169,7 +161,6 @@ public class SimpleRouter
 			String uri;
 			uri = serverURI+basePath;
 			URL url =new URL(uri);
-			String body;
 				
 			// add some things
 			msg.put("do_method","route");
@@ -178,11 +169,8 @@ public class SimpleRouter
 			//msg.put("kn_id",route_id);
 			msg.put("do_max_age","3600");
 
-			// copy Map into namevalue pair array
-			body = HTTPUtil.encodeToForm(msg);
-
 			// send message
-			conn = HTTPUtil.Post(url,body);
+			conn = HTTPUtil.Post(url,msg);
 
 			// get response
 			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
@@ -241,7 +229,6 @@ public class SimpleRouter
 			String uri;
 			uri = serverURI+basePath;
 			URL url =new URL(uri);
-			String body;
 			
 			// add some things
 			msg.put("do_method","route");
@@ -249,10 +236,7 @@ public class SimpleRouter
 			msg.put("kn_id",getIdFromRoute(route_id));
 			msg.put("kn_to","");
 			
-			// copy Map into namevalue pair array
-			body = HTTPUtil.encodeToForm(msg);
-			
-			conn=HTTPUtil.Post(url,body);
+			conn=HTTPUtil.Post(url,msg);
 			
 			// check for errors
 			if (conn.getResponseCode() >= 300)

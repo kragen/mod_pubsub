@@ -31,6 +31,14 @@ public class HTTPUtil
 		return sb.toString();
 	}
 	
+	public static HttpURLConnection Post(URL url,Map fields) throws IOException
+	{
+		String body;
+		body = encodeToForm(fields);
+		
+		return Post(url,body);
+	}
+	
 	public static HttpURLConnection Post(URL url,String body) throws IOException
 	{
 		OutputStream os;

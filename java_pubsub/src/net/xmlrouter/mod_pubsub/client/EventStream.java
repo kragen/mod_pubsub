@@ -24,7 +24,7 @@ public class EventStream
 	/**
 	 * readLine - read a line of ascii characters until a newline char.
 	 */
-	String readLine(InputStream reader) 
+	String readLine(InputStream stream) 
 	{
 		StringBuffer buffer=new StringBuffer();
 		byte b[] = new byte[1];
@@ -32,7 +32,7 @@ public class EventStream
 		
 		try
 		{
-			while (reader.read(b) > 0)
+			while (stream.read(b) > 0)
 			{
 				if ((b[0] == '\r') ||
 					(b[0] == '\n'))
@@ -54,16 +54,17 @@ public class EventStream
 	/**
 	 * readTrimmedLine - skip whitepace and read remaining line.
 	 */
-	String readTrimmedLine(InputStream reader) 
+	String readTrimmedLine(InputStream stream) 
 	{
 		StringBuffer buffer=new StringBuffer();
 		byte b[] = new byte[1];
 		char c;
 		boolean skipping=true;
+		int count=0;
 		
 		try
 		{
-			while (reader.read(b) > 0)
+			while (stream.read(b) > 0)
 			{
 				if ((b[0] == '\r') ||
 					(b[0] == '\n'))
@@ -78,14 +79,11 @@ public class EventStream
 				if (!skipping)
 					buffer.append(c);
 				else
-					Thread.sleep(100);
+					count++;
+				b[0] = 0;
 			}
 		}
 		catch(IOException e)
-		{
-			System.err.println("readLine() : "+e.getMessage());
-		}
-		catch(InterruptedException e)
 		{
 			System.err.println("readLine() : "+e.getMessage());
 		}
@@ -131,6 +129,7 @@ public class EventStream
 					buffer = new byte[nBytes];
 					bais = new ByteArrayInputStream(buffer);
 				}
+				bais.reset();
 				event = new BufferedReader(new InputStreamReader(bais,"UTF-8"));
 
 				// read full event
