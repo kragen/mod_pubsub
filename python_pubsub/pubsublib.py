@@ -16,7 +16,7 @@
        2. All operations are in a single thread and nonblocking,
           using asyncore.
 
-    Version 1.0 -- February 18, 2003.  Initial implementation.
+    Originally written February 18, 2003:
     Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
     Known Issues:
@@ -67,7 +67,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: pubsublib.py,v 1.2 2003/02/18 08:29:46 ifindkarma Exp $
+## $Id: pubsublib.py,v 1.3 2003/03/07 21:38:35 ifindkarma Exp $
 
 
 

@@ -2,7 +2,7 @@
 
 # pubsub.py -- PubSub Python Server compatible with mod_pubsub & pubsub.cgi
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -36,7 +36,9 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.5 2003/02/26 02:42:47 ifindkarma Exp $
+# $Id: pubsub.py,v 1.6 2003/03/07 21:38:34 ifindkarma Exp $
+
+
 
 # This server uses a protocol compatible with the other PubSub
 # servers, and serves as a fine reference tutorial for learning
