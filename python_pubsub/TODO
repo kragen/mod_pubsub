@@ -3,6 +3,9 @@ To Do List for Python PubSub (February 8, 2003)
 
  0. Make a python pubsub client, client.py
 ******1. Get pubsub.py working!!
+ 1.5 find out which of asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py
+    can be removed from cvs tree because they ship with the standard python
+    distribution
  2. off host routes
  3. verbose vs. non-verbose code not covered
  4. Task.__repr__ never called
