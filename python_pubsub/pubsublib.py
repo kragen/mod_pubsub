@@ -65,7 +65,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: pubsublib.py,v 1.9 2003/05/31 01:49:08 ifindkarma Exp $
+## $Id: pubsublib.py,v 1.10 2003/05/31 02:46:13 ifindkarma Exp $
 
 
 
@@ -187,7 +187,7 @@ class Client:
             self._SHW_inner = inner or self
             self._SHW_kn_status_from = kn_status_from
             self._SHW_fired = 0
-            scheduler.schedule_processing(self, time.time() + 30, "auto-timeout")
+            scheduler.schedule_processing(self, time.time() + 300, "auto-timeout")
 
         def onStatus(self, message):
             pass
@@ -215,7 +215,7 @@ class Client:
                  2. cancel - pending queued item.
  
             Unacknowledged requests are automatically cancelled
-            after 30 seconds.
+            after 300 seconds.
         """
         
         # FIXME: this needs to handle retries
@@ -255,7 +255,7 @@ class Client:
             {
             "kn_route_location": kn_status_from,
             "status": "500 Internal Server Error",
-            "kn_payload": "Client Cancelled Request"
+            "kn_payload": "Client Cancelled Request."
             }
             )
 
