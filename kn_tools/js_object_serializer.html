@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!-- js_object_serializer.html -- A JavaScript object serializer. -->
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: js_object_serializer.html,v 1.1 2003/04/02 05:27:40 ifindkarma Exp $
+
+-->
+
+<html>
+  <head>
+    <title>objector</title>
+    <script>
+      <!--
+
+function quote(value)
+{
+    if (typeof value == 'undefined')
+        return value;
+    if (value == null)
+        return 'null';
+    switch(typeof value)
+    {
+    case 'unknown':
+        return value;
+    case 'null':
+    case 'boolean':
+    case 'number':
+        return '' + value;
+    case 'string':
+        return 'unescape(\'' + escape(value) + '\')';
+    case 'object':
+        return '({})';
+    }
+    return '' + value;
+}
+
+function dump(object, name, seen, sep)
+{
+    var dumped = [];
+    var header = '', trailer = '';
+    if (sep == null)
+    {
+        sep = '';
+    }
+    if (name == null)
+    {
+        header = '(function(){var ';
+        trailer = ';' + sep + 'return o})()';
+        name = 'o';
+    }
+    if (seen == null)
+    {
+        seen = [];
+    }
+    if (typeof object == 'object')
+    {
+        for (var old in seen)
+        {
+            if (seen[old].object == object)
+            {
+                return name + '=' + seen[old].name;
+            }
+        }
+    }
+    seen[seen.length] = { name: name, object: object };
+    var quoted = quote(object);
+    if (typeof quoted == 'undefined')
+    {
+        quoted = 'void null';
+    }
+    if (quoted == null)
+    {
+        quoted = 'null';
+    }
+    dumped[dumped.length] = name + '=' + quoted;
+    
+    if ((typeof object == 'object') && (object != null))
+    {		
+        for (var i in object)
+        {
+            dumped[dumped.length] =
+                dump(object[i],
+                     name + '[' + quote(i) + ']',
+                     seen,
+                     sep);
+        }
+    }
+    return header + dumped.join(';' + sep) + trailer;
+}
+
+function evalIt(field, resfield)
+{
+    if (resfield == null) resfield = field;
+    var result = eval(field.value);
+    if (typeof result != 'undefined')
+    {
+        resfield.value = quote(result);
+        document.forms.retort.second.value = result;
+    }
+    field.focus();
+}
+
+      // -->
+    </script>
+  </head>
+
+  <body>
+
+    <noscript>
+      <h1>JavaScript 1.1 Required</h1>
+      <p>
+        This demonstration requires JavaScript 1.1 support, which is
+        either missing or not enabled. If your browser has such
+        support, but that support is disabled, it is suggested that
+        you enable it and reload.
+      </p>
+    </noscript>
+
+    <p>Enter JavaScript to be evaluated (e.g.
+       <code>eval(dump(1+1))</code>.)</p>
+    <form name="objection" onSubmit="setTimeout('evalIt(document.forms.objection.s)', 0); return false">
+        <input name="s" size=80 />
+    </form>
+    <form name="retort" onSubmit="setTimeout('evalIt(document.forms.retort.first, document.forms.objection.s)', 0); return false">
+        <textarea name="first" cols=40 rows=12></textarea>
+        <textarea name="second" cols=40 rows=12 readonly></textarea><br />
+        <input type="submit" value="Run" />
+        <input type="reset" value="Clear" />
+    </form>
+
+  </body>
+
+</html>
