@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: plain.html,v 1.1 2002/11/07 07:09:14 troutgirl Exp $
+ $Id: plain.html,v 1.2 2003/02/08 05:02:16 ifindkarma Exp $
 
 -->
 
@@ -55,7 +55,7 @@
 <title>pubsub flash demo 2: robots</title>
 
 <!-- The PubSub JavaScript Library -->
-<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+<script src="/kn?do_method=lib"></script>
 
 <!-- The JavaScript Document Helper Library -->
 <script src="../kn_lib/document.js"></script>
@@ -212,9 +212,9 @@ Happy fun non-flash
 
 <frameset rows="100%,*" onload="init()">
     <!-- This we will overwrite using KNDocument -->
-    <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" noresize></frame>
+    <frame src="/kn?do_method=blank" noresize></frame>
     <!-- the second (hidden) frame is to keep Netscape happy -->
-    <frame src="../../cgi-bin/pubsub.cgi?do_method=blank" noresize></frame>
+    <frame src="/kn?do_method=blank" noresize></frame>
 </frameset>
 
 </html>

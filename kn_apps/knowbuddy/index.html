@@ -36,14 +36,14 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.2 2002/12/09 06:33:49 msg Exp $
+ $Id: index.html,v 1.3 2003/02/08 05:02:17 ifindkarma Exp $
 
 -->
 
 <title>pubsub knowbuddy</title>
 
 <!-- The PubSub JavaScript prologue, setting credentials -->
-<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+<script src="/kn?do_method=whoami"></script>
 
 <!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
 <script src="../kn_lib/cookie_auth.js"></script>
@@ -53,7 +53,7 @@
 
 <!-- Note that if I didn't care about user credentials, I could simply use
 
-  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+  <script src="/kn?do_method=lib"></script>
 
 instead of the previous three <script> calls, which loads the PubSub
 JavaScript Library with the prologue directly from the mod_pubsub instance. -->
@@ -69,6 +69,6 @@ function doLoad()
 
 <frameset onLoad='doLoad();' rows='104,*,100' title='KnowBuddy' border='1' resizable='true'>
 <frame name='control' src='control.html' NORESIZE>
-<frame name='contents' src='../../cgi-bin/pubsub.cgi?do_method=blank'>
-<frame name='profile' src='../../cgi-bin/pubsub.cgi?do_method=blank' frameborder='1'>
+<frame name='contents' src='/kn?do_method=blank'>
+<frame name='profile' src='/kn?do_method=blank' frameborder='1'>
 </frameset>

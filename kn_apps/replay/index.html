@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.1 2002/11/07 07:08:29 troutgirl Exp $
+ $Id: index.html,v 1.2 2003/02/08 05:02:19 ifindkarma Exp $
 
 -->
 
@@ -80,7 +80,7 @@ function stopper()
 // -->
 </script>
 
-<form name=Recorder method=POST action="../../cgi-bin/pubsub.cgi" target="_blank">
+<form name=Recorder method=POST action="/kn" target="_blank">
 <input type=submit name="r" value="Record" 
     onClick="Recorder.kn_to.value = Player.kn_from.value;
     rid = Recorder.kn_id.value = Math.random().toString().substring(2,9);
@@ -96,7 +96,7 @@ Topic:
 <input type=submit name="s" value="Stop" onClick="stopper();">
 </form>
 
-<form name=Stopper method=POST action="../../cgi-bin/pubsub.cgi">
+<form name=Stopper method=POST action="/kn">
 <input type="hidden" name="do_method" value="route">
 <input type="hidden" name="kn_id" value="">
 <input type="hidden" name="kn_from" value="">
@@ -114,7 +114,7 @@ document.write( '<input type=text name="kn_from" value="'+
 </script>
 (Warp Factor: <input name=warp value="2.0" size=3>)
 
-<p> <script src='../../cgi-bin/pubsub.cgi?do_method=whoami'></script>
+<p> <script src='/kn?do_method=whoami'></script>
 
 <script>
 if (kn_userid != "anonymous")

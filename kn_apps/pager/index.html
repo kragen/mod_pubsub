@@ -2,7 +2,7 @@
 
 <!--
 
- Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
  @KNOWNOW_LICENSE_START@
  
@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.1 2002/12/07 10:08:19 ifindkarma Exp $
+ $Id: index.html,v 1.2 2003/02/08 05:02:18 ifindkarma Exp $
 
 -->
 
@@ -47,7 +47,10 @@
 <title>pubsub pager</title>
 
 <!-- The PubSub JavaScript Library -->
-<script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+<script src="/kn?do_method=lib"></script>
+
+<!-- The PubSub Htmlsafe Helper Library -->
+<script src="../kn_lib/htmlsafe.js" /></script> 
 
 <script><!--
 
@@ -160,8 +163,8 @@ function kn_refresh()
     else
     {
         var e = theEventQueue[iVisibleEvent];
-        //d += e.displayname + ": ";
-        d += e.kn_payload;
+        //d += htmlSanitize(e.displayname) + ": ";
+        d += htmlSanitize(e.kn_payload);
         if (kn_argv.kn_debug)
         {
             d += "</font>&nbsp;&nbsp;<small>[" + e.kn_id + "]";
@@ -200,39 +203,39 @@ function displayScrollUp() {
 
 <frameset onLoad='doLoad()' frameborder=no border=0 rows="*,199,*">
     <frame frameborder=no border=0 name=paddingTop 
-        src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+        src="/kn?do_method=blank" 
         scrolling=no noresize marginheight=0 marginwidth=0>
     <frameset frameborder=no border=0 COLS="*,282,*">
         <frame frameborder=no border=0 name=paddingLeft
-            src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+            src="/kn?do_method=blank" 
             scrolling=no noresize marginheight=0 marginwidth=0>
         <frameset frameborder=no border=0 rows="43,156">
             <frame frameborder=no border=0 name="upperhalf" 
-                src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+                src="/kn?do_method=blank" 
                 scrolling=no noresize marginheight=0 marginwidth=0>
             <frameset frameborder=no border=0 COLS="45,166,71">
                 <frame frameborder=no border=0 name="bottomLeft"
-                    src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+                    src="/kn?do_method=blank" 
                     scrolling=no noresize marginheight=0 marginwidth=0>
                 <frameset frameborder=no border=0 rows="56,100">
                     <frame frameborder=no border=0 name=display 
-                        src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+                        src="/kn?do_method=blank" 
                         scrolling=no noresize marginheight=0 marginwidth=0>
                     <frame frameborder=no border=0 name=bottomMiddleBottom
-                        src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+                        src="/kn?do_method=blank" 
                         scrolling=no noresize marginheight=0 marginwidth=0>
                 </frameset>
                 <frame frameborder=no border=0 name=bottomRight
-                    src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+                    src="/kn?do_method=blank" 
                     scrolling=no noresize marginheight=0 marginwidth=0>
             </frameset>
         </frameset>
         <frame frameborder=no border=0 name=paddingRight 
-            src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+            src="/kn?do_method=blank" 
             scrolling=no noresize marginheight=0 marginwidth=0>
     </frameset>
     <frame frameborder=no border=0 name=paddingBottom 
-        src="../../cgi-bin/pubsub.cgi?do_method=blank" 
+        src="/kn?do_method=blank" 
         scrolling=no noresize marginheight=0 marginwidth=0>
 </frameset>
 

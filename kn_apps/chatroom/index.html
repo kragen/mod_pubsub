@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.1 2002/11/07 07:08:50 troutgirl Exp $
+ $Id: index.html,v 1.2 2003/02/08 05:02:14 ifindkarma Exp $
 
 -->
 
@@ -49,7 +49,7 @@
      Here we're combining the "who" and "chat2" apps to make a chat room. -->
 
 <!-- The PubSub JavaScript prologue, setting credentials -->
-<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+<script src="/kn?do_method=whoami"></script>
 
 <!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
 <script src="../kn_lib/cookie_auth.js"></script>
@@ -59,7 +59,7 @@
 
 <!-- Note that if I didn't care about user credentials, I could simply use
 
-  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+  <script src="/kn?do_method=lib"></script>
 
 instead of the previous three <script> calls, which loads the PubSub
 JavaScript Library with the prologue directly from the mod_pubsub instance. -->

@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: allvoters.html,v 1.1 2002/11/07 07:09:01 troutgirl Exp $
+ $Id: allvoters.html,v 1.2 2003/02/08 05:02:21 ifindkarma Exp $
 
 -->
 
@@ -84,7 +84,7 @@
 -->
 
 <!-- The PubSub JavaScript prologue, setting credentials -->
-<script src="../../cgi-bin/pubsub.cgi?do_method=whoami"></script>
+<script src="/kn?do_method=whoami"></script>
 
 <!-- Cookie Auth Helper Library, overriding credentials if Anonymous -->
 <script src="../kn_lib/cookie_auth.js"></script>
@@ -94,7 +94,7 @@
 
 <!-- Note that if I didn't care about user credentials, I could simply use
 
-  <script src="../../cgi-bin/pubsub.cgi?do_method=lib"></script>
+  <script src="/kn?do_method=lib"></script>
 
 instead of the previous three <script> calls, which loads the PubSub
 JavaScript Library with the prologue directly from the mod_pubsub instance. -->
@@ -283,7 +283,7 @@ function editItem(k)
 </head>
 
 <frameset rows="100%,*" frameborder=no onload="init()">
-<frame src="../../cgi-bin/pubsub.cgi?do_method=blank" name="output">
+<frame src="/kn?do_method=blank" name="output">
 <frame noresize>
 </frameset>
 

@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: testwrap.html,v 1.1 2002/11/07 07:08:58 troutgirl Exp $
+ $Id: testwrap.html,v 1.2 2003/02/08 05:02:20 ifindkarma Exp $
 
 -->
 
@@ -46,7 +46,7 @@
 <title>pubsub test: search wrapper</title>
 
 <!-- The PubSub JavaScript Library, Including Forms -->
-<script src="../../cgi-bin/pubsub.cgi?do_method=libform"></script>
+<script src="/kn?do_method=libform"></script>
 
 <script type="text/javascript"><!--
 
@@ -63,8 +63,8 @@ function searchPageLoaded()
 </head>
 
 <frameset rows="100%,*" border="0" onload="searchPageLoaded()">
-    <frame name="remote" src="../../cgi-bin/pubsub.cgi?do_method=blank" />
-    <frame name="hidden" src="../../cgi-bin/pubsub.cgi?do_method=blank" />
+    <frame name="remote" src="/kn?do_method=blank" />
+    <frame name="hidden" src="/kn?do_method=blank" />
 </frameset>
 
 </html>
