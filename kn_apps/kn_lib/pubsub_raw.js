@@ -39,7 +39,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.6 2003/04/28 23:17:58 ifindkarma Exp $
+// $Id: pubsub_raw.js,v 1.7 2003/05/19 22:17:48 ifindkarma Exp $
 
 ////////////////////////////////////////////////////////////////////////
 // Notes on notation:
@@ -408,7 +408,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.6 2003/04/28 23:17:58 ifindkarma Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.7 2003/05/19 22:17:48 ifindkarma Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -2199,7 +2199,7 @@ function _kn_wrapApp() {
     // force the issue
     if (! self.onload)
     {
-        setTimeout('if(!kn.isLoadedP_)_kn_framesetOnLoad()', 1000);
+        setTimeout('if(!kn.isLoadedP_)_kn_framesetOnLoad()', 5000);
     }
 }
 
@@ -4167,6 +4167,9 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
+// Revision 1.7  2003/05/19 22:17:48  ifindkarma
+// Slow down the auto-reload.  Might cure space pigeons.
+//
 // Revision 1.6  2003/04/28 23:17:58  ifindkarma
 // Fixed rejection of invalid surrogate characters in Unicode.
 //
