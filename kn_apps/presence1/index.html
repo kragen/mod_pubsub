@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.3 2003/04/25 22:11:55 ifindkarma Exp $
+ $Id: index.html,v 1.4 2003/04/30 01:35:10 ifindkarma Exp $
 
 -->
 
@@ -78,30 +78,6 @@ you enable it and reload.</p>
     <!-- Presence Logic -->
     <script type="text/javascript">
     <!--
-
-// Apply a CSS style to a form element ("node"). Works in the
-// Netscape6 DOM and the MSIE DOM. The name of the stylesheet
-// property in CSS syntax ("property") is automatically converted
-// to the MSIE syntax when necessary. The value ("value") should
-// be in CSS syntax.
-function presenceSetStyle(node, property, value)
-{
-    var ieproperty = "";
-    for (var i = 0; i < property.length; i ++)
-    {
-        if (property.charAt(i) == "-" && i < property.length)
-            ieproperty += property.charAt(++ i).toUpperCase();
-        else
-            ieproperty += property.charAt(i);
-    }
-    if (node.style)
-    {
-        if (node.style[ieproperty] != null)
-            node.style[ieproperty] = value;
-        else
-            node.style = property + ': ' + value;
-    }
-}
 
 // client ID
 var presenceClientId;
@@ -190,15 +166,15 @@ function presenceShowStatus()
         if (session.ready && ! newClients[clientId] &&
             (presenceTunnelEvents == false ||
              session.connections))
-	{
+        {
 
             // sense client connection
 
             if (! presenceClients[clientId])
-	    {
+            {
 
                 if (kn__debug("presence") || true)
-		{
+                {
 
                     presenceLog.value =
                         $_("=%{0}= Client connected at %{1}.\n",
@@ -209,9 +185,9 @@ function presenceShowStatus()
                          //  session.date.toGMTString())) +
                         presenceLog.value;
 
-		}
+                }
 
-	    }
+            }
 
             newClients[clientId] = true;
 
@@ -220,16 +196,16 @@ function presenceShowStatus()
 
             if (status &&
                 presenceClientId == clientId)
-	    {
+            {
 
                 // update local status holder
 
                 presenceStatus.value = status;
 
-	    }
+            }
 
             if (status)
-	    {
+            {
 
                 statusList[statusList.length] =
                     $_("%{0}:\n %{1}",
@@ -237,18 +213,18 @@ function presenceShowStatus()
                        status
                         );
 
-	    }
+            }
             else
-	    {
+            {
 
                 statusList[statusList.length] =
                     $_("%{0}",
                        clientId
                         );
 
-	    }
+            }
 
-	}
+        }
 
     }
 
@@ -259,7 +235,7 @@ function presenceShowStatus()
 
         if (presenceClients[otherClient] &&
             ! newClients[otherClient])
-	{
+        {
 
             presenceLog.value =
                 $_("=%{0}= Client disconnected at %{1}.\n",
@@ -270,7 +246,7 @@ function presenceShowStatus()
                  //  session.date.toGMTString())) +
                 presenceLog.value;
 
-	}
+        }
 
     }
 
@@ -286,11 +262,11 @@ function presenceShowStatus()
                 );
 
         if (presenceList.value != msg)
-	{
-	
+        {
+        
             presenceList.value = msg;
 
-	}
+        }
 
     }
     else
@@ -301,11 +277,11 @@ function presenceShowStatus()
         var statusString = statusList.join("\n");
 
         if (presenceList.value != statusString)
-	{
+        {
 
             presenceList.value = statusString;
 
-	}
+        }
 
     }
 
@@ -328,12 +304,12 @@ function presenceOnStatus(event)
     {
         if (kn__debug("status") ||
             presenceClients[event.kn_id] && ! presenceStatusLoading)
-	{
+        {
             presenceLog.value =
                 $_("=%{0}= Status cleared.\n",
                    event.kn_id) +
                 presenceLog.value;
-	}
+        }
 
         delete presenceClientStatus[event.kn_id];
     }
@@ -341,13 +317,13 @@ function presenceOnStatus(event)
     {
         if (kn__debug("status") ||
             presenceClients[event.kn_id] && ! presenceStatusLoading)
-	{
+        {
             presenceLog.value =
                 $_("=%{0}= Status: %{1}.\n",
                    event.kn_id,
                    event.kn_payload) +
                 presenceLog.value;
-	}
+        }
 
         presenceClientStatus[event.kn_id] = event.kn_payload;
     }
@@ -602,20 +578,20 @@ function PresenceSessionMonitor_onMessage(subtopic)
     {
 
         if (subtopic.kn_deleted == "true" || ! subtopic.kn_payload)
-	{
+        {
 
             this.cleanUp();
             this.end(
                 $("journal expired")
                 );
 
-	}
+        }
         else
-	{
+        {
 
             this.ready = true;
 
-	}
+        }
 
     }
 
@@ -721,7 +697,7 @@ function presenceOnRoute(route)
         // a presence subscription went away
 
         if (presenceSessions[id])
-	{
+        {
 
             // stop watching that session
 
@@ -729,14 +705,14 @@ function presenceOnRoute(route)
                 $("subscription gone")
                 );
 
-	}
+        }
 
     }
     else
     {
 
         if (presenceSessions[id])
-	{
+        {
 
             // stop watching previous location
 
@@ -744,7 +720,7 @@ function presenceOnRoute(route)
                 $("session moved")
                 );
 
-	}
+        }
 
         // start watching the session
 
@@ -770,17 +746,17 @@ function presenceGetClientId()
 
         var splitCookies = document.cookie.split("; ");
         for (var i = 0; i < splitCookies.length; i ++)
-	{
+        {
 
             var splitCookie = splitCookies[i].split("=");
             if (splitCookie[0] == "presenceClientId")
-	    {
+            {
 
                 presenceClientId = kn_unescape(splitCookie[1]);
 
-	    }
+            }
 
-	}
+        }
 
     }
 
@@ -818,35 +794,6 @@ presenceGetClientId();
 
 function presenceOnLoad()
 {
-
-    presenceSetStyle(document.
-                     forms.
-                     presenceInputForm.
-                     elements.
-                     messageElement,
-                     "border", "1px solid #777777");
-
-    presenceSetStyle(document.
-                     forms.
-                     presenceInputForm.
-                     elements.
-                     sendElement,
-                     "border", "1px solid black");
-
-    presenceSetStyle(document.
-                     forms.
-                     presenceDisplayForm.
-                     elements.
-                     updateElement,
-                     "border", "1px solid black");
-
-    presenceSetStyle(document.
-                     forms.
-                     presenceCookieForm.
-                     elements.
-                     clearElement,
-                     "border", "1px solid black");
-
     // initialize presenceStatus
 
     presenceStatus =
@@ -939,17 +886,17 @@ function presenceTrimLog(lines)
     {
 
         if (splitLog.length < 2)
-	{
+        {
 
             splitLog = [ "" ];
 
-	}
+        }
         else
-	{
+        {
 
             splitLog.length = Math.floor(splitLog.length / 2);
 
-	}
+        }
 
     }
 
@@ -1017,7 +964,14 @@ function presenceTrimLog(lines)
  font-weight: bold;
  vertical-align: bottom;
 }
-
+/*/*/
+.presence .submit {
+ border: 1px solid black;
+}
+.presence .input {
+ border: 1px solid #777777;
+}
+/**/
 .presence .submit:hover {
  color: navy;
  background: #eeeeff;
@@ -1089,6 +1043,7 @@ function presenceTrimLog(lines)
      --><font color="black"><!--
      --><input
            name="messageElement"
+           class="input"
            size="60"
            value=""
            title="Type your message here."
@@ -1149,7 +1104,7 @@ function presenceTrimLog(lines)
            bgcolor="#eeeeee"
            style="background: #eeeeee"
            align="center"
-  	 valign="top"
+         valign="top"
         ><!--
      --><font color="black"><!--
      --><input
