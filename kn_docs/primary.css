@@ -1,0 +1,61 @@
+body
+{
+    margin:0px;
+    padding:0px;
+    font-family:tahoma,verdana,arial,sans-serif;
+    background-color:#fff;
+    color:#000;
+}
+
+a:link, a:active, a:visited
+{
+    color:#336666;
+    text-decoration:underline;
+    font-weight:bold;
+}
+
+#header
+{
+    background-color:#336666;
+}
+
+#header h1
+{
+    padding-left:20px;
+    margin-bottom:0px;
+    margin-top:0px;
+}
+
+#header h1 a
+{
+    color:#ffffcc;
+    text-decoration:none;
+    font-family:"Lucida Sans Unicode";
+}
+
+#header p
+{
+    margin-top:0px;
+    font-style:italic;
+    padding-left:20px;
+    padding-bottom:10px;
+    color:#fff;
+}
+
+#content
+{
+    padding-left:20px;
+    padding-right:20px;
+}
+
+h2
+{
+    color:#336666;
+    font-size:1.3em;
+}
+
+#content p
+{
+    margin-left:50px;
+    margin-right:50px;
+}
