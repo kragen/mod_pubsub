@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.7 2003/05/16 05:00:09 ifindkarma Exp $
+ $Id: index.html,v 1.8 2003/05/17 23:30:58 ifindkarma Exp $
 
 -->
 
@@ -78,6 +78,30 @@ you enable it and reload.</p>
     <!-- Presence Logic -->
     <script type="text/javascript">
     <!--
+
+// Apply a CSS style to a form element ("node"). Works in the
+// Netscape6 DOM and the MSIE DOM. The name of the stylesheet
+// property in CSS syntax ("property") is automatically converted
+// to the MSIE syntax when necessary. The value ("value") should
+// be in CSS syntax.
+function presenceSetStyle(node, property, value)
+{
+    var ieproperty = "";
+    for (var i = 0; i < property.length; i ++)
+    {
+        if (property.charAt(i) == "-" && i < property.length)
+            ieproperty += property.charAt(++ i).toUpperCase();
+        else
+            ieproperty += property.charAt(i);
+    }
+    if (node.style)
+    {
+        if (node.style[ieproperty] != null)
+            node.style[ieproperty] = value;
+        else
+            node.style = property + ': ' + value;
+    }
+}
 
 // client ID
 var presenceClientId;
@@ -134,17 +158,59 @@ function presenceOnMessage(event)
     var eventMinutes = eventDate.getMinutes();
     var eventSeconds = eventDate.getSeconds();
 
-    presenceLog.value =
-        $_("[%{0}] %{1}  (%{2}:%{3}:%{4})\n",
+    var msgstring =
+        $_("[%{0}] %{1}  (%{2}:%{3}:%{4})",
            name,
            event.kn_payload,
         // new Date().toTimeString()) + 
         // new Date(parseFloat(event.kn_time_t) * 1000).toTimeString()) +
            eventHours,
            (eventMinutes < 10) ? ("0" + eventMinutes.toString()) : eventMinutes,
-           (eventSeconds < 10) ? ("0" + eventSeconds.toString()) : eventSeconds) +
-        presenceLog.value;
+           (eventSeconds < 10) ? ("0" + eventSeconds.toString()) : eventSeconds);
 
+    presenceLog.value =
+          msgstring + '\n' +
+          presenceLog.value;
+
+    kn__try(new Function('msgstring', 'top.document.title = msgstring;'), msgstring);
+
+    presenceSetHighlight(1.0);
+}
+
+// timer to unhighlight the output window
+var presenceLastMessageTimer = null;
+
+// highlight the output window for a few seconds
+function presenceSetHighlight()
+{
+    if (presenceLastMessageTimer)
+    {
+        clearTimeout(presenceLastMessageTimer);
+        presenceLastMessageTimer = null;
+    }
+    presenceClearHighlight(1.0);
+}
+
+// clear the highlight from the output window
+function presenceClearHighlight(level)
+{
+    if (level > 0.0)
+    {
+        presenceLastMessageTimer =
+          setTimeout('presenceClearHighlight(' + (level - 0.2) + ');', 400);
+    }
+    else
+    {
+        presenceLastMessageTimer = null;
+    }
+    var shade = Math.floor(Math.sqrt(level) * 127);
+    if (shade > 255) shade = 255;
+    else if (shade < 0) shade = 0;
+    var shadeString =
+      KN.hexDigits.charAt(Math.floor(shade / 16)) +
+      KN.hexDigits.charAt(Math.floor(shade % 16));
+
+    presenceSetStyle(presenceLog, 'color', '#0000' + shadeString);
 }
 
 // presenceSendMessage(msg) -- publish a system message
