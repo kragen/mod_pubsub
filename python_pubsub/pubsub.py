@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.47 2003/06/18 02:04:32 ifindkarma Exp $
+# $Id: pubsub.py,v 1.48 2003/06/21 03:03:14 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -675,10 +675,17 @@ class Tunnel(Route):
             TunnelTickler(self, self.conn)
             self.header_sent = 1
         self.conn.report_status("tunnel sending event %s" % event['kn_id'])
-        self.conn.tickle_renderer = 1
+        self.conn.tickle_renderer = self.needs_tickling()
         self.conn.send(self.encode(event))
         return 1
         
+    def needs_tickling(self):
+        # In simple format, there should be no flush space.
+        # In js format, we flush 4K spaces to force the browser to render.
+        # So, default is not to tickle renderer unless overridden by
+        # the JavaScriptTunnel subclass.
+        return 0
+    
     def is_static_route(self):
         return 0
 
@@ -760,6 +767,10 @@ class JavaScriptTunnel(Tunnel):
         Tunnel.__init__(self, conn)
         self.watching = watching
         self._jsTunnel_conn = conn
+
+    def needs_tickling(self):
+        # Tickle renderer to flush web browser buffer.
+        return 1
 
     def heartbeat(self):
         return ('--><script type="text/javascript"><!-- ' +
@@ -1411,9 +1422,9 @@ class Connection(asyncore.dispatcher_with_send):
 
     def handle_write(self):
         if self.tickle_renderer and not self.done_sending:
+            # Only gets called for writes on a JavaScriptTunnel.
             self.tickle_renderer = 0
-            # FIXME: In simple format, there should be no flush space.
-            # In js format, we flush 4K spaces to force the browser renderer.
+            # 4K flush seems to work with the widest variety of browsers.
             self.send(' ' * 4096)
         else:
             self.initiate_send()
