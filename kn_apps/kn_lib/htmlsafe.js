@@ -32,15 +32,13 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: htmlsafe.js,v 1.2 2003/04/19 00:31:07 ifindkarma Exp $
+// $Id: htmlsafe.js,v 1.3 2003/05/17 02:27:25 ifindkarma Exp $
 
 // htmlsafe.js uses kn_server and kn_resolvePath from do_method=lib.
 
 // Converts random HTML into fairly safe, if annoying, HTML.
-
-// We do this here so that people can get some exciting benefits: big
-// and small text, gigantic inline images, and hyperlinks.  Mostly
-// hyperlinks.
+// We do this here so that people can get some exciting benefits:
+// big and small text, inline images, and hyperlinks.  Mostly hyperlinks.
 
 
 
@@ -82,6 +80,20 @@ function entifyUTF16(string)
 var urlstrings =
     /^(nntp|news|http|https|mailto|ftp|gopher):[^\000-\037 "<>]+/i;
 
+// automatic smileys and winkeys
+// [enabled by the "autohtml" flag to htmlSanitize]
+var smileys = /^(:[-^]?\)|\([-^]?:)/;
+var winkeys = /^(;[-^]?\)|\([-^]?;)/;
+
+function smileyTag(name, alt)
+{
+    return ('<img src="' + location.protocol + '//' +
+            location.host + kn_resolvePath(location.pathname,
+            '../../kn_apps/kn_lib/images/' +
+            name + '.gif') + '" alt="' + alt + '" />');
+}
+
+// tokenize the string
 function tokenize(tokenPatterns, string)
 {
     var i;
@@ -122,6 +134,8 @@ var htmlimgtags =
 var entities = /^&(#[0-9]+|#x[0-9a-fA-F]+|[A-Za-z]+);/;
 
 var htmltokens = [
+    smileys,
+    winkeys,
     htmlemptytags,
     htmlimgtags,
     urlstrings,
@@ -239,6 +253,14 @@ function htmlSanitize(string, autohtml)
                     + tokens[i]
                     + '<' + '/a>';
             }
+        }
+        else if (autohtml && tokens[i].match(smileys))
+        {
+            tokens[i] = smileyTag('smiley', tokens[i]);
+        }
+        else if (autohtml && tokens[i].match(winkeys))
+        {
+            tokens[i] = smileyTag('winkey', tokens[i]);
         }
         else if (isHtmlCloseLastTag(tokens[i]))
         {

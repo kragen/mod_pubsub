@@ -36,7 +36,7 @@
 
  @KNOWNOW_LICENSE_END@
 
- $Id: chat-ui.html,v 1.4 2003/05/06 00:21:10 ifindkarma Exp $
+ $Id: chat-ui.html,v 1.5 2003/05/17 02:27:24 ifindkarma Exp $
 
 -->
 
@@ -117,6 +117,24 @@ function sendChat()
  onClick="document.visible.kn_payload.value =
               document.visible.kn_payload.value.italics();
           document.visible.kn_payload.focus();" />
+
+<script><!--
+function doSmiley(field, name, alt)
+{
+    field.value += ' ' + alt;
+    field.focus();
+}
+// -->
+</script>
+
+<button onClick="doSmiley(document.visible.kn_payload, 'smiley', ':-)')">
+<a href="#" onClick="doSmiley(document.visible.kn_payload, 'smiley', ':-)');return false;"
+><img border="0" alt="Add A Smile" align=bottom src="../kn_lib/images/smiley.gif"></a>
+</button>
+<button onClick="doSmiley(document.visible.kn_payload, 'winkey', ';-)')">
+<a href="#" onClick="doSmiley(document.visible.kn_payload, 'winkey', ';-)');return false;"
+><img border="0" alt="Add A Wink" align=bottom src="../kn_lib/images/winkey.gif"></a>
+</button>
 
 &nbsp;
 <input type="button" value="Preview"
