@@ -36,7 +36,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.1 2002/11/07 07:10:14 troutgirl Exp $
+# $Id: pubsub.py,v 1.2 2003/02/08 05:09:23 ifindkarma Exp $
 
 # This server uses a protocol compatible with the other PubSub
 # servers, and serves as a fine reference tutorial for learning
@@ -793,27 +793,6 @@ def handle_http_request(conn, uri, httpreq, query_string):
     urichunks = urlpath(uri)
     if array_begins(urichunks, urlpath(conn.urlroot())):
         knroot = urlpath(conn.getknroot())
-        if query_string == 'do_method=lib':
-            header = http_header('200 OK', 'text/javascript')
-            data = conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1]
-            conn.send(header + data)
-            conn.finish_sending()
-            return
-        elif query_string == 'do_method=libform':
-            conn.send(http_header('200 OK', 'text/javascript') +
-                      conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
-                      "\n" +
-                      conn.pathread(knroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
-            conn.finish_sending()
-            return
-        elif query_string == 'do_method=lib2form':
-            conn.send(http_header('200 OK', 'text/javascript') +
-                      conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
-                      "\n" +
-                      "window.kn__form2way = true;\n" +
-                      conn.pathread(knroot + ['kn_apps', 'kn_lib', '2form.js'])[1])
-            conn.finish_sending()
-            return
     urlroot = "/%s" % conn.urlroot()
     if (uri == urlroot) or (string.find(uri, urlroot + "/") == 0):
         handle_urlroot_request(conn, uri[len(urlroot):], httpreq, query_string)
@@ -849,6 +828,36 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
         do_blank(conn)
     elif do_method == 'batch':
         do_batch(conn, query)
+    elif do_method == 'lib':
+        header = http_header('200 OK', 'text/javascript')
+        data = (
+            'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n' +
+            conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1])
+        conn.send(header + data)
+        conn.finish_sending()
+    elif do_method == 'libform':
+        conn.send(http_header('200 OK', 'text/javascript') +
+                  'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n' +
+                  conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
+                  "\n" +
+                  conn.pathread(knroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
+        conn.finish_sending()
+    elif do_method == 'lib2form':
+        conn.send(http_header('200 OK', 'text/javascript') +
+                  'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n' +
+                  conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
+                  "\n" +
+                  "window.kn__form2way = true;\n" +
+                  conn.pathread(knroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
+        conn.finish_sending()
+    elif do_method == 'whoami':
+        conn.send(http_header('200 OK', 'text/javascript') +
+                  'kn_userid = "anonymous"; kn_displayname="Anonymous User";\r\n')
+        conn.finish_sending()
+    elif do_method == 'noop':
+        conn.send(http_header('200 OK', 'text/plain') +
+                  'No operation performed.')
+        conn.finish_sending()
     elif do_method is None:
         if uri == '/':
             conn.send(http_header('200 OK', 'text/html') +
