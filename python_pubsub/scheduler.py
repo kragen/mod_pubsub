@@ -1,17 +1,19 @@
 #!/usr/bin/python
 
 """
-    scheduler.py -- An asynchronous scheduling mechanism for use
-    with the python_pubsub "asyncore" event loop (from
-    mod_pubsub).
+    scheduler.py -- An asynchronous scheduling mechanism
+    for use with the python_pubsub "asyncore" event loo
+    (from mod_pubsub).
 
     Responsibilities: Maintain a list of items to be done at
     specific times in the future; run items to be done at present
     or in the past; tell event loop how long until the next
     scheduled task.
 
-    $Id: scheduler.py,v 1.5 2003/06/18 20:12:30 bsittler Exp $
-    Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
+    $Id: scheduler.py,v 1.6 2003/06/18 20:49:26 ifindkarma Exp $
+
+    Tested with Python 1.5.2 and Python 2.1.3,
+    on Red Hat and Debian Linux.
 
     Known Issues: see the FIXME's in this file.
 
@@ -54,7 +56,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: scheduler.py,v 1.5 2003/06/18 20:12:30 bsittler Exp $
+## $Id: scheduler.py,v 1.6 2003/06/18 20:49:26 ifindkarma Exp $
 
 
 import time
@@ -62,15 +64,19 @@ import time
 import asyncore
 """
     Note that we are using the event-driven python_pubsub asyncore,
-    not the polling "standard" asyncore.
+    not the polling "standard" asyncore that ships with Python.
 """
 
 # FIXME: We need to be able to cancel timers we've scheduled previously.
 
 class Scheduler:
-    """ Responsibilities: Maintain a list of items to be done at
-    specific times in the future. Run items to be done at present or
-    in the past. Tell event loop how long until the next scheduled task. """
+    """
+    Responsibilities:
+        1. Maintain a list of items to be done at
+           specific times in the future.
+        2. Run items to be done at present or in the past.
+        3. Tell event loop how long until the next scheduled task.
+    """
 
     class Task:
         def __init__(self, func, when, name):
@@ -80,11 +86,15 @@ class Scheduler:
         def __call__(self):
             self.func()
         def __repr__(self):
-            return "Task(%s, %s, %s)" % (repr(self.func), repr(self.when), repr(self.name))
+            return ("Task(%s, %s, %s)" %
+                    (repr(self.func), repr(self.when), repr(self.name)))
+
     def __init__(self):
         self.schedule = []
+
     def schedule_processing(self, func, when, name="unknown"):
         self.schedule.append(self.Task(func, when, name))
+
     def run(self):
         oschedule = self.schedule
         self.schedule = []
@@ -97,7 +107,8 @@ class Scheduler:
                     # FIXME: We could really use an error handler...
                     # but even this is better than crashing the event loop.
                     # Example:
-                    # logger.log_err("Error in scheduled task " + i.name + "\n" + cgitb.html())
+                    # logger.log_err("Error in scheduled task " +
+                    #                i.name + "\n" + cgitb.html())
                     self.handle_error(i)
             else:
                 self.schedule.append(i)
@@ -128,8 +139,20 @@ class Scheduler:
                 )
             )
 
-# Construct a singleton scheduler corresponding to the singleton asyncore event loop.
+
+# Construct a singleton scheduler corresponding to
+# the singleton asyncore event loop.
+
 scheduler = Scheduler()
+
+# In Python 1.5 and earlier, you'd use the apply() built-in function:
+# apply(f, args, kw) calls the function f() with the argument tuple
+# args and the keyword arguments in the dictionary kw. apply() is the
+# same in 2.0+, but thanks to a patch from Greg Ewing, f(*args, **kw)
+# as a shorter and clearer way to achieve the same effect.
+#    -- section 9.1 of http://www.amk.ca/python/2.0/index.html
+
+# So, we use the apply() function to stay compatible with Python 1.5.
 
 def schedule_processing(*args, **kw):
     return apply(scheduler.schedule_processing, args, kw)
@@ -140,10 +163,11 @@ def timeout(*args, **kw):
 def run(*args, **kw):
     return apply(scheduler.run, args, kw)
 
+
 def main(argv):
     return
-    # FIXME: Add a demo sample usage.
-    # For now, see mod_pubsub/kn_apps/sitewatch/sitewatch_sensor.py for a sample usage.
+    # FIXME: Add a demo sample usage.  For now,
+    # see mod_pubsub/kn_apps/sitewatch/sitewatch_sensor.py for sample usage.
 
 if __name__ == "__main__": main(sys.argv)
 
