@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_EVENT_H_
-#define _KN_KN_EVENT_H_ "$Id: kn_Event.h,v 1.3 2003/03/19 05:36:47 ifindkarma Exp $"
+#define _KN_KN_EVENT_H_ "$Id: kn_Event.h,v 1.4 2003/03/22 06:20:20 ifindkarma Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -115,8 +115,8 @@ typedef void (*kn_EventHandler)(kn_EventRef, void*);
 kn_MutableEventRef kn_EventCreateMutable ();
 
 /*!
- * @function   kn_EventCreateMutable
- * @discussion kn_EventCreateMutable creates a mutable event.
+ * @function   kn_EventCreateMutableWithCapacity
+ * @discussion kn_EventCreateMutableWithCapacity creates a mutable event.
  * @param aCapacity The recommended allocated capacity of the event.
  *                  Mutable events vary in size as they are
  *                  manipulated, and the allocated size for the
