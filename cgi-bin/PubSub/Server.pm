@@ -34,7 +34,7 @@ package PubSub::Server;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Server.pm,v 1.6 2003/04/26 02:54:31 ifindkarma Exp $
+# $Id: Server.pm,v 1.7 2003/04/26 03:01:46 ifindkarma Exp $
 
 use strict;
 
@@ -1176,7 +1176,7 @@ sub set_cgi_url
 sub html_prologue_string
 {
     my $quoted_url = PubSub::Htmlsafe::entify($cgi_url);
-    return ("<script type=\"text/javascript\" src=\"$quoted_url?do_method=whoami\"></script>\n");
+    return ("<script type=\"text/javascript\" src=\"$quoted_url?do_method=whoami\"></script>");
 }
 
 # For cross domain and other JavaScript customization.
