@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: pubsublib.php,v 1.5 2003/04/29 00:04:30 ifindkarma Exp $';
+$RCSID = '$Id: pubsublib.php,v 1.6 2003/04/29 05:27:32 troutgirl Exp $';
 
 if (! defined("PUBSUBLIB_PHP_INCLUDED"))
 {
@@ -1333,7 +1333,7 @@ if (! defined("PUBSUBLIB_PHP_INCLUDED"))
                 $input = "PATH";
                 $expected = getenv("PATH");
 
-                $output = kn__gpc($input, false, array("_ENV"));
+                $output = kn__gpc($input, false, array("_ENV", "_SERVER"));
                 $err = "";
                 if (! kn_isEqualTo($output, $expected))
                 {
