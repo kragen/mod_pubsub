@@ -65,7 +65,7 @@ function forwardSales(topic,items)
 
 			poster.open("POST",g_routerURI,false);
 			body = "do_method=notify"+
-//			"&kn_expires=%2b36000"+
+			"&kn_expires=%2b120"+
 			"&type=status"+
 			"&kn_to="+topic+
 			"&title="+title+

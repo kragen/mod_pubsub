@@ -29,7 +29,7 @@ var comments=new Array();var unrecognized=0;
 
 function doLoad()
 {
-    kn_subscribe(topic,this,{do_max_age : 60*60*9 });
+    kn_subscribe(topic,this,{do_max_age : 60*60 });	// 1 hour (why doesn't 1 minute work?)
 }
 
 function onMessage(event)
@@ -85,8 +85,7 @@ function refresh()
         {
             html += "<span class='rank'>"+item.rank+"</span> ";
             if (item.oldRank > item.rank)
-				html += "<img border='0' src='down.gif' alt='"+item.oldRank+"'> ";            if (item.oldRank < item.rank)
-				html += "<img border='0' src='up.gif' alt='"+item.oldRank+"'> ";            html += "<a target='amazonpop_content' href='"+item.link+"'>";            html += "<span class='title'>"+item.title+"</span></a> - ";
+				html += "<font color=maroon>&#9660;</font>";            if (item.oldRank < item.rank)				html += "<font color=green>&#9650;</font>";            html += "<a target='amazonpop_content' href='"+item.link+"'>";            html += "<span class='title'>"+item.title+"</span></a> - ";
             html += "<span class='author'>"+item.author+"</span>";
             html += "<br />";
         }    }
