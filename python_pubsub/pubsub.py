@@ -47,7 +47,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.21 2003/05/06 23:25:20 ifindkarma Exp $
+# $Id: pubsub.py,v 1.22 2003/05/06 23:32:12 ifindkarma Exp $
 
 
 """
@@ -836,7 +836,7 @@ def html_prologue_string(conn):
 def js_prologue_string(conn):
     str = ''
     if not conn.shouldIgnorePrologue():
-        print "Doing prologue"
+        # print "Doing prologue"
         try:
             str = conn.pathread(urlpath(conn.getknroot()) + ['kn_apps', 'kn_lib', 'prologue.js'])[1]
         except: pass
