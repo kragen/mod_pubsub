@@ -6,12 +6,12 @@
     and publishes to a mirror topic on the "to" PubSub Server.
 
     To call:
-        ./repeater.py from-server to-server topic
+        ./repeater.py from-server to-server topic [ ... ]
         
     Example of usage:
         ./repeater.py http://www.mod-pubsub.org:9000/kn http://127.0.0.1:8000/kn /what/apps/blogchatter/pings
 
-    $Id: repeater.py,v 1.3 2003/06/14 03:12:34 ifindkarma Exp $
+    $Id: repeater.py,v 1.4 2003/10/09 00:20:50 bsittler Exp $
     
     Contact Information:
         http://mod-pubsub.sf.net/
@@ -55,7 +55,7 @@
 
 
 # Include standard system libraries:
-import sys
+import sys, getopt
 
 # Include local libraries:
 sys.path = [ "../" ] + sys.path
@@ -70,23 +70,93 @@ class StatusMonitor:
 
 
 class Repeater(StatusMonitor):
-    def __init__(self, client, topic):
-        self.client = client
+    def __init__(self, verbose, recursive, client1, client2, topic, options):
+        self.verbose = verbose
+        self.recursive = recursive
+        self.client1 = client1
+        self.client2 = client2
         self.topic = topic
+        self.options = options
+        if verbose:
+            sys.stderr.write(
+                "repeating %s from %s to %s\n"
+                % (topic, client1.getServerURL(), client2.getServerURL())
+                )
+            sys.stderr.flush()
+        client1.subscribe(topic,
+                          self,
+                          options,
+                          StatusMonitor())
+        if recursive:
+            client1.subscribe(topic + '/kn_subtopics',
+                              self.onSubtopic,
+                              { "do_max_age": "infinity" },
+                              StatusMonitor())
+    def onSubtopic(self, subtopic):
+        try:
+            assert subtopic["kn_payload"].index("kn_") == 0
+        except:
+            Repeater(self.verbose,
+                     self.recursive,
+                     self.client1,
+                     self.client2,
+                     self.topic + "/" + subtopic["kn_payload"],
+                     self.options),
     def onMessage(self, event):
         # print "Message: " + event["kn_payload"]
-        self.client.publish(self.topic,
-                            event,
-                            StatusMonitor())
-
+        self.client2.publish(self.topic,
+                             event,
+                             StatusMonitor())
 
 def main(argv):
+
+    bridge = 0
+    recursive = 0
+    verbose = 0
+    repeat_style = "do_max_n"
+    repeat_value = "10"
+
+    optlist, argv[1:] = getopt.getopt(argv[1:], "hbrv",
+                                      ["help", "bridge", "recursive", "max-n=", "max-age=", "verbose"])
+    for opt, val in optlist:
+        if opt in ('-h', '--help'):
+            print (
+                "Usage: %s [ options ... ] from-server to-server topic [ topic ... ]\n"
+                % (argv[0]) + "\n"
+                "  -h, --help          print this message and exit\n"
+                "  -b, --bridge        repeat from to-server to from-server also\n"
+                "  -r, --recursive     recursively repeat non-\"kn_\" subtopics\n"
+                "  -v, --verbose       print verbose messages to stderr\n"
+                "  --max-n=N           try to replay the last N previous events on startup\n"
+                "  --max-age=AGE       try to replay the last AGE seconds on startup\n"
+                "  --max-age=\"infinity\"  try to replay all old events on startup\n"
+                "\n"
+                "Default is to try to replay the most recent 10 events from each topic on from-server\n"
+                "into the corresponding topic on to-server.\n"
+                )
+            return
+        elif opt in ('-b', '--bridge'):
+            bridge = 1
+        elif opt in ('-r', '--recursive'):
+            recursive = 1
+        elif opt in ('-v', '--verbose'):
+            verbose = 1
+        elif opt in ('--max-n'):
+            repeat_style = "do_max_n"
+            repeat_value = val
+        elif opt in ('--max-age'):
+            repeat_style = "do_max_age"
+            repeat_value = val
 
     try:
         topic = argv[3]
     except:    
-        print "Usage: ./repeater.py from-server to-server topic"
-        return 0
+        sys.stderr.write(
+            "Usage: %s [ --help ] [ options ... ] from-server to-server topic [ topic ... ]\n"
+            % argv[0]
+            )
+        sys.stderr.flush()
+        sys.exit(1)
         
     client1_url = argv[1]
     client2_url = argv[2]
@@ -94,10 +164,10 @@ def main(argv):
     ua = pubsublib.HTTPUserAgent()
     client1 = pubsublib.SimpleClient(ua, client1_url)
     client2 = pubsublib.SimpleClient(ua, client2_url)
-    client1.subscribe(topic,
-                      Repeater(client2, topic),
-                      { "do_max_n": "10" },
-                      StatusMonitor())
+    for topic in argv[3:]:
+        Repeater(verbose, recursive, client1, client2, topic, { repeat_style: repeat_value })
+        if bridge:
+            Repeater(verbose, recursive, client2, client1, topic, { repeat_style: repeat_value })
 
     while 1:
         asyncore.poll(scheduler.timeout())

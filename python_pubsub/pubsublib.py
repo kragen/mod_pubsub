@@ -18,7 +18,7 @@
           nonblocking, using asyncore.
           (libkn.py is multi-threaded and blocking.)
 
-    $Id: pubsublib.py,v 1.15 2003/07/19 21:11:06 rloz Exp $
+    $Id: pubsublib.py,v 1.16 2003/10/09 00:20:50 bsittler Exp $
 
     Known Issues:
        1. Need to complete test suite.
@@ -68,7 +68,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: pubsublib.py,v 1.15 2003/07/19 21:11:06 rloz Exp $
+# $Id: pubsublib.py,v 1.16 2003/10/09 00:20:50 bsittler Exp $
 
 
 
@@ -274,7 +274,11 @@ class Client:
         if message.has_key("kn_route_location"):
             kn_route_location = message["kn_route_location"]
             if self._C_dispatchTable.has_key(kn_route_location):
-                self._C_dispatchTable[kn_route_location].onMessage(message)
+                handler = self._C_dispatchTable[kn_route_location]
+                if type(handler) == types.InstanceType:
+                    handler.onMessage(message)
+                else:
+                    handler(message)
 
     def publish(self, topic, message, statushandler = None):
         """
