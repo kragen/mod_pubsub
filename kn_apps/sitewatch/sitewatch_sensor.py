@@ -50,7 +50,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: sitewatch_sensor.py,v 1.3 2003/02/17 03:25:59 ifindkarma Exp $
+## $Id: sitewatch_sensor.py,v 1.4 2003/02/18 08:16:03 ifindkarma Exp $
 
 
 import os, sys, time, socket, inspect, errno, urllib, urlparse
@@ -66,8 +66,7 @@ import asyncgeturl, scheduler, wakeup   # Part of python_pubsub distribution.
 
 
 class Heartbeat:
-    def __init__(self, sch, server_url, topic, name):
-        self.sch = sch
+    def __init__(self, server_url, topic, name):
         self.speed = 0
         self.server_url = server_url
         self.topic = topic
@@ -84,7 +83,7 @@ class Heartbeat:
         if self.speed > 0:
             self.speed -= 1
         # schedule_processing is similar to set_timeout
-        self.sch.schedule_processing(self, now, "heartbeat")
+        scheduler.schedule_processing(self, now, "heartbeat")
     def set_speed(self, speed):
         self.speed = speed
         self.checked = time.ctime()
@@ -92,8 +91,7 @@ class Heartbeat:
 
 
 class Monitor:
-    def __init__(self, sch, hbeat, url):
-        self.sch = sch
+    def __init__(self, hbeat, url):
         self.hbeat = hbeat
         self.url = url
     def __call__(self, http = None):
@@ -101,7 +99,7 @@ class Monitor:
         if http is not None:
             if int(http.response.status) == 200:
                 self.hbeat.set_speed(100)
-            self.sch.schedule_processing(self, time.time() + 10, "monitor")
+            scheduler.schedule_processing(self, time.time() + 10, "monitor")
         else:
             http = asyncgeturl.AsyncGetURL(self.url, self)
             http.connect()
@@ -119,38 +117,36 @@ def main(argv):
     else:
         server_url = argv[1]
 
-    sch = scheduler.Scheduler()
-
     """Note: replace these sample sites with sites you want to watch."""
     
-    hbeat = Heartbeat(sch, server_url, "/what/sitewatch/1", "sales.knownow.com")
-    Monitor(sch, hbeat, "http://sales.knownow.com/kn?do_method=noop")()
+    hbeat = Heartbeat(server_url, "/what/sitewatch/1", "sales.knownow.com")
+    Monitor(hbeat, "http://sales.knownow.com/kn?do_method=noop")()
     hbeat()
 
-    hbeat = Heartbeat(sch, server_url, "/what/sitewatch/2", "showcase.knownow.com")
-    Monitor(sch, hbeat, "http://showcase.knownow.com:8000/kn?do_method=noop")()
+    hbeat = Heartbeat(server_url, "/what/sitewatch/2", "showcase.knownow.com")
+    Monitor(hbeat, "http://showcase.knownow.com:8000/kn?do_method=noop")()
     hbeat()
 
-    hbeat = Heartbeat(sch, server_url, "/what/sitewatch/3", "knrouter.knownow.com")
-    Monitor(sch, hbeat, "http://knrouter.developer.knownow.com/kn?do_method=noop")()
+    hbeat = Heartbeat(server_url, "/what/sitewatch/3", "knrouter.knownow.com")
+    Monitor(hbeat, "http://knrouter.developer.knownow.com/kn?do_method=noop")()
     hbeat()
 
-    hbeat = Heartbeat(sch, server_url, "/what/sitewatch/4", "www.knownow.com")
-    Monitor(sch, hbeat, "http://www.knownow.com/")()
+    hbeat = Heartbeat(server_url, "/what/sitewatch/4", "www.knownow.com")
+    Monitor(hbeat, "http://www.knownow.com/")()
     hbeat()
 
-    hbeat = Heartbeat(sch, server_url, "/what/sitewatch/5", "developer.knownow.com")
-    Monitor(sch, hbeat, "http://developer.knownow.com/")()
+    hbeat = Heartbeat(server_url, "/what/sitewatch/5", "developer.knownow.com")
+    Monitor(hbeat, "http://developer.knownow.com/")()
     hbeat()
 
-    hbeat = Heartbeat(sch, server_url, "/what/sitewatch/6", "cvs.developer.knownow.com")
-    Monitor(sch, hbeat, "http://cvs.developer.knownow.com/index.cgi/")()
+    hbeat = Heartbeat(server_url, "/what/sitewatch/6", "cvs.developer.knownow.com")
+    Monitor(hbeat, "http://cvs.developer.knownow.com/index.cgi/")()
     hbeat()
 
     while 1:
-        asyncore.poll(sch.timeout())
+        asyncore.poll(scheduler.timeout())
         # print "\n\n asyncore.poll \n"
-        sch.run()
+        scheduler.run()
 
 if __name__ == "__main__": main(sys.argv)
 

@@ -57,7 +57,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: scheduler.py,v 1.1 2003/02/09 05:50:33 ifindkarma Exp $
+## $Id: scheduler.py,v 1.2 2003/02/18 08:16:02 ifindkarma Exp $
 
 
 import time
@@ -68,7 +68,7 @@ import asyncore
     not the polling "standard" asyncore. -- Ben and Adam, 2/8/2003
 """
 
-
+# FIXME: we need to be able to cancel timers we've scheduled previously
 
 class Scheduler:
     class Task:
@@ -105,6 +105,18 @@ class Scheduler:
         else:
             return diff
 
+# construct a singleton scheduler corresponding to the singleton
+# asyncore event loop
+scheduler = Scheduler()
+
+def schedule_processing(*args, **kw):
+    return scheduler.schedule_processing(*args, **kw)
+
+def timeout(*args, **kw):
+    return scheduler.timeout(*args, **kw)
+
+def run(*args, **kw):
+    return scheduler.run(*args, **kw)
 
 def main(argv):
     return # FIXME: Add a demo sample usage.
