@@ -10,29 +10,29 @@
 
     Contact Information:
        http://mod-pubsub.sf.net/
-       mod-pubsub-developer@lists.sourceforge.net          
+       mod-pubsub-developer@lists.sourceforge.net
 """
 
 # Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
-# 
+#
 # 1. Redistributions of source code must retain the above copyright
 # notice, this list of conditions and the following disclaimer.
-# 
+#
 # 2. Redistributions in binary form must reproduce the above copyright
 # notice, this list of conditions and the following disclaimer in
 # the documentation and/or other materials provided with the
 # distribution.
-# 
+#
 # 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
 # be used to endorse or promote any product without prior written
 # permission from KnowNow, Inc.
-# 
+#
 # THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
 # WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -44,10 +44,10 @@
 # IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# 
+#
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.20 2003/05/06 22:56:02 ifindkarma Exp $
+# $Id: pubsub.py,v 1.21 2003/05/06 23:25:20 ifindkarma Exp $
 
 
 """
@@ -573,7 +573,7 @@ class ServerSaver:
 class Server:
     """Responsibilities: accept incoming connections and create
     Connection objects for them.  Track overall server state."""
-    def __init__(self, portnum, logfile, errlog, scheduler, docroot, knroot, verbose, poolfile):
+    def __init__(self, portnum, logfile, errlog, scheduler, docroot, knroot, verbose, poolfile, ignorePrologue):
         self.logfile = logfile
         global logger
         logger = Logger(errlog)
@@ -582,24 +582,25 @@ class Server:
         self.docroot = docroot
         self.knroot = knroot
         self.verbose = verbose
+        self.ignorePrologue = ignorePrologue
         self.root_topic = read_event_pool(poolfile)
         ServerSaver(self.root_topic, poolfile, 30, self.scheduler)
-        
+
         self.portnum = portnum
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(("", portnum))
         self.socket.listen(5)
         asyncore.socket_map[self] = 1
-        
+
         self.connstatus = {}
         self.peers = {}
         self.openedconns = 0
         self.closedconns = 0
         self.starttime = time.time()
-        
+
         self.log(self, 'server', 'start', '')
-    def getname(self): return 'pubsub.Server'  
+    def getname(self): return 'pubsub.Server'
     def readable(self): return 1
     def writable(self): return 0
     def fileno(self): return self.socket.fileno()
@@ -834,9 +835,11 @@ def html_prologue_string(conn):
 
 def js_prologue_string(conn):
     str = ''
-    try:
-        str = conn.pathread(urlpath(conn.getknroot()) + ['kn_apps', 'kn_lib', 'prologue.js'])[1]
-    except: pass
+    if not conn.shouldIgnorePrologue():
+        print "Doing prologue"
+        try:
+            str = conn.pathread(urlpath(conn.getknroot()) + ['kn_apps', 'kn_lib', 'prologue.js'])[1]
+        except: pass
     return ('kn_userid = "anonymous"; kn_displayname = "Anonymous User";\r\n'
             + str + '\r\n' +
             ("if (! window.kn_server) window.kn_server = '/%s';" % conn.urlroot()))
@@ -1063,6 +1066,8 @@ class Connection(asyncore.dispatcher_with_send):
         return self.server.getknroot()
     def pathread(self, realpath):
         return pathread(self.documentroot(), realpath)
+    def shouldIgnorePrologue(self):
+        return self.server.ignorePrologue
 
 def http_header(statusline, contenttype):
     return "HTTP/1.0 %s\r\nContent-Type: %s\r\n\r\n" % (statusline, contenttype)
@@ -1235,7 +1240,8 @@ def main(argv):
     verbose = 0
     filename = None
     autoPortNum = 0
-    optlist, argv[1:] = getopt.getopt(argv[1:], "vhaf:", ["verbose", "help", "auto", "file="])
+    ignorePrologue = 0
+    optlist, argv[1:] = getopt.getopt(argv[1:], "vhaif:", ["verbose", "help", "auto", "ignore", "file="])
     for opt, val in optlist:
         if opt in ('-v', '--verbose'):
             verbose = verbose + 1
@@ -1251,12 +1257,17 @@ def main(argv):
                 "  -a, --auto                 automatically extract the portnum \n"
                 "                             from the {docroot}/kn_apps/kn_lib/prologue.js file;\n"
                 "                             in this case the portnum must *not* be supplied\n"
+                "  -i, --ignore               ignore the prologue.js file; \n"
+                "                             used to run pubsub.py standalone, without being \n"
+                "                             affected by the cross domain setup in prologue.js\n"
             )
             return
         elif opt in ('-f', '--file'):
             filename = val
         elif opt in ('-a', '--auto'):
             autoPortNum = 1
+        elif opt in ('-i', '--ignore'):
+            ignorePrologue = 1
 
     logfile = open("pubsub.log", "ab")
     errlog = open("pubsub.err.log", "ab")
@@ -1319,15 +1330,21 @@ def main(argv):
             )
 
         sch = Scheduler()
-        server = Server(portNum, logfile, errlog, sch, docRoot, topicRoot, verbose, filename)
+        server = Server(portNum, logfile, errlog, sch, docRoot, topicRoot, verbose, filename, ignorePrologue)
 
         if verbose:
+            if ignorePrologue:
+                ignorePrologueStr = "true"
+            else:
+                ignorePrologueStr = "false"
+
             print(
                 "\nPubSub Server initialized\n"
                 "    Port: %s\n"
                 "    Document root: %s\n"
                 "    Topic root: %s\n"
-                "    Event pool file: %s\n" % (str(portNum), docRoot, topicRoot, filename))
+                "    Event pool file: %s\n"
+                "    Prologue ignored: %s\n" % (str(portNum), docRoot, topicRoot, filename, ignorePrologueStr))
         else:
             print "\nPubSub Server initialized\n"
 
