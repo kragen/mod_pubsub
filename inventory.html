@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: inventory.html,v 1.1 2003/06/07 02:09:14 ifindkarma Exp $
+ $Id: inventory.html,v 1.2 2003/06/14 03:25:37 ifindkarma Exp $
 
 -->
 
@@ -249,7 +249,13 @@ resides in the <i>cgi-bin/</i> directory.</td>
 <td bgcolor="white"><a href="perl_pubsub/">perl_pubsub/</a></td>
 <td bgcolor="white">The <b>Perl PubSub Client Library</b>
 and <b>Perl PubSub Server</b> reside in the <i>cgi-bin/</i>
-directory (<a href="cgi-bin/PubSub/">PubSub</a>).</td>
+directory (<a href="cgi-bin/PubSub/">PubSub</a>).  Some sample
+apps that use the Client Library are
+<a href="kn_tools/chat.plx">chat</a>,
+<a href="kn_tools/list_events.plx">list_events</a>,
+<a href="kn_tools/list_routes.plx">list_routes</a>, and
+<a href="kn_tools/list_subtopics.plx">list_subtopics</a>
+in the <a href="kn_tools/">kn_tools/</a> directory.</td>
 </tr>
 
 <tr>
@@ -299,7 +305,11 @@ have the functionality of <i>pubsub.py</i> match that of
 <li> Other helper Python libraries.
 <li> <b>Python PubSub Client Library</b>
 (<a href="python_pubsub/pubsublib.py">pubsublib.py</a>).
-It is single-threaded and non-blocking.
+It is single-threaded and non-blocking.  There are also some
+<a href="python_pubsub/apps/">sample apps</a> that use this library:
+<a href="python_pubsub/apps/chat.py">chat.py</a>,
+<a href="python_pubsub/apps/publish.py">publish.py</a>, and
+<a href="python_pubsub/apps/repeater.py">repeater.py</a>.
 <li> <b>Python PubSub Client Library</b>
 (<a href="python_pubsub/libkn/libkn.py">libkn.py</a>).
 It is multi-threaded and blocking.
