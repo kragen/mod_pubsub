@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: tree_demo.html,v 1.1 2003/03/08 02:33:20 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>pubsub tree demo</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="/kn?do_method=lib"></script>
+
+<script type="text/javascript"><!--
+
+// root topic
+root_topic = kn_argv.kn_topic ? kn_argv.kn_topic : "/";
+
+// chooser topic
+chooser_topic = (
+    kn_argv.chooser_topic ?
+    kn_argv.chooser_topic :
+    ("/who/" + kn.userid + "/apps/view/s/" +
+     Math.random().toString().split('.').join(''))
+    );
+
+chooser_url = kn_resolvePath(location.pathname, "tree1.html");
+
+// change this to your topic viewing tool of choice...
+//viewer_url = kn_resolvePath(location.pathname, "index.html");
+viewer_url = "../introspect/";
+
+function onChoice(evt)
+{
+    frames[1].location.replace(
+        viewer_url +
+        '?' +
+        'kn_topic=' +
+        kn_escape(evt.kn_payload)
+        );
+}
+
+function showChooser()
+{
+    frames[0].location.replace(
+        chooser_url +
+        '?' +
+        'kn_topic=' +
+        kn_escape(chooser_topic) +
+        ';' +
+        'root=' +
+        kn_escape(root_topic)
+        );
+}
+
+function go()
+{
+    kn.subscribe(chooser_topic,
+                 onChoice,
+                 ({ do_max_age: 'infinity' }),
+                 ({ onSuccess: showChooser }));
+}
+
+document.write(
+    '<frameset cols="20%,*" onload="go()">' +
+    '<frame src="' + kn_htmlEscape(kn_blank) + '">' +
+    '<frame src="' + kn_htmlEscape(kn_blank) + '">' +
+    '<' + '/frameset>'
+    );
+
+// -->
+</script>
+</head>
+
+<body text="black" bgcolor="white">
+
+<h1 align="center">JavaScript 1.2 and Frames Required</h1>
+
+<p><strong>Tree demo</strong> requires JavaScript 1.2 support, which
+may be either missing or not enabled. If your browser has such
+support, but that support is disabled, it is suggested that you
+enable it and reload.</p>
+
+<p><strong>Tree demo</strong> also requires frames support, which may
+be either missing or not enabled. If your browser has such support,
+but that support is disabled, it is suggested that you enable it
+and reload.</p>
+
+</body>
+</html>

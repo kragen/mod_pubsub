@@ -1,0 +1,480 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: tree1.html,v 1.1 2003/03/08 02:33:20 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>pubsub tree1</title>
+
+<!-- The PubSub JavaScript Library -->
+<script src="/kn?do_method=lib"></script>
+
+<!-- JavaScript Helper Libraries -->
+<script type="text/javascript" src="../kn_lib/document.js"></script>
+<script type="text/javascript" src="../kn_lib/htmlsafe.js"></script>
+
+<script type="text/javascript"><!--
+
+function choose(topic)
+{
+    top.status = topic;
+}
+
+if (kn_argv.kn_topic != null)
+{
+    var old_choose = choose;
+    choose = function (topic)
+    {
+        kn.publish(
+            kn_argv.kn_topic,
+            ({ kn_payload: topic }),
+            ({ onSuccess: function () { old_choose(topic); } })
+            );
+    };
+}
+topic = kn_argv.root ? kn_argv.root : "/";
+doc = null;
+drawn = false;
+nodes =
+[
+    // the root node, and also the documentation for node structure
+    {
+        // reference to parent node
+        parent: null,
+        // displayed name
+        name: (topic == "/" ? "My PubSub Server" : topic),
+        // feeder topic
+        topic: topic,
+        // "open" or "closed"
+        state: "closed",
+        // array of child indeces
+        children: [ ],
+        // subscription id
+        subscription: null,
+        // is it ready to display newly added children?
+        ready: true,
+        // recursive html picture, or null if it needs to be regenerated
+        html: null,
+        // dirty flag for this node
+        changed: true
+    }
+    ];
+roots = [ 0 ];
+if (topic != "/")
+{
+    var index = nodes.length;
+    nodes[index] =
+    {
+        parent: null,
+        name: "My Event Router",
+        topic: "/",
+        state: "closed",
+        children: [ ],
+        subscription: null,
+        ready: true,
+        html: null,
+        changed: true
+    };
+    roots[roots.length] = index;
+}
+glyphs =
+{
+    spacer: '&nbsp;&nbsp;&nbsp;&nbsp;',
+    // U+25BC BLACK DOWN-POINTING TRIANGLE (WGL4, CJK)
+    open: '&#9660;',
+    // U+25B6 BLACK RIGHT-POINTING TRIANGLE (CJK)
+    closed: '&#9654;'
+};
+// out of the box, windows has lousy CJK support...
+{
+    // sniffing code lifted from The Ultimate JavaScript Client
+    // Sniffer, Version 3.03, at:
+    // http://www.mozilla.org/docs/web-developer/sniffer/browser_type.html
+
+    // convert all characters to lowercase to simplify testing
+    var agt=navigator.userAgent.toLowerCase();
+    var is_win   = ( (agt.indexOf("win")!=-1) || (agt.indexOf("16bit")!=-1) );
+
+    if (is_win)
+    {
+        // U+25BA BLACK RIGHT-POINTING POINTER (WGL4)
+        glyphs.closed = '&#9658;';
+    }
+}
+body_pre = body_post = branch_pre = branch_post = pivot_pre = pivot_post = '';
+if (kn__debug("dom"))
+{
+    // visible debugging for DOM-based rendering optimizations
+    body_pre = '<div style="border: 1px solid blue">';
+    body_post = '<' + '/div>';
+    branch_pre = '<div style="border: 1px solid red">';
+    branch_post = '<' + '/div>';
+    pivot_pre = '<span style="background: lime">';
+    pivot_post = '<' + '/span>';
+}
+function pick(index)
+{
+    var node = nodes[index];
+    choose(node.topic);
+}
+function build(topic, tail)
+{
+    if (topic.charAt(topic.length - 1) != '/')
+    {
+        topic = topic + '/';
+    }
+    return topic + tail;
+}
+function isVisible(node)
+{
+    if (! node.parent) return true;
+    if (node.parent.state != "open") return false;
+    if (! node.parent.ready) return false;
+    return isVisible(node.parent);
+}
+function change(node)
+{
+    node.changed = true;
+    dirty(node);
+}
+function dirty(node)
+{
+    if (node.html == null) return;
+    node.html = null;
+    if (node.parent) dirty(node.parent);
+}
+function toggle(index)
+{
+    var node = nodes[index];
+    if (node.state == 'closed')
+    {
+        node.state = 'open';
+        if (! node.subscription)
+        {
+            node.ready = false;
+            node.subscription =
+                kn.subscribe(
+                    build(node.topic, 'kn_subtopics'),
+                    (function (evt)
+                        {
+                            child_index = nodes.length;
+                            var child = nodes[child_index] = {
+                                parent: node,
+                                name: evt.kn_payload,
+                                topic: build(node.topic, evt.kn_payload),
+                                state: "closed",
+                                children: [ ],
+                                subscription: null,
+                                ready: true,
+                                html: null,
+                                changed: true
+                            };
+                            node.children[node.children.length] = child_index;
+                            change(node);
+                            if (isVisible(child)) draw();
+                        }),
+                    ({
+                        do_max_age: "infinity", kn_expires: "infinity"
+                    }),
+                    ({
+                        onSuccess: (function (evt)
+                        {
+                            node.ready = true;
+                            change(node);
+                            if (isVisible(node)) draw();
+                        })
+                    })
+                    );
+        }
+    }
+    else
+    {
+        node.state = 'closed';
+    }
+    change(node);
+    if (isVisible(node))
+    {
+        var domPivot = null;
+        if (drawn && frames[0].document.getElementById)
+        {
+            domPivot = frames[0].document.getElementById("pivot" + index);
+        }
+        if (domPivot && domPivot.innerHTML)
+        {
+            domPivot.innerHTML =
+                pivot_pre +
+                pivot2html(index) +
+                pivot_post;
+            if (! show2dom(index))
+            {
+                domPivot = null;
+            }
+        }
+        else
+        {
+            domPivot = null;
+        }
+        if (domPivot)
+        {
+            drawInner();
+        }
+        else
+        {
+            draw();
+        }
+    }
+}
+function pivot2html(index)
+{
+    var node = nodes[index];
+    var html = [];
+    html[html.length] =
+        '<a' +
+        ' name="' + index + '"' +
+        ' href="javascript://"';
+    // Netscape Navigator 4.x has a serious setTimeout bug, so we
+    // redraw immediately there; other browsers (Netscape
+    // 6/Mozilla, at least) need to run the redraw from a
+    // setTimeout to avoid occasional JavaScript errors
+    if ((navigator.appVersion.charAt(0) == '4') &&
+        (navigator.appVersion.indexOf("MSIE ") == -1))
+    {
+        html[html.length] =
+            ' onclick="parent.toggle(' +
+            index +
+            '); return false"';
+    }
+    else
+    {
+        html[html.length] =
+            ' onclick="parent.setTimeout(\'toggle(' +
+            index +
+            ')\', 1); return false"';
+    }
+    html[html.length] = '>';
+    html[html.length] = '<small>';
+    html[html.length] =
+        '<tt style="color: ' +
+        (node.ready ? '#777777' : '#cccccc') +
+        '">';
+    html[html.length] = glyphs[node.state];
+    html[html.length] = '<' + '/tt>';
+    html[html.length] = '<' + '/small>';
+    html[html.length] = '<' + '/a>';
+    return html.join("");
+}
+function node2html(index, prefix)
+{
+    var node = nodes[index];
+    node.changed = false;
+    if (node.html != null) return node.html;
+    var html = [];
+    html[html.length] = prefix;
+    html[html.length] = '<span id="pivot' + index + '">';
+    html[html.length] = pivot2html(index);
+    html[html.length] = '<' + '/span>';
+    html[html.length] = glyphs.spacer;
+    html[html.length] =
+        '<a title="' +
+         kn_htmlEscape(node.topic) +
+        '"' +
+        ' href="javascript://"' +
+        ' onclick="parent.pick(' + index + '); return false"' +
+        '>';
+    html[html.length] = visibleEscape(node.name);
+    html[html.length] = '<' + '/a>';
+    html[html.length] = '<br />';
+    if (node.state != 'closed')
+    {
+        for (var i = 0; i < node.children.length; i ++)
+        {
+            html[html.length] = '<div id="branch' + node.children[i] + '">';
+            html[html.length] = node2html(node.children[i], prefix + glyphs.spacer);
+            html[html.length] = '<' + '/div>';
+        }
+    }
+    node.html = html.join("");
+    return node.html;
+}
+function show2dom(index)
+{
+    var node = nodes[index];
+    var domBranch = frames[0].document.getElementById("branch" + index);
+    if (! domBranch)
+    {
+        return false;
+    }
+    var display = isVisible(node) ? 'block' : 'none';
+    if (domBranch.style.display != null)
+    {
+        domBranch.style.display = display;
+    }
+    else
+    {
+        domBranch.style = 'display: ' + display;
+    }
+    for (var i = 0; i < node.children.length; i ++)
+    {
+        if (! show2dom(node.children[i])) return false;
+    }
+    return true;
+}
+function node2dom(index, prefix)
+{
+    var node = nodes[index];
+    if ((node.html == null) && isVisible(node))
+    {
+        if (node.changed)
+        {
+            var domBranch = frames[0].document.getElementById("branch" + index);
+            if (domBranch && domBranch.innerHTML)
+            {
+                domBranch.innerHTML =
+                    branch_pre +
+                    node2html(index, prefix) +
+                    branch_post;
+            }
+            else
+            {
+                // a new root node, perhaps? definitely time to redraw the page
+                drawn = false;
+                draw();
+                return;
+            }
+        }
+        else
+        {
+            for (var i = 0; i < node.children.length; i ++)
+            {
+                node2dom(node.children[i], prefix + glyphs.spacer);
+            }
+        }
+    }
+}
+function draw()
+{
+    var closeDoc = true;
+    if (drawn && frames[0].document.getElementById &&
+        document.body.innerHTML)
+    {
+        for (var i = 0; i < roots.length; i ++)
+        {
+            node2dom(roots[i], '');
+        }
+        closeDoc = false;
+    }
+    var html = drawInner();
+    if (closeDoc)
+    {
+        if (drawn && frames[0].document.body &&
+            frames[0].document.body.innerHTML)
+        {
+            frames[0].document.body.innerHTML =
+                bode_pre +
+                html +
+                body_post;
+        }
+        else
+        {
+            doc.close();
+        }
+    }
+}
+function drawInner()
+{
+    var header =
+        '<script>parent.drawn = false;<' + '/script>' +
+        '<style><!--\n' +
+        'a:link, a:active, a:visited, a:hover {text-decoration: none}\n' +
+        '\n--><' + '/style>' +
+        '<body onload="parent.drawn = true;"' +
+        ' bgcolor="white" text="black" link="black" vlink="black" alink="red">';
+    var html = '';
+    for (var i = 0; i < roots.length; i ++)
+    {
+        html += '<div id="branch' + roots[i] + '">';
+        html += node2html(roots[i], '');
+        html += '<' + '/div>';
+    }
+    doc.open();
+    doc.write(header);
+    doc.write(html);
+    if (drawn)
+    {
+        // bypass KNDocument to make sure reloading the page draws the
+        // right stuff when we use DOM updates
+        kn.documents[frames[0].name].html = doc.html;
+    }
+    return html;
+}
+function loaded()
+{
+    doc = new KNDocument(frames[0]);
+    toggle(0);
+}
+document.write(
+    '<frameset rows="100%,*" border="0" onload="loaded()">' +
+    '<frame src="' + kn_htmlEscape(kn_blank) + '" frameborder="no" />' +
+    '<frame src="' + kn_htmlEscape(kn_blank) + '" scrolling="no" noresize="noresize" frameborder="no" />' +
+    '<' + '/frameset>'
+    );
+
+// -->
+</script>
+</head>
+
+<body text="black" bgcolor="white">
+
+<h1 align="center">JavaScript 1.2 and Frames Required</h1>
+
+<p><strong>tree1</strong> requires JavaScript 1.2 support, which may
+be either missing or not enabled. If your browser has such support,
+but that support is disabled, it is suggested that you enable it
+and reload.</p>
+
+<p><strong>tree1</strong> also requires frames support, which may be
+either missing or not enabled. If your browser has such support,
+but that support is disabled, it is suggested that you enable it
+and reload.</p>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- $Id: index.html,v 1.1 2003/03/08 02:33:20 ifindkarma Exp $ -->
+
+<html>
+<head>
+<title>PubSub JavaScript Tree Widgets</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<style><!--
+
+td.knownow, th {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+h1 {
+  font-size: 18pt;
+  font-weight: normal;
+}
+
+input.clock {
+  border: 0px;
+  background: white;
+  color: black;
+  font-size: 10pt;
+  text-align: right;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+body, td {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+.rule {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: #ff9900; 
+  margin: 0px 0%;
+}
+
+a:link, a:hover, a:active, a:visited {
+  color: #3366cc;
+}
+
+a:link, a:visited, a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+--></style>
+
+<script type="text/javascript"><!--
+
+function start_clock() {
+  setInterval("update_clock()", 500);
+  if (document.all && ! document.getElementById)
+    {
+      for (var i = 0; i < document.all.length; i ++)
+      {
+        var node = document.all[i];
+	  if (node.className == "rule")
+	      {
+	            node.outerHTML = '<hr size="1" color="#ff9900" />';
+              }
+      }
+    }
+}
+
+function update_clock() {
+  var now = new Date();
+  var form = document.forms.clock;
+  if (form)
+    { 
+      var ele = form.elements.clock;
+      if (ele) {
+        var msg = now.toString();
+        // If you'd rather have UTC/GMT...
+        // var msg = now.toUTCString ? now.toUTCString() : now.toGMTString();
+        if (ele.value != msg) ele.value = msg;
+      }
+    }
+}
+
+// -->
+</script>
+</head>
+
+<body bgcolor="#ffffff" link="#3366cc" vlink="#3366cc" alink="#3366cc" text="#000000"
+      leftmargin="10" topmargin="15" marginwidth="10" marginheight="15"
+      onload="start_clock()"> 
+<base target="_top" />
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+
+   <td align="left" valign="top">
+   <h1>&nbsp;<a href="../" target="_blank">mod_pubsub</a> Tree Widgets</h1>
+   </td>
+
+   <form action="javascript://" name="clock">
+   <td align="right" bgcolor="white" class="knownow">
+   <font size="-2"> &nbsp;
+   From the <a href="../" target="_blank">mod_pubsub demos</a> &nbsp; <br/> &nbsp;
+   <input readonly="readonly" size="48" name="clock" class="clock" onfocus="blur()" /> &nbsp;
+   </font></td>
+   </form>
+
+</tr>
+</table>
+
+<div class="rule"></div>
+
+<br><br>
+
+<p> <b><a href="tree1.html" target="_blank">tree1</a></b>,
+<b><a href="tree2.html" target="_blank">tree2</a></b>, and
+<b><a href="tree3.html" target="_blank">tree3</a></b>
+are three different versions of a frameset-embeddable,
+topic-choosing tree widget.
+
+<p> <b>tree1</b> uses Unicode graphics characters.
+<b><a href="tree_demo.html" target="_blank">tree_demo.html</a></b>
+is a demo application using tree1, which uses the tree widget
+in the left frame to choose the initial topic for the
+<b><a href="../introspect/" target="_blank">introspect</a></b>
+application, which is loaded in the right frame.
+
+<p> <b>tree2</b> uses images from Joust
+(<a href="http://www.ivanpeters.com/" target="_blank">www.ivanpeters.com</a>)
+to get a Windows or OS/2 look.  To use this widget,
+you'll need to download those separately.
+
+<p> <b>tree3</b> uses ASCII images.  It is the most portable
+and the ugliest of the three widgets.
+
+<br><br>
+
+<div class="rule"></div>
+
+<table width="100%" border="0" cellpadding="1" cellspacing="0">
+<tr>
+<td align="left" class="knownow"><font size="-2"> &nbsp;
+<a href="../../kn_docs/developer_guide.html" target="_blank">Developer Guide</a> &#183;
+<a href="../../kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol Document</a> &#183;
+<a href="../../kn_docs/javascript_reference.html" target="_blank">JavaScript Library Reference</a>
+</font></td>
+
+<td align="right" class="knownow"><font size="-2">&copy; 2000-2003
+<a href="http://sourceforge.net/projects/mod-pubsub" target="_blank">mod_pubsub project</a> &nbsp; </font></td>
+
+ </tr>
+</table>
+
+</body>
+</html>
