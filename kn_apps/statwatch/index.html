@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/06/23 22:51:13 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub statwatch</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!-- The PubSub JavaScript Library -->
+<script src="/kn?do_method=libform"></script>
+
+<script type="text/javascript"><!--
+// kill the kn_form.js watchdog timer
+clearInterval(kn__formWatchdogHandle);
+kn__formWatchdogHandle = null;
+
+// Apply a CSS style to a form element ("node"). Works in the
+// Netscape6 DOM and the MSIE DOM. The name of the stylesheet
+// property in CSS syntax ("property") is automatically converted
+// to the MSIE syntax when necessary. The value ("value") should
+// be in CSS syntax.
+function setStyle(node, property, value)
+{
+    var ieproperty = "";
+    for (var i = 0; i < property.length; i ++)
+    {
+        if (property.charAt(i) == "-" && i < property.length)
+            ieproperty += property.charAt(++ i).toUpperCase();
+        else
+            ieproperty += property.charAt(i);
+    }
+    if (node.style)
+    {
+        if (node.style[ieproperty] != null)
+            node.style[ieproperty] = value;
+        else
+            node.style = property + ': ' + value;
+    }
+}
+
+{
+  // Makes results start showing up quicker.
+  var hacks = "single";
+  if ((navigator.platform == "MacPPC") &&
+      (navigator.userAgent.indexOf("MSIE") != -1))
+    {
+      // Prevents occasional browser failures in Mac IE
+      hacks += ",noforward";
+    }
+  kn_hacks(hacks);
+}
+
+function got_form(form)
+{
+  for (var index = 0; index < form.elements.length; index ++)
+    {
+      var element = form.elements[index];
+      var s = "document.forms." + form.name + ".elements." + element.name;
+      if (element.timer)
+	{
+	  self.clearTimeout(element.timer);
+	}
+      element.timer =
+	self.setTimeout(s + ".timer=null;" +
+			"setStyle(" + s +
+			", 'color', 'black')",
+			1500);
+      setStyle(element, 'color', 'blue');
+      if (element.name == "speed")
+	{
+	  var color = "red";
+	  if (element.value > 60)
+	    {
+	      color = "lime";
+	    }
+	  else if (element.value >= 30)
+	    {
+	      color = "yellow";
+	    }
+	  setStyle(element, 'background', color);
+	  var parentElement = element.parentNode ? element.parentNode : element.parentElement;
+	  if (parentElement)
+	    {
+	      setStyle(parentElement, 'background', color);
+	    }
+	}
+    }
+}
+
+// -->
+</script>
+
+<style><!--
+
+td.knownow, th {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+h1 {
+  font-size: 18pt;
+  font-weight: normal;
+}
+
+input.clock {
+  border: 0px;
+  background: white;
+  color: black;
+  font-size: 12pt;
+  text-align: right;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+.output {
+  overflow: auto;
+  border: 0px;
+  background: white;
+  color: #999999;
+  align: center;
+  text-align: center;
+  font-size: 16px;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+td, .statement, .speed, .speed .output {
+  align: center;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+body {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+.rule {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: #ff9900; 
+  margin: 0px 0%;
+}
+
+a:link, a:hover, a:active, a:visited {
+  color: #3366cc;
+}
+
+a:link, a:visited, a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+--></style>
+
+<script type="text/javascript"><!--
+
+function start_clock() {
+  setInterval("update_clock()", 500);
+  if (document.all && ! document.getElementById)
+    {
+      for (var i = 0; i < document.all.length; i ++)
+	{
+	  var node = document.all[i];
+	  if (node.className == "rule")
+	    {
+	      node.outerHTML = '<hr size="1" color="#ff9900" />';
+	    }
+	}
+    }
+}
+
+function update_clock() {
+  var now = new Date();
+  var form = document.forms.clock;
+  if (form)
+    { 
+      var ele = form.elements.clock;
+      if (ele) {
+        var msg = now.toString();
+        // If you'd rather have UTC/GMT...
+	// var msg = now.toUTCString ? now.toUTCString() : now.toGMTString();
+	if (ele.value != msg) ele.value = msg;
+      }
+    }
+}
+
+// -->
+</script>
+</head>
+
+<body bgcolor="#ffffff" link="#3366cc" vlink="#3366cc" alink="#3366cc" text="#000000"
+      leftmargin="10" topmargin="15" marginwidth="10" marginheight="15"
+      onload="start_clock();kn__formInit()"> 
+<base target="_top" />
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+
+   <td align="left" valign="top"><h1>Server Status</h1></td>
+
+   <form action="javascript://" name="clock">
+   <td align="right" bgcolor="white" class="knownow">
+   <input readonly="readonly" size="48" name="clock" class="clock" onfocus="blur()" /> &nbsp; </td>
+   </form>
+
+</tr>
+</table>
+
+<div class="rule"></div>
+
+<br /><br />
+
+<noscript>
+
+<h1 align="center">JavaScript 1.2 Required</h1>
+
+<p>This page requires JavaScript 1.2 support,
+which may be either missing or not enabled. If your browser has
+such support, but that support is disabled, it is suggested that
+you enable it and reload.</p>
+
+</noscript>
+
+<center>
+  <table border="0" cellpadding="2">
+  <tr><td valign="top" align="left">
+  <table border="0" width="100%" cellpadding="0" cellspacing="1" bgcolor="#eeeeee">
+
+      <tr>
+        <th width="25%">
+          <font color="black" size="-1">Stat</font>
+        </th>
+        <th>
+          <font color="black" size="-1">Value</font>
+        </th>
+      </tr> 
+
+      <tr><form method="GET" onsubmit="got_form(this)"
+              name="uptime" action="kn:/kn_statistics/uptime">
+          <td bgcolor="white" align="center" class="speed">
+              <input size="10" class="output" readonly="readonly"
+              onfocus="blur()" name="kn_id" value="uptime" /></td>
+          <td bgcolor="white"><textarea cols="45" rows="1"
+              wrap="virtual" class="output" readonly="readonly"
+              onfocus="blur()" name="kn_payload" value="a while">
+              </textarea></td>
+      </form></tr>
+
+
+      <tr><form method="GET" onsubmit="got_form(this)"
+              name="liveconns" action="kn:/kn_statistics/liveconns">
+          <td bgcolor="white" align="center" class="speed">
+              <input size="10" class="output" readonly="readonly"
+              onfocus="blur()" name="kn_id" value="liveconns" /></td>
+          <td bgcolor="white"><textarea cols="45" rows="1"
+              wrap="virtual" class="output" readonly="readonly"
+              onfocus="blur()" name="kn_payload" value="1">
+              </textarea></td>
+      </form></tr>
+
+  </table>
+  </td>
+  </tr>
+  <!-- <tr><form method="GET" action="kn:/kn_statistics/starttime">
+  <td bgcolor="white"><input size="100" name="kn_time_t"></td>
+  </form></tr> -->
+</table>
+</center>
+       
+<br><br>
+
+<div class="rule"></div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Run <a href="../../cgi-bin/pubsub_test.cgi?url=http://127.0.0.1:8000/kn" target="_blank">test</a> to see
+live connections go up and down.
+
+<!--
+<table width="100%" border="0" cellpadding="1" cellspacing="0">
+<tr>
+<td align="left" class="knownow"><font size="-2">Contact information goes here.</font></td>
+<td align="right" class="knownow"><font size="-2">&copy; 2003 <a href="http://mod-pubsub.sourceforge.net/">mod_pubsub</a> </font></td>
+</tr>
+</table>
+-->
+
+</body>
+</html>
