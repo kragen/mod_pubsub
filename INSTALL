@@ -1,24 +1,36 @@
-------------------------------
-mod_pubsub Release March, 2003
-------------------------------
+-----------------------
+mod_pubsub Installation
+-----------------------
 
-Installing the mod_pubsub release is simple if you already have
-experience configuring and running web servers.  You'll need a
-web server with which to run the pubsub engine -- instructions for
-configuring Apache 1.3, assuming you have root on the web server,
-are below.  Other web servers may work but have not been tested
-with this release.
+In this distribution there are two separate PubSub Servers:
+cgi-bin/pubsub.cgi (which requires Apache 1.3 and mod_perl) and
+python_pubsub/pubsub.py (which runs standalone on a command line).
 
-So far, we have tested mod_pubsub with Apache and mod_perl on
-Linux, Mac OS X, and Solaris 2.8.
+So far, we have run cgi-bin/pubsub.cgi with Apache and mod_perl on
+Windows 2000/XP, Linux, Mac OS X, and Solaris 2.8.  Instructions for
+configuring it to run with Apache 1.3 and mod_perl, assuming you have
+root on the web server, are in the "Installation of pubsub.cgi" section
+below.  Other web servers may work but have not been tested so far.
 
-$Id: INSTALL,v 1.10 2003/03/12 02:34:41 ifindkarma Exp $
+Also, we have run python_pubsub/pubsub.py in standalone from the
+command line on Windows 2000/XP, Linux, Mac OS X, and Solaris 2.8.
+For those who don't want to struggle with Apache and mod_perl,
+we recommend you use this standalone PubSub Server instead.
+Please refer to the "pubsub.py: An Alternative, Standalone Server"
+section below.
+
+For questions and comments, please refer to the mailing list.
+
+   http://mod-pubsub.sf.net/
+   mod-pubsub-developer@lists.sourceforge.net
+
+$Id: INSTALL,v 1.11 2003/03/17 03:10:52 ifindkarma Exp $
 
 
 
-------------
-Installation
-------------
+--------------------------
+Installation of pubsub.cgi
+--------------------------
 
 0.  You need Perl 5 or higher to be able to use this distribution;
 we've run it recently with 5.6.1, but it should probably still work
@@ -222,14 +234,26 @@ wrong path?
 
 
 
----------------------------------
-An Alternative, Standalone Server
----------------------------------
+--------------------------------------------
+pubsub.py: An Alternative, Standalone Server
+--------------------------------------------
 
 This release also ships with a standalone Python server that is
 feature-compatible with Apache-running-with-the-mod_pubsub scripts.
+It's a single file that runs standalone without Apache.
 
-You can run it as follows:
+All this requires is a Python installation on your machine, it should
+be runnable as-is from a command line.
+
+To get Python running on Windows, for example, use
+
+  http://www.python.org/windows/
+
+or
+
+  http://www.activestate.com/Products/ActivePython/
+
+You can run the Python PubSub Server as follows:
 
    cd mod_pubsub/python_pubsub
    ./pubsub.py 80 ..
@@ -240,8 +264,9 @@ mod_pubsub/ as its document root.  In a browser, you can go to
    http://localhost/kn_apps/
 
 and run some of the sample PubSub-enabled browser applications.
-So far, we have tested and run pubsub.py on Linux, Solaris, and
-Windows.
+
+So far, we have tested and run pubsub.py on Linux, Mac OS X, Solaris,
+and Windows 2000/XP.
 
 
 
@@ -264,6 +289,9 @@ headlines show up in NewsTicker almost immediately.
 It will eventually finish; if you want a continuous newsfeed, you
 should run rss.plx periodically.
 
+(Alternatively, note that we also have an RSS Feed program provided
+as a sample in the mod_pubsub/cxx_pubsub/LibKN directory.)
+
 
 
 --------------------
@@ -274,5 +302,7 @@ Read TODO to see all the things we want to add and improve.
 Read README for a list of credits.
 
 And: Join the mailing lists to work with the community on making this
-project much better.  http://mod-pubsub.sourceforge.net/
+project much better.
 
+  http://mod-pubsub.sf.net/
+  mod-pubsub-developer@lists.sourceforge.net
