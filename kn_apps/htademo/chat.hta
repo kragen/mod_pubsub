@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title>pubsub chat hta</TITLE>
+
+<!--
+
+    Usage: chat.hta
+
+    Edit the URL in the <frame src="..."> below to point to where
+    your PubSub application lives, then save the HTA to a place
+    in Windows from where you can double click on it to launch it.
+
+    This HyperText Application (HTA) is an example of how to turn
+    a PubSub-enabled application into a binary-executable-style,
+    runnable Windows client application.
+
+    HTAs are Windows applications that can access and use ActiveX
+    components, COM objects, the Windows Scripting Host, and scripting
+    languages.  The main window of an HTA is Internet Explorer, but
+    the window that appears has no default menu, toolbar, or status bar.
+    These are all configurable with parameters to the HTA.
+
+    The main difference between HTML documents and HTAs is security.
+    HTAs have the security constraints of Visual Basic and Visual C++
+    applications: that is, in any COM-based language, HTAs have full
+    read/write access to the hard drive and registry (unlike HTML
+    documents, whose trust model sandboxes them to run only within
+    a Web browser -- no filesystem or registry access).
+
+    HTAs were created by Microsoft to give developers the power of
+    programming Windows applications with the ease of scripting
+    development.  With HTAs a developer can easily employ Internet
+    protocols and formats like XML, HTTP(S), and FTP, and simple
+    but visually attractive user interfaces with DHTML and CSS.
+
+    By perusing this file, you'll see that HTAs are like really
+    thin client applications that run on Windows that work with
+    IE 5+.  Search for HTA tutorials on the Web to learn more.
+
+-->
+
+<HTA:APPLICATION ID="pubsubapp"
+    APPLICATIONNAME="chatplace"
+             BORDER="thick"
+        BORDERSTYLE="normal"
+            CAPTION="yes"
+     MAXIMIZEBUTTON="yes"
+     MINIMIZEBUTTON="yes"
+      SHOWINTASKBAR="yes"
+     SINGLEINSTANCE="no"
+            SYSMENU="yes"
+            VERSION="1.0"
+        WINDOWSTATE="normal"  >
+
+<script>
+window.resizeTo(600,600);
+window.moveTo(0,0);
+</script>
+
+</head>
+<frameset>
+<frame src="http://pubsub.knownow.com:8000/kn_apps/chat2/">
+</frameset>
+</html>
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: chat.hta,v 1.1 2003/04/14 20:57:38 ifindkarma Exp $
+
+-->
