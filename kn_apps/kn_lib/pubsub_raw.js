@@ -1,6 +1,5 @@
 /*! @file pubsub_raw.js PubSub JavaScript library <p>Select the appropriate PubSub JavaScript Library build, one of: <dl> <dt><tt>kn_raw</tt></dt> <dd>unlocalized, debug, uncompressed</dd> <dt><tt>knl_raw</tt></dt> <dd>localized, debug, uncompressed</dd> <dt><tt>knp_raw</tt></dt> <dd>unlocalized, non-debug, uncompressed</dd> <dt><tt>knl</tt></dt> <dd>localized, debug, compressed [for development]</dd> <dt><tt>knp</tt></dt> <dd>unlocalized, non-debug, compressed [for production]</dd> </dl> <pre> <b>self.kn_config_connector = "pubsubl"; // define before kn_config() runs</b> </pre>
  */
-// FIXME: Make long-lived connections work with IE 6+.
 
 // FIXME: Refactor this library so it has an ECMA runtime
 // and a separate browser piece so it can be used with
@@ -40,7 +39,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.4 2003/04/19 00:19:58 ifindkarma Exp $
+// $Id: pubsub_raw.js,v 1.5 2003/04/19 00:20:35 ifindkarma Exp $
 
 ////////////////////////////////////////////////////////////////////////
 // Notes on notation:
@@ -409,7 +408,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.4 2003/04/19 00:19:58 ifindkarma Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.5 2003/04/19 00:20:35 ifindkarma Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -4168,6 +4167,9 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
+// Revision 1.5  2003/04/19 00:20:35  ifindkarma
+// Fixed long-lived connections in IE6+.
+//
 // Revision 1.4  2003/04/19 00:19:58  ifindkarma
 // Fixed long-lived connections in IE6+.
 //
