@@ -11,7 +11,7 @@
     Example of usage:
         ./repeater.py http://www.mod-pubsub.org:9000/kn http://127.0.0.1:8000/kn /what/apps/blogchatter/pings
 
-    $Id: repeater.py,v 1.4 2003/10/09 00:20:50 bsittler Exp $
+    $Id: repeater.py,v 1.5 2003/10/09 17:56:17 bsittler Exp $
     
     Contact Information:
         http://mod-pubsub.sf.net/
@@ -55,11 +55,11 @@
 
 
 # Include standard system libraries:
-import sys, getopt
+import sys, getopt, asyncore
 
 # Include local libraries:
 sys.path = [ "../" ] + sys.path
-import pubsublib, scheduler, asyncore
+import pubsublib, scheduler
 
 
 
