@@ -40,7 +40,7 @@
  * @KNOWNOW_LICENSE_END@
  **/
 
-#define _PROTO_ID_ "$Id: kn_Server_http.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _PROTO_ID_ "$Id: kn_Server_http.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #include <sysexits.h>
 
@@ -71,14 +71,13 @@ static kn_Error kn_ServerConnect (kn_Server* aServer, kn_Server_Connection* aCon
       struct sockaddr_in aSocketAddress;
 
       if (aServer->proxy_port != 0)
-      {
+        {
           aHostName = kn_StringCreateCopy(aServer->proxy_host);
-      }
+        }
       else
-      {
+        {
 	  aHostName = kn_StringCreateWithHostNameFromURI(aServer->uri);
-      }
-
+        }
 
       if (aConnection->state != kStateBegin) kn_ServerDisconnect(aServer, aConnection);
 
@@ -108,14 +107,14 @@ static kn_Error kn_ServerConnect (kn_Server* aServer, kn_Server_Connection* aCon
       aSocketAddress.sin_len    = sizeof(aSocketAddress);
 #endif
       aSocketAddress.sin_family = AF_INET;
-	  if (aServer->proxy_port != 0)
-      {
-		aSocketAddress.sin_port = htons(kn_ServerGetProxyPort(aServer));
-      }
+      if (aServer->proxy_port != 0)
+        {
+          aSocketAddress.sin_port = htons(kn_ServerGetProxyPort(aServer));
+        }
       else
-      {
-        aSocketAddress.sin_port   = htons(kn_StringGetPortFromURI(aServer->uri));
-      }
+        {
+          aSocketAddress.sin_port   = htons(kn_StringGetPortFromURI(aServer->uri));
+        }
       memcpy(&aSocketAddress.sin_addr, aHostEntry->h_addr_list[0], sizeof(aSocketAddress.sin_addr));
       memset(&aSocketAddress.sin_zero, '\0', sizeof(aSocketAddress.sin_zero));
 
@@ -165,12 +164,10 @@ static kn_Error kn_ServerConnect (kn_Server* aServer, kn_Server_Connection* aCon
 	  if (! aServer->ssl_context) aServer->ssl_context = SSL_CTX_new(SSLv23_client_method());
 	  if (! aServer->ssl_context) { anError = kn_MEMORYFAIL; errno = ENOMEM; goto fail; }
 
-		/** setup SSL tunneling when using Proxy with SSL */ 
-		if (aServer->proxy_port != 0)
-		{
-			if((anError = kn_ServerSetSSLTunnel(aServer, aConnection)) != kn_SUCCESS)
-				goto fail;
-		}
+          /** setup SSL tunneling when using Proxy with SSL */ 
+          if (aServer->proxy_port != 0 && (anError = kn_ServerSetSSLTunnel(aServer, aConnection)) != kn_SUCCESS)
+            goto fail;
+
 	  /* Initialize the SSL connection */
 	  if (! (aConnection->ssl_connection = SSL_new(aServer->ssl_context)))
 	    { anError = kn_MEMORYFAIL; errno = ENOMEM; goto fail; }
@@ -465,11 +462,10 @@ static kn_Error kn_ServerReadResponse (kn_Server* aServer, kn_Server_Connection*
       /* Do non-blocking I/O on the socket going forward.                         */
       /* FIXME: We should have done most of this setup in a non-blocking fashion. */
       /*        That is, this call belongs with the connect code.                 */
-	  {
-		 int aFlags = fcntl(aConnection->socket, F_GETFL, 0);
-		 if (aFlags != -1) 
-		     fcntl(aConnection->socket, F_SETFL, aFlags|O_NONBLOCK);
-	  }
+      {
+        int aFlags = fcntl(aConnection->socket, F_GETFL, 0);
+        if (aFlags != -1) fcntl(aConnection->socket, F_SETFL, aFlags|O_NONBLOCK);
+      }
 
       if (aStatusEvent)
         {
@@ -762,75 +758,71 @@ disconnect:
 
 kn_Error kn_ServerSetSSLTunnel(kn_Server *aServer, kn_Server_Connection* aConnection)
 {
-	kn_MutableStringRef	aRequest = kn_StringCreateMutable();
-	kn_Error 	anError = kn_SUCCESS;
-	kn_StringRef aHostName = kn_StringCreateWithHostNameFromURI(aServer->uri);
-	unsigned short port = kn_StringGetPortFromURI(aServer->uri);
-	char 		*aBuffer = (char *)malloc(EVENT_BUFFER_SIZE);
-	char 		aPort[16];
-	ssize_t		aRead = 0;
-
+	kn_MutableStringRef aRequest    = kn_StringCreateMutable();
+	kn_Error 	    anError     = kn_SUCCESS;
+	kn_StringRef        aHostName   = kn_StringCreateWithHostNameFromURI(aServer->uri);
+	unsigned short      aPortNumber = kn_StringGetPortFromURI(aServer->uri);
+	char 		    aPort[16]   = "";
+	char* 	            aBuffer     = (char*)malloc(EVENT_BUFFER_SIZE);
+	ssize_t		    aRead       = 0;
 
 	memset(aBuffer, '\0', sizeof(aBuffer));
 
-	sprintf(aPort, "%d", port);
-
+	sprintf(aPort, "%d", aPortNumber);
 
 	kn_StringAppendCString(aRequest, "CONNECT ");
-	kn_StringAppendString(aRequest, aHostName); 
+	kn_StringAppendString (aRequest, aHostName); 
 	kn_StringAppendCString(aRequest, ":");
 	kn_StringAppendCString(aRequest, aPort);
 	kn_StringAppendCString(aRequest, " HTTP/1.0\r\n");
-	kn_StringAppendString(aRequest, aServer->proxy_auth);
+	kn_StringAppendString (aRequest, aServer->proxy_auth);
 	kn_StringAppendCString(aRequest, aServer->proxy_auth ? "\r\n" : "");
-    kn_StringAppendCString(aRequest, "\r\n");
+        kn_StringAppendCString(aRequest, "\r\n");
 
 	kn_Release(aHostName);
 
 	if (write(aConnection->socket, kn_StringGetBytes(aRequest), kn_StringGetSize(aRequest)) != kn_StringGetSize(aRequest))
-	{
-		anError = kn_IOERROR;
-		goto fail;
-	}
-
-	
+          {
+            anError = kn_IOERROR;
+            goto fail;
+          }
 
 	aRead = read(aConnection->socket, aBuffer, EVENT_BUFFER_SIZE);
 
 	if (aRead == 0 )
-	{
+          {
 #ifdef DEBUG
-		fprintf(stderr, "EOF while reading server response.\n");
+            fprintf(stderr, "EOF while reading server response.\n");
 #endif
-		errno = ECONNABORTED;
-		anError = kn_IOERROR;
-		goto fail;
-	}
+            errno = ECONNABORTED;
+            anError = kn_IOERROR;
+            goto fail;
+          }
 
 	if (aRead == -1)
-	{
+          {
 #ifdef DEBUG
-		fprintf(stderr, "Error while reading server response: %s\n", strerror(errno));
+            fprintf(stderr, "Error while reading server response: %s\n", strerror(errno));
 #endif
-		anError = kn_IOERROR;
-		goto fail;
-	}
+            anError = kn_IOERROR;
+            goto fail;
+          }
+
 	if (strncmp(aBuffer, "HTTP/1.0 200 Connection established", 35) != 0)
-	{
+          {
 #ifdef DEBUG
-		fprintf(stderr, "Failed to setup SSL Tunneling.\n");
+            fprintf(stderr, "Failed to setup SSL Tunneling.\n");
 #endif
-		anError = kn_IOERROR;
-	} 
+            anError = kn_IOERROR;
+          } 
 	else
-	{
+          {
 #ifdef DEBUG
-		fprintf(stderr, "SSL Tunneling was successful \n");
+            fprintf(stderr, "SSL Tunneling was successful \n");
 #endif
-	}
+          }
 
-fail:
-
+ fail:
 	kn_Release(aRequest);
 	free(aBuffer);		
 	return anError;

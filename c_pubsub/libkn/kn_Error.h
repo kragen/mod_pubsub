@@ -41,35 +41,35 @@
  **/
 
 #ifndef _KN_KN_ERROR_H_
-#define _KN_KN_ERROR_H_ "$Id: kn_Error.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_ERROR_H_ "$Id: kn_Error.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*!
-	@header kn_Error
-	kn_Error denotes PubSub client error codes.
+ * @header kn_Error
+ * kn_Error denotes PubSub client error codes.
  */
 
 /*!
-  @enum kn_Error
-  @discussion Error status codes
-  @constant kn_SUCCESS      Success
-  @constant kn_FAIL         Nondescript failure
-  @constant kn_UNSUPPORTED  Operation not supported 
-  @constant kn_OOPS         Unimplemented
-  @constant kn_INTERNAL     Internal error (shouldn't ever happen...!)
-  @constant kn_INVALID      Invalid request
-  @constant kn_PERMISSION   Operation not allowed
-  @constant kn_NOENTRY      Entry does not exist
-  @constant kn_EXISTS       Entry already exists
-  @constant kn_PROTECTED    Access denied to resource
-  @constant kn_TIMEOUT      Operation timed out
-  @constant kn_INTERRUPTED  Request interrupted
-  @constant kn_IOERROR      I/O error
-  @constant kn_NOTCONNECTED Not connected
-  @constant kn_MEMORYFAIL   Out of memory
+ * @enum kn_Error
+ * @discussion Error status codes
+ * @constant kn_SUCCESS      Success
+ * @constant kn_FAIL         Nondescript failure
+ * @constant kn_UNSUPPORTED  Operation not supported 
+ * @constant kn_OOPS         Unimplemented
+ * @constant kn_INTERNAL     Internal error (shouldn't ever happen...!)
+ * @constant kn_INVALID      Invalid request
+ * @constant kn_PERMISSION   Operation not allowed
+ * @constant kn_NOENTRY      Entry does not exist
+ * @constant kn_EXISTS       Entry already exists
+ * @constant kn_PROTECTED    Access denied to resource
+ * @constant kn_TIMEOUT      Operation timed out
+ * @constant kn_INTERRUPTED  Request interrupted
+ * @constant kn_IOERROR      I/O error
+ * @constant kn_NOTCONNECTED Not connected
+ * @constant kn_MEMORYFAIL   Out of memory
  */
 typedef enum {
   kn_SUCCESS = 0,
@@ -97,14 +97,13 @@ typedef enum {
 #include <errno.h>
 
 #if !defined (ELIBBAD)
-#   if defined (ESHLIBVERS)
-#       define ELIBBAD ESHLIBVERS
-#   else
-#       warning ELIBBAD undefined and no equivalent available.
-#       define ELIBBAD EOPNOTSUPP;
-#   endif
+#  if defined (ESHLIBVERS)
+#    define ELIBBAD ESHLIBVERS
+#  else
+#    warning ELIBBAD undefined and no equivalent available.
+#    define ELIBBAD EOPNOTSUPP;
+#  endif
 #endif /** ELIBBAD */
-
 
 #ifdef __cplusplus
 }

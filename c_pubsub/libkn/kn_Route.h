@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_ROUTE_H_
-#define _KN_KN_ROUTE_H_ "$Id: kn_Route.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_ROUTE_H_ "$Id: kn_Route.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,32 +53,30 @@ extern "C" {
 #include "kn_Event.h"
 
 /*!
-	@header kn_Route
-	kn_Route implements a route object.
-
-	The kn_Route object encapsulates a PubSub route. A route is
-	an attribute of a topic on the server,
-	that causes events which are published to that topic to be
-	forwarded to a specific destination topic.  The destination
-	topic might be another topic on the server, on another server
-	("route to a topic"), or a special "journal" topic on the
-	server which forwards events back to the client.  Events
-	forwarded to journal topics are handled by this library via
-	event callback functions ("route to function").
-
-	Routes exist in the server's topic pool, not on the client;
-        the kn_Route object is only a local representation of a route.
-        Deallocation of a kn_Route, therefore, does not by default
-        cause the route to be deleted from the server.  The calling
-        program must call kn_RouteDelete() to delete a route on the
-        server before releasing the route if persistance of the route
-        is not desired.  Note that routes to functions may be deleted
-        by the server if the client is no longer responding to the
-        journal topic.  It is advised that you delete routes which you
-        intend to terminate, rather than depending on the server to
-        clean up for you.  You can request that the library delete the
-        route for you on deallocation by setting the option with
-        kn_RouteSetDeleteOnDealloc().
+ * @header kn_Route
+ * kn_Route implements a route object.
+ * 
+ * The kn_Route object encapsulates a PubSub route. A route is an
+ * attribute of a topic on the server, that causes events which are
+ * published to that topic to be forwarded to a specific destination
+ * topic.  The destination topic might be another topic on the server,
+ * on another server ("route to a topic"), or a special "journal"
+ * topic on the server which forwards events back to the client.
+ * Events forwarded to journal topics are handled by this library via
+ * event callback functions ("route to function").
+ * 
+ * Routes exist in the server's topic pool, not on the client; the
+ * kn_Route object is only a local representation of a route.
+ * Deallocation of a kn_Route, therefore, does not by default cause
+ * the route to be deleted from the server.  The calling program must
+ * call kn_RouteDelete() to delete a route on the server before
+ * releasing the route if persistance of the route is not desired.
+ * Note that routes to functions may be deleted by the server if the
+ * client is no longer responding to the journal topic.  It is advised
+ * that you delete routes which you intend to terminate, rather than
+ * depending on the server to clean up for you.  You can request that
+ * the library delete the route for you on deallocation by setting the
+ * option with kn_RouteSetDeleteOnDealloc().
  */
 
 /**

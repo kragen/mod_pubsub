@@ -40,7 +40,7 @@
  * @KNOWNOW_LICENSE_END@
  **/
 
-#define _POST_ID_ "$Id: kn_Server_publish.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _POST_ID_ "$Id: kn_Server_publish.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 /**
  * Actions
@@ -97,7 +97,7 @@ kn_Error kn_ServerPublishEventToTopic (kn_ServerRef aServerRef, kn_EventRef anEv
   if (aServer->post.state == kStateSendHTTPRequest)
     {
       kn_MutableStringRef aRequest    = kn_StringCreateMutable();
-      kn_StringRef		  aPath       = kn_StringCreateWithPathFromURI(aServer->uri);
+      kn_StringRef	  aPath       = kn_StringCreateWithPathFromURI(aServer->uri);
       kn_StringRef        aHostName   = kn_StringCreateWithHostNameFromURI(aServer->uri);
       kn_StringRef        aPostFields = kn_EventCreateStringByEncodingAsPostFields(anEvent, aTopic);
       char                aContentLength[1024]; /* FIXME: we can compute the correct buffer size */
@@ -105,10 +105,10 @@ kn_Error kn_ServerPublishEventToTopic (kn_ServerRef aServerRef, kn_EventRef anEv
       sprintf(aContentLength, "%ld", (long int)kn_StringGetSize(aPostFields));
 
       kn_StringAppendCString(aRequest, "POST "                           );
-	  if (aServer->proxy_host && !aServer->post.ssl_connection)
-		kn_StringAppendString (aRequest, aServer->uri                    );
-	  else
-		kn_StringAppendString (aRequest, aPath					         ); 
+      if (aServer->proxy_host && !aServer->post.ssl_connection)
+        kn_StringAppendString (aRequest, aServer->uri                    );
+      else
+        kn_StringAppendString (aRequest, aPath				 ); 
       kn_StringAppendCString(aRequest, " HTTP/1.0\r\n"                   );
       kn_StringAppendString (aRequest, aServer->auth_header              );
       kn_StringAppendCString(aRequest, aServer->auth_header ? "\r\n" : "");

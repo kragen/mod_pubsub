@@ -42,7 +42,7 @@
 
 #include "kn_config.h"
 
-RCSID("$Id: kn_Event.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $");
+RCSID("$Id: kn_Event.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $");
 
 #include <sys/types.h>
 #include <stdio.h>
@@ -125,9 +125,9 @@ kn_MutableEventRef kn_EventCreateMutableWithDictionary (kn_DictionaryRef aDictio
 
           /* Huk, huk, huk, blorp! */
           snprintf(aCValue, sizeof(aCValue), "libkn.event_%ld.%ld.%ld",
-                    (long int)anEvent->id,
-                    (long int)anEvent,
-                    (time(NULL) ^ (getpid() << 16)));
+                   (long int)anEvent->id,
+                   (long int)anEvent,
+                   (time(NULL) ^ (getpid() << 16)));
 
           aValue = kn_StringCreateWithCString(aCValue);
 
@@ -229,14 +229,14 @@ kn_EventRef kn_EventCreateWithSimpleEventFormat (kn_StringRef anEventString)
 
       /* Decode name and value */
       {
-          kn_StringRef aDecodedName  = kn_StringCreateByDecodingQuotedPrintable(aName );
-          kn_StringRef aDecodedValue = kn_StringCreateByDecodingQuotedPrintable(aValue);
-          
-          /* Add header to event. */
-          kn_EventSetValue(anEvent, aDecodedName, aDecodedValue);
+        kn_StringRef aDecodedName  = kn_StringCreateByDecodingQuotedPrintable(aName );
+        kn_StringRef aDecodedValue = kn_StringCreateByDecodingQuotedPrintable(aValue);
 
-          kn_Release(aDecodedName );
-          kn_Release(aDecodedValue);
+        /* Add header to event. */
+        kn_EventSetValue(anEvent, aDecodedName, aDecodedValue);
+
+        kn_Release(aDecodedName );
+        kn_Release(aDecodedValue);
       }
 
       kn_Release(aName );

@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_SERVER_H_
-#define _KN_KN_SERVER_H_ "$Id: kn_Server.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_SERVER_H_ "$Id: kn_Server.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,29 +52,29 @@ extern "C" {
 #include "kn_Event.h"
 
 /*!
-	@header kn_Server
-	kn_Server implements a server object.
-
-	The kn_Server object represents a PubSub Server.  A
-	server manages shared events, which may be published from or
-	received by any client of the server.
-
-        A client may subscribe to a topic on a server by establishing
-        a route from that topic to a destination.  A destination may
-        be another topic, or a callback on the client.
-
-        A client may also publish an event to a topic on the server.
-        Events are sent to the topic, where a copy of the event may then
-        be passed along each route established on the topic to the
-        appropriate destination.
-
-        kn_Route is able to register "event handler" functions with a
-        server (using kn_RouteCreateFromTopicToFunctionViaServer()),
-        which creates a route from the server back to the client. The
-        kn_Server object can then be asked to process events which are
-        received from the server along any such routes.  As events are
-        received, the server will invoke the event handler to which the
-        event is destined.
+ * @header kn_Server
+ * kn_Server implements a server object.
+ * 
+ * The kn_Server object represents a PubSub Server.  A server manages
+ * shared events, which may be published from or received by any
+ * client of the server.
+ * 
+ * A client may subscribe to a topic on a server by establishing a
+ * route from that topic to a destination.  A destination may be
+ * another topic, or a callback on the client.
+ * 
+ * A client may also publish an event to a topic on the server.
+ * Events are sent to the topic, where a copy of the event may then be
+ * passed along each route established on the topic to the appropriate
+ * destination.
+ * 
+ * kn_Route is able to register "event handler" functions with a
+ * server (using kn_RouteCreateFromTopicToFunctionViaServer()), which
+ * creates a route from the server back to the client. The kn_Server
+ * object can then be asked to process events which are received from
+ * the server along any such routes.  As events are received, the
+ * server will invoke the event handler to which the event is
+ * destined.
  */
 
 /**
@@ -211,7 +211,6 @@ void kn_ServerSetProxy (kn_ServerRef aServer,
 					  unsigned short int aProxyPort, 
 					  kn_StringRef aProxyUser, 
 					  kn_StringRef aProxyPasswd);
-
 
 /**
  * Actions

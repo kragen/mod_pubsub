@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_EVENT_H_
-#define _KN_KN_EVENT_H_ "$Id: kn_Event.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_EVENT_H_ "$Id: kn_Event.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,26 +52,24 @@ extern "C" {
 #include "kn_Dictionary.h"
 
 /*!
-	@header kn_Event
-	kn_Event implements an event object.
-
-	The kn_Event object encapsulates a PubSub event.  The
-	kn_Event object defines the interaction between the PubSub
-	client and the PubSub Server.  The typical PubSub
-	application is event driven: it subscribes to and responds to
-	events received from PubSub servers, and it sends
-	events back to the server to notify others of activity on the
-	client.
-
-	An event is comprised of an (unsorted) array of headers.  Each
-	header, in turn, consists of a name and a value.  Both the
-	name and the value in a header are strings.  The kn_Event
-	object associates the names and values, which are represented
-	as kn_String objects.
-
-	As a container object, a kn_Event will retain the kn_String
-	references it maintains until they are removed from the event
-	or the event is deallocated, at which point they are released.
+ * @header kn_Event
+ * kn_Event implements an event object.
+ * 
+ * The kn_Event object encapsulates a PubSub event.  The kn_Event
+ * object defines the interaction between the PubSub client and the
+ * PubSub Server.  The typical PubSub application is event driven: it
+ * subscribes to and responds to events received from PubSub servers,
+ * and it sends events back to the server to notify others of activity
+ * on the client.
+ * 
+ * An event is comprised of an (unsorted) array of headers.  Each
+ * header, in turn, consists of a name and a value.  Both the name and
+ * the value in a header are strings.  The kn_Event object associates
+ * the names and values, which are represented as kn_String objects.
+ * 
+ * As a container object, a kn_Event will retain the kn_String
+ * references it maintains until they are removed from the event or
+ * the event is deallocated, at which point they are released.
  */
 
 /**

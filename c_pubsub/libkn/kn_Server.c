@@ -140,7 +140,7 @@ static kn_Error kn_ServerStartTunnel (kn_Server* aServer);
 #define _RAND_ID_ ""
 #endif
 
-RCSID("$Id: kn_Server.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $"_PROTO_ID_""_RAND_ID_""_POST_ID_""_GET_ID_""_Callback_ID_);
+RCSID("$Id: kn_Server.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"_PROTO_ID_""_RAND_ID_""_POST_ID_""_GET_ID_""_Callback_ID_);
 
 /**
  * Allocators
@@ -300,10 +300,8 @@ kn_ServerRef kn_ServerCreateWithURIUserPassword (kn_StringRef aURI, kn_StringRef
  * Accessors
  **/
 
-kn_StringRef kn_ServerGetURI (kn_ServerRef aServer) { return aServer->uri; }
-
-kn_StringRef kn_ServerGetProxyHost (kn_ServerRef aServer) { return aServer->proxy_host; }
-
+kn_StringRef       kn_ServerGetURI       (kn_ServerRef aServer) { return aServer->uri       ; }
+kn_StringRef       kn_ServerGetProxyHost (kn_ServerRef aServer) { return aServer->proxy_host; }
 unsigned short int kn_ServerGetProxyPort (kn_ServerRef aServer) { return aServer->proxy_port; }
 
 void kn_ServerSetConnectionCallback (kn_ServerRef aServerRef, kn_ServerConnectionCallback aCallback, void* aUserData)
@@ -314,48 +312,41 @@ void kn_ServerSetConnectionCallback (kn_ServerRef aServerRef, kn_ServerConnectio
   aServer->connect_userdata = aUserData;
 }
 
-
-void kn_ServerSetProxy(kn_ServerRef aServerRef, 
-							 kn_StringRef aProxyHost, 
-							 unsigned short int aProxyPort,
-							 kn_StringRef aProxyUser,
-							 kn_StringRef aProxyPasswd) 
+void kn_ServerSetProxy(kn_ServerRef       aServerRef, 
+                       kn_StringRef       aProxyHost, 
+                       unsigned short int aProxyPort,
+                       kn_StringRef       aProxyUser,
+                       kn_StringRef       aProxyPasswd) 
 {
-	kn_Server *aServer = (kn_Server *)aServerRef;
+  kn_Server *aServer = (kn_Server *)aServerRef;
 
-	aServer->proxy_host = kn_Retain(aProxyHost);	
-	aServer->proxy_port = aProxyPort;
+  aServer->proxy_host = kn_Retain(aProxyHost);	
+  aServer->proxy_port = aProxyPort;
 
-    /* If only one of user or password is specified, set the other to "" */
-    if (aProxyUser && !kn_Retain(aProxyPasswd)) 
-		aProxyPasswd = kn_StringCreateWithCString("");
-    if (aProxyPasswd && !kn_Retain(aProxyUser)) 
-		aProxyUser     = kn_StringCreateWithCString("");
+  /* If only one of user or password is specified, set the other to "" */
+  if (aProxyUser   && !kn_Retain(aProxyPasswd)) aProxyPasswd = kn_StringCreateWithCString("");
+  if (aProxyPasswd && !kn_Retain(aProxyUser  )) aProxyUser   = kn_StringCreateWithCString("");
 
-	if (aProxyUser && aProxyPasswd)
-	{	
-
-	  /* Basic auth header is "Proxy-Authorization: Basic <aProxyUser>:<aProxyPasswd>" */
-	  kn_MutableStringRef anAuthHeader = kn_StringCreateMutableWithCString("Proxy-Authorization: Basic ");
-	  kn_MutableStringRef anAuthInfo   = kn_StringCreateMutableWithSize(
-											kn_StringGetSize(aProxyUser) +
-									    	sizeof(":") +
-									        kn_StringGetSize(aProxyPasswd));
-	  kn_StringRef anAuthData;
+  if (aProxyUser && aProxyPasswd)
+    {	
+      /* Basic auth header is "Proxy-Authorization: Basic <aProxyUser>:<aProxyPasswd>" */
+      kn_MutableStringRef anAuthHeader = kn_StringCreateMutableWithCString("Proxy-Authorization: Basic ");
+      kn_MutableStringRef anAuthInfo   = kn_StringCreateMutableWithSize(kn_StringGetSize(aProxyUser) +
+                                                                        sizeof(":")                  +
+                                                                        kn_StringGetSize(aProxyPasswd));
+      kn_StringRef anAuthData;
   
-	  kn_StringAppendString (anAuthInfo, aProxyUser);
-	  kn_StringAppendCString(anAuthInfo, ":");
-	  kn_StringAppendString (anAuthInfo, aProxyPasswd);
+      kn_StringAppendString (anAuthInfo, aProxyUser);
+      kn_StringAppendCString(anAuthInfo, ":");
+      kn_StringAppendString (anAuthInfo, aProxyPasswd);
   
-	  anAuthData = kn_StringCreateByEncodingBase64(anAuthInfo);
+      anAuthData = kn_StringCreateByEncodingBase64(anAuthInfo);
   
-	  kn_StringAppendString(anAuthHeader, anAuthData);
-  
-	  kn_Release(anAuthData);
-	  kn_Release(anAuthInfo);
+      kn_StringAppendString(anAuthHeader, anAuthData);
 
-	  aServer->proxy_auth = anAuthHeader;
-	}
+      kn_Release(anAuthData);
+      kn_Release(anAuthInfo);
 
+      aServer->proxy_auth = anAuthHeader;
+    }
 }
-

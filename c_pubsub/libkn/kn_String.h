@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_STRING_H_
-#define _KN_KN_STRING_H_ "$Id: kn_String.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_STRING_H_ "$Id: kn_String.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,41 +53,40 @@ extern "C" {
 #include "kn_Error.h"
 
 /*!
-	@header kn_String
-	kn_String implements a string object.
-
-	The kn_String object encapsulates a byte string containing the
-	string data and keeps track of the size of the byte string, as
-	byte strings may contain nul and are therefore not assumed to be
-        be nul-terminated.  Strings may contain binary data or character
-        (user readable) string data.
-
-        Character strings in kn_String objects are usually assumed by
-        convention to be UTF-8 encoded.  (7-bit ASCII strings need no
-        conversion, as ASCII is a subset of UTF-8.)  That is, event
-        headers and values are generally assumed by clients to be
-        UTF-8 encoded.  This is not, however, a requirement.  Exceptions
-        include binary payload data (eg. an image payload), or text
-        payload data when a different content-encoding is specified.
-
-        Though the byte strings as not specified to be nul-terminated
-        (they may, for example, contain embedded nul characters), the
-        kn_String object appends a nul character to all strings.  If
-        you know that the string data does not contain nul characters,
-        you can pass the value returned by kn_StringGetBytes along to
-        a function (such as printf) that expects a regular
-        nul-terminated C string.  This trailing nul is an
-        interoperability convenience and is not considered part of the
-        string (eg. it is not calculated into the string's size).
-
-	Note, however, that strings which are created by direct
-	reference to a C string (eg. by calling
-	kn_StringCreateWithBytesNoCopy()) will not attempt to write a
-	nul byte after the end of the string.  If you want those
-	strings to be nul-terminated, you must ensure this yourself;
-	however, this API does not require that you do so.  Authors of
-	software libraries should never depend on a trailing nul in
-	strings they have not created themselves.
+ * @header kn_String
+ * kn_String implements a string object.
+ *
+ * The kn_String object encapsulates a byte string containing the
+ * string data and keeps track of the size of the byte string, as byte
+ * strings may contain nul and are therefore not assumed to be be
+ * nul-terminated.  Strings may contain binary data or character (user
+ * readable) string data.
+ *
+ * Character strings in kn_String objects are usually assumed by
+ * convention to be UTF-8 encoded.  (7-bit ASCII strings need no
+ * conversion, as ASCII is a subset of UTF-8.)  That is, event headers
+ * and values are generally assumed by clients to be UTF-8 encoded.
+ * This is not, however, a requirement.  Exceptions include binary
+ * payload data (eg. an image payload), or text payload data when a
+ * different content-encoding is specified.
+ *
+ * Though the byte strings as not specified to be nul-terminated (they
+ * may, for example, contain embedded nul characters), the kn_String
+ * object appends a nul character to all strings.  If you know that
+ * the string data does not contain nul characters, you can pass the
+ * value returned by kn_StringGetBytes along to a function (such as
+ * printf) that expects a regular nul-terminated C string.  This
+ * trailing nul is an interoperability convenience and is not
+ * considered part of the string (eg. it is not calculated into the
+ * string's size).
+ *
+ * Note, however, that strings which are created by direct reference
+ * to a C string (eg. by calling kn_StringCreateWithBytesNoCopy())
+ * will not attempt to write a nul byte after the end of the string.
+ * If you want those strings to be nul-terminated, you must ensure
+ * this yourself; however, this API does not require that you do so.
+ * Authors of software libraries should never depend on a trailing nul
+ * in strings they have not created themselves.
  */
 
 /**

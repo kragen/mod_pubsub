@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_DICTIONARY_H_
-#define _KN_KN_DICTIONARY_H_ "$Id: kn_Dictionary.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_DICTIONARY_H_ "$Id: kn_Dictionary.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,20 +54,20 @@ extern "C" {
 #include "kn_String.h"
 
 /*!
-	@header kn_Dictionary
-	kn_Dictionary implements a dictionary (associative array) object.
-
-	The kn_Dictionary object is a container object for name/value
-	pairs.  Names must be kn_String objects; values may be any
-	kn_Object subtype and may not be NULL.  Names in any given
-	dictionary must be unique; for a specified name, there is
-	either zero or one object in the dictionary associated with
-	that name.
-
-	All names and values contained in the dictionary are retained
-	by the dictionary while it keeps a reference; names and values
-	are released when they are removed from the dictionary or when
-	the dictionary is deallocated.
+ * @header kn_Dictionary
+ * kn_Dictionary implements a dictionary (associative array) object.
+ * 
+ * The kn_Dictionary object is a container object for name/value
+ * pairs.  Names must be kn_String objects; values may be any
+ * kn_Object subtype and may not be NULL.  Names in any given
+ * dictionary must be unique; for a specified name, there is
+ * either zero or one object in the dictionary associated with
+ * that name.
+ * 
+ * All names and values contained in the dictionary are retained
+ * by the dictionary while it keeps a reference; names and values
+ * are released when they are removed from the dictionary or when
+ * the dictionary is deallocated.
  */
 
 /**

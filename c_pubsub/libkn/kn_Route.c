@@ -42,7 +42,7 @@
 
 #include "kn_config.h"
 
-RCSID("$Id: kn_Route.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $");
+RCSID("$Id: kn_Route.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $");
 
 #include <stdlib.h>
 #include <errno.h>
@@ -204,7 +204,7 @@ kn_RouteRef kn_RouteCreateFromTopicToFunctionViaServer (kn_StringRef aTopic, kn_
 
       if (!anEvent) return NULL;
 
-      if(!kn_ServerRegisterCallback(aServer, kn_EventGetValue(anEvent, KNSTR("kn_uri")), aDestination, aUserData))
+      if (!kn_ServerRegisterCallback(aServer, kn_EventGetValue(anEvent, KNSTR("kn_uri")), aDestination, aUserData))
         aRoute = kn_RouteCreateFromTopicToTopicViaServerWithEvent(aTopic, aDestinationURI,
                                                                   aServer, anOptions,
                                                                   aStatusHandler, aUserData,

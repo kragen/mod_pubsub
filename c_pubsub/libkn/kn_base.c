@@ -42,10 +42,10 @@
 
 #include "kn_config.h"
 
-IDSTRING(vers_info, "@(#) PubSub client library version "VERSION"."             );
-IDSTRING(copyright, "@(#) Copyright (c) 2001-2002 KnowNow, Inc.");
+IDSTRING(vers_info, "@(#) PubSub client library version "VERSION".");
+IDSTRING(copyright, "@(#) Copyright (c) 2001-2003 KnowNow, Inc.");
 
-RCSID("$Id: kn_base.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $");
+RCSID("$Id: kn_base.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $");
 
 #include "kn_base.h"
 

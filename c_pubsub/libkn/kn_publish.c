@@ -42,7 +42,7 @@
 
 #include "kn_config.h"
 
-RCSID("$Id: kn_publish.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $");
+RCSID("$Id: kn_publish.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $");
 
 #include <errno.h>
 #include <fcntl.h>
@@ -65,7 +65,7 @@ static int usage ()
 	  "       -S: input is a pre-formatted event in \"simple\" format\n"
 	  "       -D: delete header from the published event (useful with -S)\n"
 	  "       -H: add header name and value the published event\n"
-      "       -p: proxyHost and proxyPort \n"
+          "       -p: proxyHost and proxyPort \n"
 	  );
   exit(EX_USAGE);
 }
@@ -134,22 +134,21 @@ int main (int argc, char* const argv[])
 	      optind++;
 	    }
 	  break;
-
       
-    case 'p':
-      if (optind >= argc)
-        {
-          fprintf(stderr, "%s: option requires two arguments -- %c\n", argv[0], (char)opt);
-          usage();
-        }
-      else
-        {
-			proxyHost = kn_StringCreateWithCString(optarg);
-			proxyPort = atoi(argv[optind]);
-            useProxy = kn_TRUE;
-            optind++;
-	    }
-      break;
+        case 'p':
+          if (optind >= argc)
+            {
+              fprintf(stderr, "%s: option requires two arguments -- %c\n", argv[0], (char)opt);
+              usage();
+            }
+          else
+            {
+              proxyHost = kn_StringCreateWithCString(optarg);
+              proxyPort = atoi(argv[optind]);
+              useProxy = kn_TRUE;
+              optind++;
+            }
+          break;
 
 	default:
 	  fprintf(stderr, "%s: unknown option %c\n", argv[0], (char)opt);
@@ -183,12 +182,12 @@ int main (int argc, char* const argv[])
     else
       aFileName = "<stdin>";
 
-	if (useProxy)
-    {	
-		kn_ServerSetProxy(aServer, proxyHost, proxyPort, NULL, NULL);
-		kn_Release(proxyHost);
-	}
-		
+    if (useProxy)
+      {	
+        kn_ServerSetProxy(aServer, proxyHost, proxyPort, NULL, NULL);
+        kn_Release(proxyHost);
+      }
+
     while ((aRead = read(aFileDescriptor, aBuffer, sizeof(aBuffer))) > 0)
       {
 	kn_StringRef anAppend = kn_StringCreateWithBytesNoCopy(aBuffer, aRead, kn_FALSE);

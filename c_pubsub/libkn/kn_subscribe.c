@@ -42,7 +42,7 @@
 
 #include "kn_config.h"
 
-RCSID("$Id: kn_subscribe.c,v 1.1 2002/12/21 03:38:44 bsittler Exp $");
+RCSID("$Id: kn_subscribe.c,v 1.2 2003/03/07 06:16:08 wsanchez Exp $");
 
 #include <errno.h>
 #include <fcntl.h>
@@ -65,7 +65,7 @@ static int usage ()
 	  "       -P: output event payload only (default)\n"
 	  "       -S: output event in \"simple\" format\n"
 	  "       -H: specify header name and value to add to the subscription event\n"
-      "       -p: specify proxy setting as proxy host and proxy port\n"
+          "       -p: specify proxy setting as proxy host and proxy port\n"
 	  );
   exit(EX_USAGE);
 }
@@ -154,20 +154,21 @@ int main (int argc, char* const argv[])
 	      optind++;
 	    }
 	  break;
-    case 'p':
-		if (optind >= argc)
-		{
-			fprintf(stderr, "%s: option requires two arguments -- %c\n", argv[0], (char)opt);
-		    usage();
-		}
-		else
-		{
-			proxyHost = kn_StringCreateWithCString(optarg);
-			proxyPort = atoi(argv[optind]);
-			useProxy = kn_TRUE;
-			optind++;
-		}
-		break;
+
+        case 'p':
+          if (optind >= argc)
+            {
+              fprintf(stderr, "%s: option requires two arguments -- %c\n", argv[0], (char)opt);
+              usage();
+            }
+          else
+            {
+              proxyHost = kn_StringCreateWithCString(optarg);
+              proxyPort = atoi(argv[optind]);
+              useProxy  = kn_TRUE;
+              optind++;
+            }
+          break;
 
 	default:
 	  fprintf(stderr, "%s: unknown option %c\n", argv[0], (char)opt);
@@ -190,11 +191,11 @@ int main (int argc, char* const argv[])
 
     kn_Release(aURI);
 
-	if (useProxy)
-	{
-		kn_ServerSetProxy(aServer, proxyHost, proxyPort, NULL, NULL);
-		kn_Release(proxyHost);
-	}
+    if (useProxy)
+      {
+        kn_ServerSetProxy(aServer, proxyHost, proxyPort, NULL, NULL);
+        kn_Release(proxyHost);
+      }
 
     if (aDebugOpt)
       { fprintf(stderr, "Server: "); PrintObject(aServer, stderr); fprintf(stderr, "\n"); }

@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_OBJECT_H_
-#define _KN_KN_OBJECT_H_ "$Id: kn_Object.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_OBJECT_H_ "$Id: kn_Object.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,38 +51,38 @@ extern "C" {
 #include "kn_String.h"
 
 /*!
-	@header kn_Object
-	kn_Object implements the base object type.
-
-	kn_Object provides the base functionality for all kn_* object
-	types.  All kn_* types are kn_Objects; therefore, any kn_*
-	reference may be cast into a kn_ObjectRef.
-
-	Every kn_Object contains a reference count and may be retained
-	or released.  When an object with a retain count of one is
-	released, it is (eventually) deallocated by the library.  (In
-	general, it is deallocated immediately, but this is not
-	guaranteed by the library.)
-
-	All object functions which create new objects
-	(eg. kn_StringCreateWithCString) return an object with a
-	retained reference.  It is the responsibility of the caller to
-	release that reference when it is done with the object.
-	Having released the object, it should no longer be used, as it
-	may no longer be a valid reference.
-
-	Any caller of a function which returns an unretained object
-	(for example "get" functions like kn_EventGetValue) must retain
-	that object if it is to keep a reference to the object beyond
-	its scope.  That is, the object will not be deallocated before
-	the calling function returns, but if a reference is kept for
-	future use, it must be retained.
-
-	Having retained an object, you must also ensure that it is
-	later released when it is no longer referenced so that it can
-	be deallocated.  As an example, a container like kn_Dictionary
-	retains all names and values as they are inserted into the
-	dictionary object and releases them as they are removed.
+ * @header kn_Object
+ * kn_Object implements the base object type.
+ * 
+ * kn_Object provides the base functionality for all kn_* object
+ * types.  All kn_* types are kn_Objects; therefore, any kn_*
+ * reference may be cast into a kn_ObjectRef.
+ * 
+ * Every kn_Object contains a reference count and may be retained or
+ * released.  When an object with a retain count of one is released,
+ * it is (eventually) deallocated by the library.  (In general, it is
+ * deallocated immediately, but this is not guaranteed by the
+ * library.)
+ * 
+ * All object functions which create new objects
+ * (eg. kn_StringCreateWithCString) return an object with a retained
+ * reference.  It is the responsibility of the caller to release that
+ * reference when it is done with the object.  Having released the
+ * object, it should no longer be used, as it may no longer be a valid
+ * reference.
+ * 
+ * Any caller of a function which returns an unretained object (for
+ * example "get" functions like kn_EventGetValue) must retain that
+ * object if it is to keep a reference to the object beyond its scope.
+ * That is, the object will not be deallocated before the calling
+ * function returns, but if a reference is kept for future use, it
+ * must be retained.
+ * 
+ * Having retained an object, you must also ensure that it is later
+ * released when it is no longer referenced so that it can be
+ * deallocated.  As an example, a container like kn_Dictionary retains
+ * all names and values as they are inserted into the dictionary
+ * object and releases them as they are removed.
  */
 
 /**

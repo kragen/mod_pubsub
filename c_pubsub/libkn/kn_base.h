@@ -41,15 +41,15 @@
  **/
 
 #ifndef _KN_BASE_H_
-#define _KN_BASE_H_ "$Id: kn_base.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_BASE_H_ "$Id: kn_base.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*!
-	@header kn_base
-	kn_base provides basic fundamental contructs
+ * @header kn_base
+ * kn_base provides basic fundamental contructs
  */
 
 /*!

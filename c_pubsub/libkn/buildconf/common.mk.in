@@ -103,6 +103,6 @@ LIBKN_STATIC        = lib$(NAME)$(lib_ext)
 LIBKN_DEBUG_DYNAMIC = lib$(NAME)_debug$(shlib_ext)
 LIBKN_DEBUG_STATIC  = lib$(NAME)_debug$(lib_ext)
 
-LIBKN = @LIBKN@
-LIBCRYPT	= @LIBCRYPT@
-LIBSSL	= @LIBSSL@
+LIBKN    = @LIBKN@
+LIBCRYPT = @LIBCRYPT@
+LIBSSL	 = @LIBSSL@

@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_STRING_URI_H_
-#define _KN_KN_STRING_URI_H_ "$Id: kn_String_URI.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_STRING_URI_H_ "$Id: kn_String_URI.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,22 +51,22 @@ extern "C" {
 #include "kn_String.h"
 
 /*!
-	@header kn_String_URI
-	kn_String_URI extends the kn_String API to add URI parsing
-        routines.
-        
-        URI strings passed into these routines are expected to be
-        properly formed URIs;  if malformed URIs are received, the
-        resulting behavior is undefined.
-*/
+ * @header kn_String_URI
+ * kn_String_URI extends the kn_String API to add URI parsing
+ * routines.
+ *       
+ * URI strings passed into these routines are expected to be
+ * properly formed URIs;  if malformed URIs are received, the
+ * resulting behavior is undefined.
+ */
 
 /*!
-  @enum kn_Protocol
-  @discussion Protocols
-  @constant kn_PROTOCOL_INVALID  No protocol (error)
-  @constant kn_PROTOCOL_UNKNOWN  Unknown protocol
-  @constant kn_PROTOCOL_HTTP     HTTP
-  @constant kn_PROTOCOL_HTTPS    HTTP over SSL (HTTPS)
+ * @enum kn_Protocol
+ * @discussion Protocols
+ * @constant kn_PROTOCOL_INVALID  No protocol (error)
+ * @constant kn_PROTOCOL_UNKNOWN  Unknown protocol
+ * @constant kn_PROTOCOL_HTTP     HTTP
+ * @constant kn_PROTOCOL_HTTPS    HTTP over SSL (HTTPS)
  */
 typedef enum {
   kn_PROTOCOL_INVALID  = 0,

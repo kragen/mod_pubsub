@@ -41,7 +41,7 @@
  **/
 
 #ifndef _KN_KN_STRING_WEBENCODING_H_
-#define _KN_KN_STRING_WEBENCODING_H_ "$Id: kn_String_WebEncoding.h,v 1.1 2002/12/21 03:38:44 bsittler Exp $"
+#define _KN_KN_STRING_WEBENCODING_H_ "$Id: kn_String_WebEncoding.h,v 1.2 2003/03/07 06:16:08 wsanchez Exp $"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,10 +50,10 @@ extern "C" {
 #include "kn_String.h"
 
 /*!
-	@header kn_String_WebEncoding
-	kn_String_WebEncoding extends the kn_String API to add
-	encoding routines used by web applications.
-*/
+ * @header kn_String_WebEncoding
+ * kn_String_WebEncoding extends the kn_String API to add
+ * encoding routines used by web applications.
+ */
 
 /**
  * Allocators
