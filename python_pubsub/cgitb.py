@@ -1,3 +1,10 @@
+# cgitb.py -- a traceback printer for CGI scripts 
+# We got this code from http://lfw.org/python/ -- thanks ?!ng
+
+
+# FIXME: Does not escape HTML markup in exceptions.
+# This exposes browsers to inter-domain security compromises and spoofing.
+
 import sys, os, types, string, keyword, linecache, tokenize, inspect, pydoc
 
 def breaker():
@@ -103,3 +110,5 @@ def handler():
 if __name__ == '__main__':
     try: import tester
     except: handler()
+
+# End of cgitb.py
