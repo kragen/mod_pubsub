@@ -32,7 +32,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: Makefile,v 1.2 2003/07/23 03:26:28 ifindkarma Exp $
+# $Id: Makefile,v 1.3 2003/07/23 18:04:30 ifindkarma Exp $
 
 .PHONY: all update-cache update-cache-rules clean docs
 
@@ -61,7 +61,8 @@ update-cache:
 # automagically by the action associated with the "docs" target.
 
 doxygen-output: Doxyfile mainpage.js
-	doxygen  # NOTE: You must have doxygen installed or make will fail.
+	: NOTE: You must have doxygen installed or make will fail.
+	doxygen
 	@touch doxygen-output
 
 -include cache-rules
