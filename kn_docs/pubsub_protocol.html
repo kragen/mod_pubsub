@@ -37,7 +37,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: pubsub_protocol.html,v 1.2 2003/03/19 03:07:27 ifindkarma Exp $
+ $Id: pubsub_protocol.html,v 1.3 2003/03/22 12:01:20 ifindkarma Exp $
 
 -->
 
@@ -272,7 +272,7 @@ of your DHTML application:</p>
 &lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;MyApp&lt;/title&gt;
-    &lt;script src="../../cgi-bin/pubsub.cgi?do_method=libform"&gt;&lt;/script&gt;
+    &lt;script src="/kn?do_method=libform"&gt;&lt;/script&gt;
 </pre>
 
 <p>To publish events to a topic, use an HTML
@@ -303,7 +303,7 @@ of your DHTML application:</p>
 &lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;MyApp&lt;/title&gt;
-    &lt;script src="../../cgi-bin/pubsub.cgi?do_method=lib2form"&gt;&lt;/script&gt;
+    &lt;script src="/kn?do_method=lib2form"&gt;&lt;/script&gt;
 </pre>
 
 <p>To simultaneously publish and subscribe to a topic, use an HTML
@@ -616,7 +616,7 @@ matching payloads, e.g. <samp>(?i)\bimportant\b</samp></dd>
 <dt><code>kn_content_transform</code></dt>
 
 <dd>A URI and optional keyword for a payload transformer, e.g.
-<samp>http://foo/mod_pubsub/cgi-bin/kn_transform/rot13.cgi</samp></dd>
+<samp>http://foo/mod_pubsub/cgi-bin/xform_rot13.cgi</samp></dd>
 </dl>
 </div>
 
@@ -802,7 +802,7 @@ be used to determine which frame a callback was called in.</p>
 <hr />
 
 <p>
-$Id: pubsub_protocol.html,v 1.2 2003/03/19 03:07:27 ifindkarma Exp $</p>
+$Id: pubsub_protocol.html,v 1.3 2003/03/22 12:01:20 ifindkarma Exp $</p>
 
 </body>
 </html>

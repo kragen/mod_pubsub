@@ -37,7 +37,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: document_js.html,v 1.2 2003/03/19 03:07:27 ifindkarma Exp $
+ $Id: document_js.html,v 1.3 2003/03/22 12:01:20 ifindkarma Exp $
 
 -->
 
@@ -92,7 +92,7 @@ right after the PubSub JavaScript Libary:</p>
 &lt;html&gt;
   &lt;head&gt;
     &lt;meta http-equiv="content-type" content="text/html; charset=utf-8" /&gt;
-    &lt;script src="../../cgi-bin/kn.cgi?do_method=lib"&gt;&lt;/script&gt;
+    &lt;script src="/kn?do_method=lib"&gt;&lt;/script&gt;
     <b>&lt;script src="../kn_lib/document.js"&gt;&lt;/script&gt;</b>
 </pre>
 
@@ -112,7 +112,7 @@ if (<i>d</i>.isReady()) <i>d</i>.window.bgColor="maroon"
 
 <h2>Implementation</h2>
 
-<p>KNDocument is actually implemented using <code>kn.cgi</code>'s
+<p>KNDocument is actually implemented using the PubSub Server's
 <code>do_method=blank</code>, which contains a call to
 <code>parent.kn_redrawCallback</code>. The actual document strings are
 stored in the global <code>kn</code> object provided by the KnowNow
@@ -122,13 +122,13 @@ your KNDocument's frame is replaced with the blank page, and when
 the blank page calls <code>parent.kn_redrawCallback</code>, the document
 string is written into the managed frame using a regular
 <code>document.write</code>. Part of the KNDocument implementation
-is now in kn.js, and KNDocument and kn.js communicate through
-the <code>kn.documents</code> table.</p>
+is now in pubsub_raw.js, and KNDocument and pubsub_raw.js communicate
+through the <code>kn.documents</code> table.</p>
 
 <hr />
 
 <p>
-$Id: document_js.html,v 1.2 2003/03/19 03:07:27 ifindkarma Exp $</p>
+$Id: document_js.html,v 1.3 2003/03/22 12:01:20 ifindkarma Exp $</p>
 
 </body>
 </html>
