@@ -10,7 +10,7 @@
     or in the past; tell event loop how long until the next
     scheduled task.
 
-    $Id: scheduler.py,v 1.4 2003/06/14 04:44:40 ifindkarma Exp $
+    $Id: scheduler.py,v 1.5 2003/06/18 20:12:30 bsittler Exp $
     Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
     Known Issues: see the FIXME's in this file.
@@ -54,7 +54,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: scheduler.py,v 1.4 2003/06/14 04:44:40 ifindkarma Exp $
+## $Id: scheduler.py,v 1.5 2003/06/18 20:12:30 bsittler Exp $
 
 
 import time
@@ -132,13 +132,13 @@ class Scheduler:
 scheduler = Scheduler()
 
 def schedule_processing(*args, **kw):
-    return scheduler.schedule_processing(*args, **kw)
+    return apply(scheduler.schedule_processing, args, kw)
 
 def timeout(*args, **kw):
-    return scheduler.timeout(*args, **kw)
+    return apply(scheduler.timeout, args, kw)
 
 def run(*args, **kw):
-    return scheduler.run(*args, **kw)
+    return apply(scheduler.run, args, kw)
 
 def main(argv):
     return
