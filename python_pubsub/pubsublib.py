@@ -18,18 +18,18 @@
           nonblocking, using asyncore.
           (libkn.py is multi-threaded and blocking.)
 
-    $Id: pubsublib.py,v 1.12 2003/07/19 06:33:32 ifindkarma Exp $
+    $Id: pubsublib.py,v 1.13 2003/07/19 12:24:53 rloz Exp $
 
     Known Issues:
        1. Need to complete test suite.
        2. FIXME: asyncore is a global.
           Need to make it parameterized to allow multi-threaded use.
        3. Lots of other FIXME and TODO things left --
-          see source code comments.         
+          see source code comments.
 
     Contact Information:
        http://mod-pubsub.sf.net/
-       mod-pubsub-developer@lists.sourceforge.net          
+       mod-pubsub-developer@lists.sourceforge.net
 """
 
 
@@ -68,7 +68,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: pubsublib.py,v 1.12 2003/07/19 06:33:32 ifindkarma Exp $
+# $Id: pubsublib.py,v 1.13 2003/07/19 12:24:53 rloz Exp $
 
 
 
@@ -111,7 +111,7 @@ class Client:
                 %serverURL%/who/%username%/s/%random%/kn_journal
 
             FIXME: This should be configurable.
-        """    
+        """
 
         self._C_tunnelurl = "%s/who/anonymous/s/%s/kn_journal" % (
             self.getServerURL(),
@@ -216,11 +216,11 @@ class Client:
                     connection.  enqueue returns kn_status_from,
                     which can subsequently be passed to cancel.
                  2. cancel - Pending queued item.
- 
+
             Unacknowledged requests are automatically cancelled
             after 300 seconds.
         """
-        
+
         # FIXME: This needs to handle retries.
 
         messageCopy = {
@@ -296,7 +296,7 @@ class Client:
         """
 
         message = canonicalizeMessage(message)
-        
+
         requestMessage = {
             "kn_to" : topic,
             "do_method" : "notify",
@@ -342,7 +342,7 @@ class Client:
         """
 
         message = canonicalizeMessage(options)
-        
+
         requestMessage = {
             "kn_from" : topic,
             "kn_to" : destination,
@@ -357,12 +357,12 @@ class Client:
             self.getServerURL(), requestMessage["kn_from"])
 
         # requestMessage["kn_uri"] is the route URI.
-        
+
         if not requestMessage.has_key("kn_uri"):
             requestMessage["kn_uri"] = (
                 requestMessage["kn_from"] + self._KN_ROUTES_ +
                 urllib.quote(requestMessage["kn_id"].encode("UTF-8")))
-            
+
         if not is_scalar(requestMessage["kn_to"]):
             # If requestMessage["kn_to"] is not a string,
             # it's an object with an onMessage() callback.
@@ -790,7 +790,7 @@ def canonicalizeMessage(message):
                 values += value
                 value = values
             canonicalMessage[name] = value
-    except TypeError:
+    except ValueError:
         # message is a map.
         canonicalMessage = message
     # print str(canonicalMessage)
@@ -807,10 +807,10 @@ def encodeFormUTF_8(form):
     canonicalForm = None;
     try:
         # sequence of (name, value) tuples.
-        for x in form:
+        for nameU, values in form:
             break
         canonicalForm = form
-    except TypeError:
+    except ValueError:
         # map
         canonicalForm = []
         for nameU in form.keys():
