@@ -1,6 +1,6 @@
 package PubSub::Client;
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,7 +34,7 @@ package PubSub::Client;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Client.pm,v 1.1 2002/11/07 07:08:05 troutgirl Exp $
+# $Id: Client.pm,v 1.2 2003/03/22 04:54:00 ifindkarma Exp $
 
 # This is a simple Perl client for use in event-driven programs.
 # It can publish and subscribe in (more or less) the same way
@@ -63,6 +63,11 @@ sub new
     my $self = bless {}, $class;
 
     my $serveruri = new URI($uri);
+    my $path = $serveruri->path;
+    if (not $path =~ m|/$|)
+    {
+        $serveruri->path($serveruri->path . "/");
+    }
     $self->{serveruri} = $serveruri;
     my $user = $serveruri->userinfo();
     if (defined $user)
