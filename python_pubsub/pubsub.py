@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.42 2003/06/17 03:56:16 ifindkarma Exp $
+# $Id: pubsub.py,v 1.43 2003/06/17 04:04:35 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -894,15 +894,18 @@ def absolute_expiry(value, base = 0.0):
     # print 'absolute_expiry' + str((value, base))
     if value is None: return value
     if value[0] == '+': return absolute_expiry(value[1:], time.time() + base)
-    if value=="infinity": return None
-    if value=="now": value = time.time()
+    if value == "infinity": return None
+    if value == "now": value = time.time()
     return base + float(value)
 
 
 def status_event(query, status, payload='', htmlpayload=None):
-    if htmlpayload is None: htmlpayload = cgi.escape(payload)
-    if query.has_key('kn_status_from'): kn_route_location = query['kn_status_from'][0]
-    else: kn_route_location = ''
+    if htmlpayload is None:
+        htmlpayload = cgi.escape(payload)
+    if query.has_key('kn_status_from'):
+        kn_route_location = query['kn_status_from'][0]
+    else:
+        kn_route_location = ''
     return Event({'kn_route_location': kn_route_location,
                   'status': status,
                   'kn_payload': payload,
