@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.56 2003/09/15 21:30:44 troutgirl Exp $
+# $Id: pubsub.py,v 1.57 2003/12/19 23:49:12 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -894,7 +894,7 @@ class Server:
         2. Track overall server state.
     """
     
-    def __init__(self, portnum, logfile, errlog, docroot, pubsubroot,
+    def __init__(self, bindaddr, portnum, logfile, errlog, docroot, pubsubroot,
                  verbose, poolfile, ignorePrologue):
         self.logfile = logfile
         global logger
@@ -909,7 +909,7 @@ class Server:
         self.portnum = portnum
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind(("", portnum))
+        self.socket.bind((bindaddr, portnum))
         self.socket.listen(5)
         asyncore.socket_map[self] = 1
         self.connstatus = {}
@@ -1630,9 +1630,10 @@ def main(argv):
     filename = None
     autoPortNum = 0
     ignorePrologue = 0
+    bindaddr = ""
 
-    optlist, argv[1:] = getopt.getopt(argv[1:], "vhaif:",
-                                      ["verbose", "help", "auto", "ignore", "file="])
+    optlist, argv[1:] = getopt.getopt(argv[1:], "vhaif:b:",
+                                      ["verbose", "help", "auto", "ignore", "file=", "bind="])
 
     for opt, val in optlist:
         if opt in ('-v', '--verbose'):
@@ -1644,7 +1645,7 @@ def main(argv):
                 % (argv[0], argv[0]) + "\n"
                 "  -h, --help        print this message and exit\n"
                 "  -v, --verbose     increase logging to include stderr and stdout\n"
-                "  -f, --file        filename to use as persistent event pool;\n"
+                "  -f, --file=FILE   filename to use as persistent event pool;\n"
                 "                    multiple occurrences have a cumulative effect\n"
                 "                    (default is *no* persistent event pool)\n"
                 "  -a, --auto        automatically extract the portnum from the\n"
@@ -1653,6 +1654,7 @@ def main(argv):
                 "  -i, --ignore      ignore the prologue.js file;\n"
                 "                    run pubsub.py standalone, without being\n"
                 "                    affected by cross-domain setup in prologue.js\n"
+                "  -b, --bind=ADDR   bind to specified IP address instead of INADDR_ANY\n"
             )
             return
         elif opt in ('-f', '--file'):
@@ -1661,6 +1663,8 @@ def main(argv):
             autoPortNum = 1
         elif opt in ('-i', '--ignore'):
             ignorePrologue = 1
+        elif opt in ('-b', '--bind'):
+            bindaddr = val
 
     logname = "pubsub.log"
     logmode = "ab"
@@ -1739,7 +1743,8 @@ def main(argv):
             exitWithError("Specified port number: %s is not a "
                           "valid number, exiting...\n" % portNumStr)
 
-        server = Server(portNum, logfile, errlog, docroot, topicroot,
+        server = Server(bindaddr,
+                        portNum, logfile, errlog, docroot, topicroot,
                         verbose, filename, ignorePrologue)
 
         if verbose:
