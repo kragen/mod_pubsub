@@ -1,5 +1,15 @@
 package PubSub::Client;
 
+# Examples of usage of the Perl PubSub Client Library are
+#     mod_pubsub/kn_tools/chat.plx
+#     mod_pubsub/kn_tools/list_events.plx
+#     mod_pubsub/kn_tools/list_routes.plx
+#     mod_pubsub/kn_tools/list_subtopics.plx
+#     mod_pubsub/kn_sense/forex.plx
+#     mod_pubsub/kn_sense/nasdaq.plx
+#     mod_pubsub/kn_sense/nymex.plx
+#     mod_pubsub/kn_sense/quake.plx
+
 # Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
@@ -34,7 +44,7 @@ package PubSub::Client;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Client.pm,v 1.2 2003/03/22 04:54:00 ifindkarma Exp $
+# $Id: Client.pm,v 1.3 2003/03/22 11:17:55 ifindkarma Exp $
 
 # This is a simple Perl client for use in event-driven programs.
 # It can publish and subscribe in (more or less) the same way
