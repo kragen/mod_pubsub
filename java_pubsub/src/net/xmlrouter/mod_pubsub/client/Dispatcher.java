@@ -7,7 +7,7 @@ import java.util.*;
  * @author msg
  * Simple router for publish/subscribe.
  */
-public class Dispatcher implements Router {
+public class Dispatcher implements Listener, Router {
 	/**
 	 * map from topic to list of listeners
 	 */
@@ -52,6 +52,20 @@ public class Dispatcher implements Router {
 		return topic + "/" + msg_id;
 	}
 
+	/**
+	 * Route message to destination specified within the message.
+	 * @param msg the message to dispatch 
+	 */
+	public void onMessage(Map msg)
+	{
+		String topic;
+		
+		// get destination		
+		topic = (String)msg.get("kn_to");
+
+		// route
+		publish(topic,msg);
+	}
 
 	/**
 	 * Delivers the message to all listeners of the specified topic
