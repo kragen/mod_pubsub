@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.37 2003/06/14 05:33:04 ifindkarma Exp $
+# $Id: pubsub.py,v 1.38 2003/06/14 08:07:07 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -117,10 +117,6 @@
 """
 
 
-PermissionDenied = "403 Permission denied"
-StaleTopic = "404 Expired"
-Error = "pubsub.py error"
-
 import sys, os, os.path, re, string, socket, time, getopt, traceback, errno
 import urlparse, urllib, cgi, cgitb
 # FIXME: replace the mod_pubsub-modified asyncore with the standard asyncore.
@@ -128,6 +124,14 @@ import asyncore
 from scheduler import scheduler
 from cPickle import dump, load
 from serverutils import *
+
+
+Error = "pubsub.py Error"
+Error400 = "Request Error"
+Error404 = "404 No File"
+PermissionDenied = "403 Permission Denied"
+StaleTopic = "404 Expired"
+
 
 def quopri_encode(s, chars):
     """ Quoted-printable encode: return a version of 's' with the chars in 'chars'
@@ -139,6 +143,7 @@ def quopri_encode(s, chars):
         else: rv.append(c)
     return string.join(rv, '')
 
+
 class UuidGen:
     def __init__(self, prefix):
         self.prefix = prefix
@@ -149,6 +154,7 @@ class UuidGen:
         return "%s_%s" % (self.prefix, self.n)
 
 uuid = UuidGen(os.getpid())
+
 
 class Logger:
     def __init__(self, errlog, verbose=0):
@@ -168,10 +174,15 @@ class Logger:
 
 logger = None # Server inits this.
 
+
 class Event:
-    """ Responsibilities: Hold a dictionary of names and values.
-    Provide read access to keys and values.  Expire when it is time.
-    Compare itself with other Events. """
+    """
+    Responsibilities:
+        1. Hold a dictionary of names and values.
+        2. Provide read access to keys and values.
+        3. Expire when it is time.
+        4. Compare itself with other Events.
+    """
     
     def __init__(self, contents):
         self.contents = {}
@@ -186,20 +197,14 @@ class Event:
             self.kn_expires = absolute_expiry(self.contents['kn_expires'])
         if not self.contents.has_key('kn_payload'):
             self.contents['kn_payload'] = ''
-    def is_expired(self):
-        return self.kn_expires is not None and self.kn_expires < time.time()
-    def clone(self, changes):
-        """ Create a copy of this event with specified changes. """
-        nev = Event(self)
-        for key in changes.keys():
-            nev.contents[key] = changes[key]
-        return nev
+
+    def __repr__(self):
+        return "Event(%s)" % self.contents
+
     def __getitem__(self, name):
         """ Return the named header. """
         return self.contents[name]
-    def has_key(self, name): return self.contents.has_key(name)
-    def keys(self): return self.contents.keys()
-    def __repr__(self): return "Event(%s)" % self.contents
+
     def __cmp__(self, other):
         if isinstance(other, Event):
             for key in self.keys() + other.keys():
@@ -210,6 +215,23 @@ class Event:
                     if self[key] != other[key]: return cmp(self[key], other[key])
             return 0
         else: raise Error, "Tried to compare event to %s" % other
+
+    def is_expired(self):
+        return self.kn_expires is not None and self.kn_expires < time.time()
+
+    def clone(self, changes):
+        """ Create a copy of this event with specified changes. """
+        nev = Event(self)
+        for key in changes.keys():
+            nev.contents[key] = changes[key]
+        return nev
+
+    def has_key(self, name):
+        return self.contents.has_key(name)
+
+    def keys(self):
+        return self.contents.keys()
+
 
 def is_bad_topic_name(name):
     """ Duplicates the gratuitous topic-name rejection done by pubsub.cgi,
@@ -225,9 +247,32 @@ def is_bad_topic_name(name):
     return 0
 
 class Topic(Event):
-    """ Responsibilities: Hold a collection of Events, accessible by name,
-    but kept in sequence of last update.  Provide access to descendents.
-    Clean events, subtopics, and routes when they expire. """
+    """
+    A Topic is a cache of Events that:
+        1. Allows idempotent notification through duplicate suppression
+        2. Manages resources through event expiration.
+        3. Proxies by routing notifications to subscribers.
+
+    The subscriber list for a Topic is itself managed as a Topic.
+    The route table for a Topic is itself managed as a Topic, too.
+
+    do_max_age and do_max_n are queries against a Topic's cache,
+    and they deliver along a Route.
+
+    Responsibilities of Topic:
+        1. Hold a collection of Events, accessible by name,
+           but kept in sequence of last update.
+           FIXME: Events should be indexed by timestamp instead.
+           FIXME: do_max_age implemented with kn_event_hash.
+           FIXME: do_max_age needs to be relative to routes' kn_time_t.
+           FIXME: Be strict!  Should not be sequenced at all.
+           FIXME: Make do_since_checkpoint throw an exception.
+           FIXME: Cache expiration model for topics and routes.
+           FIXME: Store routes as lazy pointers rather than object refs?
+           (This lets us delete routes, and delete subtopics.)
+        2. Provide access to descendents.
+        3. Clean events, subtopics, and routes when they expire.
+    """
 
     def __init__(self, name):
         Event.__init__(self, {'kn_payload': len(name) and name[-1] or "nobody should ever see the root topic's kn_payload", 'kn_expires': 'infinity'})
@@ -235,12 +280,18 @@ class Topic(Event):
         self.kn_subtopics = None
         self.events = []
         self.eventdict = {}
-    def get_descendant(self, name):
-        """ Find a subtopic by name.  get_descendant(root, ['a', 'b']) should return the topic /a/b;
-        get_descendant(basetopic, ['c', 'd']) where basetopic is /a/b should return /a/b/c/d.  Creates
-        the topic if necessary. """
+
+    def is_journal(self):
+        return 0
+
+    def get_descendent(self, name):
+        """ Find a subtopic by name.
+        get_descendent(root, ['a', 'b']) should return the topic /a/b;
+        get_descendent(basetopic, ['c', 'd']) where basetopic is /a/b should return /a/b/c/d.
+        Creates the topic if necessary. """
         if name == []: return self
-        else: return self.get_subtopic(name[0]).get_descendant(name[1:])
+        else: return self.get_subtopic(name[0]).get_descendent(name[1:])
+
     def get_subtopic(self, name):
         if is_bad_topic_name(name):
             raise PermissionDenied, "Bad topic name '%s'" % name
@@ -258,17 +309,20 @@ class Topic(Event):
             top = create_topic(self.name + [name])
             subtopics.post(top)
             return top
+
     def create_route(self, route):
         """ Given a Route, add it to the kn_routes subtopic. """
         self.verify_route_ok(route)
         if self.get_subtopic('kn_routes').post(route):
             route.populate(self)
+
     def verify_route_ok(self, route):
         if not route.is_static_route():
             raise PermissionDenied, "Only static routes are allowed from regular topics like %s" % self.getname()
+
     def post(self, event):
-        """ Given an Event, add it to the topic, and route it to the
-        appropriate places before returning. """
+        """ Given an Event, add it to the topic, and
+        route it to the appropriate places before returning. """
         if self.update_event(event):
             if self.kn_subtopics is not None:  # A kludge to avoid infinite recursion.
                 kn_routes = self.get_subtopic('kn_routes')
@@ -278,13 +332,17 @@ class Topic(Event):
                         kn_routes.post(poison)
             return 1
         else: return 0
+
     def get_events(self):
         return filter(lambda x: x is not None, self.events)
+
     def notify(self, event):
         """ Given an Event, post it -- if this action is allowed. """
         self.post(event)
+
     def getname(self):
         return string.join(map(urllib.quote, self.name), '/')
+
     def update_event(self, event):
         kn_id = event['kn_id']
         if self.eventdict.has_key(kn_id):
@@ -294,6 +352,7 @@ class Topic(Event):
         self.eventdict[kn_id] = len(self.events)
         self.events.append(event)
         return 1
+
     def clean(self):
         """ Simple deletion of expired subtopics, routes, and events. """
         # print "Cleaning " + self.getname() + "\n"
@@ -313,7 +372,7 @@ class Topic(Event):
                     # print "Deleting " + self.getname() + "/" + event['kn_id'] + "\n"
                     self.events[i] = None
                     compact = 1
-        if compact:
+        if compact and not self.is_journal():
             new_events = []
             new_eventdict = {}
             for i in range(len(self.events)):
@@ -331,6 +390,7 @@ class Topic(Event):
         # Unfortunately, StaticRoutes have references to their destination topics,
         # so this is not possible yet.  The eventual goal here is to be able to
         # delete every resource we allocate so the server can run indefinitely.
+
     # FIXME: We'll need is_empty() when we start pruning empty topics.
     # FIXME: Verify that it works as expected.
     # def is_empty(self):
@@ -341,17 +401,83 @@ class Topic(Event):
     #         if self.events[i] is not None: return 0
     #     return 1
 
+
 class NoPostingTopic(Topic):
+    """
+    kn_routes and kn_subtopics, for example, are NoPostingTopics
+    because they do not support do_method=notify.
+    """
     def notify(self, event):
         raise PermissionDenied, "Can't post to %s" % self.getname()
 
+
 class JournalTopic(Topic):
+    """
+    Journals should be special Topics:
+        1. They are indexed by a combination of kn_id -and-
+           kn_route_location.  Topics are indexed only by kn_id.
+        2. A Journal ceases to exist when it has not had a
+           Tunnel connected to it recently.
+
+    A Journal is a "virtual socket".
+    Tunnels represent the actual sockets, and are more ephemeral.
+
+    Tunnel status events sent upon connection or reconnection to a Journal
+    should contain the headers
+        1. kn_journal_reconnect_scheme with the value "kn_event_hash".
+        2. kn_journal_reconnect_timeout with the time in seconds before
+           a disconnected Journal becomes unusable.
+
+    Each Event delivered from a Journal should contain the kn_event_hash
+    header calculated from all the non hop-by-hop headers in the Event.
+
+    All Events cached in a Journal should be removed when the Journal
+    becomes unusable.  A new connection to an unusable Journal renders
+    it usable, provided the new connection is not a reconnection.
+    Reconnections are Tunnels with Initial Route Population.
+
+    Everywhere but in a Journal, applications rely on the Initial Route
+    Population to happen before the Route's status event is generated.
+    However, in a Journal, the status event has to be the first event
+    or some other workaround needs to be found for the behavior in the
+    JavaScript PubSub Client Library.
+
+    # FIXME: Move where routing happens from Journal.notify and
+    # Topic.post to Topic.update_event.
+    # FIXME: To do that, we need to fix Journals to not be such
+    # special cases and instead have structure like a regular Topic,
+    # and index on kn_route_location and kn_id.
+    # FIXME: To do that, we need to remove do_since_checkpoint and
+    # kn_route_since_checkpoint, and implement kn_event_hash
+    # and do_max_age on Tunnels.
+    # FIXME: To do that, we need to clearly define the duplicate
+    # supression algorithm and the set of hop-by-hop headers.
+    # Do a separate content hash for hop-by-hop?
+    # At each hop, when not delivering down a Tunnel,
+    # obliterate hop-by-hop headers from previous hop.
+    # FIXME: To do that, we need to decide at what point to add
+    # kn_time_t and to add and normalize kn_time_t and kn_expires
+    # so they can properly participate in duplicate suppression.
+    # Also decide when to add kn_event_hash, and how to represent
+    # an Event as it gets routed through the system.
+    # FIXME: Start here and work our way up.
+
+    Hop-by-hop headers used by the duplicate suppression algorithm:
+        kn_route_*
+        kn_routed_from
+    """    
+    
+    def is_journal(self):
+        return 1
+
     def verify_route_ok(self, route):
         if route.is_static_route():
             raise PermissionDenied, "Can't create a static route from a journal topic."
+
     def update_event(self, event):
         self.events.append(event.clone({'kn_route_checkpoint': uuid()}))
         return 1
+
     def notify(self, event):
         routes = self.get_subtopic('kn_routes').get_events()
         for r in routes:
@@ -360,6 +486,7 @@ class JournalTopic(Topic):
                 return
         raise StaleTopic, "No non-stale routes from %s" % self.getname()
 
+
 def create_topic(name):
     """ Create the appropriate sort of topic to be 'name'. """
     if name == []: return Topic(name)  # a root topic
@@ -367,11 +494,17 @@ def create_topic(name):
     elif name[-1] == 'kn_journal': return JournalTopic(name)
     else: return Topic(name)
 
+
 class Route(Event):
-    """ Virtual base class; relies on subclasses to implement post()
-    and is_static_route().  Responsibilities: Handle initial route
-    population.  Inform code readers that the various kinds of route
-    have more in common than just being kinds of Events. """
+    """
+    Route is a virtual base class.
+    It relies on subclasses to implement post() and is_static_route().
+
+    Responsibilities:
+        1. Handle Initial Route Population.
+        2. Inform code readers that the various kinds of route
+           have more in common than just being kinds of Events.
+    """
 
     def populate(self, topic):
         if self.has_key('do_max_age'):
@@ -395,14 +528,28 @@ class Route(Event):
                     found_id = 1
             if not found_id:
                 for ev in topic.get_events(): self.post(ev)
-    def post(self, event): raise Error, "post not implemented"
-    def is_static_route(self): raise Error, "is_static_route not implemented"
-    def close(self): raise Error, "close not implemented"
-    def is_stale(self): return 0
-    def poisoned(self): return self
+
+    def post(self, event):
+        raise Error, "post not implemented"
+
+    def is_static_route(self):
+        raise Error, "is_static_route not implemented"
+
+    def close(self):
+        raise Error, "close not implemented"
+
+    def is_stale(self):
+        return 0
+
+    def poisoned(self):
+        return self
+
 
 class StaticRoute(Route):
-    """ Responsibilities: Route events to somewhere else. """
+    """
+    Responsibilities:
+        Route events to somewhere else.
+    """
 
     def __init__(self, kn_to=None, location=None, misc={}):
         misc2 = {'kn_expires': 'infinity'}
@@ -420,7 +567,9 @@ class StaticRoute(Route):
             self.kn_uri = None
         if misc.has_key('kn_content_filter'): self.content_filter = re.compile(misc['kn_content_filter'])
         else: self.content_filter = None
+
     def post(self, event):
+        # FIXME: Remove hop-by-hop headers.
         """ Forward an event to the destination.  Returns a success value;
         if it returns false, this route will be removed. """
         # This early return makes do_max_n interesting.
@@ -435,15 +584,23 @@ class StaticRoute(Route):
         try: self.kn_to.notify(event.clone(changes))
         except: return 0
         return 1
+
     def is_static_route(self):
         return 1
+
     def poisoned(self):
         return StaticRoute(None, self.location, self.clone({'kn_payload': '', 'kn_expires': '+300'}))
-    def close(self): pass
+
+    def close(self):
+        pass
+
 
 class Tunnel(Route):
-    """ Responsibilities: Format a sequence of events and
-    send them to a Connection.  Behave as a route. """
+    """
+    Responsibilities:
+        1. Format a sequence of events and send them to a Connection.
+        2. Behave as a route.
+    """
 
     def __init__(self, connection):
         Route.__init__(self, {'kn_payload': str(connection), 'kn_expires': 'infinity', 'stale': '0'})
@@ -484,11 +641,16 @@ class Tunnel(Route):
         self.conn.send(self.encode(event))
         return 1
         
-    def is_static_route(self): return 0
-    def is_stale(self): return self['stale'] != '0'
+    def is_static_route(self):
+        return 0
+
+    def is_stale(self):
+        return self['stale'] != '0'
+
     def become_stale(self):
         # FIXME: This does not cause the update to be properly routed.
         self.contents['stale'] = '1'
+
     def close(self):
         if self.dead: return
         self.conn.finish_sending()
@@ -501,7 +663,10 @@ class Tunnel(Route):
 
 
 class SimpleTunnel(Tunnel):
-    """ Responsibilities: Format events in the kn_response_format=simple format. """
+    """
+    Responsibilities:
+        Format events in the kn_response_format=simple format.
+    """
 
     def headerfrom(self, event):
         return http_header(event['status'], 'text/plain')
@@ -533,16 +698,18 @@ class FlashTunnel(SimpleTunnel):
         return SimpleTunnel.encode(self, dict) + chr(0)
     
 class JavaScriptTunnel(Tunnel):
+    def __init__(self, conn, watching):
+        Tunnel.__init__(self, conn)
+        self.watching = watching
+        self._jsTunnel_conn = conn
+
     def headerfrom(self, event):
         return (http_header(event['status'], 'text/html; charset=utf-8') +
                 '<html><head><title>%s</title>' % event['status'] +
                 html_prologue_string(self._jsTunnel_conn) + '</head>\n' +
                 '<body bgcolor="#f0f0ff" %s>\n' % (self.watching and (' onload="if (parent.kn_tunnelLoadCallback) ' + 'parent.kn_tunnelLoadCallback(window)"') or '') +
                 '<h1>%s</h1>' % event['status'] + event['html_payload'] + '<!--');
-    def __init__(self, conn, watching):
-        Tunnel.__init__(self, conn)
-        self.watching = watching
-        self._jsTunnel_conn = conn
+
     def encode(self, dict):
         return ('--><script type="text/javascript"><!--\n' +
                 'if (parent.kn_sendCallback) parent.kn_sendCallback({elements:[\n' +
@@ -550,12 +717,15 @@ class JavaScriptTunnel(Tunnel):
                 ']}, window);\n' +
                 '// -->\n' +
                 '</script><!--\n')
+
     def encode_pair(self, name, value):
         return '{%s, %s}' % (self.js_encode_pair('name', str(name)),
                              self.js_encode_pair('value', str(value)))
+
     def js_encode_pair(self, name, value):
         return '%s: "%s"' % ((self.is_utf8(value) and name + 'U' or name),
                              self.js_encode_string(value))
+
     def is_utf8(self, value):
         try:
             for c in value:
@@ -575,12 +745,17 @@ class JavaScriptTunnel(Tunnel):
             elif c == '<' or not (' ' <= c <= '~'): rv.append('\\x%2.2x' % ord(c))
             else: rv.append(c)
         return string.join(rv, '')
+
     def close(self):
         self.conn.send('-->\n</body></html>\n');
         Tunnel.close(self)
 
 class ServerSaver:
-    """ Responsibilities: Clean expired events.  Write event pool file. """
+    """
+    Responsibilities:
+        1. Clean expired events.
+        2. Write event pool file.
+    """
 
     def __init__(self, root, filename, interval, scheduler):
         self.root = root
@@ -588,17 +763,22 @@ class ServerSaver:
         self.interval = interval
         self.scheduler = scheduler
         self.reschedule()
+
     def __call__(self):
         self.root.clean()
         write_event_pool(self.filename, self.root)
         self.reschedule()
+
     def reschedule(self):
         self.scheduler.schedule_processing(self, time.time() + self.interval)
 
 class Server:
-    """ Responsibilities: Accept incoming connections and create
-
-    Connection objects for them.  Track overall server state. """
+    """
+    Responsibilities:
+        1. Accept incoming connections and create Connection objects for them.
+        2. Track overall server state.
+    """
+    
     def __init__(self, portnum, logfile, errlog, scheduler, docroot, knroot, verbose, poolfile, ignorePrologue):
         self.logfile = logfile
         global logger
@@ -623,18 +803,30 @@ class Server:
         self.closedconns = 0
         self.starttime = time.time()
         self.log(self, 'server', 'start', '')
-    def getname(self): return 'pubsub.Server'
-    def readable(self): return 1
-    def writable(self): return 0
-    def fileno(self): return self.socket.fileno()
+
+    def getname(self):
+        return 'pubsub.Server'
+
+    def readable(self):
+        return 1
+
+    def writable(self):
+        return 0
+
+    def fileno(self):
+        return self.socket.fileno()
+
     def handle_error(self, *args):
         logger.log_err("server error: " + cgitb.html())
+
     def handle_read_event(self):
         (conn, addr) = self.socket.accept()
         nc = Connection(conn, self, addr, self.verbose)
         self.openedconns = self.openedconns + 1
+
     def connection_address_is(self, conn, addr):
         self.peers[id(conn)] = addr
+
     def log(self, where, family, event, msg):
         log_msg = "%s %s: <%s/%s> %s\n" % (time.time(), id(where), family, event, msg)
         self.logfile.write(log_msg)
@@ -642,13 +834,16 @@ class Server:
         if self.verbose > 1:
             sys.stderr.write(log_msg)
             sys.stderr.flush()
+
     def report_status(self, conn, status):
         self.connstatus[id(conn)] = status
         self.log(conn, 'connection', self.peers[id(conn)], status)
+
     def connection_closed(self, conn):
         del self.connstatus[id(conn)]
         del self.peers[id(conn)]
         self.closedconns = self.closedconns + 1
+
     def server_status(self):
         hdr = """<html><head><title>Server status</title></head><body bgcolor="white">
         <h1>Server status</h1>
@@ -657,9 +852,16 @@ class Server:
         """ % (time.time() - self.starttime, self.openedconns, self.openedconns - self.closedconns)
         conns = map(lambda x, self=self: "<li> %x: %s: %s</li>\n" % (x, self.peers[x], self.connstatus[x]), self.connstatus.keys())
         return hdr + string.join(conns, '') + "</ul></body></html>\n"
-    def kill(self): self.alive = 0
-    def documentroot(self): return self.docroot
-    def getknroot(self): return self.knroot
+
+    def kill(self):
+        self.alive = 0
+
+    def documentroot(self):
+        return self.docroot
+
+    def getknroot(self):
+        return self.knroot
+
 
 def route_get_topic(conn, uri, query):
     """ Given a connection, a request-URI, and a query object, return
@@ -669,6 +871,7 @@ def route_get_topic(conn, uri, query):
         uri = query['kn_from'][0]
     return conn.get_topic(uri)
 
+
 def absolute_expiry(value, base = 0.0):
     # print 'absolute_expiry' + str((value, base))
     if value is None: return value
@@ -676,6 +879,7 @@ def absolute_expiry(value, base = 0.0):
     if value=="infinity": return None
     if value=="now": value = time.time()
     return base + float(value)
+
 
 def status_event(query, status, payload='', htmlpayload=None):
     if htmlpayload is None: htmlpayload = cgi.escape(payload)
@@ -686,10 +890,14 @@ def status_event(query, status, payload='', htmlpayload=None):
                   'kn_payload': payload,
                   'html_payload': htmlpayload})
 
+
 def tunnel(conn, uri, httpreq, query):
     class TunnelCloser:
-        def __init__(self, route): self.route = route
-        def __call__(self): self.route.close(); self.route.become_stale()
+        def __init__(self, route):
+            self.route = route
+        def __call__(self):
+            self.route.close()
+            self.route.become_stale()
     if query.has_key('kn_response_format') and query['kn_response_format'][0] == 'simple':
         route = SimpleTunnel(conn)
     elif query.has_key('kn_response_format') and query['kn_response_format'][0] == 'flash':
@@ -707,12 +915,14 @@ def tunnel(conn, uri, httpreq, query):
         conn.server.scheduler.schedule_processing(TunnelCloser(route), absolute_expiry(query['kn_expires'][0]), 'tunnel closer')
         # FIXME: Should be also deleting the tunnel here.
 
+
 def query_to_event(q):
     ev = {}
     for header in q.keys():
         if header not in ['do_method', 'kn_from', 'kn_to', 'kn_route_checkpoint', 'kn_debug', 'kn_status_from', 'kn_status_to', 'kn_response_format']:
             ev[header] = q[header][0]
     return Event(ev)
+
 
 def create_status_route(conn, query):
     if query.has_key('kn_status_to'):
@@ -730,9 +940,11 @@ def create_status_route(conn, query):
         else: # js is the default kn_response_format.
             return JavaScriptTunnel(conn, watching=0)
 
+
 def dump_exc():
     (type, value, tb) = sys.exc_info()
     return string.join(traceback.format_exception(type, value, tb), '')
+
 
 def add_static_route_internal(conn, uri, query):
     topic = route_get_topic(conn, uri, query)
@@ -742,6 +954,7 @@ def add_static_route_internal(conn, uri, query):
     route = StaticRoute(kn_to, "%s/%s/%s" % (conn.getservername(), conn.urlroot(), topic.getname()), query_to_event(query))
     topic.create_route(route)
 
+
 def notify_internal(conn, uri, query):
     if query.has_key('kn_to'):
         uri = query['kn_to'][0]
@@ -749,6 +962,7 @@ def notify_internal(conn, uri, query):
     event = query_to_event(query)
     conn.report_status('notify of %s on %s' % (event['kn_id'], topic.getname()))
     topic.notify(event)
+
 
 def run_batchable_internal(conn, uri, query, routine, output):
     try:
@@ -758,21 +972,26 @@ def run_batchable_internal(conn, uri, query, routine, output):
         output.post(status_event(query, '500 Internal Server Error', dump_exc(), cgitb.html()))
         conn.log_err('(%s)\n' % routine + cgitb.html())
         
+
 def run_batchable(conn, uri, httpreq, query, routine):
     output = create_status_route(conn, query)
     run_batchable_internal(conn, uri, query, routine, output)
     output.close()
 
+
 def add_static_route(conn, uri, httpreq, query):
     run_batchable(conn, uri, httpreq, query, add_static_route_internal)
+
 
 def notify(conn, uri, httpreq, query):
     run_batchable(conn, uri, httpreq, query, notify_internal)
     
+
 def do_help(conn):
     conn.report_status('sending help')
     conn.send(http_header('200 OK', 'text/html') + "No help for you.\n")
     conn.finish_sending()
+
 
 def do_blank(conn):
     conn.report_status('sending blank')
@@ -786,6 +1005,7 @@ def do_blank(conn):
               "// -->\n" +
               "</script>\n</head>\n")
     conn.finish_sending()
+
 
 def do_batch(conn, query):
     output = create_status_route(conn, query)
@@ -802,7 +1022,6 @@ def do_batch(conn, query):
                 run_batchable_internal(conn, '/', subquery, add_static_route_internal, output)
     output.close()
 
-Error400 = 'Request Error'
 
 def parse_http_request_header(str):
     header = parse_http_header(str)
@@ -813,12 +1032,14 @@ def parse_http_request_header(str):
     header['method'], header['uri'], header['version'] = reqlinechunks
     return header
 
+
 def parse_http_response_header(str):
     header = parse_http_header(str)
     responselinechunks = string.split(header['firstline'], ' ', 2)
     del header['firstline']
     header['version'], header['code'], header['message'] = responselinechunks
     return header
+
 
 def parse_http_header(str):
     lines = string.split(str, '\r\n')
@@ -843,8 +1064,10 @@ def parse_http_header(str):
             hdrdict[name] = hdrdict[name] + ',' + value
     return {'firstline': lines[0], 'headers': hdrdict}
 
+
 def array_begins(haystack, needle):
     return haystack[0:len(needle)] == needle
+
 
 def handle_http_request(conn, uri, httpreq, query_string):
     urichunks = urlpath(uri)
@@ -858,9 +1081,11 @@ def handle_http_request(conn, uri, httpreq, query_string):
                   "The %s method is not supported for %s.\n" % (cgi.escape(httpreq['method']), cgi.escape(uri)))
         conn.finish_sending()
 
+
 def html_prologue_string(conn):
     return ('<script type="text/javascript" src="/%s?do_method=whoami"></script>'
             % cgi.escape(conn.urlroot()))
+
 
 def js_prologue_string(conn):
     str = ''
@@ -871,6 +1096,7 @@ def js_prologue_string(conn):
     return ('kn_userid = "anonymous"; kn_displayname = "Anonymous User";\r\n'
             + str + '\r\n' +
             ("if (! window.kn_server) window.kn_server = '/%s';" % conn.urlroot()))
+
 
 def handle_urlroot_request(conn, uri, httpreq, query_string):
     conn.report_status('handling urlroot request: %s' % uri)
@@ -947,9 +1173,14 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
                   "Don't understand %s.\n" % do_method)
         conn.finish_sending()
 
+
 class Connection(asyncore.dispatcher_with_send):
-    """ Responsibilities: Parse incoming HTTP data.  Dispatch requests.
-    Report status to server. """
+    """
+    Responsibilities:
+        1. Parse incoming HTTP data.
+        2. Dispatch requests.
+        3. Report status to server.
+    """
     
     def __init__(self, sock, server, addr, verbose):
         asyncore.dispatcher_with_send.__init__(self, sock)
@@ -965,17 +1196,23 @@ class Connection(asyncore.dispatcher_with_send):
         self.sockname = sock.getsockname()
         self.verbose = verbose
         self.report_status('reading HTTP header')
-    def getname(self): return 'pubsub.Connection'
+
+    def getname(self):
+        return 'pubsub.Connection'
+
     def report_status(self, status):
         """ Report present connection status. """
         if not self.closed:
             self.server.report_status(self, status)
+
     def log_err(self, msg):
         logger.log_err("%x: %s: %s" % (id(self), self.addr, msg))
+
     def finish_sending(self):
         self.report_status('finished sending')
         self.done_sending = 1
         self.initiate_send()
+
     def handle_read_event(self):
         try:
             data = self.socket.recv(4096)
@@ -990,6 +1227,7 @@ class Connection(asyncore.dispatcher_with_send):
             if (val[0] != errno.ECONNRESET) or self.verbose:
                 print "%s: read error: %s" % (self, val)
             self.close()
+
     def try_to_respond(self):
         if self.expecting_body_bytes is None:
             self.try_to_parse_header()
@@ -997,6 +1235,7 @@ class Connection(asyncore.dispatcher_with_send):
             self.try_to_receive_body()
         elif not self.sending_response:
             self.send_response()
+
     def try_to_parse_header(self):
         eoh = string.find(self.inbuf, '\r\n\r\n')
         if eoh != -1:
@@ -1014,6 +1253,7 @@ class Connection(asyncore.dispatcher_with_send):
             else:
                 self.expecting_body_bytes = 0
                 self.try_to_respond()
+
     def try_to_receive_body(self):
         if len(self.inbuf) >= self.expecting_body_bytes:
             self.httpreq['body'] = self.inbuf[0:self.expecting_body_bytes]
@@ -1021,6 +1261,7 @@ class Connection(asyncore.dispatcher_with_send):
             self.expecting_body_bytes = 0
             self.report_status('got body')
             self.try_to_respond()
+
     def send_response(self):
         try:
             self.sending_response = 1
@@ -1045,22 +1286,27 @@ class Connection(asyncore.dispatcher_with_send):
                       cgitb.html())
             self.log_err('send_response\n' + cgitb.html())
             self.finish_sending()
+
     def initiate_send(self):
         if self.closed: return
         num_sent = asyncore.dispatcher.send(self, self.out_buffer)
         self.out_buffer = self.out_buffer[num_sent:]
         if self.out_buffer == '' and self.done_sending:
             self.close()
+
     def writable(self):
         return (not self.connected) or len(self.out_buffer) or self.tickle_renderer
+
     def handle_write(self):
         if self.tickle_renderer and not self.done_sending:
             self.tickle_renderer = 0
             self.send(' ' * 4096)
         else:
             self.initiate_send()
+
     def send(self, data):
         return asyncore.dispatcher_with_send.send(self, data)
+
     def close(self):
         if not self.closed:
             self.done_sending = 1
@@ -1068,8 +1314,10 @@ class Connection(asyncore.dispatcher_with_send):
             self.server.connection_closed(self)
             self.out_buffer = ''
             return asyncore.dispatcher_with_send.close(self)
+
     def log(self, msg):
         pass
+
     def get_topic(self, uri):
         # FIXME: This is really wrong wrt off host routes!  We must fix our URI handling!
         # In places where we're passed just a path, we should not remove self.urlroot;
@@ -1078,33 +1326,43 @@ class Connection(asyncore.dispatcher_with_send):
         urlroot = "/%s/" % self.urlroot()
         if (path == urlroot) or (string.find(path, urlroot)) == 0:
             path = path[len(urlroot):]
-        return self.server.root_topic.get_descendant(filter(lambda x: x != '', string.split(path, '/')))
+        return self.server.root_topic.get_descendent(filter(lambda x: x != '', string.split(path, '/')))
+
     def getservername(self):
         if self.httpreq['headers'].has_key('host'):
             return 'http://%s' % self.httpreq['headers']['host']
         else:
             return 'http://%s:%s' % self.sockname
+
     def repr(self):
         return "<Connection %d>" % id(self)
+
     def documentroot(self):
         return self.server.documentroot()
+
     def urlroot(self):
         return "kn"
+
     def getknroot(self):
         return self.server.getknroot()
+
     def pathread(self, realpath):
         return pathread(self.documentroot(), realpath)
+
     def shouldIgnorePrologue(self):
         return self.server.ignorePrologue
 
+
 def http_time(when):
     return time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(when))
+
 
 def http_header(statusline, contenttype, expires = None):
     if expires is None:
         return "HTTP/1.0 %s\r\nContent-Type: %s\r\n\r\n" % (statusline, contenttype)
     else:
         return "HTTP/1.0 %s\r\nContent-Type: %s\r\nExpires: %s\r\n\r\n" % (statusline, contenttype, expires)
+
 
 # Here's a big, long FIXME: Blocking vs. nonblocking HttpClient.
 # The correct way to do it is nonblocking.  Right now we do neither.
@@ -1194,6 +1452,7 @@ class HttpClient(asyncore.dispatcher_with_send):
 
     # FIXME: This should be replaced with a reasonable configuration system!
 
+
 def urlpath(filename):
     filenamechunks = string.split(filename, '/')
     if len(filename) > 0 and filename[-1] == '/': filenamechunks.append('index.html')
@@ -1206,6 +1465,7 @@ def urlpath(filename):
             realpath.append(x)
     return realpath
 
+
 def pathopen(documentroot, realpath):
     # FIXME: Raceable!
     for i in range(len(realpath)):
@@ -1216,11 +1476,13 @@ def pathopen(documentroot, realpath):
     file = string.join([documentroot] + realpath, '/')
     return (mimetype(file), open(file, 'rb'))
 
+
 def pathread(documentroot, realpath):
     type, file = pathopen(documentroot, realpath)
     data = file.read()
     file.close()
     return type, data
+
 
 def endswith(string, *endings):
     def ends(string, ending):
@@ -1228,6 +1490,7 @@ def endswith(string, *endings):
     for ending in endings:
         if ends(string, ending): return 1
     return 0
+
 
 def mimetype(path):
     if endswith(path, '.html'): return 'text/html; charset=utf-8'
@@ -1238,7 +1501,6 @@ def mimetype(path):
     elif endswith(path, '.jpg', '.jpeg'): return 'image/jpeg'
     else: return 'text/plain'
 
-Error404 = '404 no file'
 
 def httpget(conn, pathchunks):
     try:
@@ -1249,6 +1511,7 @@ def httpget(conn, pathchunks):
         conn.send(http_header('404 Not Found', 'text/html') + cgi.escape(str(msg)))
         conn.finish_sending()
 
+
 def read_event_pool(filename):
     if filename is None: return create_topic([])
     try: file = open(filename, "rb")
@@ -1258,6 +1521,7 @@ def read_event_pool(filename):
     rv = load(file)
     file.close()
     return rv
+
 
 def write_event_pool(filename, root):
     if filename is None: return
@@ -1272,12 +1536,16 @@ def write_event_pool(filename, root):
     except os.error: pass # it's also OK if the event pool file wasn't there
     os.rename(tmpfile, filename) # it's not OK if this fails, though
 
+
 def main(argv):
+
     verbose = 0
     filename = None
     autoPortNum = 0
     ignorePrologue = 0
+
     optlist, argv[1:] = getopt.getopt(argv[1:], "vhaif:", ["verbose", "help", "auto", "ignore", "file="])
+
     for opt, val in optlist:
         if opt in ('-v', '--verbose'):
             verbose = verbose + 1
