@@ -34,16 +34,16 @@ package PubSub::Server;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Server.pm,v 1.1 2003/03/22 11:05:12 ifindkarma Exp $
+# $Id: Server.pm,v 1.2 2003/03/22 14:10:35 ifindkarma Exp $
 
 use strict;
 
 use Exporter;
 use base 'Exporter';
-use vars qw(@EXPORT_OK $cgi_url);
+use vars qw(@EXPORT_OK $cgi_url $mod_pubsub_dir $mod_pubsub_url);
 use Carp 'cluck';
 
-@EXPORT_OK = qw(set_cgi_url dispatch_request);
+@EXPORT_OK = qw(set_cgi_url dispatch_request set_docroot);
 
 use CGI ();
 use URI ();
@@ -60,6 +60,15 @@ use PubSub::Status;
 use PubSub::Htmlsafe 'entify';
 use PubSub::ReplayEvents 'begin_replaying_events';
 use Carp 'cluck';
+
+$mod_pubsub_dir = ".."; # mod_pubsub root on the filesystem
+
+$mod_pubsub_url = ".."; # mod_pubsub root in URL-space
+
+sub set_docroot
+{
+    ($mod_pubsub_dir, $mod_pubsub_url) = @_;
+}
 
 # Check a topic name for forbidden characters.
 # Expects a local topic name and a description for use in error messages;
@@ -735,7 +744,7 @@ sub route
 sub help
 {
     my ($q) = @_;
-    my $relurl = URI->new("../kn_docs/");
+    my $relurl = URI->new("$mod_pubsub_url/kn_docs/");
     my $absurl = $relurl->abs($cgi_url);
     print $q->redirect($absurl);
 }
@@ -780,7 +789,7 @@ sub lib
     my ($q) = @_;
     whoami($q);
     print "\n";
-    open(LIB , "../kn_apps/kn_lib/pubsub.js")
+    open(LIB , "$mod_pubsub_dir/kn_apps/kn_lib/pubsub.js")
         or print "alert('Error: No PubSub Library Available');";
     print <LIB>;
     close(LIB);
@@ -791,7 +800,7 @@ sub libform
     my ($q) = @_;
     lib($q);
     print "\n";
-    open(LIBFORM , "../kn_apps/kn_lib/form.js")
+    open(LIBFORM , "$mod_pubsub_dir/kn_apps/kn_lib/form.js")
         or print "alert('Error: No PubSub Form Library Available');";
     print <LIBFORM>;
     close(LIBFORM);
@@ -803,7 +812,7 @@ sub lib2form
     lib($q);
     print "\n";
     print "window.kn__form2way = true;\n";
-    open(LIBFORM , "../kn_apps/kn_lib/form.js")
+    open(LIBFORM , "$mod_pubsub_dir/kn_apps/kn_lib/form.js")
         or print "alert('Error: No PubSub Form Library Available');";
     print <LIBFORM>;
     close(LIBFORM);

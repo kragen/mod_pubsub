@@ -34,7 +34,7 @@ package PubSub::EventFormat;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: EventFormat.pm,v 1.2 2003/03/22 11:05:12 ifindkarma Exp $
+# $Id: EventFormat.pm,v 1.3 2003/03/22 14:10:35 ifindkarma Exp $
 
 # NAME
 # PubSub::EventFormat - Library for PubSub's filesystem handling.
@@ -56,7 +56,7 @@ use strict;
 use Fcntl ':flock';
 use Exporter;
 use base 'Exporter';
-use vars '@EXPORT_OK';
+use vars qw(@EXPORT_OK $topic_root_dir);
 use Carp 'cluck';
 
 @EXPORT_OK = qw(write_event write_file read_event read_file
@@ -65,12 +65,17 @@ use Carp 'cluck';
                 is_heartbeat_stale fresh_heartbeat remove_heartbeat 
                 make_stale_heartbeat event_names is_journal 
                 crack_last_path_component topic_recurse new_events_on_topic
-                server_urls);
+                server_urls set_topic_root_dir);
 
 # Change this to point to your event pool directory.
 # FIXME: this should be in a common configuration file
 
-my $topic_root_dir = '../kn_events';
+$topic_root_dir = '../kn_events';
+
+sub set_topic_root_dir
+{
+    ($topic_root_dir) = @_;
+}
 
 # Read a list of self_url equivalents from a file named
 # .names in the event pool directory.
