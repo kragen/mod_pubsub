@@ -1,412 +1,73 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
-<!--
-
- Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
-
- @KNOWNOW_LICENSE_START@
- 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 
- 1. Redistributions of source code must retain the above copyright
- notice, this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright
- notice, this list of conditions and the following disclaimer in
- the documentation and/or other materials provided with the
- distribution.
- 
- 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
- be used to endorse or promote any product without prior written
- permission from KnowNow, Inc.
- 
- THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
- WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
- DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- 
- @KNOWNOW_LICENSE_END@
-
- $Id: index.html,v 1.27 2003/05/31 04:39:59 ifindkarma Exp $
-
--->
-
 <html>
 <head>
 <title>mod_pubsub Distribution</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
-<style><!--
-
-td.knownow, th {
-  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
-  font-size: 12pt;
-}
-
-h1 {
-  font-size: 18pt;
-  font-weight: normal;
-}
-
-input.clock {
-  border: 0px;
-  background: white;
-  color: black;
-  font-size: 10pt;
-  text-align: right;
-  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
-}
-
-body, td {
-  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
-  font-size: 12pt;
-}
-
-.rule {
-  border-top-width: 1px;
-  border-top-style: solid;
-  border-color: #ff9900; 
-  margin: 0px 0%;
-}
-
-a:link, a:hover, a:active, a:visited {
-  color: #3366cc;
-}
-
-a:link, a:visited, a:active {
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
---></style>
-
-<script type="text/javascript"><!--
-
-function start_clock() {
-  setInterval("update_clock()", 500);
-  if (document.all && ! document.getElementById)
-    {
-      for (var i = 0; i < document.all.length; i ++)
-      {
-        var node = document.all[i];
-	  if (node.className == "rule")
-	      {
-	            node.outerHTML = '<hr size="1" color="#ff9900" />';
-              }
-      }
-    }
-}
-
-function update_clock() {
-  var now = new Date();
-  var form = document.forms.clock;
-  if (form)
-    { 
-      var ele = form.elements.clock;
-      if (ele) {
-        var msg = now.toString();
-        // If you'd rather have UTC/GMT...
-        // var msg = now.toUTCString ? now.toUTCString() : now.toGMTString();
-        if (ele.value != msg) ele.value = msg;
-      }
-    }
-}
-
-// -->
-</script>
+<style type="text/css" media="screen">@import "kn_docs/primary.css";</style>
 </head>
 
-<body bgcolor="#ffffff" link="#3366cc" vlink="#3366cc" alink="#3366cc" text="#000000"
-      leftmargin="10" topmargin="15" marginwidth="10" marginheight="15"
-      onload="start_clock()"> 
-<base target="_top" />
+<body>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+<div id="header">
+<a href="http://sourceforge.net/projects/mod-pubsub">
+<h1><img border="0" src="kn_docs/mod_pubsub.png" alt="mod_pubsub"></h1>
+<p>Asynchronous publish and subscribe messaging for the Web...</a>
+</div>
 
-   <td align="left" valign="top">
-   <h1>&nbsp;<a href="http://mod-pubsub.sourceforge.net/"
-   target="_blank">mod_pubsub</a> Distribution &nbsp;&nbsp;&nbsp;&nbsp;
-   <a href="http://sourceforge.net/projects/mod-pubsub" target="_blank"><img 
-   border="0" src="http://sourceforge.net/sflogo.php?group_id=66293&type=2"
-   alt="[Sourceforge]"></a></h1>
-   </td>
+<br/>
 
-   <form action="javascript://" name="clock">
-   <td align="right" bgcolor="white" class="knownow">
-   <font size="-2"> &nbsp;
-   <a href="kn_docs/faq.html" target="_blank">FAQ</a> &#183;
-   <a href="http://sourceforge.net/mail/?group_id=66293" target="_blank">mod_pubsub mailing list</a> &#183;
-   <a href="kn_apps/">Demo Weblications</a> <br/> &nbsp;
-   <input readonly="readonly" size="48" name="clock" class="clock" onfocus="blur()" /> &nbsp;
-   </font></td>
-   </form>
+<div id="content">
 
-</tr>
-</table>
+<a href="http://www.mod-pubsub.org/blog/index.php"
+onclick="window.open(this.href,this.target);return false" target="_blank">
+<button>mod_pubsub Weblog</button></a>
 
-<div class="rule"></div>
+<a href="http://www.mod-pubsub.org/kn_apps/blogchatter/"
+onclick="window.open(this.href,this.target);return false" target="_blank">
+<button>Blogchatter App</button></a>
 
-<br><br>
+<a href="http://www.mod-pubsub.org/kn_apps/presence1/"
+onclick="window.open(this.href,this.target);return false" target="_blank">
+<button>Caf&eacute; PubSub (Chat)</button></a>
 
-<center> <!-- Experiment with cellspacing="0" -->
-<table border="0" width="100%" cellpadding="0" cellspacing="1" bgcolor="#cccccc">
+<a href="http://sourceforge.net/mail/?group_id=66293"
+onclick="window.open(this.href,this.target);return false" target="_blank">
+<button>Mailing List Archives</button></a>
 
-<tr>
-  <td width="15%">
-    <font color="black" size="+1"><b>Item</b></font>
-  </td>
-  <td>
-    <font color="black" size="+1"><b>Description</b></font>
-  </td>
-</tr> 
+&nbsp; <a href="http://sourceforge.net/projects/mod-pubsub"> <img
+src="http://sourceforge.net/sflogo.php?group_id=66293&amp;type=2"
+border="0" alt="[SourceForge]"></a>
 
-<tr>
-<td bgcolor="white"><a href="README">README</a></td>
-<td bgcolor="white">Introduction and credits.</td>
-</tr>
+<br/><br/>
 
-<tr>
-<td bgcolor="#eeeeee"><a href="INSTALL">INSTALL</a></td>
-<td bgcolor="#eeeeee">Installation instructions.</td>
-</tr>
+<h2>How do I get started?</h2>
 
-<tr>
-<td bgcolor="white"><a href="Makefile">Makefile</a></td>
-<td bgcolor="white">Makefile to create <i>pubsub.js</i> from
-<!-- <a href="kn_apps/kn_lib/pubsub_raw.js"> -->
-<i>pubsub_raw.js</i>
-and a properly-permissioned <i>kn_events/</i> directory.</td>
-</tr>
+<p>See our
+<a href="kn_docs/faq.html" target="_blank">FAQ</a>,
+<a href="INSTALL" target="_blank">Installation Guide</a>, and 
+<a href="README" target="_blank">README</a>.</p>
 
-<tr>
-<td bgcolor="#eeeeee"><a href="LICENSE">LICENSE</a></td>
-<td bgcolor="#eeeeee">Our BSD-style license.</td>
-</tr>
-
-<tr>
-<td bgcolor="white"><a href="TODO">TODO</a></td>
-<td bgcolor="white">Top items on our "to do" list.</td>
-</tr>
-
-<tr>
-<td bgcolor="#eeeeee"><a href="kn_docs/">kn_docs/</a></td>
-<td bgcolor="#eeeeee">Documentation for this distribution, including
-<b><a href="kn_docs/faq.html" target="_blank">Frequently Asked Questions
-(FAQ)</a></b>,
+<p>Also, see our
 <a href="kn_docs/developer_guide.html" target="_blank">Developer Guide</a>,
-<a href="kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol Document</a>,
+<a href="kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol</a>, and
 <a href="kn_docs/javascript_reference.html" target="_blank">JavaScript PubSub
-Library Reference</a>, and <a href="kn_apps/javascript/" target="_blank">JavaScript
-Options, Tricks and Debugging Guide</a>.</td>
-</tr>
+Library Reference</a>.</p>
 
-<tr>
-<td bgcolor="white"><a href="cgi-bin/">cgi-bin/</a></td>
-<td bgcolor="white"><br><ol>
-<li> <b>Perl PubSub Server</b>: A <a href="http://perl.apache.org/"
-target="_blank">mod_perl</a>-based Apache module (<a
-href="cgi-bin/PubSub/ModPubSub.pm">ModPubSub.pm</a>).
-<li> Some useful CGI scripts, including email notification
-(<a href="cgi-bin/form2smtp.cgi">form2smtp.cgi</a>),
-PubSub Server regression test
-(<a href="cgi-bin/pubsub_test.cgi">pubsub_test.cgi</a>),
-a sample SOAP service proxy
-(<a href="cgi-bin/soap_filter.cgi">soap_filter.cgi</a>),
-and some sample transformation scripts.
-<li> <b>Perl PubSub Client Library</b>
-(<a href="cgi-bin/PubSub/">PubSub</a>).
-It is single-threaded and partially non-blocking
-(tunnel is non-blocking, other requests block).
-<li> <b>SOAP Gateway</b>
-(<a href="cgi-bin/soap_gateway/">PubSubService.cgi</a>).
-A preliminary SOAP interface to mod_pubsub.
-When complete, the SOAP interface will include support for
-incoming SOAP requests, off-host SOAP routes, and
-external SOAP service invocation.
-(<a href="cgi-bin/soap_gateway/soapdesign.html">SOAP design</a>)
-</ol></td>
-</tr>
+<h2>What is in this distribution?</h2>
 
-<tr>
-<td bgcolor="#eeeeee"><a href="soap_pubsub/">soap_pubsub/</a></td>
-<td bgcolor="#eeeeee">The SOAP Gateway
-resides in the <i>cgi-bin/</i> directory.</td>
-</tr>
+<p>See our <a href="inventory.html" target="_blank">Inventory of this Distribution</a>.</p>
 
-<tr>
-<td bgcolor="white"><a href="perl_pubsub/">perl_pubsub/</a></td>
-<td bgcolor="white">The <b>Perl PubSub Client Library</b>
-and <b>Perl PubSub Server</b> reside in the <i>cgi-bin/</i>
-directory (<a href="cgi-bin/PubSub/">PubSub</a>).</td>
-</tr>
+<h2>How do I find out more?</h2>
 
-<tr>
-<td bgcolor="#eeeeee"><a href="js_pubsub/">js_pubsub/</a></td>
-<td bgcolor="#eeeeee">The JavaScript PubSub Client Library,
-helper libraries, and JavaScript sample applications reside
-in the <i><a href="kn_apps/">kn_apps/</a></i> directory.</td>
-</tr>
+<p>See our <a href="http://www.mod-pubsub.org/blog/index.php" target="_blank">weblog</a>.
+If you have further questions, ask on our
+<a href="http://sourceforge.net/mail/?group_id=66293" target=_blank">mailing lists</a>.</p>
 
-<tr>
-<td bgcolor="white"><a href="kn_apps/">kn_apps/</a></td>
-<td bgcolor="white">A <a href="kn_apps/">directory</a> of
-<b>PubSub-enabled Web Browser samples</b>.
-Includes several component JavaScript libraries,
-such as <b>JavaScript PubSub Client Library</b>
-(<a href="kn_apps/kn_lib/pubsub_raw.js">pubsub_raw.js</a>)
-that is single-threaded and non-blocking; and sets of
-helper libraries <a href="kn_apps/kn_lib/">kn_lib</a> and
-<a href="kn_apps/jscomponents/">jscomponents</a>.
-</td>
-</tr>
+<div id="header">
+&nbsp;
+</div>
 
-<tr>
-<td bgcolor="#eeeeee"><a href="php_pubsub/">php_pubsub/</a></td>
-<td bgcolor="#eeeeee"><b>PubSub Client Library for PHP</b>
-(<a href="php_pubsub/pubsublib.php">pubsublib.php</a>),
-including a Publish example 
-(<a href="php_pubsub/publish.php" target="_blank">publish.php</a>
--- works in PHP3 and PHP4) and a server-side Subscribe example
-(<a href="php_pubsub/subscribe.php" target="_blank">subscribe.php</a>
--- only works in PHP4 with Sockets extension, and uses the
-<a href="php_pubsub/eventloop.php" target="_blank">eventloop.php</a> and
-<a href="php_pubsub/pipefitting.php" target="_blank">pipefitting.php</a> libraries
-for network I/O.  For client-side subscribe, use the
-<a href="kn_docs/javascript_reference.html" target="_blank">JavaScript
-PubSub Client Library</a> to do updates in the Web browser.</td>
-</tr>
-
-<tr>
-<td bgcolor="white"><a href="python_pubsub/">python_pubsub/&nbsp;&nbsp;</a></td>
-<td bgcolor="white"><br><ol>
-<li> <b>Python PubSub Server</b>
-(<a href="python_pubsub/pubsub.py">pubsub.py</a>)
-that runs standalone from the command line.  It is our goal to
-have the functionality of <i>pubsub.py</i> match that of
-<i>cgi-bin/PubSub/ModPubSub.pm</i> so we have two reference implementations.
-<li> Other helper Python libraries.
-<li> <b>Python PubSub Client Library</b>
-(<a href="python_pubsub/pubsublib.py">pubsublib.py</a>).
-It is single-threaded and non-blocking.
-<li> <b>Python PubSub Client Library</b>
-(<a href="python_pubsub/libkn/libkn.py">libkn.py</a>).
-It is multi-threaded and blocking.
-</ol></td>
-</tr>
-
-<tr>
-<td bgcolor="#eeeeee"><a href="cxx_pubsub/">cxx_pubsub/</a></td>
-<td bgcolor="#eeeeee"><b>C++ PubSub Client Library</b>
-(<a href="cxx_pubsub/LibKN/">LibKN</a>) that can be
-compiled on Windows or PocketPC.  It is multi-threaded and blocking.
-There are versions for Visual Studio 6 and Visual Studio.NET; also
-included are sample apps such as an RSS publishing program, and
-documentation that can be built using <a
-href="http://www.doxygen.org/" target="_blank">doxygen</a>.</td>
-</tr>
-
-<tr>
-<td bgcolor="white"><a href="c_pubsub/">c_pubsub/</a></td>
-<td bgcolor="white"><b>ANSI C PubSub Client Library</b>
-(<a href="c_pubsub/libkn/">libkn</a>) that can be
-compiled on your favorite flavor of Unix.
-It is single-threaded and partially non-blocking
-(tunnel is non-blocking, other requests block).
-</td>
-</tr>
-
-<tr>
-<td bgcolor="#eeeeee"><a href="java_pubsub/">java_pubsub/</a></td>
-<td bgcolor="#eeeeee"><b>Java PubSub Client Library</b>
-(<a href="java_pubsub/src/net/xmlrouter/mod_pubsub/client/">client</a> and
-<a href="java_pubsub/src/org/mod_pubsub/chat/">chat app</a>).
-It is multi-threaded and blocking.</td>
-</tr>
-
-<tr>
-<td bgcolor="white"><a href="kn_tools/">kn_tools/</a></td>
-<td bgcolor="white">Useful ancillary utilities, including<ol>
-<li> Command-line chat using the Perl PubSub Client Library
- (<a href="kn_tools/chat.plx">chat.plx</a>).
-<li> Command-line tools using the Perl PubSub Client Library
- (<a href="kn_tools/list_events.plx">list_events.plx</a>,
- <a href="kn_tools/list_routes.plx">list_routes.plx</a>, and
- <a href="kn_tools/list_subtopics.plx">list_subtopics.plx</a>).
-<li> Command-line ping using the C PubSub Client Library
- (<a href="kn_tools/pubsub_ping/">pubsub_ping</a>).
-<li> Command-line throughput performance testing tool in ANSI C
- (<a href="kn_tools/pubsub_throughput/">pubsub_throughput</a>).
-<li> Command-line performance testing tool in ANSI C
- (<a href="kn_tools/perftool/perftool.html">perftool</a>).
-<li> Command-line throughput performance testing tool in Java
- (<a href="kn_tools/perftest_throughput.java">perftest_throughput.java</a>).
-<li> JavaScript object serializer
- (<a href="kn_tools/js_object_serializer.html">js_object_serializer.html</a>).
-<li> JavaScript compressor
- (<a href="kn_tools/js_compress.sh">js_compress.sh</a>).
-<li> JavaScript localizer
- (<a href="kn_tools/kn_localize.sh">kn_localize.sh</a>).
-<li> JavaScript character set browser
- (<a href="kn_tools/charat/">charat</a>).
-<li> Some useful JavaScript
- <a href="kn_tools/bookmarklets.html">bookmarklets</a>.
-</ol></td>
-</tr>
-
-<tr>
-<td bgcolor="#eeeeee"><a href="ruby_pubsub/">ruby_pubsub/</a></td>
-<td bgcolor="#eeeeee"><b>Ruby PubSub Client Library</b>
-(<a href="ruby_pubsub/libkn/libkn.rb">libkn.rb</a>).
-It is multi-threaded and blocking.</td>
-</tr>
-
-<tr>
-<td bgcolor="white"><a href="kn_sense/">kn_sense/</a></td>
-<td bgcolor="white">Sample sensors for scraping data from websites
-and publishing them to a PubSub Server.  For example, see the
-<a href="kn_sense/rss/">RSS</a> sensor.</td>
-</tr>
-
-<tr>
-<td bgcolor="#eeeeee"><a href="push_manager/">push_manager/</a></td>
-<td bgcolor="#eeeeee">A connection pooler for use with
-<i>cgi-bin/PubSub/ModPubSub.pm</i> to enable it to serve thousands of
-simultaneous connections.  Note that this program does not
-currently work with most platforms.</td>
-</tr>
-
-</table>
-</center>
-
-<br><br>
-       
-<div class="rule"></div>
-
-<table width="100%" border="0" cellpadding="1" cellspacing="0">
-<tr>
-<td align="left" class="knownow"><font size="-2"> &nbsp;
-<a href="kn_docs/developer_guide.html" target="_blank">Developer Guide</a> &#183;
-<a href="kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol Document</a> &#183;
-<a href="kn_docs/javascript_reference.html" target="_blank">JavaScript Library Reference</a>
-</font></td>
-
-<td align="right" class="knownow"><font size="-2">&copy; 2000-2003
-<a href="http://sourceforge.net/projects/mod-pubsub" target="_blank">mod_pubsub project</a> &nbsp; </font></td>
-
- </tr>
-</table>
+<br/>
 
 </body>
 </html>
