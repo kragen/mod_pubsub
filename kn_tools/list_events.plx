@@ -34,17 +34,14 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: list_events.plx,v 1.1 2003/02/22 03:12:43 ifindkarma Exp $
+# $Id: list_events.plx,v 1.2 2003/03/22 04:55:28 ifindkarma Exp $
 
 # list_events.plx is a command line utility.
 
 # Input: a router uri and a topic name.
 # Output: the events at that topic.
 
-# NOTE: you must include a trailing '/' at the end of the router uri.
-# See this example usage:
-
-#   $ perl list_events.plx http://127.0.0.1:8000/kn/ /what/chat
+#   $ perl list_events.plx http://127.0.0.1:8000/kn /what/chat
 #   391f7a28-2ff7-11d7-8dd2-6b61626f6f6d [Fri Jan 24 15:54:49 2003]
 #   392100dc-2ff7-11d7-8dd2-6b61626f6f6d [Fri Jan 24 15:54:49 2003]
 #   3a52ca12-2ff7-11d7-8dd2-6b61626f6f6d [Fri Jan 24 15:54:51 2003]

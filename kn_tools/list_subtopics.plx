@@ -34,17 +34,14 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: list_subtopics.plx,v 1.1 2003/02/22 03:12:43 ifindkarma Exp $
+# $Id: list_subtopics.plx,v 1.2 2003/03/22 04:55:28 ifindkarma Exp $
 
 # list_subtopics.plx is a command line utility.
 
 # Input: a router uri and a topic name.
 # Output: the subtopics of that topic.
 
-# NOTE: you must include a trailing '/' at the end of the router uri.
-# See this example usage:
-
-#   $ perl list_subtopics.plx http://127.0.0.1:8000/kn/ /what
+#   $ perl list_subtopics.plx http://127.0.0.1:8000/kn /what
 #   chat [Fri Jan 24 15:53:30 2003]
 
 use strict;

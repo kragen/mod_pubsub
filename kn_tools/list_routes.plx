@@ -34,17 +34,14 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: list_routes.plx,v 1.1 2003/02/22 03:12:43 ifindkarma Exp $
+# $Id: list_routes.plx,v 1.2 2003/03/22 04:55:28 ifindkarma Exp $
 
 # list_routes.plx is a command line utility.
 
 # Input: a router uri and a topic name.
 # Output: the routes out of that topic.
 
-# NOTE: you must include a trailing '/' at the end of the router uri.
-# See this example usage:
-
-#   $ perl list_routes.plx http://127.0.0.1:8000/kn/ /what/chat
+#   $ perl list_routes.plx http://127.0.0.1:8000/kn /what/chat
 #   http://127.0.0.1:8000/kn/who/anonymous/s/981587186063738/kn_journal [Fri Jan 24 15:54:00 2003]
 #   http://127.0.0.1:8000/kn/who/anonymous/s/280702445264073/kn_journal [Fri Jan 24 15:55:10 2003]
 
