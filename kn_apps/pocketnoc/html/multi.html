@@ -1,0 +1,468 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: multi.html,v 1.1 2003/08/02 01:43:16 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+    
+<title>PocketNOC</title>
+
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+
+<style>
+
+body {
+  margin: 0px 0px 0px 0px;
+  background:#eee;
+}
+
+#nocBoxHeader {
+  padding: 4px 4px 4px 4px;
+  background-color:#66ff66;
+  border:1px solid #339966;
+  font-family: verdana;
+  font-size:12px;
+}
+
+.nocbox {
+  background:#eee;
+}
+
+.nocform {
+  padding:3px;
+}
+
+.nocLinks {
+  margin-top:4px;
+}
+
+.nocLinks a {
+  text-decoration:none;
+  color:#000000;
+  padding: 2px 2px 2px 2px;
+  border:1px solid #aaaaaa;
+  font-family: verdana;
+  font-size:10px;
+}
+.nocLinks a:hover {
+  background-color:#99cccc;
+  border-color:#000000;
+}
+
+.nocGrapher {
+  margin-left:8px;
+}
+
+.nocGrapher td {
+  font-size:6px;
+  background-color: #cccccc;
+  width:12px;
+  height:6px;
+}
+
+input {
+  font-family: monospace;
+}
+
+</style>
+
+
+
+<!-- PubSub Javascript Library -->
+<script language="JavaScript" type="text/javascript" src="/kn/?do_method=lib"></script>
+
+<script language="JavaScript" type="text/javascript"><!--
+    
+  var routeID;              // store subscription route
+  var warnings;             // timer handle
+  var newWinStr;            // html for launch window link
+  var closeWinStr;          // html for close new window
+  var wait = 10000;         // wait for timer, 10 seconds
+  var imgSet = false;       // bool for setting os icon
+  var h = location.search;  // query string
+   
+  // Alert states.
+    
+  var GREEN_ALERT = 0;
+  var YELLOW_ALERT = 1;
+  var RED_ALERT = 2;
+  
+  // Parse the query string.
+    
+  h = h.substring(h.indexOf("=") + 1);
+   
+  // HTML for window links.
+    
+  newWinStr = '<a href="#" onclick="window.open(\multi.html'+location.search+'\',\'nocboxwindow\',\'width=200,height=270\'); return false;">New Window</a>';
+  closeWinStr = '<a href="index.html" target="_new" onclick="if (!top.opener.closed) {return false;} else {top.close();}">View All</a> <a href="#" onclick="top.close(); return false;">Close</a>';
+  
+  /**
+   * init function, sets the subcriptions for hosts.
+   */ 
+     
+  function init()
+  {
+    setSubscriptions(h);  
+  }
+  
+  // Run init() on load of page.
+    
+  onload = init;
+    
+    
+  /**
+   * Sets subscriptions based on hostname passed in query string.
+   *
+   * @param hostname hostname of machine sensor is running on
+   */ 
+       
+  function setSubscriptions(hostname)
+  {   
+    // If route exists, unsubscribe from it.
+        
+    if(routeID)
+      kn.unsubscribe(routeID);
+        
+    // Subscribe to the new host-specific topic and store route.
+        
+    var elm = document.getElementById("nocBoxName");
+    
+    elm.innerHTML = hostname;
+        
+    routeID = kn.subscribe("/what/pocketnoc/" + hostname, updateStats);   
+
+    // Start monitoring event flow from this machine.
+    
+    activateWarningTimer();
+  }
+  
+  /**
+   * Sets timer for event flow monitoring.
+   */ 
+     
+  function activateWarningTimer()
+  {
+    warnings = setTimeout("setAlert(YELLOW_ALERT)", wait);
+  }
+  
+  
+  /**
+   * Stops timer.
+   */ 
+     
+  function stopWarningTimer()
+  {
+    setAlert(GREEN_ALERT);
+        
+    if(warnings) 
+      clearTimeout(warnings);
+  }
+    
+    
+  /**
+   * Sets alert level for the event flow.
+   *
+   * @param level alert level (green, yellow, red)
+   */ 
+     
+  function setAlert(level)
+  {
+    if (level == 0)
+    {
+      document.getElementById("nocBoxHeader").style.backgroundColor = "#66ff66";
+      }
+    else if (level == 1)
+    {
+      document.getElementById("nocBoxHeader").style.backgroundColor = "#ffff00";
+
+      warnings = setTimeout("setAlert(RED_ALERT)",wait);
+    }
+    else if (level == 2)
+      {
+      document.getElementById("nocBoxHeader").style.backgroundColor = "#ff0000";
+      }
+  }
+    
+  /**
+   * Updates text boxes and graphs w/ system stats.
+   *
+   * @param msg A PubSub event 
+   */ 
+     
+  function updateStats(msg)
+  {
+    // Get cpu usage which is already a percentage, so divide by 10
+    // scale its value for the graph.
+  
+    stopWarningTimer();
+
+    if (msg.rate)
+      wait = parseInt(msg.rate)*2000;
+  
+    var cpu_usage = Math.round(msg.cpuusage / 10);
+        
+    // Update text and graph.
+        
+    document.getElementById("cpuusage").value = msg.cpuusage;
+    clearGraph("cpugraph");
+    fillGraph("cpugraph", cpu_usage);
+        
+        
+    // Get mem usage on a scale of 10.  First divide free memory by total memory
+    // and multiply by 100 to get percentage free.  Then subract from 100 to 
+    // get the percentage used (because the graph needs to show "in the red" 
+    // when there's very little memory free).  Finally divide by 10 to convert
+    // to a scale of 10 for the graph.
+        
+    var mem_usage = Math.round(((100 - ((msg.memfree / msg.memtotal) * 100)) / 10));
+        
+    // Update text and graph.
+        
+    document.getElementById("memfree").value = msg.memfree;
+    clearGraph("memgraph");
+    fillGraph("memgraph", mem_usage);
+        
+        
+    // Get swap usage on a scale of 10.  First divide free swap by total swap
+    // and multiply by 100 to get percentage free.  Then subract from 100 to 
+    // get the percentage used (because the graph needs to show "in the red" 
+    // when there's very little swap free).  Finally divide by 10 to convert
+    // to a scale of 10 for the graph.
+        
+    var swap_usage = Math.round(((100 - ((msg.swapfree / msg.swaptotal) * 100)) / 10));
+    
+    
+    // Update text and graph.
+        
+    document.getElementById("swapfree").value = msg.swapfree;
+    clearGraph("swapgraph");
+    fillGraph("swapgraph", swap_usage);
+        
+    // Update loadavg field, disable if server is a windows box.
+        
+    if(msg.os == "solaris")
+    {
+      if(!imgSet)
+      {
+        document.getElementById("nocBoxIcon").src = "images/os_solaris.gif";
+                
+        imgSet = true;
+      }
+            
+      document.getElementById("loadAvgRow").style.display = "block";
+      document.getElementById("loadavg").value = msg.loadavg;
+    } 
+    else 
+    {
+      if(!imgSet)
+      {
+        document.getElementById("nocBoxIcon").src = "images/os_windows.gif";
+
+        imgSet = true;
+      }
+    }
+        
+    // Update number of users field if Solaris.
+        
+    if(msg.os == "solaris")
+    {
+      document.getElementById("numUsersRow").style.display = "block";
+      document.getElementById("numusers").value = msg.numusers;
+    } 
+        
+    activateWarningTimer();
+  }
+    
+    
+  /**
+   * Fills graph based on the graph and value passed to the function.
+   *
+   * @param cell_id ID of the cell to change color
+   * @param graph_val Value to fill graph with
+   */
+    
+  function fillGraph(cell_id, graph_val)
+  {
+    // Make sure graph doesn't go beyond 10.
+        
+    if(graph_val > 10)
+      graph_val = 10;
+        
+    // Make sure graph at least has 1 unit drawn.
+        
+    if(graph_val <= 0)
+      graph_val = 1;
+        
+    // Loop through and paint the graph.
+        
+    for(var i = 1; i <= graph_val; i++) 
+    {
+      // If the number is 1-4, color cells green.
+            
+      if(i < 5)
+        document.getElementById(cell_id + i).style.backgroundColor = "#00FF00";
+
+      // If number is 5-7, fill w/ yellow.
+            
+      if(i >=5 && i < 8)
+        document.getElementById(cell_id + i).style.backgroundColor = "#FFFF00";
+
+      // If number is 8-10, fill w/ red.
+
+      if(i >= 8)
+        document.getElementById(cell_id + i).style.backgroundColor = "#FF0000";
+    }
+  }
+    
+    
+  /**
+   * Clear graph passed to function by filling cells with the doc's bg color.
+   *
+   * @param cell_id ID of the cell to clear
+   */
+     
+  function clearGraph(cell_id)
+  {
+    // Clear by setting all the cells to the bg color.
+        
+    for(var i = 1; i <=10; i++)
+      document.getElementById(cell_id + i).style.backgroundColor = "#cccccc";
+  }
+    
+    
+//-->
+</script>
+</head>
+
+<body>
+
+<!-- onSubmit sends the selected element from the <SELECT> list -->
+<form id="pocketnoc">
+<div class="nocbox">
+<div id="nocBoxHeader"><img id="nocBoxIcon" src="images/os_unknown.gif" alt="" border="1" align="absmiddle"> <span id="nocBoxName"></span></div>
+        <div class="nocform">
+        <table border="0" cellspacing="0" cellpadding="2">
+        <tr>
+            <!-- cpu usage text and label -->
+            <td align="right"><input type="text" id="cpuusage" value="0" size="3"></td>
+            <td><img src="images/cpu_usage.gif" width="93" height="21" alt="" border="0"></td>
+        </tr>
+        <tr>
+            <!-- cpu usage graph table -->
+            <td colspan="2">
+                <table class="nocGrapher" border="0">
+                    <td id="cpugraph1" >&nbsp;</td>
+                    <td id="cpugraph2" >&nbsp;</td>
+                    <td id="cpugraph3" >&nbsp;</td>
+                    <td id="cpugraph4" >&nbsp;</td>
+                    <td id="cpugraph5" >&nbsp;</td>
+                    <td id="cpugraph6" >&nbsp;</td>
+                    <td id="cpugraph7" >&nbsp;</td>
+                    <td id="cpugraph8" >&nbsp;</td>
+                    <td id="cpugraph9" >&nbsp;</td>
+                    <td id="cpugraph10" >&nbsp;</td>
+                </table>
+            </td>
+        </tr>
+        
+        
+        <tr>
+            <!-- memory free text and label -->
+            <td align="right"><input type="text" id="memfree" value="0" size="3"></td>
+            <td><img src="images/memory_free.gif" width="93" height="21" alt="" border="0"></td>
+        </tr>
+        <tr>
+            <!-- memory usage graph table -->
+            <td colspan="2">
+                <table class="nocGrapher" border="0">
+                    <td id="memgraph1" >&nbsp;</td>
+                    <td id="memgraph2" >&nbsp;</td>
+                    <td id="memgraph3" >&nbsp;</td>
+                    <td id="memgraph4" >&nbsp;</td>
+                    <td id="memgraph5" >&nbsp;</td>
+                    <td id="memgraph6" >&nbsp;</td>
+                    <td id="memgraph7" >&nbsp;</td>
+                    <td id="memgraph8" >&nbsp;</td>
+                    <td id="memgraph9" >&nbsp;</td>
+                    <td id="memgraph10" >&nbsp;</td>
+                </table>
+            </td>
+        </tr>
+        
+        
+        <tr>
+            <!-- swap free text and label -->
+            <td align="right"><input type="text" id="swapfree" value="0" size="3"></td>
+            <td><img src="images/swap_free.gif" width="93" height="21" alt="" border="0"></td>
+        </tr>
+        <tr>
+            <!-- swap usage graph table -->
+            <td colspan="2">
+                <table class="nocGrapher" border="0">
+                    <td id="swapgraph1" >&nbsp;</td>
+                    <td id="swapgraph2" >&nbsp;</td>
+                    <td id="swapgraph3" >&nbsp;</td>
+                    <td id="swapgraph4" >&nbsp;</td>
+                    <td id="swapgraph5" >&nbsp;</td>
+                    <td id="swapgraph6" >&nbsp;</td>
+                    <td id="swapgraph7" >&nbsp;</td>
+                    <td id="swapgraph8" >&nbsp;</td>
+                    <td id="swapgraph9" >&nbsp;</td>
+                    <td id="swapgraph10" >&nbsp;</td>
+                </table>
+            </td>
+        </tr>
+        <tr id="loadAvgRow" style="display:none;">
+            <!-- load average text and label -->
+            <td align="right"><input type="text" id="loadavg" value="0" size="3"></td>
+            <td><img src="images/load_avg.gif" width="93" height="21" alt="" border="0"></td>
+        </tr>
+        <tr id="numUsersRow" style="display:none;">
+            <!-- num of users text and label -->
+            <td align="right"><input type="text" id="numusers" value="0" size="3"></td>
+            <td><img src="images/num_users.gif" width="93" height="21" alt="" border="0"></td>
+        </tr>
+        </table>
+  <div class="nocLinks" align="center"><a href="#" onclick="self.location.reload(true); return false;">Refresh</a> <script> if (!self.name) {document.write(newWinStr);} else {document.write(closeWinStr);}</script></div>
+</div></div></form>
+</body>
+</html>
