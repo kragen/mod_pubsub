@@ -11,7 +11,7 @@ public class EventStreamReader implements Runnable
 	EventStream events;
 	Listener listener;
 	boolean bKeepGoing=true;
-		
+	
 	public EventStreamReader(InputStream is,Listener listener)
 	{
 		events = new EventStream(is);
@@ -31,7 +31,6 @@ public class EventStreamReader implements Runnable
 		try
 		{
 			Map msg;
-			
 			while (bKeepGoing)
 			{
 				msg = events.readEvent();
@@ -40,7 +39,6 @@ public class EventStreamReader implements Runnable
 				
 				// notify the listener
 				listener.onMessage(msg);
-				Thread.yield();
 			}
 		}
 		catch(IOException e)

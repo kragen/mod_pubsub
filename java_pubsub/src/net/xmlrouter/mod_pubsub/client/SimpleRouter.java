@@ -101,20 +101,16 @@ public class SimpleRouter
 		Map msg = new HashMap();
 		try
 		{
-			URL url =new URL(serverURI+basePath);
 			HttpURLConnection conn;
-			
-			random = getMessageId();
+			EventStreamReader reader;
+			URL url =new URL(serverURI+basePath);
 			
 			// add some things
 			msg.put("kn_response_format","simple");
 			msg.put("do_method","route");
 			msg.put("kn_from",topic);
-			// @todo: Add options
-			/*
-			msg.put("do_max_age","3600");
 			msg.put("kn_id",route_id);
-			*/
+			// @todo: Add options
 
 			// send message
 			conn = HTTPUtil.Post(url,msg);
@@ -122,11 +118,10 @@ public class SimpleRouter
 			// get response
 			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
 			{			
-				// add the listener
-				EventStreamReader reader;
+				// attach EventStream to the response
 				reader = new EventStreamReader(conn.getInputStream(),listener);
 				eventStreams.put(route_id,reader);
-
+				
 				// start processing events
 				new Thread(reader).start();
 			}
@@ -195,9 +190,6 @@ public class SimpleRouter
 
 		return route_id;
 	}
-
-// serverURI + "/" + random + "/kn_journal/"
-
 	
 	/**
 	 * Stop processing incoming events
