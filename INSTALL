@@ -10,8 +10,8 @@ So far, we have run cgi-bin/PubSub/ModPubSub.pm with Apache and
 mod_perl on Windows 2000/XP, Linux, Mac OS X, and Solaris 2.8.
 Instructions for configuring it to run with Apache 1.3 and mod_perl,
 assuming you have root on the web server, are in the "Installation of
-PubSub/ModPubSub.pm" section below.  Other web servers may work but
-have not been tested so far.
+ModPubSub.pm" section below.  Other web servers may work but have
+not been tested so far.
 
 Also, we have run python_pubsub/pubsub.py in standalone from the
 command line on Windows 2000/XP, Linux, Mac OS X, and Solaris 2.8.
@@ -25,13 +25,13 @@ For questions and comments, please refer to the mailing list.
    http://mod-pubsub.sf.net/
    mod-pubsub-developer@lists.sourceforge.net
 
-$Id: INSTALL,v 1.12 2003/03/22 14:14:25 ifindkarma Exp $
+$Id: INSTALL,v 1.13 2003/03/25 03:38:38 ifindkarma Exp $
 
 
 
------------------------------------
-Installation of PubSub/ModPubSub.pm
------------------------------------
+----------------------------
+Installation of ModPubSub.pm
+----------------------------
 
 0.  You need Perl 5 or higher to be able to use this distribution;
 we've run it recently with 5.6.1, but it should probably still work
@@ -91,15 +91,15 @@ On other systems, the module may be in somewhere like
 /usr/lib/apache/1.3/libexec/libperl.so .
 
 
-4.  Extract the mod_pubsub tar file under your Apache document root.  It
-will create a directory named mod_pubsub.
+4.  Extract the mod_pubsub tar file under your Apache document root.
+It will create a directory named mod_pubsub/ with lots of goodies in it.
 
 
 5.  Configure your Apache server to run the mod_pubsub Perl module.
 You can do this by adding lines like the following to httpd.conf.
-(You may need to adjust the filenames for your Apache document root
-[default mod_pubsub directory: "/var/www/mod_pubsub"; default
-mod_pubsub directory URL "/mod_pubsub"].)
+You may need to adjust the filenames for your Apache document root
+(default mod_pubsub directory: "/var/www/mod_pubsub"; default
+mod_pubsub directory URL: "/mod_pubsub").
 
 <Perl>
 use lib "/var/www/mod_pubsub/cgi-bin";
@@ -108,13 +108,13 @@ mod_pubsub("/var/www/mod_pubsub", "/mod_pubsub", "/kn",
            \%Location, \%Directory);
 </Perl>
 
-At this point, your Apache and mod_perl should be working correctly.  To
-check, view the following page:
+At this point, your Apache and mod_perl should be working correctly.
+To check, view the following page:
 
    http://localhost/mod_pubsub/cgi-bin/testperl.cgi
 
-You should see about a page of information about your Apache server.  If  
-you see a few lines of Perl instead, mod_perl is not enabled correctly.
+You should see about a page of information about your Apache server.
+If you see a few lines of Perl instead, mod_perl is not enabled correctly.
 
 
 6.  Run the Makefile in this directory, for example
@@ -131,7 +131,7 @@ NOTE: js_compress.sh depends on the "nl" tool from GNU textutils.
 Since not everyone has this tool, we ship the mod_pubsub package
 with pubsub.js already generated.
 
-6B. Creates a subdirectory called mod_pubsub/kn_events and make it
+6B. Creates a subdirectory called mod_pubsub/kn_events/ and make it
 writable by the user that will be running the event router code,
 typically "nobody", "httpd", or "www-data".  We recommend that you do
 this by changing the ownership of this directory to that user; as root:
@@ -152,16 +152,17 @@ Error" messages.
    http://localhost/mod_pubsub/cgi-bin/pubsub_test.cgi
 
 You should see a list of tests.  All 56 tests should say "OK", with
-the possible exception of the "replay" tests, which are flaky.
+the possible exception of the "replay" tests, which are flaky due
+to timing dependencies.
 
 NOTE: This will fail if you have required HTTP authentication (as
 described below.) To make it work, you should append a valid HTTP
 username and password to the URL in index.html:
 
-   http://localhost/mod_pubsub/cgi-bin/kn_test.cgi?user=knguest&password=knguest
+   http://localhost/mod_pubsub/cgi-bin/pubsub_test.cgi?user=knguest&password=knguest
 
-Be aware that this will use up about 10MB of disk space every time you
-run it.
+Be aware that this test uses up about 10MB of disk space every time
+you run it.
 
 
 8.  Try viewing a test app in kn_apps:
@@ -174,26 +175,28 @@ yellow.  The top frame window should be blank and beige.  You should be
 able to type messages in the form and see them in the top frame.
 
 If you are not seeing what you expected at this point, see the
-Troubleshooting section below.
+"Troubleshooting" section below.
 
 
-9.  At this point, all the Dynamic HTML apps listed in the index should
-work.  However, chatroom, stocksoap, and vote determine usernames from
-HTTP authentication; to take advantage of this (so not everybody is
-"Anonymous User") requires configuring Apache to require password
-authentication for access to the mod_pubsub instance.  You can do this
-by adding something like the following to your Apache httpd.conf.
-(As before, you may need to adjust paths for your system.)
+9.  At this point, all the Dynamic HTML apps listed in the kn_apps
+index should work.  However, several of these applications require
+authentication.  We offer a (not secure) cookie_auth.js helper library
+to give you a feel for how authentication should work with these apps;
+however, if you want real security you'll need to determine usernames
+from actual HTTP authentication; to take advantage of this requires
+configuring Apache to require password authentication for access to
+the mod_pubsub instance.  You can do this by adding something like the
+following to your Apache httpd.conf -- and then create a users.passwd
+file with the appropriate usernames and passwords.
 
     <Directory /var/www/mod_pubsub>
         AuthType Basic
-        AuthName "knownow-auth"
-        AuthUserFile /var/www/mod_pubsub/sample.passwd
+        AuthName "pubsub-auth"
+        AuthUserFile /var/www/mod_pubsub/users.passwd
         Require valid-user
     </Directory>
 
-WARNING: The included sample.passwd file contains a username and
-password entry for user 'knguest' with the password 'knguest'.
+As before, you may need to adjust paths for your system.
 
 
 
@@ -218,7 +221,7 @@ try changing the ownership of the kn_events directory:
 
   cd /var/www/mod_pubsub
   chown -R httpd kn_events  (your web server may run as a different user,
-                             e.g. nobody or www-data instead of httpd)
+                             e.g., nobody or www-data instead of httpd)
 
 
 You can see Perl source when you view test apps
@@ -274,11 +277,11 @@ Setting Up Newsfeeds
 
 The newsticker app works fine when set up as above, but there's no news
 for it to display; you'll need to run a newsfeed script.  There's a
-simple one provided in mod_pubsub/kn_sense/rss.plx; you can run it as
-follows:
+simple one provided in mod_pubsub/kn_sense/rss/rss.plx; you can run
+it as follows:
 
-   cd mod_pubsub/kn_sense
-   ./rss.plx -url http://localhost/mod_pubsub/cgi-bin/kn.cgi
+   cd mod_pubsub/kn_sense/rss
+   ./rss.plx -url http://localhost/mod_pubsub/cgi-bin/pubsub.cgi
 
 This fetches a large number of RSS files and posts their contents as
 stories to the server; when you do this, you should start seeing
@@ -287,8 +290,9 @@ headlines show up in NewsTicker almost immediately.
 It will eventually finish; if you want a continuous newsfeed, you
 should run rss.plx periodically.
 
-(Alternatively, note that we also have an RSS Feed program provided
-as a sample in the mod_pubsub/cxx_pubsub/LibKN directory.)
+Alternatively, note that we also have an RSS Feed program provided
+as a sample in the mod_pubsub/cxx_pubsub/LibKN/Apps/ directory that
+runs on Windows after being compiled using VC++ or VC.NET.
 
 
 
@@ -296,8 +300,9 @@ as a sample in the mod_pubsub/cxx_pubsub/LibKN directory.)
 For More Information
 --------------------
 
-Read TODO to see all the things we want to add and improve.
-Read README for a list of credits.
+Read index.html for an index of goodies provided in this distribution.
+Read TODO to see all the things we want to add and improve.  And,
+read README for a list of credits.
 
 And: Join the mailing lists to work with the community on making this
 project much better.
