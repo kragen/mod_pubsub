@@ -9,7 +9,7 @@
     Now works with the helper libraries in python_pubsub.
     Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
-    $Id: sitewatch_sensor.py,v 1.7 2003/03/29 06:17:53 ifindkarma Exp $
+    $Id: sitewatch_sensor.py,v 1.8 2003/03/29 06:20:25 ifindkarma Exp $
     
     Known Issues:
 
@@ -59,7 +59,7 @@
 
 
 # Include standard system libraries:
-import os, sys, time, socket, inspect, errno, urllib, urlparse, asyncore
+import os, sys, time, socket, inspect, errno, urllib, urlparse
 
 # Include local libraries:
 sys.path = [ "../../python_pubsub" ] + sys.path
@@ -68,7 +68,7 @@ sys.path = [ "../../python_pubsub" ] + sys.path
 import asyncgeturl
 
 #Included with python_pubsub distribution:
-import asynchttp, scheduler, wakeup
+import asynchttp, scheduler, wakeup, asyncore
 """
     Note that we are using the event-driven python_pubsub asyncore,
     not the polling "standard" asyncore. -- Ben and Adam, 2/8/2003
