@@ -1,0 +1,21 @@
+$Id: MOVED,v 1.1 2003/05/10 03:18:18 ifindkarma Exp $
+
+For a SOAP gateway to mod_pubsub, see
+
+   mod_pubsub/cgi-bin/soap_gateway/
+
+For a third-party SOAP Service Proxy for mod_pubsub, see
+
+   mod_pubsub/cgi-bin/soap_filter.cgi : 
+
+For a JavaScript application that uses a SOAP service, see
+
+   mod_pubsub/kn_apps/soapdomain/
+   mod_pubsub/kn_apps/soapstock/
+
+For questions and comments, see
+
+   mod-pubsub-developer@lists.sourceforge.net
+   http://mod-pubsub.sf.net/
+
+Thanks!
