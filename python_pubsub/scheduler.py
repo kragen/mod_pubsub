@@ -10,7 +10,7 @@
     or in the past; tell event loop how long until the next
     scheduled task.
 
-    $Id: scheduler.py,v 1.3 2003/05/31 04:05:29 ifindkarma Exp $
+    $Id: scheduler.py,v 1.4 2003/06/14 04:44:40 ifindkarma Exp $
     Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
     Known Issues: see the FIXME's in this file.
@@ -54,7 +54,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: scheduler.py,v 1.3 2003/05/31 04:05:29 ifindkarma Exp $
+## $Id: scheduler.py,v 1.4 2003/06/14 04:44:40 ifindkarma Exp $
 
 
 import time
@@ -68,6 +68,10 @@ import asyncore
 # FIXME: We need to be able to cancel timers we've scheduled previously.
 
 class Scheduler:
+    """ Responsibilities: Maintain a list of items to be done at
+    specific times in the future. Run items to be done at present or
+    in the past. Tell event loop how long until the next scheduled task. """
+
     class Task:
         def __init__(self, func, when, name):
             self.func = func
@@ -92,6 +96,8 @@ class Scheduler:
                 except:
                     # FIXME: We could really use an error handler...
                     # but even this is better than crashing the event loop.
+                    # Example:
+                    # logger.log_err("Error in scheduled task " + i.name + "\n" + cgitb.html())
                     self.handle_error(i)
             else:
                 self.schedule.append(i)

@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.35 2003/06/05 01:34:48 ifindkarma Exp $
+# $Id: pubsub.py,v 1.36 2003/06/14 04:44:40 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -123,7 +123,9 @@ Error = "pubsub.py error"
 
 import sys, os, os.path, re, string, socket, time, getopt, traceback, errno
 import urlparse, urllib, cgi, cgitb
-import asyncore # FIXME: replace the mod_pubsub-modified asyncore with the standard asyncore.
+# FIXME: replace the mod_pubsub-modified asyncore with the standard asyncore.
+import asyncore
+from scheduler import scheduler
 from cPickle import dump, load
 from serverutils import *
 
@@ -165,47 +167,6 @@ class Logger:
             sys.stderr.flush()
 
 logger = None # Server inits this.
-
-class Scheduler:
-    """ Responsibilities: Maintain a list of items to be done at
-    specific times in the future. Run items to be done at present or
-    in the past. Tell event loop how long until the next scheduled task. """
-
-    # FIXME: Consolidate this with scheduler.py's Scheduler class.
-    # We don't need them both.
-    class Task:
-        def __init__(self, func, when, name):
-            self.func = func
-            self.when = when
-            self.name = name
-        def __call__(self):
-            self.func()
-        def __repr__(self):
-            return "Task(%s, %s, %s)" % (repr(self.func), repr(self.when), repr(self.name))
-    def __init__(self):
-        self.schedule = []
-    def schedule_processing(self, func, when, name="unknown"):
-        self.schedule.append(self.Task(func, when, name))
-    def run(self):
-        oschedule = self.schedule
-        self.schedule = []
-        now = time.time()
-        for i in oschedule:
-            if i.when <= now:
-                try: i()
-                except:
-                    logger.log_err("Error in scheduled task " + i.name + "\n" + cgitb.html())
-            else:
-                self.schedule.append(i)
-    def timeout(self):
-        if self.schedule == []:
-            return None
-        when = self.schedule[0].when
-        for i in self.schedule:
-            if when > i.when: when = i.when
-        diff = when - time.time()
-        if diff < 0: return 0
-        else: return diff
 
 class Event:
     """ Responsibilities: Hold a dictionary of names and values.
@@ -531,6 +492,9 @@ class Tunnel(Route):
     def close(self):
         if self.dead: return
         self.conn.finish_sending()
+        # FIXME: Tunnels don't self-destruct until 100 secs after socket disconnection.
+        # FIXME: Journals stop working as soon as the last tunnel disconnects.
+        # FIXME: Attempts to re-connect to a nonworking journal works.
         self.conn.server.scheduler.schedule_processing(lambda self=self: self.become_stale(), time.time() + 100, 'stalify old tunnel')
     def __getstate__(self):
         return {'contents': {'kn_payload': self['kn_payload'], 'stale': 1}, 'dead': 1} # And omit 'header_sent' and 'conn'
@@ -1399,8 +1363,7 @@ def main(argv):
                 "Specified port number: %s is not a valid number, exiting...\n" % portNumStr
             )
 
-        sch = Scheduler()
-        server = Server(portNum, logfile, errlog, sch, docroot, topicroot, verbose, filename, ignorePrologue)
+        server = Server(portNum, logfile, errlog, scheduler, docroot, topicroot, verbose, filename, ignorePrologue)
 
         if verbose:
             if ignorePrologue:
@@ -1419,8 +1382,8 @@ def main(argv):
             print "\nPubSub Server initialized.\n"
 
         while server.alive:
-            asyncore.poll(sch.timeout())
-            sch.run()
+            asyncore.poll(scheduler.timeout())
+            scheduler.run()
 
 if __name__ == "__main__": main(sys.argv)
 
@@ -1428,7 +1391,6 @@ if __name__ == "__main__": main(sys.argv)
 # FIXME: kn_content_transform header
 # FIXME: off-host routes
 # FIXME: bridge.py working using pubsublib.py
-# FIXME: consolidation of scheduler.py and pubsub.py's Scheduler class
 # FIXME: use ZODB for event pool manipulation
 # FIXME: add Depth: header to avoid kn_subtopics infinite recursion
 # FIXME: add "ulimit" in pubsub.py

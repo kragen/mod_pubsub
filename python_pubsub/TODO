@@ -1,15 +1,15 @@
 ----------------------------
 To Do List for Python PubSub
 ----------------------------
-$Id: TODO,v 1.16 2003/06/14 03:33:06 ifindkarma Exp $
+$Id: TODO,v 1.17 2003/06/14 04:44:40 ifindkarma Exp $
 
  0. Notifications for closing tunnel.
  1. Off host routes and kn_content_transform in pubsub.py .
  2. Modify pubsub.py to not send so many flush spaces when writing simple
     response format.  This will make our simple wire format less chatty.
  3. Add CGI support and/or Perl interpreter to pubsub.py.
- 4. Add pubsub.py watchdog.  Consolidate pubsub.py scheduler with
-    scheduler.py.  Add statistics that are dumped out by pubsub.py.
+ 4. Add pubsub.py watchdog.
+    Add statistics that are dumped out by pubsub.py.
  5. Add "Depth: " header to prevent infinite introspection.
  6. Fix bridge.py to use pubsublib.py to
     bridge instances of pubsub.py and pubsub.cgi.
