@@ -39,7 +39,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.5 2003/04/19 00:20:35 ifindkarma Exp $
+// $Id: pubsub_raw.js,v 1.6 2003/04/28 23:17:58 ifindkarma Exp $
 
 ////////////////////////////////////////////////////////////////////////
 // Notes on notation:
@@ -408,7 +408,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.5 2003/04/19 00:20:35 ifindkarma Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.6 2003/04/28 23:17:58 ifindkarma Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -2959,7 +2959,7 @@ function _kn_stringFromCharCodes(codes)
         if ((_l_code >= 0) && (_l_code <= KN.ucs2max))
         {
             if (_l_code >= KN.utf16firstLowHalf &&
-                _l_code <= KN.utf16firstHighHalf & KN.utf16mask)
+                _l_code <= (KN.utf16firstHighHalf | KN.utf16mask))
             {
                 // reserved surrogate codepoint
                 _l_code = KN.ucsNoChar;
@@ -4167,6 +4167,9 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
+// Revision 1.6  2003/04/28 23:17:58  ifindkarma
+// Fixed rejection of invalid surrogate characters in Unicode.
+//
 // Revision 1.5  2003/04/19 00:20:35  ifindkarma
 // Fixed long-lived connections in IE6+.
 //
