@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.13 2003/04/26 03:30:44 ifindkarma Exp $
+# $Id: pubsub.py,v 1.14 2003/04/29 00:20:55 ifindkarma Exp $
 
 
 """
@@ -1243,7 +1243,7 @@ def main(argv):
                 "\n"
                 "  -h, --help                 print this message and exit\n"
                 "  -v, --verbose              increase verbosity of logging to stderr\n"
-                "  -f, --file                 filename to use as persistent event pool (default pubsub.pool)\n"
+                "  -f, --file                 filename to use as persistent event pool (default None)\n"
                 "                             (multiple occurrences have a cumulative effect)\n"
             )
             return
