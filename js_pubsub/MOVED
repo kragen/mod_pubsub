@@ -1,0 +1,28 @@
+$Id: MOVED,v 1.1 2003/05/10 03:25:52 ifindkarma Exp $
+
+For the JavaScript PubSub Client Library, see
+
+   mod_pubsub/kn_apps/kn_lib/pubsub_raw.js
+
+For over fifty sample JavaScript applications, that
+run in any PubSub-enabled Web Browser, see
+
+   mod_pubsub/kn_apps/
+
+For PubSub JavaScript helper libraries, see
+
+   mod_pubsub/kn_apps/kn_lib/
+   mod_pubsub/kn_apps/jscomponents/
+
+For documentation, see
+
+   mod_pubsub/kn_docs/developer_guide.html
+   mod_pubsub/kn_docs/pubsub_protocol.html
+   mod_pubsub/kn_docs/javascript_reference.html
+
+For questions and comments, see
+
+   mod-pubsub-developer@lists.sourceforge.net
+   http://mod-pubsub.sf.net/
+
+Thanks!
