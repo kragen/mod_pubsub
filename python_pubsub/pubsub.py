@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.41 2003/06/17 03:51:37 ifindkarma Exp $
+# $Id: pubsub.py,v 1.42 2003/06/17 03:56:16 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -794,14 +794,14 @@ class Server:
         2. Track overall server state.
     """
     
-    def __init__(self, portnum, logfile, errlog, scheduler, docroot, knroot, verbose, poolfile, ignorePrologue):
+    def __init__(self, portnum, logfile, errlog, scheduler, docroot, pubsubroot, verbose, poolfile, ignorePrologue):
         self.logfile = logfile
         global logger
         logger = Logger(errlog)
         self.scheduler = scheduler
         self.alive = 1
         self.docroot = docroot
-        self.knroot = knroot
+        self.pubsubroot = pubsubroot
         self.verbose = verbose
         self.ignorePrologue = ignorePrologue
         self.root_topic = read_event_pool(poolfile)
@@ -874,11 +874,11 @@ class Server:
     def kill(self):
         self.alive = 0
 
-    def documentroot(self):
+    def getdocroot(self):
         return self.docroot
 
-    def getknroot(self):
-        return self.knroot
+    def getpubsubroot(self):
+        return self.pubsubroot
 
 
 def route_get_topic(conn, uri, query):
@@ -1109,7 +1109,7 @@ def js_prologue_string(conn):
     str = ''
     if not conn.shouldIgnorePrologue():
         try:
-            str = conn.pathread(urlpath(conn.getknroot()) + ['kn_apps', 'kn_lib', 'prologue.js'])[1]
+            str = conn.pathread(urlpath(conn.getpubsubroot()) + ['kn_apps', 'kn_lib', 'prologue.js'])[1]
         except: pass
     return ('kn_userid = "anonymous"; kn_displayname = "Anonymous User";\r\n'
             + str + '\r\n' +
@@ -1118,7 +1118,7 @@ def js_prologue_string(conn):
 
 def handle_urlroot_request(conn, uri, httpreq, query_string):
     conn.report_status('handling urlroot request: %s' % uri)
-    knroot = urlpath(conn.getknroot())
+    pubsubroot = urlpath(conn.getpubsubroot())
     query = cgi.parse_qs(query_string, keep_blank_values=1)
     if query.has_key('do_method'):
         do_method = query['do_method'][0]
@@ -1144,23 +1144,23 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
     elif do_method == 'lib':
         header = http_header('200 OK', 'text/javascript', http_time(time.time() + 86400))
         data = (js_prologue_string(conn) +
-                conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1])
+                conn.pathread(pubsubroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1])
         conn.send(header + data)
         conn.finish_sending()
     elif do_method == 'libform':
         conn.send(http_header('200 OK', 'text/javascript', http_time(time.time() + 86400)) +
                   js_prologue_string(conn) +
-                  conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
+                  conn.pathread(pubsubroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
                   "\n" +
-                  conn.pathread(knroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
+                  conn.pathread(pubsubroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
         conn.finish_sending()
     elif do_method == 'lib2form':
         conn.send(http_header('200 OK', 'text/javascript', http_time(time.time() + 86400)) +
                   js_prologue_string(conn) +
-                  conn.pathread(knroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
+                  conn.pathread(pubsubroot + ['kn_apps', 'kn_lib', 'pubsub.js'])[1] +
                   "\n" +
                   "window.kn__form2way = true;\n" +
-                  conn.pathread(knroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
+                  conn.pathread(pubsubroot + ['kn_apps', 'kn_lib', 'form.js'])[1])
         conn.finish_sending()
     elif do_method == 'whoami':
         conn.send(http_header('200 OK', 'text/javascript', http_time(time.time() + 86400)) +
@@ -1355,17 +1355,17 @@ class Connection(asyncore.dispatcher_with_send):
     def repr(self):
         return "<Connection %d>" % id(self)
 
-    def documentroot(self):
-        return self.server.documentroot()
+    def getdocroot(self):
+        return self.server.getdocroot()
 
     def urlroot(self):
         return "kn"
 
-    def getknroot(self):
-        return self.server.getknroot()
+    def getpubsubroot(self):
+        return self.server.getpubsubroot()
 
     def pathread(self, realpath):
-        return pathread(self.documentroot(), realpath)
+        return pathread(self.getdocroot(), realpath)
 
     def shouldIgnorePrologue(self):
         return self.server.ignorePrologue
@@ -1484,19 +1484,19 @@ def urlpath(filename):
     return realpath
 
 
-def pathopen(documentroot, realpath):
+def pathopen(docroot, realpath):
     # FIXME: Raceable!
     for i in range(len(realpath)):
-        dir = string.join([documentroot] + realpath[0:i], '/')
+        dir = string.join([docroot] + realpath[0:i], '/')
         # Avoid /com1/foo etc.
         if not os.path.exists(dir):
             raise Error404, "Couldn't find %s.\n" % string.join(realpath, '/')
-    file = string.join([documentroot] + realpath, '/')
+    file = string.join([docroot] + realpath, '/')
     return (mimetype(file), open(file, 'rb'))
 
 
-def pathread(documentroot, realpath):
-    type, file = pathopen(documentroot, realpath)
+def pathread(docroot, realpath):
+    type, file = pathopen(docroot, realpath)
     data = file.read()
     file.close()
     return type, data
