@@ -8,7 +8,7 @@ header("Content-Type: text/html; charset=utf-8");
 
 require('pubsublib.php');
 
-if ($show_source != "")
+if (kn__gpc("show_source", false, array("_GET")))
 {
     ?><title><?php echo kn_htmlEscape(__FILE__); ?></title>
         <body text="black" bgcolor="white"><?php
@@ -53,30 +53,31 @@ if ($show_source != "")
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: publish.php,v 1.3 2003/03/25 19:43:15 troutgirl Exp $';
+$RCSID = '$Id: publish.php,v 1.4 2003/03/28 06:57:19 bsittler Exp $';
 
 ?>
-<title>PubSub PHP Publisher</title>
+<title>pubsub publisher for php</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <body>
 <?php
 
-$publish_topic = $kn_topic;
-
-if (! isset($publish_topic))
+if (! isset($kn_topic))
 {
-    $publish_topic = "/what/chat";
+    $kn_topic = "/what/chat";
 }
 
-if (! isset($publish_payload))
-{
-    $publish_payload = "PHP Publishing Sample: Hello, world!";
-}
+$publish_topic =
+    kn__gpc("publish_topic",
+            $kn_topic);
 
-if (! isset($publish))
+$publish_payload =
+    kn__gpc("publish_payload",
+            "Publishing Sample for PHP: Hello, world!");
+
+if (kn__gpc("publish", PUBSUB_NULL, array("_GET", "_POST")) == PUBSUB_NULL)
 {
-    ?><h1>PHP Publisher</h1><?php
+    ?><h1>Publisher for PHP</h1><?php
 }
 else
 {
@@ -92,21 +93,15 @@ else
 }
 
 ?>
-<form action="<?php echo kn_htmlEscape($PHP_SELF); ?>" method="POST">
+<form action="<?php echo kn_htmlEscape(kn__gpc('PHP_SELF', false, array('_SERVER'))); ?>" method="POST">
 <dl>
     <?php
 
 $fields =
-    array("kn_server" => array($kn->getServerURI(),
-                               "PubSub Server URI"),
-          "publish_topic" => array($publish_topic,
-				   "Topic"),
-          "kn_userid" => array($kn->getUserID(),
-                               "User ID"),
-          "kn_displayname" => array($kn->getDisplayName(),
-                                    "Display Name"),
+    array("publish_topic" => array($publish_topic,
+                                   "Topic"),
           "publish_payload" => array($publish_payload,
-				     "Payload"));
+                                     "Payload"));
 while (list($name, $value) = each($fields))
 {
     ?>
@@ -135,7 +130,9 @@ while (list($name, $value) = each($fields))
  align="right"
  style="margin-top: 0px"
 >You may find the <a
-href="<?php echo kn_htmlEscape($PHP_SELF) . '?show_source=1'; ?>"
->PHP source for this application</a> instructive.</p>
+href="<?php echo kn_htmlEscape(kn__gpc('PHP_SELF', false, array('_SERVER'))) . '?show_source=1'; ?>"
+>PHP source for this application</a> instructive.<br />
+    Current <a href="http://www.php.net/" target="_blank">PHP</a> version:
+    <?php echo kn_htmlEscape(phpversion()); ?></p>
 </body>
 </html>

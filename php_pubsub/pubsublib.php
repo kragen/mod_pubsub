@@ -1,5 +1,5 @@
 <?php
-# pubsublib.php - PubSub PHP Client library
+# pubsublib.php - PubSub Client library for PHP
 
 # Copyright 2003 KnowNow, Inc.  All Rights Reserved.
 #
@@ -64,11 +64,50 @@ define('PUBSUB_utf16shift', 10);
 define('PUBSUB_utf8mask', 0x3F);
 define('PUBSUB_utf8shift', 6);
 
+# pseudo-NULL
+unset($PUBSUB_NULL);
+define("PUBSUB_NULL", $PUBSUB_NULL);
+
+# get a parameter (named $name) from one of the sources (_GET, _POST,
+# and _COOKIES by default) or from the same-named global if those
+# sources aren't available; returns $default otherwise
+function kn__gpc($name, $default = PUBSUB_NULL, $sources = PUBSUB_NULL)
+{
+    $newstyle = false;
+    if (! $sources)
+    {
+        $sources = array("_GET", "_POST", "_COOKIES");
+    }
+    while (list($idx, $set) = each($sources))
+    {
+        global $$set;
+        if (isset($$set))
+        {
+            $newstyle = true;
+            $tmp = $$set;
+            if (isset($tmp[$name]))
+            {
+                return $tmp[$name];
+            }
+        }
+    }
+    if ($newstyle)
+    {
+        return $default;
+    }
+    global $$name;
+    if (isset($$name))
+    {
+        return $$name;
+    }
+    return $default;
+}
+
 # invoke a closure $closure, with argument values from $args. $closure
 # may be a function pointer or an object; if the latter, it should
-# support $closure->__call__($args[0], $args[1], ...); any other
+# support $closure->__call($args[0], $args[1], ...); any other
 # $closure is simply eval()'ed [and may call return true, and may
-# refer to the $args array]
+# refer to the $args array, and should include a "return" statement]
 function kn_apply($closure, $args)
 {
     $expr = 'return $closure';
@@ -88,7 +127,7 @@ function kn_apply($closure, $args)
     $args_expr .= ');';
     if (is_object($closure))
     {
-        $expr .= '->__call__' . $args_expr;
+        $expr .= '->__call' . $args_expr;
     }
     else if (! function_exists($closure))
     {
@@ -98,7 +137,17 @@ function kn_apply($closure, $args)
     {
         $expr .= $args_expr;
     }
-    return eval($expr);
+    # default return value of kn_apply() is "false"
+    $ret = false;
+    if (5 == true)
+    {
+        eval('$ret = eval($expr);');
+    }
+    else
+    {
+        eval($expr);
+    }
+    return $ret;
 }
 
 function kn_utf8decode($input,
@@ -229,71 +278,106 @@ function kn_htmlEscape($t)
     return kn_utf8decode($t, "kn_htmlEscape_converter");
 }
 
-if (! isset($kn_topic) && getenv("PATH_INFO"))
+if (! isset($kn_topic))
+{
+    $kn_topic_ = kn__gpc("kn_topic", PUBSUB_NULL, array("_GET"));
+    if ($kn_topic_)
+    {
+        $kn_topic = $kn_topic_;
+        unset($kn_topic_);
+    }
+}
+
+if (! isset($kn_topic) and
+    getenv("PATH_INFO"))
 {
     $kn_topic = getenv("PATH_INFO");
 }
 
 if (! isset($kn_userid))
 {
-    $kn_userid = "guest";
+    $kn_userid =
+        kn__gpc("kn_userid",
+                "guest",
+                array("_GET", "_COOKIES"));
 }
 
 if (! isset($kn_displayname))
 {
-    $kn_displayname = "Guest User";
+    $kn_displayname =
+        kn__gpc("kn_displayname",
+                "Guest User",
+                array("_GET", "_COOKIES"));
 }
 
-if (! isset($kn_server) &&
-    getenv("SERVER_ADDR") &&
+if (! isset($kn_server))
+{
+    $kn_server =
+        kn__gpc("kn_server",
+                PUBSUB_NULL,
+                array("_GET", "_COOKIES"));
+}
+
+if ($kn_server == PUBSUB_NULL and
+    getenv("SERVER_ADDR") and
     getenv("SERVER_PORT"))
 {
-    $kn_server_protocol = "http";
+    $_kn_server_protocol = "http";
     if (getenv("SSL") == "ON" ||
         getenv("SERVER_PORT") == "443")
     {
-        $kn_server_protocol = "https";
+        $_kn_server_protocol = "https";
     }
     else if (getenv("SERVER_PROTOCOL"))
     {
-        $kn_server_protocol =
+        $_kn_server_protocol =
             split('/', getenv("SERVER_PROTOCOL"));
-        $kn_server_protocol =
-            $kn_server_protocol[0];
-        $kn_currentLocale = setlocale("LC_CTYPE", "0");
-        setlocale("LC_ALL", "C");
-        $kn_server_protocol = strtolower($kn_server_protocol);
-        setlocale("LC_CTYPE", $kn_currentLocale);
+        $_kn_server_protocol =
+            $_kn_server_protocol[0];
+        if (defined("LC_CTYPE"))
+        {
+            $_kn_currentLocale = setlocale(LC_CTYPE, "0");
+            setlocale(LC_CTYPE, "C");
+            $_kn_server_protocol = strtolower($_kn_server_protocol);
+            setlocale(LC_CTYPE, $_kn_currentLocale);
+        }
+        else
+        {
+            $_kn_currentLocale = setlocale("LC_CTYPE", "0");
+            setlocale("LC_CTYPE", "C");
+            $_kn_server_protocol = strtolower($_kn_server_protocol);
+            setlocale("LC_CTYPE", $_kn_currentLocale);
+        }
     }
-    $kn_server_host = getenv("SERVER_ADDR");
-    #$kn_server_host = "127.0.0.1";
-    $kn_server_vhost = getenv("HTTP_HOST");
-    if ($kn_server_vhost != "")
+    $_kn_server_host = getenv("SERVER_ADDR");
+    #$_kn_server_host = "127.0.0.1";
+    $_kn_server_vhost = getenv("HTTP_HOST");
+    if ($_kn_server_vhost != "")
     {
-	if (gethostbyname($kn_server_vhost) == $kn_server_host)
-	{
-	    $kn_server_host = $kn_server_vhost;
-	}
+        if (gethostbyname($_kn_server_vhost) == $_kn_server_host)
+        {
+            $_kn_server_host = $_kn_server_vhost;
+        }
     }
-    $kn_server_port = getenv("SERVER_PORT");
-    if ($kn_server_protocol == "http" and
-	$kn_server_port == "80" or
-	$kn_server_protocol == "https" and
-	$kn_server_port == "443")
+    $_kn_server_port = getenv("SERVER_PORT");
+    if ($_kn_server_protocol == "http" and
+        $_kn_server_port == "80" or
+        $_kn_server_protocol == "https" and
+        $_kn_server_port == "443")
     {
-	$kn_server_hostport =
-	    $kn_server_host;
+        $_kn_server_hostport =
+            $_kn_server_host;
     }
     else
     {
-	$kn_server_hostport =
-	    $kn_server_host . ":" .
-	    $kn_server_port;
+        $_kn_server_hostport =
+            $_kn_server_host . ":" .
+            $_kn_server_port;
     }
     $kn_server =
-        $kn_server_protocol .
+        $_kn_server_protocol .
         "://" .
-	$kn_server_hostport .
+        $_kn_server_hostport .
         "/kn";
 }
 
@@ -536,6 +620,10 @@ function kn_toSource($a)
 {
     $str = '';
     $type = gettype($a);
+    if ($type == "NULL")
+    {
+        return "NULL";
+    }
     if ($type != "array")
     {
         if ($type == "object" || $type == "user function")
@@ -609,7 +697,7 @@ function kn_doStatus($e, $handler = "")
     return kn_apply($handler, array($e));
 }
 
-# PubSub PHP Client
+# PubSub Client
 
 class PubSubClient
 {
@@ -619,12 +707,12 @@ class PubSubClient
     var $myDisplayName;
     function PubSubClient()
     {
-	global $kn_server;
-	global $kn_userid;
-	global $kn_displayname;
-	$this->setServerURI($kn_server);
-	$this->setUserID($kn_userid);
-	$this->setDisplayName($kn_displayname);
+        global $kn_server;
+        global $kn_userid;
+        global $kn_displayname;
+        $this->setServerURI($kn_server);
+        $this->setUserID($kn_userid);
+        $this->setDisplayName($kn_displayname);
     }
     function setServerURI($aServerURI)
     {
@@ -844,13 +932,16 @@ $kn = new PubSubClient;
 
 function kn_fileIsEqualTo($file1, $file2)
 {
+    # FIXME: URL-wrapper "files" may need special handling...
     return
-	kn_isEqualTo($file1, $file2) ||
-	kn_isEqualTo(stat($file1),
-		     stat($file2));
+        kn_isEqualTo($file1, $file2) ||
+        kn_isEqualTo(stat($file1),
+                     stat($file2));
 }
 
-if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
+if (getenv("SCRIPT_FILENAME") and
+    kn_fileIsEqualTo(__FILE__,
+                     getenv("SCRIPT_FILENAME")))
 {
     header("Content-Type: text/html; charset=utf-8");
 
@@ -859,7 +950,7 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
         <head>
         <?php
 
-    if ($show_source != "")
+    if (kn__gpc("show_source", false, array("_GET")))
     {
         ?><title><?php echo kn_htmlEscape(__FILE__); ?></title><?php
         show_source(__FILE__);
@@ -867,10 +958,10 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
     }
 
     ?>
-        <title>PubSub PHP Client library</title>
+        <title>PubSub Client library for PHP</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         </head>
-        <h1 align="center">PHP Client library</h1>
+        <h1 align="center">Client library for PHP</h1>
         <br />
         <p align="center"><em>. . . consistent end-to-end event notification,
         <br />now in <a href="http://www.php.net" target="_blank">PHP</a>,
@@ -889,10 +980,10 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
         class _kn_unitTestSuite
         {
             var $allTests;
-	    function _kn_unitTestSuite()
-	    {
-		$this->$allTests = array();
-	    }
+            function _kn_unitTestSuite()
+            {
+                $this->$allTests = array();
+            }
             function runTests()
             {
                 $array = $this->allTests;
@@ -939,7 +1030,7 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
             class _test_kn_applyO
             {
                 var $acc = 1;
-                function __call__ ($m)
+                function __call ($m)
                 {
                     $this->acc *= $m;
                     return $this->acc;
@@ -1188,6 +1279,41 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
             }
         }
 
+        # FIXME: we also need tests for GET, POST and COOKIE data
+        $s->defineTest("kn__gpc", "test_kn__gpc");
+        function test_kn__gpc()
+        {
+            $input = "PATH";
+            $expected = getenv("PATH");
+
+            $output = kn__gpc($input, false, array("_ENV"));
+            $err = "";
+            if (! kn_isEqualTo($output, $expected))
+            {
+                $err = "check environment";
+            }
+            else
+            {
+                $input = "nonexistent-" . md5(uniqid(rand()));
+                $expected = PUBSUB_NULL;
+
+                $output = kn__gpc($input, PUBSUB_NULL, array("_ENV"));
+                if (! kn_isEqualTo($output, $expected))
+                {
+                    $err = "check environment (negative)";
+                }
+            }
+            if ($err)
+            {
+                return "$err: expected <br /><b>" .
+                    htmlentities(kn_toSource($expected)) .
+                    "</b>,<br /> but got output <br /><b>" .
+                    htmlentities(kn_toSource($output)) .
+                    "</b><br /> for input <br /><b>" .
+                        htmlentities(kn_toSource($input)) . "</b><br />";
+            }
+        }
+
 # END OF TESTS
 
         $s->runTests();
@@ -1198,8 +1324,10 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
     ?>
         <hr size="1" />
         <p align="right" style="margin-top: 0px">You may find the <a
-        href="<?php echo kn_htmlEscape($PHP_SELF) . '?show_source=1'; ?>"
-        >PHP source for this application</a> instructive.</p>
+        href="<?php echo kn_htmlEscape(kn__gpc('PHP_SELF', false, array('_SERVER'))) . '?show_source=1'; ?>"
+        >PHP source for this application</a> instructive.<br />
+        Current <a href="http://www.php.net/" target="_blank">PHP</a> version:
+        <?php echo kn_htmlEscape(phpversion()); ?></p>
         </body>
         </html>
         <?php
