@@ -4,6 +4,7 @@
     xdomainserver.py -- a standalone (very) basic Python Web Server
     used to serve up the mod_pubsub weblications from a different port
     to the Python PubSub server to support cross domain testing.
+    It was built by extending the Python SimpleHTTPServer.
 
     It filters any html files it opens, replacing (at the moment)
     'src="/kn' with 'src="http://PubSubServer:Port/kn" where the
@@ -13,7 +14,22 @@
     Note that the usual means of specifying the port on which this
     server is to run (i.e. the command line) is ignored as currently
     this server *must* be run on port 80 to allow any weblications
-    using frames to work.
+    using frames to work.  Without port 80, it will fail to recognize
+    that the blank frame is being opened in the same domain and try to
+    open it via xdomainserver rather than the PubSub server.
+
+    To run the cross domain test setup you need to :
+
+    1. Setup mod_pubsub/kn_apps/kn_lib/prologue.js as required
+    2. Start pubsub.py - which will read prologue.js to determine
+    the port to run on (you still need the old command line params -
+    it just ignores the port if prologue.js is present and is read
+    successfully).
+    3. Start xdomainserver.py - which will also read prologue.js to
+    determine the server URL to use in its substitutions
+    4. Goto http://localhost/ which will go straight to the Demo
+    Weblications index.html page.
+    5. Run apps/test as required.
 
     Contact Information:
        http://mod-pubsub.sf.net/
@@ -54,7 +70,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: xdomainserver.py,v 1.1 2003/04/29 06:44:17 ifindkarma Exp $
+# $Id: xdomainserver.py,v 1.2 2003/04/30 23:18:47 ifindkarma Exp $
 
 import SimpleHTTPServer
 import types
