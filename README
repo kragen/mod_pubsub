@@ -28,13 +28,13 @@ please send inquiries to the mailing list
    http://mod-pubsub.sf.net/
 
 KnowNow makes this code freely available, to encourage adoption and
-unfettered experimentation.  Our Apache-based license is available in
-the LICENSE file; its purpose is to indemnify KnowNow of legal
+unfettered experimentation.  Our Apache/BSD-style license is available
+in the LICENSE file; its purpose is to indemnify KnowNow of legal
 liability while promoting free use of this set of code, tools, and
 documentation.  Enjoy!
 
   -- Adam Rifkin
-     $Id: README,v 1.7 2003/03/25 03:41:41 ifindkarma Exp $
+     $Id: README,v 1.8 2003/04/05 05:48:00 ifindkarma Exp $
 
 
 
