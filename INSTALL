@@ -26,7 +26,7 @@ For questions and comments, please refer to the mailing list.
    http://mod-pubsub.sf.net/
    mod-pubsub-developer@lists.sourceforge.net
 
-$Id: INSTALL,v 1.18 2003/04/30 23:21:08 ifindkarma Exp $
+$Id: INSTALL,v 1.19 2003/05/17 08:09:23 ifindkarma Exp $
 
 
 
@@ -292,12 +292,32 @@ try changing the ownership of the kn_events directory:
 
 You can see Perl source when you view test apps
 
-  Apache should be running these with mod_perl.  Perhaps Apache hasn't
+Apache should be running these with mod_perl.  Perhaps Apache hasn't
 loaded mod_perl (the PerlHandler directive above should give you an
 error message in error_log, and keep Apache from starting, if that's
 the case) or mod_perl doesn't handle the cgi-bin directory in which
 mod_pubsub has been installed.  Perhaps the <Perl> or <Directory>
 directive above has the wrong path?
+
+We have also found embedding the following within a <VirtualHost>
+section has helped as a work-around in at least one configuration.
+
+    # Ghosts in the machine might make this necessary:
+    <Directory /var/www/mod_pubsub/cgi-bin>
+        <Files pubsub.cgi>
+            SetHandler perl-script
+            PerlHandler PubSub::ModPubSub
+            Options ExecCGI
+            PerlSendHeader On
+        </Files>
+        <Files *.cgi>
+            SetHandler perl-script
+            PerlHandler Apache::Registry
+            Options +ExecCGI
+            PerlSendHeader On
+        </Files>
+    </Directory>
+
 
 
 
@@ -309,8 +329,8 @@ This release also ships with a standalone Python server that is
 feature-compatible with Apache-running-with-the-mod_pubsub scripts.
 It's a single file that runs standalone without Apache.
 
-All this requires is a Python installation on your machine, it should
-be runnable as-is from a command line.
+With a Python installation on your machine, it should be runnable
+as-is from a command line.
 
 To get Python running on Windows, for example, use
 
