@@ -37,7 +37,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: pubsub_ping.c,v 1.1 2003/03/22 06:59:18 ifindkarma Exp $
+ * $Id: pubsub_ping.c,v 1.2 2003/05/12 18:15:48 bsittler Exp $
  **/
 
 /* this file is part of the pubsub_ping implementation */
@@ -100,6 +100,7 @@ error_nowhack(char *prefix, int *retval)
     if ((errno != EINTR) || ! whacked)
     {
         perror(prefix);
+	fflush(stderr);
         *retval = 1;
     }
 }
@@ -131,6 +132,7 @@ statusDispatcher(kn_EventRef evt, void *void_ctx,
                     __LINE__);
             fput_knobj(evt, stderr);
             fprintf(stderr, "\n");
+	    fflush(stderr);
         }
         (*onError)(evt, void_ctx);
         return;
@@ -185,6 +187,7 @@ onPingSuccess(kn_EventRef evt, void *void_ctx)
                 ctx);
         fput_knobj(evt, stderr);
         fprintf(stderr, "\n");
+	fflush(stderr);
     }
 }
 
@@ -224,6 +227,7 @@ onPingError(kn_EventRef evt, void *void_ctx)
                 ctx);
         fput_knobj(evt, stderr);
         fprintf(stderr, "\n");
+	fflush(stderr);
     }
     fprintf(stderr,
             "Error: failed to publish to ");
@@ -242,6 +246,7 @@ onPingError(kn_EventRef evt, void *void_ctx)
         fprintf(stderr, "(null)");
     fprintf(stderr,
             "\n");
+    fflush(stderr);
 }
 
 /* pubsub_ping status handler */
@@ -352,12 +357,14 @@ doPing(PingContext *ctx)
                     ctx);
             fput_knobj(evt, stderr);
             fprintf(stderr, "\n");
+	    fflush(stderr);
         }
         if (! (ctx -> waitingFor = kn_EventGetValue(evt, lkn8_kn_id)))
         {
             fprintf(stderr,
                     "%s: client library did not provide an event ID\n",
                     __FUNCTION__);
+	    fflush(stderr);
             exit(1);
         };
         kn_Retain(ctx -> waitingFor);
@@ -384,6 +391,7 @@ doPing(PingContext *ctx)
 		fprintf(stderr,
 			": ");
 		perror("kn_ServerPublishEventToTopic");
+		fflush(stderr);
 	      }
             later = getTime(&(ctx -> retval));
             rtt = later - now;
@@ -408,6 +416,7 @@ reallyStart(PingContext *ctx)
     kn_StringWriteToStream(ctx -> topic, stdout);
     printf(" from ??? : %ld byte payload\n",
            (long) ctx -> options -> size);
+    fflush(stdout);
     ctx -> running = 1;
     ctx -> timer = getTime(&(ctx -> retval));
 }
@@ -426,6 +435,7 @@ onSubSuccess(kn_EventRef evt, void *void_ctx)
                 ctx);
         fput_knobj(evt, stderr);
         fprintf(stderr, "\n");
+	fflush(stderr);
     }
     reallyStart(ctx);
 }
@@ -454,6 +464,7 @@ onSubError(kn_EventRef evt, void *void_ctx)
                 ctx);
         fput_knobj(evt, stderr);
         fprintf(stderr, "\n");
+	fflush(stderr);
     }
     fprintf(stderr,
             "Error: Subscription to ");
@@ -472,6 +483,7 @@ onSubError(kn_EventRef evt, void *void_ctx)
         fprintf(stderr, "(null)");
     fprintf(stderr,
             "\n");
+    fflush(stderr);
     ctx -> retval = 1;
 }
 
@@ -516,6 +528,7 @@ onPing(kn_EventRef evt, void *void_ctx)
                 ctx);
         fput_knobj(evt, stderr);
         fprintf(stderr, "\n");
+	fflush(stderr);
     }
     if (! ctx -> running)
         return;
@@ -538,6 +551,7 @@ onPing(kn_EventRef evt, void *void_ctx)
     {
         fprintf(stderr,
                 "Warning: sequence number lost\n");
+	fflush(stderr);
     }
     else
     {
@@ -549,12 +563,14 @@ onPing(kn_EventRef evt, void *void_ctx)
         {
             fprintf(stderr,
                     "Warning: sequence number is empty\n");
+	    fflush(stderr);
         }
         else if (seq_len >= sizeof(seq_buf))
         {
             fprintf(stderr,
                     "Warning: sequence number is too long: %ld bytes\n",
                     (long) seq_len);
+	    fflush(stderr);
         }
         else
         {
@@ -568,6 +584,7 @@ onPing(kn_EventRef evt, void *void_ctx)
             {
                 fprintf(stderr,
                         "Warning: sequence number is not a number\n");
+		fflush(stderr);
             }
             else
             {
@@ -583,6 +600,7 @@ onPing(kn_EventRef evt, void *void_ctx)
                 {
                     fprintf(stderr,
                             "Warning: received duplicate event\n");
+		    fflush(stderr);
                 }
                 else
                 {
@@ -596,6 +614,7 @@ onPing(kn_EventRef evt, void *void_ctx)
     {
         fprintf(stderr,
                 "Warning: timestamp lost\n");
+	fflush(stderr);
     }
     else
     {
@@ -607,12 +626,14 @@ onPing(kn_EventRef evt, void *void_ctx)
         {
             fprintf(stderr,
                     "Warning: timestamp is empty\n");
+	    fflush(stderr);
         }
         else if (then_len >= sizeof(then_buf))
         {
             fprintf(stderr,
                     "Warning: timestamp is too long: %ld bytes\n",
                     (long) then_len);
+	    fflush(stderr);
         }
         else
         {
@@ -629,6 +650,7 @@ onPing(kn_EventRef evt, void *void_ctx)
                 {
                     fprintf(stderr,
                             "Warning: timestamp is not a number\n");
+		    fflush(stderr);
                 }
                 else
                 {
@@ -682,15 +704,23 @@ onPing(kn_EventRef evt, void *void_ctx)
             }
             printf(" time=%g ms\n",
                    uchop(rtt));
+	    fflush(stdout);
         }
         if (! lkn8MyPayload)
-            fprintf(stderr, "Warning: payload lost\n");
+	{
+	    fprintf(stderr, "Warning: payload lost\n");
+	    fflush(stderr);
+	}
         else if (kn_StringCompare(ctx -> payload, lkn8MyPayload))
+	{
             fprintf(stderr, "Warning: payload data corruption detected\n");
+	    fflush(stderr);
+	}
         if (! (lkn8MyID = kn_EventGetValue(evt, lkn8_kn_id)))
         {
             fprintf(stderr,
                     "Warning: event is missing kn_id header\n");
+	    fflush(stderr);
         }
         else if ((now < ctx -> timer) &&
                  ctx -> waitingFor &&
@@ -724,6 +754,7 @@ onUnsubSuccess(kn_EventRef evt, void *void_ctx)
                 ctx);
         fput_knobj(evt, stderr);
         fprintf(stderr, "\n");
+	fflush(stderr);
     }
 }
 
@@ -751,6 +782,7 @@ onUnsubError(kn_EventRef evt, void *void_ctx)
                 ctx);
         fput_knobj(evt, stderr);
         fprintf(stderr, "\n");
+	fflush(stderr);
     }
     fprintf(stderr,
             "Error: Unsubscription from ");
@@ -763,12 +795,14 @@ onUnsubError(kn_EventRef evt, void *void_ctx)
         fprintf(stderr, "(null)");
     fprintf(stderr,
             "\n");
+    fflush(stderr);
     if ((lkn8MyPayload = kn_EventGetValue(evt, lkn8_kn_payload)))
         kn_StringWriteToStream(lkn8MyPayload, stderr);
     else
         fprintf(stderr, "(null)");
     fprintf(stderr,
             "\n");
+    fflush(stderr);
 }
 
 /* unsubscription status handler */
@@ -794,6 +828,7 @@ onInterest(kn_ServerRef server, int fd,
                 "%s: server %p gave NULL userdata\n",
                 __FUNCTION__,
                 server);
+	fflush(stderr);
         exit(1);
     }
     if (fd >= ctx -> nfds)
@@ -924,12 +959,14 @@ newPingContext(PingOptions *options, char *url, char *topic)
                 ctx -> options -> verbose)
             {
                 perror(ENTROPY);
-            };
+		fflush(stderr); 
+           };
             fclose(random_file);
         }
         else if (ctx -> options -> verbose)
         {
             perror(ENTROPY);
+	    fflush(stderr);
         }
 
         /* fallback fake entropy -- failure can be safely ignored here */
@@ -1069,6 +1106,7 @@ newPingContext(PingOptions *options, char *url, char *topic)
         fputs("created server object: ", stderr);
         fput_knobj(ctx -> server, stderr);
         fputs("\n", stderr);
+	fflush(stderr);
     }
 
     return ctx;
@@ -1214,6 +1252,7 @@ pubsub_ping(PingOptions *options, char *url, char *topic)
     if (! ctx)
     {
         perror(url);
+	fflush(stderr);
         return 1;
     }
 
@@ -1248,11 +1287,13 @@ pubsub_ping(PingOptions *options, char *url, char *topic)
             fprintf(stderr,
                     " failed: ");
             perror("kn_RouteCreateFromTopicToFunctionViaServer");
+	    fflush(stderr);
             ctx -> retval = 1;
         }
         else if (ctx -> options -> verbose)
         {
             fprintf(stderr, "done.\n");
+	    fflush(stderr);
         }
     }
 
@@ -1274,6 +1315,7 @@ pubsub_ping(PingOptions *options, char *url, char *topic)
         if ((oldwhack = signal(SIGINT, whack)) == SIG_ERR)
         {
             perror("signal");
+	    fflush(stderr);
             ctx -> retval = 1;
         }
     }
@@ -1370,6 +1412,7 @@ pubsub_ping(PingOptions *options, char *url, char *topic)
                    uchop(ctx -> stats . rt . max),
                    uchop(standard_deviation));
         }
+	fflush(stdout);
     }
 
     /* if we got no events back, set the return value to 1 */
@@ -1396,10 +1439,14 @@ pubsub_ping(PingOptions *options, char *url, char *topic)
             fprintf(stderr,
                     " failed: ");
             perror("kn_RouteDelete");
+	    fflush(stderr);
             ctx -> retval = 1;
         }
         if (ctx -> options -> verbose)
+	{
             fprintf(stderr, "done.\n");
+	    fflush(stderr);
+	}
         kn_Release(ctx -> route);
         ctx -> route = 0;
     }

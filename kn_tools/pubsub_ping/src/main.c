@@ -37,7 +37,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: main.c,v 1.1 2003/03/22 06:59:18 ifindkarma Exp $
+ * $Id: main.c,v 1.2 2003/05/12 18:15:47 bsittler Exp $
  **/
 
 #ifndef VERSION
@@ -62,6 +62,7 @@ version(char *progname)
   printf("%s version %s\n",
            progname,
            VERSION);
+  fflush(stdout);
 }
 
 /* print a help summary */
@@ -122,6 +123,7 @@ help(char *progname, PingOptions *options)
     printf("-pattern=");
     fputs_quoted(options -> pattern, stdout);
     printf("\n");
+    fflush(stdout);
 }
 
 /* print usage information to stderr */
@@ -131,6 +133,7 @@ usage(char *progname)
     fprintf(stderr,
             "Summary: %s [-help] [-version] [options] URL [TOPIC]\n",
             progname);
+    fflush(stderr);
 }
 
 /* FIXME: this should support the standard 'http_proxy' environment variable */
@@ -194,6 +197,7 @@ main(int argc, char * argv[])
                 "Warning: implicit argument reordering disallowed by "
                 "POSIXLY_CORRECT\n",
                 progname);
+	fflush(stderr);
     }
 
     /* parse all options from the command line */
@@ -211,6 +215,7 @@ main(int argc, char * argv[])
                         progname,
                         opt,
                         longopts[longind].name);
+		fflush(stderr);
                 return 1;
             }
             break;
@@ -230,6 +235,7 @@ main(int argc, char * argv[])
                             "`%s' is not a valid number of events to transmit\n",
                             progname,
                             optarg);
+		    fflush(stderr);
                     usage(progname);
                     return 2;
                 }
@@ -255,6 +261,7 @@ main(int argc, char * argv[])
                         "minimum inter-event interval `%s' is not a number\n",
                         progname,
                         optarg);
+		fflush(stderr);
                 usage(progname);
                 return 2;
             }
@@ -272,6 +279,7 @@ main(int argc, char * argv[])
             /* close FILE */
             fprintf(stderr,
                     payload ? "" : "-payload: NOT IMPLEMENTED\n");
+	    fflush(stderr);
             exit(1);
         }
         break;
@@ -293,6 +301,7 @@ main(int argc, char * argv[])
                         "payload size `%s' is not a number\n",
                         progname,
                         optarg);
+		fflush(stderr);
                 usage(progname);
                 return 2;
             }
@@ -304,6 +313,7 @@ main(int argc, char * argv[])
                         "payload size `%s' is negative\n",
                         progname,
                         optarg);
+		fflush(stderr);
                 usage(progname);
                 return 2;
             }
@@ -324,6 +334,7 @@ main(int argc, char * argv[])
                             "verbosity level `%s' is not a number\n",
                             progname,
                             optarg);
+		    fflush(stderr);
                     usage(progname);
                     return 2;
                 }
@@ -348,6 +359,7 @@ main(int argc, char * argv[])
                         "maximum inter-event interval `%s' is not a number\n",
                         progname,
                         optarg);
+		fflush(stderr);
                 usage(progname);
                 return 2;
             }
@@ -362,6 +374,7 @@ main(int argc, char * argv[])
                     "getopt_long_only returned an unexpected value (%d)\n",
                     progname,
                     opt);
+	    fflush(stderr);
             return 1;
         }
 
@@ -375,6 +388,7 @@ main(int argc, char * argv[])
                 "%s: missing required URL argument\n",
                 progname
             );
+	fflush(stderr);
         usage(progname);
         return 2;
     }
@@ -398,6 +412,7 @@ main(int argc, char * argv[])
                 "%s: too many arguments\n",
                 progname
             );
+	fflush(stderr);
         usage(progname);
         return 2;
     }
@@ -411,6 +426,7 @@ main(int argc, char * argv[])
                 url,
                 topic ? topic : "(null)"
             );
+	fflush(stderr);
     }
 
     if (options -> verbose > 3)
@@ -421,6 +437,7 @@ main(int argc, char * argv[])
                 optind,
                 optopt, optopt,
                 optarg ? optarg : "(null)");
+	fflush(stderr);
     }
 
     if (! retval)
@@ -434,6 +451,7 @@ main(int argc, char * argv[])
                 "%s: normal return, exit code is %d\n",
                 progname,
                 retval);
+		fflush(stderr);
     }
 
     deletePingOptions(options);
