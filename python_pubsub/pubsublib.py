@@ -18,7 +18,7 @@
           nonblocking, using asyncore.
           (libkn.py is multi-threaded and blocking.)
 
-    $Id: pubsublib.py,v 1.11 2003/06/20 05:43:54 ifindkarma Exp $
+    $Id: pubsublib.py,v 1.12 2003/07/19 06:33:32 ifindkarma Exp $
 
     Known Issues:
        1. Need to complete test suite.
@@ -68,7 +68,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: pubsublib.py,v 1.11 2003/06/20 05:43:54 ifindkarma Exp $
+# $Id: pubsublib.py,v 1.12 2003/07/19 06:33:32 ifindkarma Exp $
 
 
 
@@ -363,8 +363,7 @@ class Client:
                 requestMessage["kn_from"] + self._KN_ROUTES_ +
                 urllib.quote(requestMessage["kn_id"].encode("UTF-8")))
             
-        if not (type(requestMessage["kn_to"]) == types.UnicodeType or
-                type(requestMessage["kn_to"]) == types.StringType):
+        if not is_scalar(requestMessage["kn_to"]):
             # If requestMessage["kn_to"] is not a string,
             # it's an object with an onMessage() callback.
             self.addHandler(requestMessage["kn_uri"], requestMessage["kn_to"])
@@ -731,6 +730,22 @@ class SimpleParser:
 
 
 
+def is_scalar(value):
+    return (type(value) == types.UnicodeType or
+            type(value) == types.StringType or
+            type(value) == types.IntType or
+            type(value) == types.LongType or
+            type(value) == types.FloatType)
+
+
+def stringify(value):
+    """
+    Unicode-safe wrapper for str().
+    """
+    if type(value) == types.UnicodeType:
+        return value
+    return str(value)
+
 def canonicalizeTopic(base, topic):
     """
         Creates an absolute URI for a topic relative to a base server URI.
@@ -758,22 +773,20 @@ def canonicalizeMessage(message):
     if message is None:
         message = { }
     # print str(message)
-    if type(message) == types.UnicodeType or type(message) == types.StringType:
-        message = { "kn_payload" : message }
+    if is_scalar(message):
+        message = { "kn_payload" : stringify(message) }
     canonicalMessage = { }
     try:
         # message is a sequence of (name, value) tuples.
         for name, value in message:
             if canonicalMessage.has_key(name):
                 values = canonicalMessage[name]
-                if (type(values) == types.UnicodeType or
-                    type(values) == types.StringType):
+                if is_scalar(values):
                     # single "values"
-                    values = ( values )
-                if (type(value) == types.UnicodeType or
-                    type(value) == types.StringType):
+                    values = ( stringify(values) )
+                if is_scalar(value):
                     # single "value"
-                    value = ( value )
+                    value = ( stringify(value) )
                 values += value
                 value = values
             canonicalMessage[name] = value
@@ -803,9 +816,9 @@ def encodeFormUTF_8(form):
         for nameU in form.keys():
             canonicalForm.append((nameU, form[nameU]))
     for nameU, values in canonicalForm:
-        if type(values) == types.UnicodeType or type(values) == types.StringType:
+        if is_scalar(values):
             # single value
-            values = [ values ]
+            values = [ stringify(values) ]
         nameQ = urllib.quote(nameU.encode("UTF-8"))
         for valueU in values:
             header = [ nameQ, urllib.quote(valueU.encode("UTF-8")) ]
