@@ -47,7 +47,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: asyncgeturl.py,v 1.3 2003/02/15 23:52:38 ifindkarma Exp $
+## $Id: asyncgeturl.py,v 1.4 2003/02/17 01:09:33 ifindkarma Exp $
 
 
 import sys, string, urllib, urlparse, asynchttp
@@ -61,9 +61,9 @@ import asyncore
 
 
 class AsyncGetURL(asynchttp.AsyncHTTPConnection):
-    def __init__(self, url, onResponse = None):
-        # print "AsyncGetURL.__init__" + str((url, onResponse))
-        self.onResponse = onResponse
+    def __init__(self, url, _onResponse = None):
+        # print "AsyncGetURL.__init__" + str((url, _onResponse))
+        self._onResponse = _onResponse
         parts = urlparse.urlparse(url)
         hostport = urllib.splitport(parts[1])
         request = parts[2]
@@ -76,8 +76,8 @@ class AsyncGetURL(asynchttp.AsyncHTTPConnection):
         self._url = request
     def handle_response(self):
         self.close()
-        if not self.onResponse is None:
-            self.onResponse(self)
+        if not self._onResponse is None:
+            self._onResponse(self)
     def handle_connect(self):
         # print "AsyncGetURL.handle_connect"
         asynchttp.AsyncHTTPConnection.handle_connect(self)
@@ -89,8 +89,8 @@ class AsyncGetURL(asynchttp.AsyncHTTPConnection):
 
 class AsyncGetURLProgressReport(AsyncGetURL):
     """Overrides asynchttp.AsyncHTTPConnection"""
-    def __init__(self, url, onResponse = None):
-        AsyncGetURL.__init__(self, url, onResponse)
+    def __init__(self, url, _onResponse = None):
+        AsyncGetURL.__init__(self, url, _onResponse)
         self.bytesread = 0
     def intercept_body(self, data):
         self.bytesread += len(data)
