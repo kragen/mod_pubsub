@@ -496,7 +496,14 @@ class AsyncHTTPConnection(asynchat.async_chat):
         """
         self.__set_state(_STATE_IDLE)
         asyncore.dispatcher.handle_error(self)
-        
+
+    def intercept_body(self, data):
+        """
+        used to intercept body content as it streams in - mod_pubsub
+
+        default implementation does nothing
+        """
+        pass
     def collect_incoming_data(self, data):
         """
         asynchat calls this with data as it comes in
@@ -509,7 +516,10 @@ class AsyncHTTPConnection(asynchat.async_chat):
                 self.get_terminator(),
                 self.ac_in_buffer 
                 ), name=str(self))
-        
+
+        if self.__state == _STATE_REQUESTING_BODY:
+            self.intercept_body(data)
+
         self._responsefp.write(data)
 
     def _no_action(self):
@@ -654,6 +664,8 @@ class AsyncHTTPConnection(asynchat.async_chat):
             else:
                 chunkbody = self._chunkbuffer
                 self._chunkbuffer = ''
+
+            self.intercept_body(chunkbody)
 
             self._chunkfp.write(chunkbody)
 
@@ -812,6 +824,9 @@ class __test_AsyncHTTPConnection(AsyncHTTPConnection):
         self.putrequest("GET", self._url)
         self.endheaders()
         self.getresponse()
+
+    def intercept_body(self, data):
+        print "__test_AsyncHTTPConnection.intercept_body" + str((self, data))
 
 if __name__ == "__main__":
     """

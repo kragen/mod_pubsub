@@ -47,10 +47,10 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: asyncgeturl.py,v 1.1 2003/02/09 05:50:33 ifindkarma Exp $
+## $Id: asyncgeturl.py,v 1.2 2003/02/10 02:10:10 ifindkarma Exp $
 
 
-import urllib, urlparse, asynchttp
+import sys, string, urllib, urlparse, asynchttp
 
 import asyncore
 """
@@ -86,10 +86,33 @@ class AsyncGetURL(asynchttp.AsyncHTTPConnection):
         self.getresponse()
                                                                                 
 
+class AsyncGetURLTest:
+    def __init__(self, url):
+        self.http = AsyncGetURL(url, self)
+        self.http.connect()
+    def __call__(self, tester):
+        if not hasattr(tester, "response"):
+            print "No rsponse"
+            sys.exit(-1)
+        print "results %s %d %s" % (
+            tester.response.version,
+            tester.response.status,
+            tester.response.reason
+        )
+        print "headers:"
+        for hdr in tester.response.msg.headers:
+            print "%s" %  (string.strip(hdr))
+        if tester.response.status == 200:
+            print "body:"
+            print tester.response.body        
+
+
 def main(argv):
-    # Do you Yahoo!?
-    http = AsyncGetURL("http://www.yahoo.com/")
-    http.connect()
+    # Print out Google's i-mode.
+    http = AsyncGetURLTest("http://www.google.com/imode")
+    # Keep the asyncore loop as close to main as possible --
+    # in command of the main, not the library.
+    asyncore.loop();
 
 if __name__ == "__main__": main(sys.argv)
 
