@@ -8,19 +8,18 @@
     programs.  It can publish and subscribe in (more or less) the
     same way the PubSub JavaScript Library does.
 
-    Phil Harris' kn_python is available at http://cvs.developer.knownow.com/ .
+    Phil Harris' libkn Python client library is available in
+    mod_pubsub/python_pubsub/libkn/libkn.py .
 
-    Two ways in which pubsublib.py differs from kn_python:
+    Two ways in which pubsublib.py differs from libkn:
 
        1. The interface is URL based.
-       2. All operations are in a single thread and nonblocking,
-          using asyncore.
+       2. All pubsublib.py operations are in a single thread and nonblocking,
+          using asyncore.  (libkn.py is multi-threaded and blocking.)
 
     Known Issues:
 
-       1. No test suite.  We plan to port the JavaScript PubSub Library
-          test suite to test this implementation.
-
+       1. Need to complete test suite.
        2. Lots of FIXME and TODO things left -- see source code comments.         
 
     Contact Information:
@@ -64,7 +63,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: pubsublib.py,v 1.5 2003/03/18 03:23:38 ifindkarma Exp $
+## $Id: pubsublib.py,v 1.6 2003/03/22 11:35:59 ifindkarma Exp $
 
 
 
@@ -841,7 +840,7 @@ class SimpleTunnel(SimpleRequest):
 
 def test(url):
 
-    # ./pubsublib.py http://oyster.knownow.com/kn
+    # ./pubsublib.py http://127.0.0.1:8000/kn
 
     class _TestSimpleClient(SimpleClient):
         def onMessage(self, message):
@@ -875,6 +874,35 @@ def test(url):
     client = _TestSimpleClient(ua, url)
     sub = _TestSubscription(client)
     sub.setRID(client.subscribe("/what/test", sub, {}, sub))
+
+    # FIXME: These are the tests needed to complete the test suite.
+    # These five tests are from the JavaScript PubSub Library in
+    #    mod_pubsub/kn_apps/test/
+
+    # define_test("post and receive an event", function(),
+    #    { var topic = test_topic + "/post_and_receive"
+    #      left_frame_esp("post_recv.html?kn_debug=1;kn_topic=" + topic) })
+
+    # define_test("post and get success", function()
+    #    { var topic = test_topic + "/post_and_get_success"
+    #      left_frame_esp("post_get_succ.html?kn_debug=1;kn_topic=" + topic) })
+
+    # define_test("unsubscribe", function()
+    #    { var topic = test_topic + "/unsubscribe"
+    #      left_frame_esp("unsubscribe.html?kn_debug=1;kn_topic=" + topic) })
+
+    # These two tests depend on our server's current brain-dead way of
+    # restricting topic names.  If we fix that, we'll have to find a better
+    # way to get these guys to fail.
+
+    # define_test("subscribe and get failure", function()
+    #    { var topic = test_topic + "/subscribe_and_get_failure/..."
+    #      left_frame_esp("subs_get_fail.html?kn_debug=1;kn_topic=" + topic) })
+
+    # define_test("post and get failure", function()
+    #    { var topic = test_topic + "/post_and_get_failure/..."
+    #      left_frame_esp("post_get_fail.html?kn_debug=1;kn_topic=" + topic) })
+
 
 def main(argv):
     url = argv[1]
