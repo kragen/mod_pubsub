@@ -32,7 +32,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: Makefile,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+# $Id: Makefile,v 1.2 2003/07/23 03:26:28 ifindkarma Exp $
 
 .PHONY: all update-cache update-cache-rules clean docs
 
@@ -57,11 +57,11 @@ update-cache:
 		xargs $(MAKE) -s
 	@$(MAKE) -s js/connectors/kn_raw.js
 
-# NOTE: Additional .js-based dependencies for this target are
-# assembled automagically by the action associated with the "docs"
-# target.
+# NOTE: Additional .js-based dependencies for this target are assembled
+# automagically by the action associated with the "docs" target.
+
 doxygen-output: Doxyfile mainpage.js
-	doxygen
+	doxygen  # NOTE: You must have doxygen installed or make will fail.
 	@touch doxygen-output
 
 -include cache-rules

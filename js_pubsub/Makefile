@@ -32,9 +32,9 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: Makefile,v 1.1 2003/07/20 07:09:16 ifindkarma Exp $
+# $Id: Makefile,v 1.2 2003/07/23 03:26:28 ifindkarma Exp $
 
-SUBDIRS = docs/doxygen js/connectors
+SUBDIRS = js/connectors docs/doxygen
 
 .PHONY: all clean
 
