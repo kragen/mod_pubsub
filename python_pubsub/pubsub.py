@@ -36,7 +36,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.2 2003/02/08 05:09:23 ifindkarma Exp $
+# $Id: pubsub.py,v 1.3 2003/02/15 02:36:24 ifindkarma Exp $
 
 # This server uses a protocol compatible with the other PubSub
 # servers, and serves as a fine reference tutorial for learning
@@ -805,6 +805,7 @@ def handle_http_request(conn, uri, httpreq, query_string):
                   
 def handle_urlroot_request(conn, uri, httpreq, query_string):
     conn.report_status('handling urlroot request: %s' % uri)
+    knroot = urlpath(conn.getknroot())
     query = cgi.parse_qs(query_string, keep_blank_values=1)
     if query.has_key('do_method'):
         do_method = query['do_method'][0]
@@ -998,12 +999,14 @@ class Connection(asyncore.dispatcher_with_send):
         pass
     def get_topic(self, uri):
         # Demeter would call me Hades for this:
-        # XXX this is really wrong!  We need to fix our URI handling!
+        # XXX this is really wrong wrt off host routes!  We must fix our URI handling!
         # in places where we're passed just a path, we should not remove self.urlroot;
         # in places where we're passed an entire URI, we should.
         (_, _, path, _, _, _) = urlparse.urlparse(uri)
         urlroot = "/%s/" % self.urlroot()
-        if (path == urlroot) or (string.find(path, urlroot + "/")) == 0: path = path[len(urlroot):]
+        # print str(("get_topic 1", path, urlroot))
+        if (path == urlroot) or (string.find(path, urlroot)) == 0: path = path[len(urlroot):]
+        # print str(("get_topic 2", path, urlroot))
         return self.server.root_topic.get_descendant(filter(lambda x: x != '', string.split(path, '/')))
     def getservername(self):
         if self.httpreq['headers'].has_key('host'):

@@ -2,7 +2,7 @@
 
 <!--
 
- Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
  @KNOWNOW_LICENSE_START@
  
@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: testlist.html,v 1.1 2002/11/07 07:08:58 troutgirl Exp $
+ $Id: testlist.html,v 1.2 2003/02/15 02:36:21 ifindkarma Exp $
 
 -->
 
@@ -209,9 +209,9 @@ function succeed()
         output_message("OK\n");
         // Since this often gets called from event handlers in ESPs,
         // relative paths (like for left_frame_esp) will be resolved
-        // relative to kn.cgi.  This is the problem we wrote
+        // relative to pubsub.cgi.  This is the problem we wrote
         // kn_resolvePath to fix, but unfortunately, we have to
-        // include the whole microserver to get kn_resolvePath.
+        // include the whole PubSub client to get kn_resolvePath.
         // So we cheat, using enqueue_work.
         enqueue_work(run_next_test);
     }
