@@ -77,6 +77,15 @@ function onMessage(event)
 	else
 	if (event.type == "comment")
 		addComment(event);
+	else
+	if (event.s8_sitename)
+	{
+		if (!event.title)
+			event.title = event.s8_sitename;
+		if (!event.link)
+			event.link = event.s8_dataurl;
+		addItem(event);
+	}
 		
     refresh();
 }
@@ -203,7 +212,8 @@ function refresh()
 <a class='topics' href='.?/dmoz.org/News/By_Subject/Information_Technology/'>Technology</a> | 
 <a class='topics' href='.?/dmoz.org/News/Breaking_News/Business_and_Economy/'>Business</a> | 
 <a class='topics' href='.?/dmoz.org/Society/Future/'>Society</a> | 
-<a class='topics' href='.?/dmoz.org/News/By_Subject/Information_Technology/Internet/'>Internet</a>
+<a class='topics' href='.?/dmoz.org/News/By_Subject/Information_Technology/Internet/'>Internet</a> |
+<a class='topics' href='.?/topiczero.com/politics/2004/ape/'>Politics</a>
 </td>
 </tr>
 </table>
