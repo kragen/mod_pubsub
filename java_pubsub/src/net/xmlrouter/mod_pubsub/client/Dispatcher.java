@@ -8,7 +8,7 @@ import java.util.*;
  * Simple one-to-many local router for publish/subscribe.
  * This delivers incoming messages to each registered listener
  */
-public class Dispatcher implements Listener, Router {
+public class Dispatcher implements Listener {
 	/**
 	 * map from topic to list of listeners
 	 */
@@ -141,10 +141,6 @@ public class Dispatcher implements Listener, Router {
 		listeners.add(listener);
 
 		return route_id;
-	}
-	public String subscribe(String from, String to, Map options)
-	{
-		throw new RuntimeException("not implemented");
 	}
 	
 	
