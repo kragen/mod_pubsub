@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!-- An earlier, simpler variation on mod_pubsub/kn_apps/introspect/ -->
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/03/22 04:13:59 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub subtopic browser</title>
+
+<!-- The JavaScript PubSub Library -->
+<script src="/kn/?do_method=lib"></script>
+
+<script><!--
+//document.writeln("<h1>Browsing @ " + topic + "</h1>");
+
+path = [{},{},{},{}];
+
+function init() {
+topic = (kn_argv.kn_topic)? kn_argv.kn_topic : "/";
+    for (var i = 0; i< path.length; i++) {
+    path[i].topic = ""
+        path[i].rid = null;
+    path[i].list = [];
+        path[i].onMessage = listNew;
+    path[i].widget = document.forms[0]['L'+i];
+    path[i].widget.onchange=nextTopic;
+    path[i].widget.index = i;
+    }
+
+    browse(0,topic);
+}
+
+function browse (n, topic) {
+    for (var i=n; i<path.length; i++)
+        clear(i);
+    refill (n, topic);
+}
+
+function clear (n) {
+    if (path[n].rid) {
+       kn.unsubscribe (path[n].rid);
+       path[n].rid = null;
+    } 
+    path[n].widget.length=0;
+}
+
+function refill (n, topic) { 
+    if (topic.charAt(topic.length-1) != '/')
+        topic += '/';
+    path[n].topic = topic;
+    path[n].rid = kn.subscribe(path[n].topic + "kn_subtopics/", path[n], {do_max_age:'infinity'});
+}
+
+function listNew(m) 
+{
+    var l = this.list.length;
+    this.list[l] = m.kn_payload;
+
+    if (document.all) {
+        var newElem = document.createElement("OPTION");
+        newElem.text = this.list[l];
+        newElem.value = this.topic + this.list[l] + "/";
+        this.widget.options.add(newElem);
+    } else {
+        this.widget.options[this.widget.options.length] =
+            new Option(this.list[l], this.topic + "/" + this.list[l], false, false);
+        this.widget.selectedIndex=-1;
+    }
+}
+
+function nextTopic () 
+{
+//   alert(this.index +  this.options[this.selectedIndex].value);
+   if (this.index < 3)
+      browse(this.index+1, this.options[this.selectedIndex].value);
+}
+
+// -->
+</script>
+</head>
+
+<body onload="init()">
+
+<form>
+<select name=l0 size=20>
+<option value=noval>Level 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+</select>
+<select name=l1 size=20>
+<option value=noval>Level 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+</select>
+<select name=l2 size=20>
+<option value=noval>Level 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+</select>
+<select name=l3 size=20>
+<option value=noval>Level 3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+</select>
+</form>
+</body>
