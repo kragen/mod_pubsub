@@ -20,7 +20,9 @@
     Known Issues:
 
        1. Need to complete test suite.
-       2. Lots of FIXME and TODO things left -- see source code comments.         
+       2. FIXME: asyncore is a global.
+          Need to make it parameterized to allow multi-threaded use.
+       3. Lots of other FIXME and TODO things left -- see source code comments.         
 
     Contact Information:
        http://mod-pubsub.sf.net/
@@ -63,7 +65,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: pubsublib.py,v 1.6 2003/03/22 11:35:59 ifindkarma Exp $
+## $Id: pubsublib.py,v 1.7 2003/03/29 08:23:12 ifindkarma Exp $
 
 
 

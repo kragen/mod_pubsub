@@ -1,7 +1,7 @@
 ----------------------------
 To Do List for Python PubSub
 ----------------------------
-$Id: TODO,v 1.11 2003/03/22 11:45:28 ifindkarma Exp $
+$Id: TODO,v 1.12 2003/03/29 08:23:12 ifindkarma Exp $
 
  1. Finish test suite for pubsublib.py .
  2. Write chat.py and ping.py that use pubsublib.py .
@@ -50,8 +50,10 @@ $Id: TODO,v 1.11 2003/03/22 11:45:28 ifindkarma Exp $
 37. Most of read_event_pool and write_event_pool don't run.
 38. Most of the option parsing doesn't run normally.
 39. Pythonize kn_tools/list_*.plx
+40. asyncore is a global.
+    Need to make it parameterized to allow multi-threaded use.
 
-*** 40. Investigate replacing asyncore with Twisted Matrix:  ************************
+*** 41. Investigate replacing asyncore with Twisted Matrix:  ************************
 
     http://twistedmatrix.com/
 
