@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+
+ Copyright 2003 Scott Andrew LePera  All Rights Reserved.
+
+-->
+<html>
+<head>
+	<title>BlogChatter (Simple)</title>
+    <script type="text/javascript" src="/kn?do_method=lib"></script>
+    <script type="text/javascript">
+    
+    function init()
+    {
+        kn.subscribe("/what/apps/blogchatter/pings",
+										 handleBlogUpdate,
+										 {do_max_n:10});
+    }
+    
+    var blogs = [];
+    
+    function handleBlogUpdate(evt)
+    {
+        blogs[blogs.length] = evt;
+        renderDisplay();   
+    }
+    
+    function renderDisplay()
+    {
+        var str = "";
+        for (var i=0;i<blogs.length;i++)
+        {
+						//str += blogs[i].blog_name + "\n";
+            str += blogs[i].blog_url + " (" + formatTime(blogs[i].kn_time_t) + ")\n";
+        }
+        
+        document.forms[0].elements[0].value = str;
+    }
+		
+		function formatTime(time)
+		{
+			if (time && ((time.charAt(0) == '0') || (time.substring(0, 2) == '.0') || new Number(time)))
+		  {
+		    var time = kn_htmlEscape(new Date(new Number("" + time) * 1000).toLocaleString());
+		    return time;
+		  }
+		}
+    
+    onload = init;
+    
+    </script>
+</head>
+
+<body>
+<form>
+<textarea cols="40" rows="20" name="blogs">
+</textarea>
+</form>
+
+</body>
+</html>
+
