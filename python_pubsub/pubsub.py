@@ -20,7 +20,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.30 2003/05/31 02:50:25 ifindkarma Exp $
+# $Id: pubsub.py,v 1.31 2003/05/31 03:00:37 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -158,10 +158,9 @@ class Logger:
 logger = None # Server inits this
 
 class Scheduler:
-    """Responsibilities: Maintain a list of items to be done at
+    """ Responsibilities: Maintain a list of items to be done at
     specific times in the future; run items to be done at present or
-    in the past; tell event loop how long until the next scheduled
-    task."""
+    in the past; tell event loop how long until the next scheduled task."""
     class Task:
         def __init__(self, func, when, name):
             self.func = func
@@ -199,7 +198,7 @@ class Scheduler:
 
 class Event:
     """Responsibilities: hold a dictionary of names and values.
-    Provide read access to keys and values.  Expire when it's time.
+    Provide read access to keys and values.  Expire when it is time.
     Compare itself with other Events."""
     
     def __init__(self, contents):
@@ -232,8 +231,7 @@ class Event:
     def __cmp__(self, other):
         if isinstance(other, Event):
             for key in self.keys() + other.keys():
-                # FIXME: this should implement the correct dup-squashing algorithm
-                # instead.
+                # FIXME: This should implement the correct dup-squashing algorithm instead.
                 if key not in ['kn_route_location', 'kn_time_t', 'kn_routed_from', 'kn_route_id', 'kn_route_checkpoint']:
                     if not self.has_key(key): return -1
                     if not other.has_key(key): return 1
@@ -257,8 +255,7 @@ def is_bad_topic_name(name):
 
 class Topic(Event):
     """Responsibilities: hold a collection of Events, accessible by
-    name, but kept in sequence of last update.  Provide access to
-    descendants."""
+    name, but kept in sequence of last update.  Provide access to descendents."""
 
     def __init__(self, name):
         Event.__init__(self, {'kn_payload': len(name) and name[-1] or "nobody should ever see the root topic's kn_payload", 'kn_expires': 'infinity'})
@@ -290,7 +287,7 @@ class Topic(Event):
             subtopics.post(top)
             return top
     def create_route(self, route):
-        """Given a Route, add it to the routes subtopic."""
+        """Given a Route, add it to the kn_routes subtopic."""
         self.verify_route_ok(route)
         if self.get_subtopic('kn_routes').post(route):
             route.populate(self)
@@ -378,7 +375,6 @@ class JournalTopic(Topic):
         raise StaleTopic, "No non-stale routes from %s" % self.getname()
 
 
-
 # Create the appropriate sort of topic to be 'name'.
 def create_topic(name):
     if name == []: return Topic(name)  # a root topic
@@ -387,7 +383,6 @@ def create_topic(name):
     else: return Topic(name)
 
 class Route(Event):
-
     """Virtual base class; relies on subclasses to implement post()
     and is_static_route().  Responsibilities: handle initial route
     population.  Inform code readers that the various kinds of route
@@ -423,6 +418,7 @@ class Route(Event):
 
 class StaticRoute(Route):
     """Responsibilities: route events to somewhere else."""
+
     def __init__(self, kn_to=None, location=None, misc={}):
         misc2 = {'kn_expires': 'infinity'}
         for i in misc.keys():
@@ -460,11 +456,8 @@ class StaticRoute(Route):
     def close(self): pass
 
 class Tunnel(Route):
-
     """Responsibilities: format a sequence of events and send them to
-    a Connection.  Behave as a route.
-
-    """
+    a Connection.  Behave as a route. """
 
     def __init__(self, connection):
         Route.__init__(self, {'kn_payload': str(connection), 'kn_expires': 'infinity', 'stale': '0'})
@@ -510,21 +503,20 @@ class Tunnel(Route):
     def is_static_route(self): return 0
     def is_stale(self): return self['stale'] != '0'
     def become_stale(self):
-        # XXX this doesn't cause the update to be properly routed
+        # FIXME: This doesn't cause the update to be properly routed.
         self.contents['stale'] = '1'
     def close(self):
         if self.dead: return
         self.conn.finish_sending()
         self.conn.server.scheduler.schedule_processing(lambda self=self: self.become_stale(), time.time() + 100,
                                                        'stalify old tunnel')
-    # for pickling
+    # For pickling.
     def __getstate__(self):
         return {'contents': {'kn_payload': self['kn_payload'], 'stale': 1},
                 'dead': 1} # and omit 'header_sent' and 'conn'
 
 
 class SimpleTunnel(Tunnel):
-
     """Responsibilities: format events in the
     kn_response_format=simple format."""
 
@@ -738,15 +730,13 @@ def tunnel(conn, uri, httpreq, query):
     route.post(status_event(query, '200 Watching topic', 'watching %s' % topic.getname()))
     # And we DON'T finish sending.  Not until much later.  But there might be expiry:
     if query.has_key('kn_expires'):
-        conn.server.scheduler.schedule_processing(TunnelCloser(route), absolute_expiry(query['kn_expires'][0]),
-                                                  'tunnel closer')
-        # Fixme:  Should be also deleting the tunnel
+        conn.server.scheduler.schedule_processing(TunnelCloser(route), absolute_expiry(query['kn_expires'][0]), 'tunnel closer')
+        # FIXME: Should be also deleting the tunnel here.
 
 def query_to_event(q):
     ev = {}
     for header in q.keys():
-        if header not in ['do_method', 'kn_from', 'kn_to', 'kn_route_checkpoint', 'kn_debug', 'kn_status_from', 'kn_status_to',
-                          'kn_response_format']:
+        if header not in ['do_method', 'kn_from', 'kn_to', 'kn_route_checkpoint', 'kn_debug', 'kn_status_from', 'kn_status_to', 'kn_response_format']:
             ev[header] = q[header][0]
     return Event(ev)
 
@@ -920,7 +910,6 @@ def handle_urlroot_request(conn, uri, httpreq, query_string):
         do_method = None
     else:
         do_method = 'route'
-
     if do_method == 'route':
         if query.has_key('kn_to') and string.find(query['kn_to'][0], 'javascript:') != 0:
             add_static_route(conn, uri, httpreq, query)
@@ -1243,10 +1232,10 @@ def urlpath(filename):
     return realpath
 
 def pathopen(documentroot, realpath):
-    # XXX raceable
+    # FIXME: Raceable!
     for i in range(len(realpath)):
         dir = string.join([documentroot] + realpath[0:i], '/')
-        # avoid /com1/foo etc.
+        # Avoid /com1/foo etc.
         if not os.path.exists(dir):
             raise Error404, "Couldn't find %s.\n" % string.join(realpath, '/')
     file = string.join([documentroot] + realpath, '/')
@@ -1267,7 +1256,7 @@ def endswith(string, *endings):
 
 def mimetype(path):
     if endswith(path, '.html'): return 'text/html; charset=utf-8'
-    # FIXME: cgi support does not work
+    # FIXME: This server does not support CGI yet.
     elif endswith(path, '.cgi'): return 'text/html; charset=utf-8'
     elif endswith(path, '.js'): return 'text/javascript'
     elif endswith(path, '.gif'): return 'image/gif'
@@ -1356,29 +1345,29 @@ def main(argv):
         )
     else:
 
-        # get the document root from the command line
-        docRoot = argv[minRequiredArgs - 1]
-        if not os.access(docRoot, os.F_OK):
+        # Get the document root from the command line.
+        docroot = argv[minRequiredArgs - 1]
+        if not os.access(docroot, os.F_OK):
             exitWithError(
-                "Specified document root: %s is not an accessible directory, exiting...\n" % docRoot
+                "Specified document root: %s is not an accessible directory, exiting...\n" % docroot
             )
 
-        # get the kn root uri from the command line
-        if len(argv) == maxRequiredArgs: topicRoot = argv[maxRequiredArgs-1]
-        else: topicRoot = ""
+        # Get the kn root uri from the command line.
+        if len(argv) == maxRequiredArgs: topicroot = argv[maxRequiredArgs-1]
+        else: topicroot = ""
 
         if not autoPortNum:
-            # get port from command line
+            # Get port from command line.
             portNumStr = argv[1]
 
         else:
-            # attempt to override the port using the one in the prologue.js file
+            # Attempt to override the port using the one in the prologue.js file.
             try:
-                prologuePath = os.path.join(docRoot, 'kn_apps', 'kn_lib', 'prologue.js')
+                prologuePath = os.path.join(docroot, 'kn_apps', 'kn_lib', 'prologue.js')
                 serverAddress = readPubSubServerAddress (prologuePath)
                 if serverAddress != None:
                     serverLocation = urlparse.urlparse(serverAddress)[1]
-                    # split on the : (if present) otherwise must be on the std port
+                    # Split on the : (if present) otherwise must be on the std port.
                     splitServerLocation = serverLocation .split(":")
                     if len(splitServerLocation) == 2:
                         portNumStr = splitServerLocation[1]
@@ -1402,7 +1391,7 @@ def main(argv):
             )
 
         sch = Scheduler()
-        server = Server(portNum, logfile, errlog, sch, docRoot, topicRoot, verbose, filename, ignorePrologue)
+        server = Server(portNum, logfile, errlog, sch, docroot, topicroot, verbose, filename, ignorePrologue)
 
         if verbose:
             if ignorePrologue:
@@ -1411,14 +1400,14 @@ def main(argv):
                 ignorePrologueStr = "false"
 
             print(
-                "\nPubSub Server initialized\n"
+                "\nPubSub Server initialized.\n"
                 "    Port: %s\n"
                 "    Document root: %s\n"
                 "    Topic root: %s\n"
                 "    Event pool file: %s\n"
-                "    Prologue ignored: %s\n" % (str(portNum), docRoot, topicRoot, filename, ignorePrologueStr))
+                "    Prologue ignored: %s\n" % (str(portNum), docroot, topicroot, filename, ignorePrologueStr))
         else:
-            print "\nPubSub Server initialized\n"
+            print "\nPubSub Server initialized.\n"
 
         while server.alive:
             asyncore.poll(sch.timeout())
