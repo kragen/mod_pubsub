@@ -37,26 +37,25 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 @KNOWNOW_LICENSE_END@
 
-$Id: soapdesign.html,v 1.4 2003/06/12 19:00:09 ifindkarma Exp $
+$Id: soapdesign.html,v 1.5 2003/06/12 19:05:42 ifindkarma Exp $
 
 -->
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>PubSub SOAP Interface Design $Revision: 1.4 $</title>
+    <title>PubSub SOAP Interface Design $Revision: 1.5 $</title>
     <link rel="stylesheet" href="doc_style.css" type="text/css" />
   </head>
   <body link="#ff9900" vlink="#cc6600" alink="#ffbbee" bgcolor="#ffffff">
     <h1><a name="top" id="top">SOAP Interface Design</a></h1>
     <blockquote>
-      <p>Version: $Id: soapdesign.html,v 1.4 2003/06/12 19:00:09 ifindkarma Exp $</p>
+      <p>Version: $Id: soapdesign.html,v 1.5 2003/06/12 19:05:42 ifindkarma Exp $</p>
     </blockquote>
 
     <h2><a name="toc" id="toc">Table of Contents</a></h2>
 
     <ol>
       <li><a href="#toc">Table of Contents</a></li>
-      <li><a href="#revisions">Revision History</a></li>
       <li><a href="#tasks">Tasks</a></li>
       <li><a href="#design">Design Sketch</a>
         <ol>
@@ -181,7 +180,7 @@ $Id: soapdesign.html,v 1.4 2003/06/12 19:00:09 ifindkarma Exp $
     batch-capable.)</em> Any auxiliary files needed by the SOAP
     implementation will be installed in a subdirectory
     <samp>lib/soap</samp> of the PubSub Server installation
-    directory [Ns_InfoHomePath()].</p>
+    directory.</p>
 
     <p>Note that the PubSub Server will <strong>not</strong>
     support an explicit SOAP response format (i.e. there is no
@@ -215,8 +214,7 @@ $Id: soapdesign.html,v 1.4 2003/06/12 19:00:09 ifindkarma Exp $
     to the PubSub Server to return a WSDL description of the
     services exposed by <samp>do_method=soap</samp>; this WSDL will be
     specialized by the command to point to the correct URL for
-    external communication with the PubSub Server, as determined
-    by Ns_ConnLocation() and KnProperties::GetUrlRoot().
+    external communication with the PubSub Server.
     <em>Conceptually this is similar to the
     <code>javascript_kn_server</code> configuration parameter, and in
     fact the same value may be used here.</em> Typically
