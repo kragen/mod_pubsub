@@ -34,7 +34,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: pubsub_throughput_session,v 1.2 2003/05/14 00:26:42 bsittler Exp $
+# $Id: test_session.bash,v 1.1 2003/05/14 00:41:41 bsittler Exp $
 
 export date_fmt="${date_fmt:-%Y-%m-%d_%H.%M.%S}"
 
