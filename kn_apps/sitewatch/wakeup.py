@@ -4,7 +4,7 @@
 	wakeup.py -- Allows asynchronous wakeup of a python_pubsub
         "asyncore" event loop (from mod_pubsub) by other threads,
         by converting non-network events into socket read events
-        in the asyncore thread.  http://mod-pubsub.sf.net/
+        in the asyncore thread.
 
         This is needed if you want to run multithreaded clients with a
         nonblocking event loop that can respond to non-network events
@@ -25,6 +25,11 @@
                but before we've established the connection.
 
             2. Port allocation is not dynamic.
+
+        Contact Information:
+
+            http://mod-pubsub.sf.net/
+            mod-pubsub-developer@lists.sourceforge.net
 """
 
 ## Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
@@ -61,7 +66,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: wakeup.py,v 1.1 2003/02/09 00:17:50 ifindkarma Exp $
+## $Id: wakeup.py,v 1.2 2003/02/09 05:50:33 ifindkarma Exp $
 
 import asyncore, socket, errno, sys, thread
 
