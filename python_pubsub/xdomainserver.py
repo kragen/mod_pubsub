@@ -2,8 +2,8 @@
 
 """
     xdomainserver.py -- a standalone (very) basic Python Web Server
-    used to serve up the mod_pubsub weblications from a different port
-    to the Python PubSub server to support cross domain testing.
+    used to serve up the mod_pubsub web applications from a different
+    port to the Python PubSub Server to support cross domain testing.
     It was built by extending the Python SimpleHTTPServer.
 
     It filters any html files it opens, replacing (at the moment)
@@ -25,7 +25,7 @@
     Note that the port needs to be different to where pubsub.py is
     running
     4. Goto http://localhost[:port]/ which will go straight to the
-    Demo Weblications index.html page.
+    Demo Web Applications index.html page.
     5. Run apps/test as required.
 
     Contact Information:
@@ -67,7 +67,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: xdomainserver.py,v 1.4 2003/05/06 00:16:50 ifindkarma Exp $
+# $Id: xdomainserver.py,v 1.5 2003/07/20 07:49:09 ifindkarma Exp $
 
 import SimpleHTTPServer
 import types
