@@ -36,7 +36,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.3 2003/02/15 02:36:24 ifindkarma Exp $
+# $Id: pubsub.py,v 1.4 2003/02/15 02:42:41 ifindkarma Exp $
 
 # This server uses a protocol compatible with the other PubSub
 # servers, and serves as a fine reference tutorial for learning
@@ -1149,7 +1149,9 @@ def endswith(string, *endings):
     return 0
 
 def mimetype(path):
-    if endswith(path, '.html', '.cgi'): return 'text/html; charset=utf-8'
+    if endswith(path, '.html'): return 'text/html; charset=utf-8'
+    # FIXME: cgi support does not work
+    elif endswith(path, '.cgi'): return 'text/html; charset=utf-8'
     elif endswith(path, '.js'): return 'text/javascript'
     elif endswith(path, '.gif'): return 'image/gif'
     elif endswith(path, '.jpg', '.jpeg'): return 'image/jpeg'

@@ -1,9 +1,8 @@
-To Do List for Python PubSub (February 8, 2003)
+To Do List for Python PubSub (February 14, 2003)
 ----------------------------
 
  0. Make a python pubsub client, client.py
-******1. Get pubsub.py working!!
- 1.5 find out which of asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py
+ 1. find out which of asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py
     can be removed from cvs tree because they ship with the standard python
     distribution
  2. off host routes
@@ -38,3 +37,4 @@ To Do List for Python PubSub (February 8, 2003)
 31. not serving any .gif or .jpg or default files in the test suites
 32. most of read_event_pool and write_event_pool don't run
 33. most of the option parsing doesn't run normally
+34. add CGI support to pubsub.py
