@@ -34,7 +34,7 @@ package PubSub::Server;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Server.pm,v 1.2 2003/03/22 14:10:35 ifindkarma Exp $
+# $Id: Server.pm,v 1.3 2003/03/25 06:04:26 ifindkarma Exp $
 
 use strict;
 
@@ -746,7 +746,16 @@ sub help
     my ($q) = @_;
     my $relurl = URI->new("$mod_pubsub_url/kn_docs/");
     my $absurl = $relurl->abs($cgi_url);
-    print $q->redirect($absurl);
+    print $q->header(-status=>"302 Moved",
+                     -location=>$absurl,
+                     -uri=>$absurl,
+                     -url=>$absurl,
+                     -type=>'text/html; charset=utf-8');
+    print $q->start_html(-head=><<HEAD, -title=><<TITLE), $q->end_html;
+<p>This document has moved to <a href="$absurl">$absurl</a>.</p>
+HEAD
+Moved
+TITLE
 }
 
 # FIXME: do_method=replay is currently broken.
@@ -758,7 +767,7 @@ sub replay
     my $warp = $q->param('warp') || 1;
     my $user = $q->param('user');
     my $password = $q->param('password');
-    begin_replaying_events($topic, $warp, $user, $password);
+    begin_replaying_events($topic, $warp, $user, $password, $mod_pubsub_dir);
     $status_event->log("Replaying... ");
     $status_event->send_to($status_topic);
 }

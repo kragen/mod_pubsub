@@ -34,7 +34,7 @@ package PubSub::Topic;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Topic.pm,v 1.1 2002/11/07 07:08:00 troutgirl Exp $
+# $Id: Topic.pm,v 1.2 2003/03/25 06:04:26 ifindkarma Exp $
 
 # All of pubsub.cgi's output, except for things like do_method=help and
 # do_method=lib, is handled by this module.
@@ -141,8 +141,7 @@ sub send
             if ($status =~ m/^4/)
             {
                 # Build URI for the help file
-                my $help_url = URI->new("../kn_docs/");
-                $help_url = $help_url->abs($cgi_url);
+                my $help_url = $cgi_url . "?do_method=help";
                 
                 print $q->p(
                             "Some aspect of your request was not understood." .

@@ -36,7 +36,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: PubSubService.cgi,v 1.1 2003/03/18 05:52:08 ifindkarma Exp $
+# $Id: PubSubService.cgi,v 1.2 2003/03/25 06:04:26 ifindkarma Exp $
 
 use CGI;
 use SOAP::Lite;
@@ -89,7 +89,26 @@ sub init {
         # single world: (true loopback, but non-portable; needed for
         # some SSL accelerators, reverse-proxies, etc.)
         #$SERVER_LOOPBACK = "http://127.0.0.1:8000/kn";
+
         $SERVER_LOOPBACK = "http://127.0.0.1/kn";
+
+        # try to deduce loopback URI based on CGI parameters
+        if (defined $ENV{SERVER_HOST} &&
+            defined $ENV{SERVER_PORT})
+        {
+            my $protocol = "http";
+            if ($ENV{SERVER_PORT} eq '443' or
+                defined $ENV{SSL} and $ENV{SSL} eq 'ON')
+            {
+                $protocol = "https";
+            }
+            elsif (defined $ENV{SERVER_PROTOCOL})
+            {
+                $protocol = lc((split('/', $ENV{SERVER_PROTOCOL}))[0]);
+            }
+            $SERVER_LOOPBACK =
+                "${protocol}://$ENV{SERVER_HOST}:$ENV{SERVER_PORT}/kn";
+        }
 
         # dual world examples:
         #$SERVER_LOOPBACK = "http://pubsub.bigcorp.com:8000/kn";

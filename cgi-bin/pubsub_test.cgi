@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub_test.cgi,v 1.2 2003/02/18 05:40:00 ifindkarma Exp $
+# $Id: pubsub_test.cgi,v 1.3 2003/03/25 06:04:26 ifindkarma Exp $
 
 use strict;
 use PubSub::UUID;
@@ -51,12 +51,17 @@ use vars qw($url $current_test %tests @tests $session_id %serial $ua
             $usr $pw $jsoutput);
 
 $url = param("url"); # This eventually ends up as the URL to post to.
+if (defined $url)
+{
+    # make sure we convert a relative URL to an absolute one
+    $url = "" . URI->new_abs($url, url);
+}
 $usr = param("user");
 $pw = param("password");
 $jsoutput = param('jsoutput');
 my $base_url = $url; # This arguably shouldn't be used anywhere.
 
-if (not $url) 
+if ((not defined $url) or (not $url))
 {
   $url = url;
   # We assume pubsub.cgi is in the same directory as pubsub_test.cgi
@@ -914,8 +919,22 @@ make_test "correct kn_route_location test", sub
 make_test "content transform", sub
 {
     my @topics = (get_topic, get_topic);
+
+    # FIXME: if the pubsub_test.cgi URL is HTTP or HTTP/S, we assume
+    # xform_rot13.cgi is co-located with it in URL-space, otherwise we
+    # assume it is co-located with the server in URL space. These
+    # assumptions break horribly when (a) the server is referred to as
+    # .../kn, and (b) pubsub_test.cgi is run from the command-line, or
+    # from behind a firewall.
     my $rot13url = $url;
+    my $pubsub_test_url_scheme = new URI(url)->scheme;
+    if ($pubsub_test_url_scheme eq "http" or
+        $pubsub_test_url_scheme eq "https")
+    {
+        $rot13url = url;
+    }
     $rot13url =~ s:[^/]*$:xform_rot13.cgi:;
+
     route ($topics[0], $topics[1], "kn_content_transform" => $rot13url);
     my $event = new PubSub::Event(kn_id => uuid, kn_payload => "Kragen Sittler");
     my $topic_state = new PubSub::TopicState($topics[1]);

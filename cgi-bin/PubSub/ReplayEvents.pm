@@ -34,7 +34,7 @@ package PubSub::ReplayEvents;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: ReplayEvents.pm,v 1.1 2002/11/07 07:08:03 troutgirl Exp $
+# $Id: ReplayEvents.pm,v 1.2 2003/03/25 06:04:26 ifindkarma Exp $
 
 use strict;
 use Exporter;
@@ -47,7 +47,7 @@ use PubSub::Error;
 
 sub begin_replaying_events 
 { 
-    my ($topic, $warpfactor, $usr, $pw) = @_;
+    my ($topic, $warpfactor, $usr, $pw, $mod_pubsub_dir) = @_;
     # spawn external script
     my $pid = fork;
     if (not defined $pid)
@@ -60,7 +60,9 @@ sub begin_replaying_events
         open STDOUT, ">/dev/null" or htdiepage "couldn't open stdout: $!";
         open STDIN, "</dev/null" or htdiepage "couldn't open stdin: $!";
         open STDERR, ">/dev/null" or htdiepage "couldn't open stderr: $!";
-        exec "perl", "-I.", "../kn_sense/replay.plx", $topic, $warpfactor, $usr, $pw 
+        exec("perl", "-I.",
+             $mod_pubsub_dir . "../kn_sense/replay.plx",
+             $topic, $warpfactor, $usr, $pw)
             or htdiepage "couldn't exec replay: $!";
         POSIX::_exit(1);
     }

@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub_replay.cgi,v 1.1 2002/11/07 07:07:56 troutgirl Exp $
+# $Id: pubsub_replay.cgi,v 1.2 2003/03/25 06:04:26 ifindkarma Exp $
 
 use strict;
 use CGI ':standard';
@@ -47,7 +47,7 @@ my $usr = param("user");
 my $pw = param("password");
 
 htdiepage "no kn_from parameter" if not $from;
-PubSub::ReplayEvents::begin_replaying_events($from, $warp, $usr, $pw);
+PubSub::ReplayEvents::begin_replaying_events($from, $warp, $usr, $pw, '..');
 print header(-type=>'text/html; charset=utf-8',
              -status => "204 No Content");
 

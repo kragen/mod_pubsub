@@ -40,7 +40,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.2 2003/03/19 02:44:12 ifindkarma Exp $
+// $Id: pubsub_raw.js,v 1.3 2003/03/25 06:04:26 ifindkarma Exp $
 
 // Notes on notation:
 // 1. local variable and parameter names with four or more
@@ -399,7 +399,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.2 2003/03/19 02:44:12 ifindkarma Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.3 2003/03/25 06:04:26 ifindkarma Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -2709,9 +2709,15 @@ function _kn_stringFromCharCodes(codes)
     {
         var _l_code = //_
             parseInt(codes[i]);
-        // pass UCS-2 unmodified
+        // pass UCS-2 unmodified [except for reserved surrogate codepoints]
         if ((_l_code >= 0) && (_l_code <= KN.ucs2max))
         {
+            if (_l_code >= KN.utf16firstLowHalf &&
+                _l_code <= KN.utf16firstHighHalf & KN.utf16mask)
+            {
+                // reserved surrogate codepoint
+                _l_code = KN.ucsNoChar;
+            }
             _l_result[_l_result.length] = _kn_stringFromCharCode8(_l_code);
         }
         // encode other UTF-16 characters using surrogate pairs
@@ -3894,6 +3900,30 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
+// Revision 1.3  2003/03/25 06:04:26  ifindkarma
+// Updated index to include pubsublib.php and publish.php .
+//
+// Updated PubSub::ReplayEvents::begin_replaying_events to take a
+// mod_pubsub filesystem prefix as an argument.
+//
+// Update pubsub_test.cgi to include relative URL support so you
+// can tell it your URL is /kn even though it's http://whatever/kn .
+//
+// Added descriptive text to the do_method=help redirect.
+//
+// Switched Topic.pm to indirect do_method=help instead of referring
+// to ../kn_docs directly.
+//
+// Lots of untested changes to cgi-bin/soap_gateway/PubSubService.cgi --
+// we really do need to get this tested and working.
+//
+// Updated pubsub_raw.js to disallow codepoints in reserved surrogate range
+// for UCS-4 to UTF-16 encoding.
+//
+// publish.php now uses pubsublib.php
+//
+// pubsublib.php and its test suite were added.
+//
 // Revision 1.2  2003/03/19 02:44:12  ifindkarma
 // Added FIXME for long lived connections in IE6+.
 //
