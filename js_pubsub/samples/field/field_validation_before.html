@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2001-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: field_validation_before.html,v 1.1 2003/08/01 22:08:17 ifindkarma Exp $
+
+-->
+
+<html>
+
+<head>
+<title>PubSub Field Validation Sample</title>
+</head>
+
+<link type="text/css" rel="stylesheet" href="field_style.css" />
+
+<script>
+function goBefore() {
+    document.location = "field_validation_return.html";
+}
+</script>
+
+<body marginheight="0" marginwidth="0" topmargin="0" leftmargin="0">
+
+<br />
+
+<table cellspacing="0" cellpadding="0" border="0" width="300">
+
+<tr>
+
+    <td colspan="2" align="left" class="t">Before PubSub</td>
+
+</tr>
+
+<tr>
+
+    <td colspan="2" align="left" class="l" style="border-bottom: 1px solid black;">
+    
+<form action="field_validation_return.html" method="get">
+CUSTOMER NUMBER:<br />
+<input type="text" name="num">
+
+<br /><br />    
+    
+CUSTOMER NAME:<br />
+<input type="text" name="name">
+
+<br /><br />    
+
+CUSTOMER ADDRESS:<br />
+<input type="text" name="add">
+
+<br /><br />    
+
+<input type="submit">
+</form>
+
+    </td>
+
+</tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2001-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: field_validation_code_theirs.html,v 1.1 2003/08/01 22:08:17 ifindkarma Exp $
+
+-->
+
+<html>
+
+<head>
+<title>PubSub Field Validation Sample</title>
+</head>
+
+<link type="text/css" rel="stylesheet" href="field_style.css" />
+
+<script><!--
+
+function pop(x) {
+    document.all[x].style.visibility = "visible";
+    document.all[x].style.left = event.clientX;
+    document.all[x].style.top = event.clientY+20;
+}
+
+function unpop(x) {
+    document.all[x].style.visibility = "hidden";
+}
+
+// -->
+</script>
+
+<body marginheight="0" marginwidth="0" topmargin="0" leftmargin="0">
+
+<br />
+
+<span class="theirs">
+<span class="subtitle">The old way</span><br />
+<br />
+
+<!-- ha. center tags. -->
+<center>
+<img src="their_arch.gif" width="300" height="100" align="center">
+</center>
+
+<pre>
+&lt;html&gt;
+&lt;body&gt;
+
+<span class="highlight" onmouseover="pop('theirpost')" onmouseout="unpop('theirpost')">&lt;form action="request.cgi" method="POST"&gt;</span>
+CUSTOMER NUMBER:&lt;br /&gt;
+&lt;input type="text" name="number"&gt;
+
+CUSTOMER NAME:&lt;br /&gt;
+&lt;input type="text" name="name"&gt;
+&lt;br /&gt;&lt;br /&gt;    
+
+CUSTOMER ADDRESS:&lt;br /&gt;
+&lt;input type="text" name="address"&gt;
+
+&lt;br /&gt;&lt;br /&gt;
+
+&lt;input type="submit"&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<hr>
+
+After the user fills out the form and submits it to request.cgi (a
+Perl, PHP, Python, JSP, ASP or Java application) a second page is
+returned with the results. Every time the user requests information
+from the server or needs to verify data, a new page will be loaded.
+
+</span>
+
+
+<br /><br /><br />
+
+<div id="theirpost" class="commentPop">
+This form needs to be submitted to an external CGI which can
+communicate with the database and return new information in a <b>new
+page.</b> This style of interaction is both cumbersome and quite
+foreign to users accustomed to the rich UI of desktop applications.
+</div>
+
+<div id="post" class="commentPop">
+With the use of the <b>PubSub Form component</b>, this form has been
+PubSub enabled simply by changing the action. With the user tabs out
+of this field the customer number will be wrapped into a PubSub
+event and sent to the server for processing.
+</div>
+
+<div id="get" class="commentPop">
+Above we saw the <b>PubSub Form component</b> send information, and in
+this example the same component is allowing a normal HTML form to
+receive live information via PubSub.
+</div>
+
+</body>
+</html>

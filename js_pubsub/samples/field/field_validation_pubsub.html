@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: field_validation_pubsub.html,v 1.1 2003/08/01 22:08:17 ifindkarma Exp $
+
+-->
+
+<html>
+
+<head>
+<title>PubSub Field Validation Sample</title>
+</head>
+
+<link type="text/css" rel="stylesheet" href="field_style.css" />
+
+<script type="text/javascript" src="../../js/kn_config.js"></script>
+<script type="text/javascript" src="../../js/kn_browser.js"></script>
+
+<script type="text/javascript">
+  kn_include("kn_form");
+</script>
+
+<script src="field_data.js"></script>
+
+<script type="text/javascript"><!--
+kn.subscribe("/what/sample/field", fillData);
+
+function sendData(f) {
+    p = new Object();
+    p.number = document.forms[0].number.value;
+    kn.publish("/what/sample/field", p);
+}
+
+function fillData(e) {
+    var num = e.number;
+    var theOne;
+
+    for (x=0; x < people.length; x++) {
+        if (people[x].number == num) {
+            theOne = people[x];
+        } 
+    }
+
+    if (theOne != "" && theOne != null) {
+    
+        p = new Object();
+
+        p.name = theOne.name;
+        p.add = theOne.address;
+        document.getElementById("custadd").value = p.add;
+        document.getElementById("custname").value = p.name;
+        document.getElementById("error").innerText = "";
+
+    } else {
+        document.getElementById("error").innerText = "No record of this custome
+r.";
+        document.forms[0].number.value="";
+        document.forms[0].number.focus();
+        document.getElementById("custadd").value = "";
+        document.getElementById("custname").value = "";
+    }
+}
+
+// -->
+</script>
+
+<script>
+function goCode() {
+    top.frames[0].frames[1].location = "field_validation_code_theirs.html";
+    top.frames[0].frames[2].location = "field_validation_code_ours.html";
+}
+</script>
+
+<body marginheight="0" marginwidth="0" topmargin="0" leftmargin="0">
+
+<br />
+
+<table cellspacing="0" cellpadding="0" border="0" width="300">
+<tr>
+    <td colspan="2" align="left" class="t">After PubSub</td>
+</tr>
+<tr>
+    <td colspan="2" align="left" class="l">
+
+<form action="kn:/demo/validation/query" method="POST">
+CUSTOMER NUMBER:<br />
+<span id="error" style="color: red">&nbsp;</span><br />
+<input type="text" name="number" onblur="sendData(this);">
+
+<br /><br />
+
+CUSTOMER NAME:<br />
+<input type="text" name="name" id="custname">
+<br /><br />    
+
+CUSTOMER ADDRESS:<br />
+<input type="text" name="add" id="custadd">
+
+<br /><br />
+
+<!--
+<input type="submit">
+-->
+</form>
+
+    </td>
+</tr>
+<tr>
+    <td width="219" align="right" class="r">See how it works &rarr;</td>
+    <td width="81"><a href="#" onclick="goCode()"><img src="page_turn.gif" border="0"></a></td>
+</tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+// Copyright 2001-2003 KnowNow, Inc.
+ 
+// @KNOWNOW_LICENSE_START@
+
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 
+// 1. Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in
+// the documentation and/or other materials provided with the
+// distribution.
+// 
+// 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+// be used to endorse or promote any product without prior written
+// permission from KnowNow, Inc.
+// 
+// THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+// IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+// GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+// IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// @KNOWNOW_LICENSE_END@
+
+// $Id: field_style.css,v 1.1 2003/08/01 22:08:17 ifindkarma Exp $
+
+body {
+        font-family: Myriad, "Trebuchet MS", Futura, Arial, Sans-serif;
+        font-size: 11px;
+        vertical-align: middle;
+        text-align: center;
+        background-color: 3366cc;
+}
+
+DIV {
+        background-color: white;
+        width: 100%;
+//      border: 1px solid black;
+        padding: 10px;
+        text-align: left;
+}
+
+.title {
+        font-size: 18px;
+        font-weight: bold;
+        border-bottom: 1px solid black;
+}
+
+
+.t {
+        font-weight: bold;
+        border-right: 1px solid black;
+        border-top: 1px solid black;
+        border-left: 1px solid black;
+        border-bottom: 1px dashed black;
+        padding: 10px;
+        background-color: white;
+}
+
+.l {
+        border-right: 1px solid black;
+//      border-top: 1px solid black;
+        border-left: 1px solid black;
+        padding: 10px;
+        background-color: white;
+}
+
+.r {
+        border-left: 1px solid black;
+        border-bottom: 1px solid black;
+        background-color: white;
+}
+
+.next {
+        font-size: 18px;
+        width: 350px;
+        float: right;
+        text-align: center;
+        margin: 20px;
+}
+
+.subtitle {
+        font-size: 14px;
+        font-weight: bold;
+}
+
+.theirs {
+        background-color: white;
+        border: 1px solid black;
+        width: 400px;
+        text-align: left;
+        float: center;
+        margin-right: 20px;
+        margin-left: 20px;
+        padding: 10px;
+}
+
+.ours {
+        background-color: white;
+        border: 1px solid black;
+        width: 400px;
+        text-align: left;
+        float: center;
+        padding: 10px;
+}
+
+.highlight {
+        background-color: yellow;
+}
+
+.commentPop {
+        position: absolute;
+        visibility: hidden;
+        left: 100;
+        width: 300px;
+        background-color: ffff99;
+}
+
+.green {
+        width: 100px;
+        background-color: green;
+        border: 1px solid black;
+}
+
+.yellow {
+        width: 100px;
+        background-color: yellow;
+        border: 1px solid black;
+}
+
+.red {
+        width: 100px;
+        background-color: red;
+        border: 1px solid black;
+}
+
+.notificationPanel {
+        background-color: white;
+        border: 1px solid black;
+}
+
+.limitPanel {
+        padding: 10px;
+}
+
+.warning {
+        color: red;
+        font-weight: bold;
+}
+
+.prodButton {
+        border: 1px solid black;
+        width: 200px;
+        text-align: center;
+        padding: 10px;
+        background-color: cccccc;
+}
+
+#auction {
+        width: 450px;
+        float: left;
+        margin-left: 20px;
+        margin-right: 20px;
+        border: 0px;
+        padding: 0px;
+}
+
+#bidding {
+        width: 450px;
+        float: left;
+        border: 0px;
+        padding: 0px;
+}
+
+#w2e {
+        border: 1px solid black;
+        background-color: white;
+        font-size: 11px;
+}
+
+.heads {
+        border-bottom: 1px solid black;
+}
+
+.w2erow {
+        border-bottom: 1px solid black;
+        width: 500px;
+}
+
+.w2erow td {
+        width: 100px;
+        text-align: left;
+}
+
+#status {
+        text-align: center;
+        vertical-align: middle;
+        widt: 150px;
+}
+
+#store {
+        width: 590px;
+        float: left;
+        margin-left: 20px;
+        margin-right: 20px;
+        border: 1px solid black;
+        padding: 10px;
+}
+
+// End of field_style.css
