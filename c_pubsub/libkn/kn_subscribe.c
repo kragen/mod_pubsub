@@ -42,7 +42,7 @@
 
 #include "kn_config.h"
 
-RCSID("$Id: kn_subscribe.c,v 1.3 2003/03/19 05:36:47 ifindkarma Exp $");
+RCSID("$Id: kn_subscribe.c,v 1.4 2003/11/13 01:55:14 bsittler Exp $");
 
 #include <errno.h>
 #include <fcntl.h>
@@ -114,7 +114,7 @@ int main (int argc, char* const argv[])
   extern char* optarg;
   extern int   optind;
 
-  char opt;
+  int opt;
 
   kn_StringRef proxyHost = NULL;
   int proxyPort = -1;
@@ -125,7 +125,7 @@ int main (int argc, char* const argv[])
   kn_BOOL    aDebugOpt    = kn_FALSE;
   kn_BOOL    aContinueOpt = kn_FALSE;
 
-  while ((opt = (char)getopt(argc, argv, "dfPSH:p:")) != -1)
+  while ((opt = getopt(argc, argv, "dfPSH:p:")) != -1)
     {
       switch (opt)
 	{
