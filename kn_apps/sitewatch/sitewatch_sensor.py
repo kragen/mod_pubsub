@@ -9,7 +9,7 @@
     Now works with the helper libraries in python_pubsub.
     Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
-    $ Id: $
+    $Id: sitewatch_sensor.py,v 1.6 2003/03/29 05:32:19 ifindkarma Exp $
     
     Known Issues:
 
