@@ -10,9 +10,6 @@
 
 <body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
 
-<p><img src="images/logo.gif"></p>
-
-
 <h1>KN ActivePanels</h1>
 
 <hr>
@@ -65,13 +62,15 @@
 
 <p>Configuring KN ActivePanels is a two-step process.  The first step is to generate the HTML used to create a KN ActivePanel, using the <code>ActivePanel.create()</code> method.  The second step is to initialize the ActivePanel objects.</p>
 
+</blockquote>
+
 <h2><a name="Creating">Creating an ActivePanel</a></h2>
 <blockquote>
 
 <p>The following steps outline how to create an ActivePanel in a webpage.</p>
-<h3>Generate the ActivePanel HTML</h3>
+<strong>Generate the ActivePanel HTML:</strong>
 <p><code>ActivePanel.create()</code> is a static method that generates the necessary HTML and CSS to create the visible ActivePanel components.  After you use <code>ActivePanel.create()</code>, you need to initalize the components by creating new <code>ActivePanel</code> JavaScript objects to control them.</p>
-<p><strong>To create an ActivePanel:</strong></p>
+<strong>To create an ActivePanel:</strong>
 <ol>
 <li>Determine the location and dimensions of the ActivePanel within the webpage. Note that the ActivePanel can be located within a table, a line of text, etc.</li>
 <li>Place a &lt;SCRIPT&gt; tag at the place in the webpage where you want the ActivePanel located.</li>
@@ -95,7 +94,11 @@ ActivePanel.create(String ID, Int width, Int height [, String color]);
 <li>Repeat the steps above for each ActivePanel you want to create.</li>
 </ol>
 
+</blockquote>
+
 <h3>Initializing your ActivePanels</h3>
+
+<blockquote>
 <p>Now that you've created the HTML for the ActivePanels, you need to initialize them by assigning new ActivePanel JavaScript objects to control them.</p>
 <p><strong>To initialize the ActivePanel:</strong></p>
 <ol>
@@ -110,9 +113,11 @@ function initActivePanels(){
 <p>Note: The IDs passed to the ActivePanel must match the IDs you assigned in <code>ActivePanel.create()</code> or an error will occur.</p>
 <li>Execute the <code>initActivePanels</code> function from the <code>onload</code> event handler of the document.</li>
 </ol>
+
 </blockquote>
 
-<h2><a name="Working">Working with ActivePanels</a></h2>
+<h3><a name="Working">Working with ActivePanels</a></h3>
+
 <blockquote>
 
 <p>KN ActivePanel provides several methods which allow you to dynamically update ActivePanel content. They are:</p>
@@ -122,6 +127,7 @@ function initActivePanels(){
 <li><code>clear()</code></li>
 <li><code>getHTML()</code></li>
 </ul>
+
 <dl>
 <dt><code>write(String html)</code></dt>
 <dd>appends a string of HTML or text to the ActivePanel content. The string is not immediately displayed; instead, it is stored until the <code>update()</code> method is called.</dd>
@@ -144,11 +150,13 @@ function initActivePanels(){
 <pre>
 var content = myActivePanel.getHTML();
 alert(content);
-</dl>
 </pre>
 
-<h3>Suggested Usage</h3>
-<p>You can use KN ActivePanels to update areas of a webpage with data from a KnowNow Event Router subscription without relying on frames or browser-specific functionality. Since an ActivePanel accepts a string of HTML, the data can be preformatted with tables or style information before being displayed.</p>
+</dl>
+</blockquote>
+
+<h2>Suggested Usage</h2>
+<p>You can use KN ActivePanels to update areas of a webpage with data from a mod_pubsub subscription without relying on frames or browser-specific functionality. Since an ActivePanel accepts a string of HTML, the data can be preformatted with tables or style information before being displayed.</p>
 
 <p>The following example uses KN ActivePanels to update the cells inside an HTML table.  A KN ActivePanel is placed within each table cell and initialized in the <code>onload</code> event. The content is updated by publishing the content of the text box as a KN event to a KN topic to which the page is subscribed.  The callback function <code>updateActivePanel</code> is used to receive the event and pass the text of the kn_payload of the event to the <code>write()</code> method of the proper ActivePanel object.</p>
 
@@ -231,25 +239,9 @@ alert(content);
 
 </form>
 
-
-</body>
-</html>
-
 </xmp>
 
 <hr>
-<p><font size="-2">
- All brand names and product names used in this document are trade
- names, service marks, trademarks or registered trademarks of their
- respective owners.
-<br>
- Copyright &copy; <a href="http://www.knownow.com">KnowNow, Inc.</a>
- All rights reserved.
-<br>
- Printed in the U.S.A.
-<br>
- Last updated: July 18, 2001
-</font></p>
 
 </body>
 </html>

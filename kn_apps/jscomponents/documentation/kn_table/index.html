@@ -10,8 +10,6 @@
 
 <body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
 
-<p><img src="images/logo.gif"></p>
-
 <h1>KN Table Component</h1>
 
 <hr>
@@ -40,7 +38,7 @@
 <p><b>To install KN Table:</b></p>
 
 <ol>
-   <li>Locate the <code>&lt;script&gt;</code> tag that calls the KnowNow JavaScript Microserver, near the top of your HTML page.</li>
+   <li>Locate the <code>&lt;script&gt;</code> tag that calls the PubSub JavaScript Library, near the top of your HTML page.</li>
    <li>Add a new <code>&lt;script&gt;</code> tag, just below the <code>&lt;script&gt;</code> tag that calls the microserver.</li>
    <li>Specify that the new <code>&lt;script&gt;</code> tag call the <b>kn_table.js</b> file from the <b>jscomponents</b> directory.</li>
 </ol>
@@ -230,7 +228,7 @@ columns.name = &quot;Real Name&quot;;</pre>
 </table>
 
 
-<p>The following properties are advanced display options, some of which make use of a substitution language that allows you to specify templates for the data, but leaves the coding to KnowNow. A word surrounded by *asterisks* indicates that it will be substituted out for real code later.</p> 
+<p>The following properties are advanced display options, some of which make use of a substitution language that allows you to specify templates for the data. A word surrounded by *asterisks* indicates that it will be substituted out for real code later.</p> 
 
 
 <table border="1" cellpadding="1" cellspacing="0" width="550">
@@ -469,7 +467,7 @@ This should be placed inside of an anchor tag (&lt;a href="*code*"&gt;) or an on
 &lt;head&gt;
 &lt;title&gt;NewsTable ESP&lt;/title&gt;
 
-&lt;!-- The KnowNow Library --&gt;
+&lt;!-- The PubSub JavaScript Library --&gt;
 &lt;script type="text/javascript" src="/kn/?do_method=lib"&gt;
 
 &lt;/script&gt;
@@ -566,20 +564,20 @@ function handleEvent(e) {
 paul = new Object();
 paul.name = "Paul";
 bryan.userid = "paul";
-paul.url = "http://developer.knownow.com";
-paul.email = "user@knownow.com";
+paul.url = "http://modpubsub.com";
+paul.email = "user@modpubsub.com";
 
 bryan = new Object();
 bryan.name = "Bryan";
 bryan.userid = "bryan";
-bryan.url = "http://developer.knownow.com";
-bryan.email = "user@knownow.com";
+bryan.url = "http://modpubsub.com";
+bryan.email = "user@modpubsub.com";
 
 matt = new Object();
 matt.name = "Matt";
 matt.userid = "matt";
-matt.url = "http://developer.knownow.com";
-matt.email = "user@knownow.com";
+matt.url = "http://modpubsub.com";
+matt.email = "user@modpubsub.com";
 </pre>
 </td>
 </tr>
@@ -597,38 +595,26 @@ matt.email = "user@knownow.com";
 
 <tr>
 <td>Bryan</td>
-<td><a href="mailto: user@knownow.com">Email</a></td>
-<td><a href="http://developer.knownow.com">Website</a></td>
+<td><a href="mailto: user@modpubsub.com">Email</a></td>
+<td><a href="http://modpubsub.com">Website</a></td>
 </tr>
 
 <tr>
 <td>Matt</td>
-<td><a href="mailto: user@knownow.com">Email</a></td>
-<td><a href="http://developer.knownow.com">Website</a></td>
+<td><a href="mailto: user@modpubsub.com">Email</a></td>
+<td><a href="http://modpubsub.com">Website</a></td>
 </tr>
 
 <tr>
 <td>Paul</td>
-<td><a href="mailto: user@knownow.com">Email</a></td>
-<td><a href="http://developer.knownow.com">Website</a></td>
+<td><a href="mailto: user@modpubsub.com">Email</a></td>
+<td><a href="http://modpubsub.com">Website</a></td>
 </tr>
 
 </table>
 
 <hr>
 
-<p><font size="-2">
- All brand names and product names used in this document are trade
- names, service marks, trademarks or registered trademarks of their
- respective owners.
-<br>
- Copyright &copy; <a href="http://www.KnowNow.com">KnowNow, Inc.</a>
- All rights reserved.
-<br>
- Printed in the U.S.A.
-<br>
- Last updated: July 9, 2001
-</font></p>
 </body>
 </html>
 

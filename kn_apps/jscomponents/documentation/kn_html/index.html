@@ -10,8 +10,6 @@
 
 <body text="black" bgcolor="white" link="#ff9900" alink="#ffbbee" vlink="#cc6600">
 
-<p><img src="images/logo.gif"></p>
-
 <h1>KN HTML Component</h1>
 
 <hr>
@@ -38,7 +36,7 @@
 
 <p>When an event is received by an HTML element, the event is handled by the element's default onMessage handler. You can overwrite the default onMessage handler with a custom handler. The event is then passed inward to the HTML element's children. HTML element children can have their own onMessage handlers, allowing events to be transformed as they travel inward.KN HTML also allows you to insert <i>KN tokens</i> into the text content of HTML elements.  When an HTML element containing KN tokens receives a KN event, the tokens are replaced with the value of the matching event property.</p>
 
-<p>KN HTML does not require other KN components like KN Form or KN Table. However, KN HTML only supports the specific browsers because KN HTML relies on the browser's ability to traverse and manipulate the DOM. For a list of those browsers, refer to the Release Note for KN HTML, available at <a href="http://developer.knownow.com">Developer.Knownow.com</a>.</p>
+<p>KN HTML does not require other KN components like KN Form or KN Table. However, KN HTML only supports the specific browsers because KN HTML relies on the browser's ability to traverse and manipulate the DOM.</p>
 
 
 </blockquote>
@@ -49,8 +47,8 @@
 <p><b>To install KN HTML:</b></p>
 
 <ol>
-   <li>Locate the &lt;script&gt; tag that calls the KnowNow JavaScript Microserver, near the top of your HTML page.</li>
-   <li>Add a new &lt;script&gt; tag, just below the &lt;script&gt; tag that calls the KnowNow JavaScript Microserver.</li>
+   <li>Locate the &lt;script&gt; tag that calls the PubSub JavaScript Library, near the top of your HTML page.</li>
+   <li>Add a new &lt;script&gt; tag, just below the &lt;script&gt; tag that calls the PubSub JavaScript Library.</li>
    <li>Specify that the new &lt;script&gt; tag call the <b>kn_html.js</b> file.</li>
 </ol>
 <p>After installing KN HTML, your code should look similar to the following example:</p>
@@ -379,17 +377,5 @@
 
 <hr>
 
-<p><font size="-2">
- All brand names and product names used in this document are trade
- names, service marks, trademarks or registered trademarks of their
- respective owners.
-<br>
- Copyright &copy; <a href="http://www.KnowNow.com">KnowNow, Inc.</a>
- All rights reserved.
-<br>
- Printed in the U.S.A.
-<br>
- Last updated: July 9, 2001
-</font></p>
 </body>
 </html>
