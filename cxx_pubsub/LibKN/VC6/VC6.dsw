@@ -1,0 +1,149 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "Functional"=..\Tests\Functional\Functional.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LibKNCpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "LibKNCom"=..\ComWin32\LibKNCom.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LibKNCpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "LibKNCpp"=..\cpp\LibKNCpp.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "PubTest"=..\Tests\PubTest\PubTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LibKNCpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "PubTestMT"=..\Tests\PubTestMT\PubTestMT.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LibKNCpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "QTest"=..\Tests\QTest\QTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LibKNCpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "SubTest"=..\Tests\SubTest\SubTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LibKNCpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "SubTestCounted"=..\Tests\SubTestCounted\SubTestCounted.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LibKNCpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "SubTestMT"=..\Tests\SubTestMT\SubTestMT.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name LibKNCpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
