@@ -1,0 +1,79 @@
+# rss.rsslist
+
+# $Id: finance.rsslist,v 1.1 2003/10/09 20:40:11 ifindkarma Exp $
+
+# Use this list for the sensor for the "rssticker" weblication demo.  Example:
+# ./rss.plx http://localhost/mod_pubsub/cgi-bin/pubsub.cgi -rsslist finance.rsslist
+
+# From Moreover's Category page:
+# http://w.moreover.com/categories/category_list_rss.html
+
+# Finance feeds
+
+http://p.moreover.com/cgi-local/page?o=html&c=Banking%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=US%20banking%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Commodities%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Corporate%20finance%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Derivatives%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Emerging%20markets%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Equity%20markets%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Fed%20watch&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Fixed%20income%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Forex%20markets%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Fund%20management%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=IPO%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Mergers%20and%20acquisitions%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Mutual%20funds%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Online%20banking%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Online%20broker%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Personal%20finance%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Retail%20investor%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Securities%20industry%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Stock%20Exchanges%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Stockwatch&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Tech%20stocks%20news&o=rss
+http://p.moreover.com/cgi-local/page?o=html&c=Venture%20capital%20news&o=rss
+
+# Industry feeds
+
+http://p.moreover.com/cgi-local/page?c=Accounting%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Agriculture%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Airline%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Automotive%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Biotech%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Chemicals%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Clothing%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Construction%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Consumer%20durables%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Consumer%20electronics%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Consumer%20non%2Ddurables%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Aerospace%20and%20defense%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Drinks%20and%20beverages%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Engineering%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Firearms%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Food%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Gaming%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Healthcare%20management%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Hospitality%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Insurance%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Leisure%20goods%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Logistics%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Metals%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Mining%20and%20metals%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Mortgage%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Oil%20and%20gas%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Packaging%20and%20paper%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Pharma%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Plastics%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Real%20estate%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Retail%20sector%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Shipping%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Sports%20business%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Steelmaking%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Textiles%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Tobacco%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Transportation%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Travel%20industry%20news&o=rss 
+http://p.moreover.com/cgi-local/page?c=Utilities%20news&o=rss 
+
+# End of finance.rsslist
