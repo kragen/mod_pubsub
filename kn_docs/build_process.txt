@@ -1,7 +1,7 @@
 mod_pubsub build process
 ------------------------
 
-$Id: build_process.txt,v 1.3 2003/07/22 00:30:38 ifindkarma Exp $
+$Id: build_process.txt,v 1.4 2003/08/19 02:02:54 ifindkarma Exp $
 
  1. Add a release on Sourceforge.  At
 
@@ -11,53 +11,28 @@ $Id: build_process.txt,v 1.3 2003/07/22 00:30:38 ifindkarma Exp $
 
  2. Create the release by adding the new release name, for example
 
-    0.991
+    0.992
 
     Click "Create this release"
 
- 3. On the Summary page
+ 3. Tag everything at the top level with the current date.
 
-    http://sourceforge.net/projects/mod-pubsub/
+    pubsub-cvs tag -R mod-pubsub-2003-08-18
 
-    Click "Download" for the latest release, which will give you
-    the latest release's download URL, for example
+ 4. Export mod_pubsub with the tag created in step 6.
 
-    http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=161313
+    pubsub-cvs export -r mod-pubsub-2003-08-18 mod_pubsub
 
- 4. Edit mod_pubsub/kn_docs/faq.html to include the URL from step 3
-    in all the links that say "download".  For example,
-
-    <a href="http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=161313" onclick="window.open(this.href,this.target);return false" target="_blank">
-    <button>Download v0.95 now</button></a>
-
-    and
-
-    <p><a href="http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=161313" target="_blank">Download</a>
-
-    View this file in a Web browser to make sure the HTML is well-formed.
-
- 5. Check in the new faq.html
-
-    pubsub-cvs commit
-
- 6. Tag everything at the top level with the current date.
-
-    pubsub-cvs tag -R mod-pubsub-2003-05-23
-
- 7. Export mod_pubsub with the tag created in step 6.
-
-    pubsub-cvs export -r mod-pubsub-2003-05-23 mod_pubsub
-
- 8. Run "cd mod_pubsub; make"
+ 5. Run "cd mod_pubsub; make"
 
     which creates pubsub.js and kn_events in the right place
     and builds js_pubsub (and its documentation) properly.
 
- 9. Create the tarball.  For example,
+ 6. Create the tarball.  For example,
 
-    cd ..; tar czvf mod_pubsub_2003-07-21.tar.gz mod_pubsub
+    cd ..; tar czvf mod_pubsub_2003-08-18.tar.gz mod_pubsub
 
-10. Upload the tarball.  For example,
+ 7. Upload the tarball.  For example,
 
     ftp upload.sf.net
     user anonymous
@@ -65,42 +40,44 @@ $Id: build_process.txt,v 1.3 2003/07/22 00:30:38 ifindkarma Exp $
     put mod_pubsub_2003-07-21.tar.gz
     quit
 
-11. In the Web browser that says "Project mod-pubsub: Admin: FRS: Releases"
+ 8. In the Web browser that says "Project mod-pubsub: Admin: FRS: Releases"
     go through steps 1 and 2 to insert notes and add the file.
 
     In step 3, choose architecture "Platform Independent" and
     type "Source .gz"
 
-12. Copy the new FAQ over to Sourceforge.
-
-    rsync -va faq.html ifindkarma@shell.sf.net:/home/groups/m/mo/mod-pubsub/htdocs/index.html
-
-13. Add news on Sourceforge Summary page
+ 9. Add news on Sourceforge Summary page
 
     http://sourceforge.net/projects/mod-pubsub/
 
-    with a title like "mod_pubsub release 0.96 is available" and text like
+    with a title like "mod_pubsub release 0.992 is available" and text like
 
 <blockquote> 
 
-Download v0.96 of mod_pubsub at: 
-
-http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=164088 
-
 We put together this tarball to include several 
-recent patches to the PubSub Servers and 
-documentation. This release includes: 
+recent patches to parts of the distribution, and
+add some prototype apps, including
 
-1. Joyce's fix to kn_expires in pubsub.py so it is self-cleaning. 
-2. Jos's FlashTunnel class addition to pubsub.py so it 
-supports kn_response_format=flash . 
-3. Robert's fix to the Java client library. 
-4. Simplified top-level index.html, moving the old top-level 
-index.html to the top-level inventory.html . 
-5. Links to the mod_pubsub weblog and the blogchatter 
-application from kn_docs/faq.html . 
+1. Joyce's fix to the top-level index.html and
+her fixes to kn_docs/faq.html .
+
+2. Patches and additions to cxx_pubsub/LibKN/ .
+
+3. Jeff's perftest framework, added to
+java_pubsub/apps/perftest_framework/ .
+Note this needs porting to Mike and Robert's
+Java pubsub client library.
+
+4. Prototype of an AIM bridge, added to
+java_pubsub/apps/maim/ .
+Note this needs porting to Mike and Robert's
+Java pubsub client library.
+
+Download v0.992 of mod_pubsub at: 
+
+https://sourceforge.net/project/showfiles.php?group_id=66293&release_id=178873
 
 </blockquote>
 
-14. Send an email to mod-pubsub-developer@lists.sourceforge.net
+10. Send an email to mod-pubsub-developer@lists.sourceforge.net
     telling them about the newly released version.
