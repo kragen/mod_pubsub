@@ -34,7 +34,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: runall.bash,v 1.4 2003/05/22 20:08:26 bsittler Exp $
+# $Id: runall.bash,v 1.5 2003/05/22 23:41:28 bsittler Exp $
 
 #
 #  1 - added grep $0 into the subsRunning line to ensure that we picked up
@@ -118,7 +118,7 @@ echo "Creating tunnels to the PubSub Server"
 bash sub.bash
 
 echo "Counting the number of subscribers that are running"
-num2expect="$(grep "^-numpublishers" "$INIFILE" | sed $'s/[ \t]\\+/\t/' | cut -f 2)"
+num2expect="$(grep "^-numpublishers" "$INIFILE" | sed $'s/[ \t][ \t]*/\t/' | cut -f 2)"
 echo "Expecting to see $num2expect entries in throughput_sub output"
 liveTunnels="$(grep "All Subscribers connected" "$INIFILE"*sub*log | wc -l)"
 while [ "$liveTunnels" -lt "$num2expect" ]
