@@ -1,13 +1,15 @@
 /* Common styles */
-BODY {
-    margin: 0px 100px;
+BODY
+{
+    min-height:10in;
+    margin: 0px 50px;
     background-color: #eee;
     font-size: 13px;
     font-family: verdana, arial, helvetica, sans-serif;
-    /*height: 8.5in;  Why?  does it set a minimum? */
 }
 
-P, TD, TH, DIV, SPAN {
+P, TD, TH, DIV, SPAN
+{
     font-family: verdana, arial, helvetica, sans-serif;
 }
 
@@ -16,18 +18,20 @@ P, TD, TH, DIV
      /* border:1px solid violet; */
 }
 
-A {
+.indent50
+{
+    margin-left:25px;
+}
+
+A
+{
     color: #666633;
     font-weight: bold;
     text-decoration: none;
 }
 
-.indent50
+.faq
 {
-    margin-left:50px;
-}
-
-.faq {
     text-align: left;
     color: #669966;
     font-size: 18px;
@@ -39,12 +43,14 @@ button
     background-color:#a8c1a4;
 }
 
-A:hover {
+A:hover
+{
     text-decoration: underline;
 }
 
 #main
 {
+    min-height:10in;
     width: auto;
     background-color:#fff;
     border-left:1px dashed #aaa;
@@ -93,13 +99,47 @@ A:hover {
     margin-top:10px;
 }
 
-
 /* Entries styles */
-
-
-#content {
+#content
+{
     width: auto;
-    margin-left:50px;
-    margin-right:50px;
+    margin-left:220px;
+    margin-right:30px;
     background-color:#fff;
 }
+
+/* Sidebar styles */
+#serendipityLeftSideBar
+{
+    width: 180px;
+    background-color: white;
+    margin-left:20px;
+    vertical-align: top;
+    position:absolute;
+    float:left;
+    top:140px;
+}
+
+.serendipitySideBarContent
+{
+    list-style : none;
+    padding:0px;
+    margin:0px;
+}
+
+.serendipitySideBarItem
+{
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.serendipitySideBarTitle
+{
+    color:#669966;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: normal;
+    margin-bottom: 8px;
+    border-bottom:1px solid #669966;
+}
+

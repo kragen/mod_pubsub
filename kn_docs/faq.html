@@ -8,8 +8,10 @@
 
 <body>
 
+<!-- start main -->
 <div id="main">
 
+<!-- start header -->
 <div id="serendipity_banner">
 <h1>mod_pubsub</h1>
 <h2>publish and subscribe messaging for the web.</h2>
@@ -19,136 +21,81 @@
      alt="mod_pubsub: publish and subscribe messaging for the web."
      src="pubsub.gif" width="185" height="72" border="0"
      align="left" valign="bottom"></a>
-<br><blockquote><a href="http://sourceforge.net/">
-<img src="http://sourceforge.net/sflogo.php?group_id=66293&amp;type=2"
+</div>
+<!-- end header -->
+
+
+<!-- start content -->
+<div id="content">
+  <h3 class="faq">What is <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
+    <p class="indent50"><a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> is a set of libraries, tools, and scripts that enable <a href="http://www.infoworld.com/article/02/10/08/021010opwebserv_1.html" target="_blank">publish and subscribe</a> messaging over HTTP.  <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> extends <a href="http://www.apache.org/" target="_blank">Apache</a> by running within its <a href="http://perl.apache.org/" target="_blank">mod_perl</a> Web Server <a href="http://modules.apache.org/" target="_blank">module</a>.
+    </p>
+
+  <h3 class="faq">What's the benefit of developing with <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
+    <p class="indent50"><a href="http://udell.roninhouse.com/bytecols/2001-11-26.html" target="_blank">Real-time data delivery</a> to and from Web Browsers without refreshing; without installing client-side software; and without Applets, ActiveX, or Plug-ins.  This is useful for live portals and dashboards, and Web Browser notifications.
+    </p>
+
+  <h3 class="faq">Exactly how do <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>'s connections stay open?</h3>
+    <p class="indent50">mod_pubsub's clients do not poll the server every so often.  Instead, like <a href="http://www.jabber.org/" target="_blank">Jabber</a>, a PubSub Server holds open the connection socket to its clients.  The main difference between mod_pubsub and Jabber is that we use standard HTTP as our wire format, whereas Jabber uses its own XML-based protocol.  (Yes, we know that people think HTTP is a polling protocol... but it's not necessarily.)
+    </p>
+
+  <h3 class="faq">How about other Web Servers, or if I have no Web Server?</h3>
+    <p class="indent50"><a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>'s scripts can be used with other Web Servers, as well.  We also provide a separate, feature-compatible standalone PubSub Server written in Python that is run from the command-line.
+    </p>
+
+  <h3 class="faq">Are there any other products like <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
+    <p class="indent50">Similar projects include <a href="http://www.pushlets.com/" target="_blank">Pushlets</a>, <a href="http://www.jabber.org/" target="_blank">Jabber</A>, and XMLHTTP.  Unlike <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>, Pushlets can only maintain a few simultaneous connections, and require Java programming.  With <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>, if you know how to use HTTP, you can do PubSub.  Unlike Jabber, which uses its own XML-based protocol, we use standard HTTP.  And unlike XMLHTTP, we are not Microsoft-only.
+    </p>
+
+  <h3 class="faq">What languages does <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> support?</h3>
+    <p class="indent50">Besides a zero-install JavaScript library that runs within a Browser's Web page, we also offer embeddable libraries to connect applications written in C; Visual Basic, Visual C++, and C# using ActiveX, COM, .NET, or PocketPC; Python, Perl, PHP, and Ruby; and Java.  Our goal is to connect as much as possible.
+    </p>
+
+  <h3 class="faq">Cool, how can I try <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
+    <p class="indent50">
+    <a href="https://sourceforge.net/project/showfiles.php?group_id=66293&release_id=175421" target="_blank">Download</a> the tarball from our <a href="http://sourceforge.net/projects/mod-pubsub">SourceForge project page</a>.  Also, join our <a href="http://sourceforge.net/mail/?group_id=66293">mailing lists</a> to keep up to date on the development of <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>.  And feel free to peruse some of our technical documents:  <a href="http://www.mod-pubsub.org/kn_docs/developer_guide.html" target="_blank">Developer Guide</a>, <a href="http://www.mod-pubsub.org/kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol</a>, and <a href="http://www.mod-pubsub.org/kn_docs/javascript_reference.html" target="_blank">JavaScript Library Reference</a>.
+    </p>
+
+  <h3 class="faq">What is <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>'s relationship to KnowNow, Inc.?</h3>
+    <p class="indent50"><A HREF="http://www.knownow.com">KnowNow</A> released a great deal of code under an Open Source license, and the mod-pubsub group formed around that codebase.  The two codebases are developing entirely separately and are optimized for different uses, although we make some effort to keep the APIs aligned; and there is no legal or financial relationship between the two organizations.
+    </p>
+
+
+  <div align="center">
+    <a href="http://sourceforge.net/">
+    <img src="http://sourceforge.net/sflogo.php?group_id=66293&amp;type=2"
      border="0" alt="[SourceForge]" title="[SourceForge]"
-     align="right" valign="middle"></a></blockquote>
+     align="center" valign="middle" hspace="20" vspace="30"></a>
+  </div>
 </div>
+<!-- end content -->
 
-<br>
 
-&nbsp;
+<!-- start sidebar -->
 
-<a href="https://sourceforge.net/project/showfiles.php?group_id=66293&release_id=175421"
-onclick="window.open(this.href,this.target);return false" target="_blank">
-<button>Download v0.991</button></a>
+<!-- here's the nav anchor link -->
+<a name="#nav" class="skip"></a>
+<div id="serendipityLeftSideBar">
+    <div class="serendipitySideBarItem">
+        <h3 class="serendipitySideBarTitle">Site Features</h3>
+        <ul class="serendipitySideBarContent">
+                    
+        <li><a href='http://www.mod-pubsub.org/kn_docs/faq.html'>FAQ</a></li>
+        <li><a href='http://www.mod-pubsub.org/inventory.html'>Package Overview</a></li>
+        <li><a href='http://sourceforge.net/project/showfiles.php?group_id=66293'>Download</a></li>
+        <li><a href='http://www.mod-pubsub.org/kn_apps/presence1/'>Caf&eacute; PubSub</a></li>
 
-<a href="http://www.mod-pubsub.org/blog/index.php"
-onclick="window.open(this.href,this.target);return false" target="_blank">
-<button>mod_pubsub Blog</button></a>
+        <li><a href='http://www.mod-pubsub.org/kn_apps/blogchatter/'>BlogChatter</a></li>
+        <li><a href='http://www.mod-pubsub.org/blog/index.php'>Blog</a></li>
+        </ul>
+    </div>
 
-<a href="http://www.mod-pubsub.org/kn_apps/presence1/"
-onclick="window.open(this.href,this.target);return false" target="_blank">
-<button>Caf&eacute; PubSub (Chat)</button></a>
-
-<a href="http://sourceforge.net/mail/?group_id=66293"
-onclick="window.open(this.href,this.target);return false" target="_blank">
-<button>Email Archives</button></a>
-
-<p> &nbsp; </p>
-
-<h3 class="faq">
-&nbsp; What is
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
-
-<blockquote>
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>
-is a set of libraries, tools, and scripts that enable
-<a href="http://www.infoworld.com/article/02/10/08/021010opwebserv_1.html"
-target="_blank">publish and subscribe</a> messaging over HTTP.
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> extends
-<a href="http://www.apache.org/" target="_blank">Apache</a> by running within
-its <a href="http://perl.apache.org/" target="_blank">mod_perl</a>
-Web Server <a href="http://modules.apache.org/" target="_blank">module</a>.
-</blockquote>
-
-<h3 class="faq">
-&nbsp; What's the benefit of developing with
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
-
-<blockquote>
-<a href="http://udell.roninhouse.com/bytecols/2001-11-26.html" target="_blank">
-Real-time data delivery</a> to and from Web Browsers without refreshing;
-without installing client-side software; and without Applets, ActiveX,
-or Plug-ins.  This is useful for live portals and dashboards, and
-Web Browser notifications.
-</blockquote>
-
-<h3 class="faq">
-&nbsp; Exactly how do
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>'s
-connections stay open?</h3>
-
-<blockquote>
-mod_pubsub's clients do not poll the server every so often.
-Rather, like <a href="http://www.jabber.org/" target="_blank">Jabber</a>,
-a PubSub Server holds open the connection socket to its clients.
-The main difference between mod_pubsub and Jabber is that we use
-standard HTTP as our wire format, whereas Jabber uses its own
-XML-based protocol.
-</blockquote>
-
-<h3 class="faq">
-&nbsp; How about other Web Servers, or if I have no Web Server?</h3>
-
-<blockquote>
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>'s
-scripts can be used with other Web Servers, as well.
-We also provide a separate, feature-compatible standalone PubSub Server
-written in Python that is run from the command-line.</p>
-</blockquote>
-
-<h3 class="faq">
-&nbsp; Are there any other products like
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
-
-<blockquote>
-Similar projects include
-<a href="http://www.pushlets.com/" target="_blank">Pushlets</a> and
-<a href="http://www.openthought.net/" target="_blank">OpenThought</a>.
-Unlike <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>,
-Pushlets can only maintain a few simultaneous connections,
-and require Java programming.
-With <a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>,
-if you know how to use HTTP, you can do PubSub. <br>
-Courtesy of <a href="http://www.knownow.com/" target="_blank">KnowNow</a>.</p>
-</blockquote>
-
-<h3 class="faq">
-&nbsp; What languages does
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> support?</h3>
-
-<blockquote>
-Besides a zero-install JavaScript library that runs within a
-Browser's Web page, we also offer embeddable libraries to connect
-applications written in C; Visual Basic, Visual C++, and C# using
-ActiveX, COM, .NET, or PocketPC; Python, Perl, PHP, and Ruby; and Java.
-These libraries allow asynchronous Web messaging -- PubSub over
-HTTP.  Our goal is to connect as much as possible.
-</blockquote>
-
-<h3 class="faq">
-&nbsp; Cool, how can I try
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>?</h3>
-
-<blockquote>
-<a href="https://sourceforge.net/project/showfiles.php?group_id=66293&release_id=175421"
-target="_blank">Download</a> the
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a> tarball from our
-<a href="http://sourceforge.net/projects/mod-pubsub">SourceForge project page</a>.
-Also, join our <a href="http://sourceforge.net/mail/?group_id=66293">mailing
-lists</a> to keep up to date on the development of
-<a href="http://sourceforge.net/projects/mod-pubsub">mod_pubsub</a>.
-And, feel free to peruse some of our technical documents:
-<a href="http://www.mod-pubsub.org/kn_docs/developer_guide.html" target="_blank">Developer Guide</a>,
-<a href="http://www.mod-pubsub.org/kn_docs/pubsub_protocol.html" target="_blank">PubSub
-Protocol</a>, and
-<a href="http://www.mod-pubsub.org/kn_docs/javascript_reference.html" target="_blank">JavaScript
-Library Reference</a>.</blockquote>
-
-<div id="serendipity_banner">
 </div>
+<!-- end sidebar -->
+
+
 </div>
+<!-- end main -->
 
 </body>
 </html>
