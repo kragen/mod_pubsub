@@ -1,5 +1,5 @@
 From: Jos Yule, http://www.theorganization.net/
-$Id: README,v 1.3 2003/07/21 23:32:08 ifindkarma Exp $
+$Id: README,v 1.4 2003/07/22 00:50:09 ifindkarma Exp $
 
 I've been working (slowly) on the Flash PubSub Lib.
 This is what i've got so far.
@@ -94,3 +94,19 @@ Scott Andrew and the Walkingbirds
 Lo-fi DIY acoustic pop and weirdo country thing
 scott@scottandrew.com
 http://www.scottandrew.com
+
+
+
+-----Original Message-----
+From: jos [mailto:hyakugei@theorganization.net]
+Sent: Friday, July 18, 2003 10:42 AM
+To: Adam Rifkin
+
+I did some experiments along the lines that Scott mentions. It seems 
+that the LoadVars and LoadXML objects, which work at sub-port 1024, will 
+not work with the presistant pubsub connection. I had a experimental 
+version that used the XMLsocket object for the incoming data, and just 
+used the LoadVars to send data.
+
+j
+
