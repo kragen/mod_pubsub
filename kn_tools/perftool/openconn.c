@@ -33,12 +33,14 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: openconn.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: openconn.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 #include <errno.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -46,7 +48,7 @@
 #include "openconn.h"
 #include "nonblock.h"
 
-static unused char rcsid[] = "@(#) $Id: openconn.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: openconn.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
 
 char *my_hstrerror(int error) 
 {

@@ -33,10 +33,11 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: master.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: master.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
@@ -52,7 +53,7 @@
 #include "parser.h"
 #include "post_event.h"
 
-static unused char rcsid[] = "@(#) $Id: master.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: master.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
 
 static dstring *tunnel_req(char *basetopic, int sessionid, int journalid,
                            int simple_format)

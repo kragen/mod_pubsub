@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: analyze.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: analyze.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 /*
@@ -47,7 +47,7 @@
 #include "analyze_conn.h"
 #include "linear.h"
 
-static unused char rcsid[] = "@(#) $Id: analyze.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: analyze.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
 
 char *findtag(char *input, char *tag)
 {
@@ -56,7 +56,7 @@ char *findtag(char *input, char *tag)
     return s + strlen(tag);
 }
 
-double nan()
+double return_nan()
 {
     return 0/0.0;
 }
@@ -65,7 +65,7 @@ double float_tag(char *input, char *tag)
 {
     char *val = findtag(input, tag);
     if (val) return atof(val);
-    return nan();
+    return return_nan();
 }
 
 int int_tag(char *input, char *tag)

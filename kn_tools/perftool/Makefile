@@ -32,7 +32,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# @(#) $Id: Makefile,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+# @(#) $Id: Makefile,v 1.2 2003/04/25 02:37:44 bsittler Exp $
 
 PLAT = $(shell uname -a)
 evloop=evloop_select.o evloop_common.o
@@ -47,12 +47,8 @@ evloop=evloop_soldevpoll.o evloop_common.o
 
 # For compiling on Linux:
 else
-ifneq (,$(findstring Linux, $(PLAT)))
 CFLAGS=-g -Wall -Werror
 LDLIBS+=-lm
-else
-	Neither SunOS nor Linux; fix the Makefile.
-endif
 endif
 
 # For profiling with gprof on Solaris:

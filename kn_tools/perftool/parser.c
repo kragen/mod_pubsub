@@ -33,15 +33,16 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: parser.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: parser.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 #include <stdlib.h>
+#include <string.h>
 #include "util.h"
 #include "dstring.h"
 #include "parser.h"
 
-static unused char rcsid[] = "@(#) $Id: parser.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: parser.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
 
 #define PARSER_MAGIC 0x3dbeef
 struct parser {

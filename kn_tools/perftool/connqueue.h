@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: connqueue.h,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: connqueue.h,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 /* 
@@ -52,6 +52,7 @@
 #ifndef __CONNQUEUE_H
 #define __CONNQUEUE_H
 
+#include <sys/types.h>
 #include <netinet/in.h>
 #include "dstring.h"
 #include "evloop.h"

@@ -33,14 +33,15 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: test-parser.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: test-parser.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 #include <stdio.h>
+#include <string.h>
 #include "util.h"
 #include "parser.h"
 
-static unused char rcsid[] = "@(#) $Id: test-parser.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: test-parser.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
 
 static int expect_id = 0;
 static int failed = 0;
@@ -115,8 +116,9 @@ int main() {
         parse_data(p, 0, otherstring + i, 1);
     }
     if (expect_id != count(expects)) {
-        fprintf(stderr, "FAILED: missed last events (%d of %d)\n",
-                count(expects) - expect_id, count(expects));
+        fprintf(stderr, "FAILED: missed last events (%ld of %ld)\n",
+                (long int) (count(expects) - expect_id),
+                (long int) (count(expects)));
     }
     return failed;
 }

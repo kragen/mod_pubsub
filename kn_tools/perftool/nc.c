@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: nc.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: nc.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 /*
@@ -43,8 +43,8 @@
  * hostname, connects to the port, and relays stdin and stdout.
  */
 
-#include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -57,7 +57,7 @@
 #include "pipefit.h"
 #include "openconn.h"
 
-static unused char rcsid[] = "@(#) $Id: nc.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: nc.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
 
 static int open_pipes = 0;
 

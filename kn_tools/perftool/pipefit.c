@@ -33,11 +33,12 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: pipefit.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: pipefit.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -47,7 +48,7 @@
 #include "nonblock.h"
 
 static unused char rcsid[] = 
-    "@(#) $Id: pipefit.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+    "@(#) $Id: pipefit.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
 
 static void nop(void *clientData, void *arg) 
 {

@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: evltest.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: evltest.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
  **/
 
 /* simple regression test for evloops.  Because I have bugs in evloop
@@ -58,11 +58,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include "evloop.h"
 #include "util.h"
 
-static unused char rcsid[] = "@(#) $Id: evltest.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: evltest.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
 
 static int goodint;
 void *good_client_data;
