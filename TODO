@@ -1,21 +1,34 @@
 -------------------------------------
 High-level items on the "to do" list.
 -------------------------------------
-$Id: TODO,v 1.13 2003/04/30 22:50:08 ifindkarma Exp $
+$Id: TODO,v 1.14 2003/05/31 04:37:25 ifindkarma Exp $
 
- 0. Fix kn_apps/kn_lib/cookie_auth.js so that it properly escapes userids.
+ 1. Fix kn_apps/kn_lib/cookie_auth.js so that it properly escapes userids.
 
- 1. Modify the Perl server and the Python server to not send
-    so many flush spaces when writing simple response format.
+ 2. Modify the Perl PubSub Server and the Python PubSub Server to not
+    send so many flush spaces when writing simple response format.
     This will make our simple wire format less chatty.
 
- 2. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
+ 3. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
     that has publish, subscribe, and unsubscribe.  This still needs a
-    test suite and several other things; see python_pubsub/TODO .
-
- 3. PubSub/ModPubSub.pm and pubsub.py should be less lazy about
-    detecting closed sessions.  Bring active presence detection to
-    mod_pubsub. Do this by writing an external cleanup.py program.
+    test suite and several other improvements:
+    A. use ZODB for persistence layer of pubsub.py
+    B. "depth:" header in pubsub.py; modify topic & tree kn_apps to use it
+    C. bridge.py bridging application
+    D. auth in pubsub.py
+    E. ulimit in pubsub.py
+    F. off-host routes in pubsub.py
+    G. kn_content_transform in pubsub.py
+    H. pubsub.py watchdog
+    I. pubsub.py stats
+    J. kn_apps/sitewatch2 : watch stats and notify if down
+       i. browser-based
+       ii. watches stats
+       iii. on two routers
+       iv. emails if down
+       v. depends on A, B, C, D, G, H, and I
+    K. CGI support in pubsub.py
+    L. SSL support
 
  4. PubSub/ModPubSub.pm and pubsub_test.cgi still expect
     other things to live near PubSub/ModPubSub.pm in URL-space. Fix this.
@@ -30,22 +43,21 @@ $Id: TODO,v 1.13 2003/04/30 22:50:08 ifindkarma Exp $
 
  7. Build c_pubsub/libkn on cygwin.
 
- 8. Create a java_pubsub client library.  Greg suggests creating a clean
-    Java API usable in any type of Java client (app server based or not)
-    and then layer a JMS interface on top of that.  This makes it easier to
-    develop and easier to maintain over time while covering all the bases.
-
- 9. Make Tunnel.pm event-driven.
-    Unify the Perl PubSub client and server and
+ 8. Make Tunnel.pm event-driven.
+    Also, PubSub/ModPubSub.pm should be less lazy about detecting closed
+    sessions.  Bring active presence detection to it.
+    Unify the Perl PubSub Server and Client libraries, and
     submit the PubSub perl package to CPAN.
 
-10. While we're at it, clean up any broken and/or ugly kn_apps.
-    "replay" is a particularly useful kn_app that is broken.
+ 9. Clean up any broken and/or ugly kn_apps.
 
-11. Get push_manager working and clean up its directory.
-
-12. Build an Apache log sensor and use that to create a
+10. Build an Apache log sensor and use that to create a
     "webmaster's dashboard" application.
+
+11. Write a Jabber gateway using mod_pubsub.
+    And/or write an (all-DHTML) IM client application using mod_pubsub.
+
+12. Get Pushlets working with mod_pubsub.
 
 13. Get "Pocket NOC" application that monitors machines
     working to create a "sysadmin's dashboard" application.
@@ -53,41 +65,22 @@ $Id: TODO,v 1.13 2003/04/30 22:50:08 ifindkarma Exp $
     It needs to be improved significantly, perhaps using
     kn_sense/apache_logfile.sh .)
 
-14. Write a Jabber gateway using mod_pubsub.  And/or
-    write an (all-DHTML) IM client application using mod_pubsub.
+14. Make a REST Wiki page for mod_pubsub...
+    http://internet.conveyor.com/RESTwiki/moin.cgi/
 
-15. Get Pushlets working with mod_pubsub.
-
-16. Get chess application from http://cvs.developer.knownow.com/ working.
-
-17. Start a Wiki for this project.
-    (?As part of the REST Wiki?
-    http://internet.conveyor.com/RESTwiki/moin.cgi/ )
-
-18. doxygen comments.  Heck, more documentation all around!
+15. doxygen comments.  Heck, more documentation all around!
     Flesh out mod_pubsub/kn_docs/design_notes/...
 
-19. Revamp RSS Support because kn_sense/rss is an awful hack.
+16. Revamp RSS Support because kn_sense/rss is an awful hack.
     Use Jeff Barr's wonderful http://www.syndic8.com/ tools.
     (Update 3/2003: cxx_pubsub contains a Windows RSS-sensing tool.)
 
-20. Improvements to python_pubsub
-    A. "depth:" header in pubsub.py; modify topic & tree kn_apps to use it
-    B. bridge.py bridging application
-    C. auth in pubsub.py
-    D. ulimit in pubsub.py
-    E. off-host routes in pubsub.py
-    F. kn_content_transform in pubsub.py
-    G. expire_events.py
-    H. pubsub.py watchdog
-    I. pubsub.py stats
-    J. kn_apps/sitewatch2 : watch stats and notify if down
-       i. browser-based
-       ii. watches stats
-       iii. on two routers
-       iv. emails if down
-       v. depends on A, B, C, D, G, H, and I
+17. An application that uses Amazon Web Services.
 
-21. An application that uses Amazon Web Services
+18. Get chess application from http://cvs.developer.knownow.com/ working.
 
-22. An application that uses httptop from O'Reilly's _Linux Hacks_ book
+19. An application that uses httptop from O'Reilly's _Linux Hacks_ book.
+
+20. Get push_manager working and clean up its directory.
+
+21. do_method=replay doesn't work.  It should.  Make it so.
