@@ -37,7 +37,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: pubsub_protocol.html,v 1.5 2003/05/22 01:13:27 ifindkarma Exp $
+ $Id: pubsub_protocol.html,v 1.6 2003/05/22 02:39:31 ifindkarma Exp $
 
 -->
 
@@ -164,11 +164,7 @@ where <code>myContent</code> might be for example
 "do_method=route;" +
 "kn_from=/who/jos/s/24/kn_journal"
 </pre>
-to set up a streaming flash-formatted "tunnel" (note that
-<code>kn_response_format=flash</code> will not work until
-we add support for it to the PubSub Server; to get started
-the application might use <code>kn_response_format=simple</code>
-instead).</p>
+to set up a streaming flash-formatted "tunnel".</p>
 
 <p>To establish a subscription (say, to "<code>/what/chat</code>"),
 the application constructs an HTTP request like this:
@@ -394,6 +390,12 @@ section <a href="#1">1</a>, are:
 precise format may vary, but the JavaScript-visible result is always
 as described in section <a href="#3">3</a>.  This is the
 default.</p></dd>
+
+<dt><samp>flash</samp></dt>
+
+<dd><p>Identical to <code>kn_response_format=simple</code> but adds
+a null byte after each encoded event to force Flash's onData handler
+to be called.</p></dd>
 
 <dt><samp>simple</samp></dt>
 
@@ -844,7 +846,7 @@ be used to determine which frame a callback was called in.</p>
 <hr />
 
 <p>
-$Id: pubsub_protocol.html,v 1.5 2003/05/22 01:13:27 ifindkarma Exp $</p>
+$Id: pubsub_protocol.html,v 1.6 2003/05/22 02:39:31 ifindkarma Exp $</p>
 
 </body>
 </html>
