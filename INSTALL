@@ -1,6 +1,6 @@
----------------------------------
-mod_pubsub Release February, 2003
----------------------------------
+------------------------------
+mod_pubsub Release March, 2003
+------------------------------
 
 Installing the mod_pubsub release is simple if you already have
 experience configuring and running web servers.  You'll need a
@@ -8,6 +8,9 @@ web server with which to run the pubsub engine -- instructions for
 configuring Apache 1.3, assuming you have root on the web server,
 are below.  Other web servers may work but have not been tested
 with this release.
+
+$Id: INSTALL,v 1.9 2003/03/12 01:24:14 ifindkarma Exp $
+
 
 
 ------------
@@ -64,6 +67,10 @@ that line looks like this:
 
    LoadModule perl_module /usr/lib/apache/1.3/mod_perl.so
 
+You also may need to add (or un-comment) a line like this:
+
+   AddModule mod_perl.c
+
 On other systems, the module may be in somewhere like
 /usr/lib/apache/1.3/libexec/libperl.so .
 
@@ -106,6 +113,10 @@ This does two things:
 6A. Compresses the JavaScript PubSub library, creating pubsub.js :
 
    bash kn_tools/js_compress.sh < kn_apps/kn_lib/pubsub_raw.js > kn_apps/kn_lib/pubsub.js
+
+NOTE: js_compress.sh depends on the "nl" tool from GNU textutils.
+Since not everyone has this tool, we ship the mod_pubsub package
+with pubsub.js already generated.
 
 6B. Creates a subdirectory called mod_pubsub/kn_events and make it
 writable by the user that will be running the event router code,
@@ -172,10 +183,10 @@ WARNING: The included sample.passwd file contains a username and
 password entry for user 'knguest' with the password 'knguest'.
 
 
+
 ---------------
 Troubleshooting
 ---------------
-
 
 Not Found error (The requested URL /kn was not found on this server)
 
@@ -207,6 +218,28 @@ has been installed.  Perhaps the <Directory> directive above has the
 wrong path?
 
 
+
+---------------------------------
+An Alternative, Standalone Server
+---------------------------------
+
+This release also ships with a standalone Python server that is
+feature-compatible with Apache-running-with-the-mod_pubsub scripts.
+
+You can run it as follows:
+
+   cd mod_pubsub/python_pubsub
+   ./pubsub.py 80 ..
+
+This creates a server running on localhost port 80, using
+mod_pubsub/ as its document root.  In a browser, you can go to
+
+   http://localhost/kn_apps/
+
+and run some of the sample PubSub-enabled browser applications.
+
+
+
 --------------------
 Setting Up Newsfeeds
 --------------------
@@ -227,6 +260,7 @@ It will eventually finish; if you want a continuous newsfeed, you
 should run rss.plx periodically.
 
 
+
 --------------------
 For More Information
 --------------------
@@ -237,4 +271,3 @@ Read README for a list of credits.
 And: Join the mailing lists to work with the community on making this
 project much better.  http://mod-pubsub.sourceforge.net/
 
-$ Id: $
