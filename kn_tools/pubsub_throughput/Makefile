@@ -32,71 +32,26 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: Makefile,v 1.2 2003/04/30 21:33:25 bsittler Exp $
+# $Id: Makefile,v 1.3 2003/05/06 23:25:53 bsittler Exp $
 
-.SILENT:
+.PHONY: all clean
 
-# LINUX
-INCLUDE_PATH=/usr/include
-LIB_PATH=/usr/lib
-COMPILER=gcc 
+# C compiler and linker
+CC=libtool `curl-config --cc` -static
+CFLAGS=`curl-config --cflags`
 LIBS=`curl-config --libs` -lpthread
-STRIP=/usr/bin/strip
+LDFLAGS=$(LIBS)
 
-# Solaris
-# Need -lsocket and -lnsl
-#INCLUDE_PATH=/usr/local/include
-#LIB_PATH=/usr/local/lib
-#COMPILER=gcc 
-#LIBS=-lcurl -ldl -lnsl -lsocket -lpthread
-#STRIP=/usr/ccs/bin/strip
+# utility to remove files
+RM=libtool rm
+RMFLAGS=-f
+REMOVE=$(RM) $(RMFLAGS)
 
-#ifdef CRYPTO
-# LIBS=$(LIBS)-lssl -lcrypto 
-#endif
+TARGETS=throughput throughput_pub throughput_sub throughput_test
 
-
-all: throughput throughput_pub throughput_sub
-	 rm -f *.o
-
-throughput:
-	 echo compiling throughput.c ...
-	 $(COMPILER) -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput.c -o throughputs $(LIBS) 
-	 $(COMPILER) -g -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput.c -o throughputd -DDEBUG $(LIBS)
-	 $(COMPILER) -g -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput.c -o throughputt -DDEBUG $(LIBS)
-	 $(STRIP) throughputs throughputd throughputt
-	 rm -f throughput.o
-
-throughput_pub:
-	 echo compiling throughput_pub.c ...
-	 $(COMPILER) -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput_pub.c -o throughput_pubs $(LIBS) 
-	 $(COMPILER) -g -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput_pub.c -o throughput_pubd -DDEBUG $(LIBS)
-	 $(COMPILER) -g -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput.c -o throughput_pubt -DDEBUG $(LIBS)
-	 $(STRIP) throughput_pubs throughput_pubd throughput_pubt
-	 rm -f throughput_pub.o
-
-
-throughput_sub:
-	 echo compiling throughput_sub.c ...
-	 $(COMPILER) -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput_sub.c throughput_sub_main.c -o throughput_subs $(LIBS) 
-	 $(COMPILER) -g -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput_sub.c throughput_sub_main.c -o throughput_subd -DDEBUG $(LIBS)
-	 $(COMPILER) -g -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput_sub.c throughput_sub_main.c -o throughput_subt -DDEBUG $(LIBS)
-	 $(STRIP) throughput_subs throughput_subd throughput_subt
-	 rm -f throughput_sub.o
-
-throughput_test:
-	 echo compiling throughput_test.c ...
-	 $(COMPILER) -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput_test.c -o throughput_tests $(LIBS) 
-	 $(COMPILER) -g -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput_test.c -o throughput_testd -DDEBUG $(LIBS)
-	 $(COMPILER) -g -I$(INCLUDE_PATH) -L$(LIB_PATH) throughput_test.c -o throughput_testt -DDEBUG $(LIBS)
-	 $(STRIP) throughput_tests throughput_testd throughput_testt
-	 rm -f throughput_test.o
-
-stringcattest:
-	 $(COMPILER) -I$(INCLUDE_PATH9) $(LIB_PATH9) stringcattest.c -o stringcattest $(LIBS)
-
-
+all: $(TARGETS)
 
 clean:
-	 rm -f throughputs throughputd throughputt *.o
+	$(REMOVE) $(TARGETS) *.lo
 
+throughput_sub: throughput_sub.o throughput_sub_main.o

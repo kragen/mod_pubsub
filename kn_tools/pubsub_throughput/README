@@ -35,7 +35,7 @@ Setup
   * Install libcurl <http://curl.sourceforge.net/>
   * Install python <http://www.python.org/>
   * Install pycurl <http://pycurl.sourceforge.net/>
-  * Build Source:  make -f Makefile.throughput_sub
+  * Build Source:  make
 
 How To Run The Tests
   * On client and server machines, be sure to have enough file descriptors
