@@ -1,6 +1,6 @@
-$Id: README,v 1.3 2003/03/13 00:57:52 ifindkarma Exp $
+$Id: README,v 1.4 2003/03/22 09:20:08 ifindkarma Exp $
 
-libkn is the PubSub C client library.
+libkn is the C PubSub Client Library.
 
 Known working platforms:
    Solaris 2.8 (sparc)
@@ -11,7 +11,7 @@ Unknown but once rumored to be functional platforms:
    FreeBSD 4.2
    NetBSD 1.5
    Red Hat Linux 6.1
-   Solaris 2.7
+   Solaris 2.7, 2.9
 
 libkn should be easily portable to any POSIX operating system with the
 GNU toolchain.
@@ -25,6 +25,9 @@ To build libkn using Sun compiler on Solaris or Linux:
 
 Note that in Linux, you need to have installed g++.
 You might also need to have installed libtool.
+
+To put it in the right system directory in Linux, use "sudo make install",
+which installs a basket of goodies in /usr/local/kn/libkn/ .
 
 To build libkn using GNU compiler:
     ./setup 
