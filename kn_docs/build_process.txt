@@ -1,0 +1,91 @@
+Build process
+-------------
+
+1. Add a release on Sourceforge.  At
+
+   http://sourceforge.net/project/admin/editpackages.php?group_id=66293
+
+   click [Add Release] on the mod-pubsub line.
+
+2. Create the release by adding the new release name, for example
+
+   0.95
+
+   Click "Create this release"
+
+3. On the Summary page
+
+   http://sourceforge.net/projects/mod-pubsub/
+
+   Click "Download" for the latest release, which will give you
+   the latest release's download URL, for example
+
+   http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=161313
+
+4. Edit mod_pubsub/kn_docs/faq.html to include the URL from step 3
+   in all the links that say "download".  For example,
+
+   <a href="http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=161313" onclick="window.open(this.href,this.target);return false" target="_blank">
+   <button>Download v0.95 now</button></a>
+
+   and
+
+   <p><a href="http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=1
+61313" target="_blank">Download</a>
+
+   View this file in a Web browser to make sure the HTML is well-formed.
+
+5. Check in the new faq.html
+
+   pubsub-cvs commit
+
+6. Tag everything at the top level with the current date.
+
+   pubsub-cvs tag -R mod-pubsub-2003-05-23
+
+7. Export mod_pubsub with the tag created in step 6.
+
+   pubsub-cvs export -r mod-pubsub-2003-05-23 mod_pubsub
+
+8. Run "cd mod_pubsub; make"
+
+   which creates pubsub.js in the right place but fails to
+   create the kn_events directory and exits with an
+
+   [ x"" != x ]  # Define HTTPD_USER as the user that runs your web server, e.g. make HTTPD_USER=httpd (or nobody, or www-data)
+   make: *** [kn_events] Error 1
+
+   error.  (Downloaders will make their own kn_events directory.)
+
+9. Create the tarball.  For example,
+
+   cd ..; tar czvf mod_pubsub_2003-05-23.tar.gz mod_pubsub
+
+10. Upload the tarball.  For example,
+
+   ftp upload.sf.net
+   user anonymous
+   cd incoming
+   put mod_pubsub_2003-05-23.tar.gz
+   quit
+
+11. In the Web browser that says "Project mod-pubsub: Admin: FRS: Releases"
+   go through steps 1 and 2 to insert notes and add the file.
+
+   In step 3, choose architecture "Platform Independent" and
+   type "Source .gz"
+
+12. Copy the new FAQ over to Sourceforge.
+
+   rsync -va faq.html ifindkarma@shell.sf.net:/home/groups/m/mo/mod-pubsub/htdocs/index.html
+
+13. Add news on Sourceforge Summary page
+
+   http://sourceforge.net/projects/mod-pubsub/
+
+   including a link to the download
+
+   http://sourceforge.net/project/showfiles.php?group_id=66293&release_id=161313
+
+14. Send an email to mod-pubsub-developer@lists.sourceforge.net
+   telling them about the newly released version.
