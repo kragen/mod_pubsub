@@ -88,6 +88,15 @@ You can do this by adding lines like the following to httpd.conf.
     Alias /kn /var/www/mod_pubsub/cgi-bin/pubsub.cgi
 
 
+At this point, your Apache and mod_perl should be working correctly.  To
+check, view the following page:
+
+   http://localhost/mod_pubsub/cgi-bin/testperl.cgi
+
+You should see about a page of information about your Apache server.  If  
+you see a few lines of Perl instead, mod_perl is not enabled correctly.
+
+
 6.  Run the Makefile in this directory, for example
 
    make HTTPD_USER=www-data
