@@ -1,53 +1,57 @@
-To Do List for Python PubSub (February 18, 2003)
-------------------------------------------------
+----------------------------
+To Do List for Python PubSub
+----------------------------
+$Id: TODO,v 1.11 2003/03/22 11:45:28 ifindkarma Exp $
 
--1. Make a cleaner.py which removes expired events.
-    Note: this client can work for both pubsub.py and pubsub.cgi
- 0. Find out which of (asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py)
+ 1. Finish test suite for pubsublib.py .
+ 2. Write chat.py and ping.py that use pubsublib.py .
+ 3. Off host routes and kn_content_transform in pubsub.py .
+ 4. Make a cleaner.py which removes expired events.
+    Note: this client can work for both pubsub.py and pubsub.cgi .
+ 5. Fix bridge.py to use pubsublib.py to
+    bridge instances of pubsub.py and pubsub.cgi.
+ 6. Add SSL support.
+ 7. Add CGI support to pubsub.py.
+ 8. Find out which of (asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py)
     can be removed from cvs because they ship with the standard Python
     distribution and have not been modified here.
- 1. Off host routes.
- 2. Add SSL support.
- 3. Verbose vs. non-verbose code not covered.
- 4. Task.__repr__ never called.
- 5. Scheduled tasks never have errors.
- 6. Schedule never empty, so poll(None) never happens.
- 7. Events never get compared to non-events.
- 8. Illegal topic name characters never happen.
- 9. Never create tunnels from non-journal topics.
-10. Never posted to a dead tunnel (when not restoring from persistent store).
-11. Never pickled tunnels (when not saving to persistent store).
-12. ev_encode's exception handler for string.join (needs to go away).
-13. is_utf8 never gets exceptions raised in it,
+ 9. Verbose vs. non-verbose code not covered.
+10. Task.__repr__ never called.
+11. Scheduled tasks never have errors.
+12. Schedule never empty, so poll(None) never happens.
+13. Events never get compared to non-events.
+14. Illegal topic name characters never happen.
+15. Never create tunnels from non-journal topics.
+16. Never posted to a dead tunnel (when not restoring from persistent store).
+17. Never pickled tunnels (when not saving to persistent store).
+18. ev_encode's exception handler for string.join (needs to go away).
+19. is_utf8 never gets exceptions raised in it,
     and its exception handler is stupid anyway.
-14. server.handle_error never gets called.
-15. simple-format responses never get sent except to tunnels.
-16. Bad HTTP request lines never happen.
-17. We never parse HTTP response headers.
-18. We never get HTTP requests with continuation lines.
-19. We never get HTTP request lines without colons.
-20. We never get multiple HTTP headers with the same name
+20. server.handle_error never gets called.
+21. simple-format responses never get sent except to tunnels.
+22. Bad HTTP request lines never happen.
+23. We never parse HTTP response headers.
+24. We never get HTTP requests with continuation lines.
+25. We never get HTTP request lines without colons.
+26. We never get multiple HTTP headers with the same name
     and have to join them with commas
-21. libform and lib2form don't get tested by the automated tests.
-22. do_method=route defaulting for GET requests not tested.
-23. 'Welcome to pubsub.py' never gets run.
-24. '404 Not Found' never gets sent.
-25. Non-{GET,HEAD,POST} requests never get sent.
-26. send_response's '500 Internal Server Error' catch
+27. libform and lib2form don't get tested by the automated tests.
+28. do_method=route defaulting for GET requests not tested.
+29. 'Welcome to pubsub.py' never gets run.
+30. '404 Not Found' never gets sent.
+31. Non-{GET,HEAD,POST} requests never get sent.
+32. send_response's '500 Internal Server Error' catch
     never gets run for some reason.
-27. self.sockname never gets interpolated into a string
+33. self.sockname never gets interpolated into a string
     because Host: headers are always sent.
-28. Connection.repr never gets called because it has the wrong name.
-29. FinishRouting, ReportRouteStatus, and HttpClient are unused.
-30. Not serving any .gif or .jpg or default files in the automated tests.
-31. Most of read_event_pool and write_event_pool don't run.
-32. Most of the option parsing doesn't run normally.
-33. Add CGI support to pubsub.py.
-34. Fix bridge.py to use pubsublib.py to
-    bridge instances of pubsub.py and pubsub.cgi.
-35. Pythonize kn_tools/list_*.plx
+34. Connection.repr never gets called because it has the wrong name.
+35. FinishRouting, ReportRouteStatus, and HttpClient are unused.
+36. Not serving any .gif or .jpg or default files in the automated tests.
+37. Most of read_event_pool and write_event_pool don't run.
+38. Most of the option parsing doesn't run normally.
+39. Pythonize kn_tools/list_*.plx
 
-*** 36. Investigate replacing asyncore with Twisted Matrix:
+*** 40. Investigate replacing asyncore with Twisted Matrix:  ************************
 
     http://twistedmatrix.com/
 
