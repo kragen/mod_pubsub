@@ -34,7 +34,7 @@ package PubSub::Topic;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Topic.pm,v 1.3 2003/04/26 00:31:49 ifindkarma Exp $
+# $Id: Topic.pm,v 1.4 2003/05/22 02:43:03 ifindkarma Exp $
 
 # All of pubsub.cgi's output, except for things like do_method=help and
 # do_method=lib, is handled by this module.
@@ -46,6 +46,8 @@ package PubSub::Topic;
 
 # Depending on the CGI parameters, the events may be posted to a topic
 # (using the event-posting function) or sent over the HTTP connection.
+
+# FIXME: Does not support kn_response_format=flash .
 
 use strict;
 use URI ();
