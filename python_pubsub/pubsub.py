@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.14 2003/04/29 00:20:55 ifindkarma Exp $
+# $Id: pubsub.py,v 1.15 2003/04/29 00:27:32 ifindkarma Exp $
 
 
 """
@@ -249,9 +249,10 @@ class Topic(Event):
     name, but kept in sequence of last update.  Provide access to
     descendants."""
 
-    def __init__(self, name):
-        Event.__init__(self, {'kn_payload': len(name) and name[-1] or "nobody should ever see the root topic's kn_payload"})
+    def __init__(self, name, parent):
+        Event.__init__(self, {'depth': '0', 'kn_payload': len(name) and name[-1] or "nobody should ever see the root topic's kn_payload"})
         self.name = name
+        self.parent = parent
         self.kn_subtopics = None
         self.events = []
         self.eventdict = {}
@@ -267,7 +268,13 @@ class Topic(Event):
         # kn_subtopics is handled specially, because obviously we can't look in kn_subtopics to find it
         if name == 'kn_subtopics':
             if self.kn_subtopics is None:
-                self.kn_subtopics = create_topic(self.name + [name])
+                self.kn_subtopics = create_topic(self.name + [name], self)
+                # update the 'depth' introspection header to indicate we have children
+                self.contents['depth'] = '1';
+                if self.parent is not None:
+                    # HACK: this is necessary in order to make the update actually propagate
+                    self.parent.kn_subtopics.update_event(self.clone({'depth': '0'}))
+                    self.parent.kn_subtopics.post(self)
             return self.kn_subtopics
         else:
             subtopics = self.get_subtopic('kn_subtopics')
@@ -275,7 +282,7 @@ class Topic(Event):
             for ev in events:
                 if ev['kn_payload'] == name: return ev
             # hmm, we didn't find it, guess we should create it.
-            top = create_topic(self.name + [name])
+            top = create_topic(self.name + [name], self)
             subtopics.post(top)
             return top
     def create_route(self, route):
@@ -319,6 +326,40 @@ class NoPostingTopic(Topic):
     def notify(self, event):
         raise PermissionDenied, "Can't post to %s" % self.getname()
 
+class RoutesTopic(NoPostingTopic):
+
+    """A RoutesTopic only allows 'kn_routes' subtopics, and allows
+    up-propagation of routes to containing RoutesTopics."""
+
+    def __init__(self, name, parent, route_level):
+        NoPostingTopic.__init__(self, name, parent)
+        self.route_level = route_level
+        self.kn_routes = None
+    def get_subtopic(self, name):
+        if name == 'kn_routes':
+            if self.kn_routes is None:
+                self.kn_routes = create_topic(self.name + [name], self, self.route_level + 1)
+            return self.kn_routes
+        raise PermissionDenied, "Only kn_routes subtopics are allowed inside a kn_routes topic"
+    def post(self, event):
+        if NoPostingTopic.post(self, event):
+            if self.route_level > 0: parent.up_propagate(event)
+    def up_propagate(self, event, from_depth = 1):
+
+        """Given an event from a particular introspection depth,
+        up-propagate it. This is similar to a post, but is specific to
+        RoutesTopics and dodesn't actually store a copy of the event
+        in 'self'."""
+
+        kn_routes = self.get_subtopic('kn_routes')
+        for route in kn_routes.get_events():
+            if route.has_key('depth'):
+                depth = route['depth']
+                if depth == 'infinity' or depth == '1' and from_depth == 1:
+                    if not route.post(event):
+                        poison = route.poisoned()
+                        kn_routes.post(poison)
+        if self.route_level > 0: parent.up_propagate(event, from_depth + 1)
 class JournalTopic(Topic):
     def verify_route_ok(self, route):
         if route.is_static_route():
@@ -337,11 +378,12 @@ class JournalTopic(Topic):
 
 
 # Create the appropriate sort of topic to be 'name'.
-def create_topic(name):
-    if name == []: return Topic(name)  # a root topic
-    elif name[-1] in ['kn_subtopics', 'kn_routes']: return NoPostingTopic(name)
-    elif name[-1] == 'kn_journal': return JournalTopic(name)
-    else: return Topic(name)
+def create_topic(name, parent = None, route_level = 0):
+    if name == []: return Topic(name, parent)  # a root topic
+    elif name[-1] == 'kn_routes': return RoutesTopic(name, parent, route_level)
+    elif name[-1] == 'kn_subtopics': return NoPostingTopic(name, parent)
+    elif name[-1] == 'kn_journal': return JournalTopic(name, parent)
+    else: return Topic(name, parent)
 
 class Route(Event):
 
@@ -381,7 +423,7 @@ class Route(Event):
 class StaticRoute(Route):
     """Responsibilities: route events to somewhere else."""
     def __init__(self, kn_to=None, location=None, misc={}):
-        Event.__init__(self, misc)
+        Route.__init__(self, misc)
         self.kn_to = kn_to
         self.location = location
         if misc.has_key('kn_uri'):
@@ -421,7 +463,7 @@ class Tunnel(Route):
     """
 
     def __init__(self, connection):
-        Event.__init__(self, {'kn_payload': str(connection), 'stale': '0'})
+        Route.__init__(self, {'kn_payload': str(connection), 'stale': '0'})
         self.conn = connection
         self.conn.report_status("tunnel")
         self.header_sent = 0
