@@ -1,0 +1,627 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>PerfTest</title>
+<style>
+h1 {font-size: 130%;}
+h2 {font-size: 120%;}
+.code {font-size: 80%; font-face: Courier;margin-left: 20px; background-color: #e0e0e0;}
+</style>
+</head>
+
+<body>
+
+<p align="center"><b><font size="4">PerfTest Framework<br>
+</font></b>Jeff Barr - <a href="mailto:Jeff@vertexdev.com">jeff@vertexdev.com</a><br></p>
+<p align="center"><a href="#Introduction">Introduction</a> /
+<a href="#Architecture">Architecture</a> / <a href="#Language">Language</a> /
+<a href="#Setup">Setup</a> / <a href="#Code">Running</a> / <a href="#Code">Code</a></p>
+<h1><a name="Introduction">Introduction</a></h1>
+<p>This document describes PerfTest, a testing package for the PubSub Server
+product line. PerfTest simplifies the process of setting up and running a test on a 
+complex and heterogeneous network of test machines. A procedural test 
+specification language is used to describe each test. A flexible mapping model 
+allows a single test specification to take advantage of a pool of available test 
+machines. To simplify test case generation and administration, each test is 
+described using a single file. The Agents are dynamically configured using the 
+test specification as needed.</p>
+<h1><a name="Architecture">Architecture</a></h1>
+<p>PerfTest uses a Manager/Agent architecture. A given test setup will have a 
+single Manager and any number of Agents. A PubSub Server is used to handle 
+communication between the Manager and the Agents. This router is known as the <i>
+coordinating router </i>and is distinct from the router or routers to be tested. 
+By using several coordinating routers on a single network, multiple parallel 
+test setups can be built.</p>
+<p>The Manager issues commands (either to a single Agent or to all Agents) and 
+the Agents respond (asynchronously) with status reports. Each Agent also sends a 
+&quot;heartbeat&quot; message to the Manager each second. The Manager maintains a central 
+status table with the latest information received from each Agent. This 
+information is published each second as a very simple HTML table. </p>
+<p>The overall architecture can be diagrammed as follows:</p>
+<p align="center">
+<img border="0" src="Architecture.gif" width="591" height="566"></p>
+<p align="left">Communication from the Manager to the Agents is always done on 
+topic <b>/ktest/agent_command</b>. Communication from the Agents to the Manager 
+is always done on topic <b>/ktest/agent_status</b>. These values can be changed 
+in file Common.java if necessary.</p>
+<h2>Agent Architecture</h2>
+<p>When an Agent is started on a particular machine it performs the following 
+actions:</p>
+<ol>
+  <li>Processes the command line arguments to ascertain the URI of the 
+  coordinating router.<br>
+&nbsp;</li>
+  <li>Determines its host name and the current time and assigns itself a unique 
+  name known as the AgentID.<br>
+&nbsp;</li>
+  <li>Uses this unique name to create a temporary directory on the system it is 
+  running on.<br>
+&nbsp;</li>
+  <li>Establishes a connection to the coordinating router.<br>
+&nbsp;</li>
+  <li>Begins to send out regular heartbeat messages. The messages include the 
+  unique name, the current status of the agent, and the operating system and 
+  platform of the agent.<br>
+&nbsp;</li>
+  <li>Listens for, executes, and reports on the status of commands. </li>
+</ol>
+<p>The names are unique within the network, and will be unique even if multiple 
+Agents are started on the same system, as long as they are started at different 
+times (the unique name includes the time down to the millisecond level). This 
+scheme allows a single system to host any number of Agents.</p>
+<p>Each Agent maintains its own set of named <i>counters</i>. The counters are 
+typically used to tabulate the events received as a result of a publishing 
+operation performed on a router.</p>
+<p>The Manager can instruct any Agent to download files from an arbitrary URL 
+into the Agent's local temporary directory. These files can be configuration 
+files, router installation packages or scripts, or any other files. Each agent 
+clears and then deletes its temporary directory when it exits.</p>
+<p>Agents have an extensive repertoire of commands:</p>
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+  <tr>
+    <td width="33%">ClearRouter</td>
+    <td width="33%">Publish</td>
+    <td width="34%">StartRouter</td>
+  </tr>
+  <tr>
+    <td width="33%">ConfigRouter</td>
+    <td width="33%">ReportCounters</td>
+    <td width="34%">StopRouter</td>
+  </tr>
+  <tr>
+    <td width="33%">DeleteCounters</td>
+    <td width="33%">ResetCounters</td>
+    <td width="34%">Subscribe</td>
+  </tr>
+  <tr>
+    <td width="33%">Download</td>
+    <td width="33%">Route</td>
+    <td width="34%">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="33%">Exit</td>
+    <td width="33%">Run</td>
+    <td width="34%">&nbsp;</td>
+  </tr>
+</table>
+<p>At any given time, an Agent is either executing a command, or it is idle. The 
+heartbeat message always includes the status of the agent. Commands sent to an 
+Agent while it is not idle will be queued up and run as soon as possible. </p>
+<p>An Agent will typically remain running over the course of several tests.</p>
+<p>Each Agent listens on topic <b>/ktest/agent_command</b> for commands. Each 
+command contains an AgentID field. If this field is empty then the command 
+applies to all agents. Otherwise, it applies to the Agent with the given AgentID. 
+The Manager effectively broadcasts all commands; the Agents are each responsible 
+for deciding which commands are applicable and responding accordingly.</p>
+<p>Command processing in the Agent is straightforward. The command is received 
+and decoded. If it applies to the agent, then the Agent's status is changed to 
+reflect the command, the command is run, a status message is sent to the 
+Manager, and the Agent's status is returned to reflect the fact that the Agent 
+is now idle. Certain very simple commands do not return status to the Manager.</p>
+<p>As noted previously, each Agent can contain any number of named counters. The 
+counters are used to tabulate the number of events received on a topic (or 
+multiple topics). The Agents report the contents of the counters back to the 
+Manager on demand.</p>
+<p>A single Agent can subscribe to any number of topics on a single thread.</p>
+<p>A single Agent can publish to any number of topics on any number of threads.</p>
+<p>Each Agent typically supervises the activity on a single machine, although a 
+single machine can definitely host more than one Agent. The </p>
+<h2>Manager Architecture</h2>
+<p>When a Manager is started it performs the following series of actions:</p>
+<ol>
+  <li>Processes the command line arguments to ascertain the URI of the 
+  coordinating router and the name of the test specification file.<br>
+&nbsp;</li>
+  <li>Establishes a connection to the coordinating router.<br>
+&nbsp;</li>
+  <li>Listens for 15 seconds to determine the set of available agents (the 
+  listening time is arbitrary and can be changed in Common.java if necessary).<br>
+&nbsp;</li>
+  <li>Parses, error checks, and stores the test specification file.<br>
+&nbsp;</li>
+  <li>Processes each statement in the test specification file in the order. A 
+  few statements are processed locally (in the Manager); the vast majority are 
+  sent to a single Agent or to all Agents for processing.</li>
+</ol>
+<p>The Manager generates a log file (manager.log) and a dynamic status file (agent.html). 
+The log file records the status of each command as returned from the Agents; the 
+dynamic status file records the state of each agent. The dynamic status file is 
+updated each second. It contains a page containing a simple HTML table, along 
+with a REFRESH tag. The page refreshes itself every 5 seconds (this can be 
+changed in file StatusUpdater.java if desired).</p>
+<h1><a name="Language">Specification Language</a></h1>
+<p>The Manager reads and processes a specification file when it starts. The 
+specification file contains a series of procedural directives to drive a test. 
+Some directives are run in the Manager; most run in the Agents. The 
+specification does not assume any particular testing model. Instead, it was 
+designed to provide flexibility sufficient to perform many different types of 
+tests.</p>
+<p>The specifications are designed to be somewhat independent of the actual 
+AgentIDs, operating systems, and platform types used to run a particular test. A 
+series of &quot;binding&quot; statements are used to connect abstract agent names with 
+actual Agents in the specification file. The bindings can be specific or 
+general.</p>
+<p>Directives in the specification file are processed in the order that they are 
+encountered in the file.</p>
+<h2>File Format</h2>
+<p>The specification file is a simple text file. Blank lines are ignored, as are 
+lines starting with the &quot;#&quot; (comment) symbol. White space is permitted before 
+the comment symbol.</p>
+<p>Commands in the file each occupy a single line. Commands can be preceded by 
+and can contain white space. Certain commands accept arguments, and these must 
+be given in the exact form noted below. In particular, a few commands require 
+double quotation marks around their arguments. These must not be supplied where 
+they are not expected.</p>
+<h2>Commands</h2>
+<p>The following commands are available. Italic text represents generic 
+information that must be replaced with information specific to the test.</p>
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber2">
+  <tr>
+    <td>
+    <p align="center">Command</td>
+    <td width="10">&nbsp;</td>
+    <td>
+    <p align="center">Where&nbsp;Run</td>
+    <td width="10">&nbsp;</td>
+    <td>
+    <p align="center">Description</td>
+  </tr>
+  <tr>
+    <td bgcolor="#C0C0C0" height="4">&nbsp;</td>
+    <td width="10" bgcolor="#C0C0C0" height="4">&nbsp;</td>
+    <td bgcolor="#C0C0C0" height="4">&nbsp;</td>
+    <td width="10" bgcolor="#C0C0C0" height="4">&nbsp;</td>
+    <td bgcolor="#C0C0C0" height="4">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">print &quot;<i>message</i>&quot;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Manager</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Displays the given message.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">agent <i>name</i>&nbsp;<i>&quot;operating_system&quot;</i><br>
+    agent <i>name </i>*<br>
+    agent<i>&nbsp;name&nbsp;&quot;operating_system&quot;&nbsp;host</i><br>
+    agent <i>name </i>* <i>host</i></td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Manager</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Assigns an agent from the pool of available agents. The <i>
+    name</i> is arbitrary and is meaningful only within the specification. The 
+    operating_system is matched on a prefix basis -- &quot;Windows&quot; matches &quot;Windows 
+    XP&quot;, &quot;Windows 2000&quot;, and so forth. Possible matches for this value are 
+    reported by the Agents and shown on the dynamic status page. Likely values 
+    are &quot;Windows&quot;, &quot;Linux&quot;, and &quot;Solaris&quot;. If the * character is used then any 
+    operating system is matched. If a host name is provided then it must match 
+    exactly.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">download&nbsp;<i>name</i>&nbsp;&quot;<i>url</i>&quot;&nbsp;&quot;<i>file</i>&quot;<br>
+    download&nbsp;*&nbsp;&quot;<i>url</i>&quot;&nbsp;&quot;<i>file</i>&quot;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Downloads the information at the specified <i>url </i>to 
+    the indicated <i>file </i>on all Agents (*) or the specified Agent.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">run&nbsp;<i>name</i>&nbsp;&quot;<i>command&nbsp;arguments</i>&quot;<br>
+    run *&nbsp;&quot;<i>command&nbsp;arguments</i>&quot;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Runs the given <i>command </i>with the given <i>arguments</i> 
+    on all Agents (*) or the specified Agent. The author of the specification is 
+    responsible for making sure that the command is reasonable for the target 
+    agent or agents. </td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">configure_router&nbsp;<i>name</i>&nbsp;&quot;<i>url</i>&quot;<br>
+    configure_router&nbsp;*&nbsp;&quot;<i>url</i>&quot;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Downloads the information at the given <i>url</i> and 
+    stores it in the default location as the router configuration file using the 
+    standard name (knrouter.conf).</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">start_router&nbsp;<i>name</i><br>
+    start_router&nbsp;*</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Starts the router on all Agents (*) or the specified Agent.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">clear_persistence&nbsp;<i>name</i><br>
+    clear_persistence*</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Clear router persistence files (in the default location) on 
+    all Agents (*) or the specified Agent.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">stop_router&nbsp;<i>name</i><br>
+    stop_router&nbsp;*</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Stops the router on all Agents (*) or the specified Agent.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">wait_idle</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Manager</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Wait for all Agents to have the Idle status before 
+    proceeding.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">sleep <i>seconds</i></td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Manager</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Sleep for the indicated number of <i>seconds</i> before 
+    proceeding.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">make_routes&nbsp;<i>name</i>&nbsp;<i>router&nbsp;src&nbsp;dest&nbsp;start&nbsp;end&nbsp;n<br>
+    </i>make_routes&nbsp;<i>*</i>&nbsp;<i>from&nbsp;src&nbsp;dest&nbsp;start&nbsp;end&nbsp;n<br>
+&nbsp;</i></td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Instruct the given Agent or all Agents (*) to tell the 
+    given <i>router </i>to construct routes using the given parameters. <i>Src
+    </i>is the source topic and <i>Dest </i>is the destination topic. Start and 
+    End are an integer range appended to the destination topic. <i>N</i> is an 
+    integer value for the number of values (1..<i>N</i>) to append to the source 
+    topic.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">subscribe&nbsp;<i>name</i>&nbsp;<i>router&nbsp;topic&nbsp;counter</i></td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Instruct the given agent to listen on the given topic for 
+    events, and to tabulate them in the named <i>counter</i>. Any number of 
+    topics can feed in to a single counter.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">publish&nbsp;<i>name</i>&nbsp;<i>router</i>&nbsp;<i>threads</i>&nbsp;<i>dest</i>&nbsp;<i>count</i>&nbsp;<i>size</i>&nbsp;<i>delay<br>
+    </i>publish&nbsp;<i>*</i>&nbsp;<i>router</i>&nbsp;<i>threads</i>&nbsp;<i>dest</i>&nbsp;<i>count</i>&nbsp;<i>size</i>&nbsp;<i>delay</i></td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Intruct to given agent or all agents (*) to publish through 
+    the given <i>router</i> using the given parameters. <i>Threads</i> is the 
+    number of threads to run in the agent. <i>Dest</i> is the destination topic.
+    <i>Count</i> is the number of items to publish per thread, and <i>size</i> 
+    is the payload size of each item. <i>Delay</i> is the millisecond delay 
+    between publications. If delay is 0 then items will be sent at 
+    machine/router/network speed. Routers configured to receive events will 
+    count and measure them using the per-Agent/per-topic counters.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">delete_counters *<br>
+    delete_counters <i>name</i></td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Delete all of the counters in the given Agent or all Agents 
+    (*).</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">reset_counters *<br>
+    reset_counters <i>name</i></td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Reset (zero) all of the counters in the given Agent or all 
+    Agents (*).</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">get_counters *<br>
+    get_counters <i>name</i></td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Agent</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">Get the contents (name and count) of each counter from the 
+    given Agent or all Agents (*) to the Manager.</td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+    <td width="10" valign="top">&nbsp;</td>
+    <td valign="top">&nbsp;</td>
+  </tr>
+</table>
+<p>Here is a specification for a very simple test:</p>
+<div class="code" style="width: 80%;">
+  #<br>
+  # testspec.txt -<br>
+  #<br>
+  # Sample test spec:<br>
+  #<br>
+  # Mike - Publishes<br>
+  # John - Subscribes<br>
+  #<br>
+  <br>
+  print &quot;Top of testspec.txt&quot;<br>
+  <br>
+  #<br>
+  # Locate the agents and assign names to them:<br>
+  #<br>
+  <br>
+  print &quot;Binding agents&quot;<br>
+  agent Mike *<br>
+  agent Paul *<br>
+  <br>
+  # <br>
+  # Clear all counters in Paul<br>
+  #<br>
+  <br>
+  print &quot;Clearing counters&quot;<br>
+  reset_counters Paul<br>
+  wait_idle<br>
+  <br>
+  #<br>
+  # Create routes<br>
+  #<br>
+  <br>
+  print &quot;Making routes&quot;<br>
+  make_routes Mike &quot;http://10.10.13.17:9000/kn&quot; /ktest/in /ktest/out 1 3 5<br>
+  wait_idle<br>
+  <br>
+  #<br>
+  # Subscribe <br>
+  #<br>
+  <br>
+  print &quot;Subscribing&quot;<br>
+  subscribe Paul &quot;http://10.10.13.17:9000/kn&quot; /ktest/out1 Counter1<br>
+  subscribe Paul &quot;http://10.10.13.17:9000/kn&quot; /ktest/out2 Counter2<br>
+  subscribe Paul &quot;http://10.10.13.17:9000/kn&quot; /ktest/out3 Counter3<br>
+  wait_idle<br>
+  <br>
+  #<br>
+  # Publish<br>
+  #<br>
+  <br>
+  print &quot;Publishing&quot;<br>
+  publish Mike &quot;http://10.10.13.17:9000/kn&quot; 1 /ktest/in1 10 100 50<br>
+  publish Mike &quot;http://10.10.13.17:9000/kn&quot; 1 /ktest/in2 10 100 50<br>
+  publish Mike &quot;http://10.10.13.17:9000/kn&quot; 1 /ktest/in3 10 100 50<br>
+  wait_idle<br>
+  <br>
+  #<br>
+  # Get results<br>
+  #<br>
+  <br>
+  print &quot;Getting results&quot;<br>
+  get_counters Paul<br>
+  wait_idle<br>
+  <br>
+  print &quot;Bottom of test spec&quot;<br>
+&nbsp;
+</div>
+<h1><a name="Setup">Setup</a></h1>
+<p>PerfTest is written in pure Java and contains a minimal amount of code that is 
+specific to any particular platform. The Java runtime libraries must be 
+installed on each machine that is to run the Manager or an Agent.</p>
+<p>The PubSub Server designated as the coordinating router must be installed 
+and operational.</p>
+<p>The code directory contains a simple Makefile. The Makefile assumes that the 
+CLASSPATH has been set to the proper value for the system. The CLASSPATH must 
+point to two items: The Java Micro Server (JMS) and the current directory.</p>
+<p>PerfTest requires version 1.4 or better of the Java Runtime Environment (JRE).</p>
+<p>PerfTest is supplied in a single ZIP file. Install it as follows:</p>
+<ol>
+  <li>Choose a directory to store ktest</li>
+  <li>Copy/download the ZIP file to this directory.</li>
+  <li>Unzip the file into the directory</li>
+  <li>Set the CLASSPATH as indicated above. On Windows this can be done by 
+  running the <b>setup.bat </b>file included in the ZIP. On Linux and Solaris 
+  this can be done by &quot;sourcing&quot; the <b>setup.sh </b>file included in the ZIP.</li>
+</ol>
+<h1><a name="Running">Running a Test</a></h1>
+<p>Running a test is quite simple:</p>
+<ol>
+  <li>Make sure that the coordinating router is operational.<br>
+&nbsp;</li>
+  <li>Start Agents as appropriate:<br>
+  <br>
+  <b>java Agent <i>coord_router_uri</i></b><br>
+&nbsp;</li>
+  <li>Open up a browser on the dynamic status file (agent.html in the code 
+  directory).<br>
+&nbsp;</li>
+  <li>Select a test specification file (to be written by the QA team) and then 
+  run the test:<br>
+  <br>
+  <b>java Manager <i>coord_router_uri test_spec_file</i><br>
+&nbsp;</b></li>
+  <li>Await completion of the test.<br>
+&nbsp;</li>
+  <li>Inspect the manager.log file to be sure that no errors have occurred.</li>
+</ol>
+<h1><a name="Code">Code</a></h1>
+<p>This section provides an overview of the source code and outlines some 
+development and porting issues.</p>
+<h2>Serialization</h2>
+<p>Communication from Manager to Agents and back is via events posted to the 
+coordinating router. The Manager and the Agents have the ability &quot;throw&quot; simple 
+Java objects from place to place. File KSerializer.java implements a pair of 
+static functions which turn a Java object into a router payload string and a 
+router payload string back in to a Java object. The Java objects can have public 
+fields of type int or String. All other types are illegal and will generate a 
+runtime error.</p>
+<h2>Command Files</h2>
+<p>All files named Command*.java are serializable commands that are sent from 
+the Manager to one or to all Agents. By convention, if the AgentID field is the 
+empty string then all Agents will respond to the command. Otherwise, only the 
+Agent with the given AgentID will respond.</p>
+<h2>Status Files</h2>
+<p>All files named Status*.java are serializable status reports that are send 
+from the Agents to the Manager. Most (not all) of the Command objects elicit a 
+status response; some very simple commands do not. The file AgentData.java is 
+also a status object. AgentData objects are sent from Agent to Manager to keep 
+the Manager apprised of the status of the Agent.</p>
+<h2>Router Files</h2>
+<p>The Router.java file and the Router*.java files handle non-portable 
+operations on an installed router. In Router.java, the static GetRouter method 
+returns an instance of a specific Router class (e.g. RouterWindows, RouterLinux, 
+or RouterSolaris) based on the operating system and platform architecture. 
+Router.java must be customized to handle additional operating systems and 
+platforms. This is a simple matter of customizing the GetRouter function.</p>
+<h2>Manager Files</h2>
+<p>The Manager is comprised of Manager.java, AgentDataMap.java, 
+StatusUpdaterThread, and TestSpec.java. Manager.java is the implementation of 
+the Manager. The AgentDataMap stores the AgentData values received from the 
+Agents. TestSpec.java is the implementation of the storage, parsing, and 
+execution of a test specification. StatusUpdaterThread is the thread which 
+generates the dynamic status page.</p>
+<h2>Agent Files</h2>
+<p>The Agent is comprised of Agent.java, HeartbeatThread.java, Heartbeat.java, 
+and PublisherThread.java files. Agent.java is the implementation of the Agent. 
+The HeartbeatThread sends the agent status to the Manager using the Heartbeat 
+object. The PublisherThread is used to implement the multiple threads of 
+execution needed by the publish command.</p>
+<p>&nbsp;</p>
+
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+#
+# testspec.txt -
+#
+#	Sample test spec:
+#
+#	Mike - Publishes
+#	John - Subscribes
+#
+#
+
+print "Top of testspec.txt"
+
+#
+# Locate the agents and assign names to them:
+#
+
+print "Binding agents"
+agent Mike     *
+agent Paul     *
+
+# 
+# Clear all counters in Paul
+#
+
+print "Clearing counters"
+reset_counters Paul
+wait_idle
+
+#
+# Create routes
+#
+
+print "Making routes"
+make_routes Mike "http://127.0.0.1:8000/kn" /ktest/in /ktest/out 1 3 5
+wait_idle
+
+#
+# Subscribe 
+#
+
+print "Subscribing"
+subscribe Paul "http://127.0.0.1:8000/kn" /ktest/out1 Counter1
+subscribe Paul "http://127.0.0.1:8000/kn" /ktest/out2 Counter2
+subscribe Paul "http://127.0.0.1:8000/kn" /ktest/out3 Counter3
+wait_idle
+
+#
+# Publish
+#
+
+print "Publishing"
+publish Mike "http://127.0.0.1:8000/kn" 1 /ktest/in1 10 100 50
+publish Mike "http://127.0.0.1:8000/kn" 1 /ktest/in2 10 100 50
+publish Mike "http://127.0.0.1:8000/kn" 1 /ktest/in3 10 100 50
+wait_idle
+
+#
+# Get results
+#
+
+print "Getting results"
+get_counters Paul
+wait_idle
+
+print "Bottom of test spec"
+
+
+

@@ -1,0 +1,1 @@
+java Manager http://monster.vertexdev.com:8000/kn testspec.txt
