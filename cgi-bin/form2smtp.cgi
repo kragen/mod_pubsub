@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,10 +34,12 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: form2smtp.cgi,v 1.1 2002/11/07 07:07:57 troutgirl Exp $
+# $Id: form2smtp.cgi,v 1.2 2003/03/19 03:05:27 ifindkarma Exp $
 
 # Input: HTTP POST request (PATH_INFO, kn_payload).
 # Output: Sends an email via sendmail.
+
+# For an example usage, see mod_pubsub/kn_apps/power/consumer.html
 
 use strict;
 use CGI ':standard';

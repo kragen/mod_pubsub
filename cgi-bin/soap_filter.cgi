@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,13 +34,16 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: soap_filter.cgi,v 1.1 2002/11/07 07:07:57 troutgirl Exp $
+# $Id: soap_filter.cgi,v 1.2 2003/03/19 03:05:28 ifindkarma Exp $
 
 # soap_filter.cgi : Third-party SOAP Service Proxy for mod_pubsub.
 # Used with kn_next_hop to go mod_pubsub -> SOAP -> mod_pubsub.
 
 # This foolishly assumes that a valid SOAP request has been published 
 # to it. :)
+
+# For another (better) example of a SOAP Service Proxy for mod_pubsub
+# please see mod_pubsub/cgi-bin/soap_gateway/ .
 
 use CGI ':standard';
 use IO::Socket;
