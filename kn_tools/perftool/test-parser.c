@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: test-parser.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
+ * $Id: test-parser.c,v 1.3 2003/05/06 04:33:11 ifindkarma Exp $
  **/
 
 #include <stdio.h>
@@ -41,7 +41,7 @@
 #include "util.h"
 #include "parser.h"
 
-static unused char rcsid[] = "@(#) $Id: test-parser.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
+static unused char rcsid[] = "@(#) $Id: test-parser.c,v 1.3 2003/05/06 04:33:11 ifindkarma Exp $";
 
 static int expect_id = 0;
 static int failed = 0;
@@ -56,6 +56,8 @@ int expects[] = {
     10111, 
     10112, 
     10113,
+    10717,
+    10718,
     10114
 };
 
@@ -78,7 +80,11 @@ char *bufs[] = {
     /* several id's at once */
     "\n{\nname : \"kn_id\",\nvalue : \"10111\"\n}, "
     "\n{\nname : \"kn_id\",\nvalue : \"10112\"\n}, glork bronk boog"
-    "\n{\nname : \"kn_id\",\nvalue : \"10113\"\n}, glork bronk boog"
+    "\n{\nname : \"kn_id\",\nvalue : \"10113\"\n}, glork bronk boog",
+    /* pubsub.py */
+    "\n{name: \"kn_id\", value: \"10717\"},",
+    /* ModPubSub.pm */
+    "{name:\"kn_id\",value:\"10718\"}\n"
 };
 
 /* this one gets sent in one byte at a time */

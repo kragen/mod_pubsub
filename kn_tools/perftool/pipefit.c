@@ -33,9 +33,10 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: pipefit.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
+ * $Id: pipefit.c,v 1.3 2003/05/06 04:33:11 ifindkarma Exp $
  **/
 
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -48,7 +49,7 @@
 #include "nonblock.h"
 
 static unused char rcsid[] = 
-    "@(#) $Id: pipefit.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
+    "@(#) $Id: pipefit.c,v 1.3 2003/05/06 04:33:11 ifindkarma Exp $";
 
 static void nop(void *clientData, void *arg) 
 {
@@ -170,6 +171,12 @@ static void pipe_fitting_read_callback(void *clientData, void *arg)
         if (p->output_shutdown) pipe_fitting_destroy(p);
     } else {
         note_is_connected(p);
+        /*** Changes to see what's breaking... ***/
+	/*
+           fprintf(stderr, "rd<%d>: %ld bytes: [\x1b[7m", p->infd, (long)inbuf->len);
+	   fwrite(inbuf->start, 1, inbuf->len, stderr); 
+           fprintf(stderr, "\x1b[0m]\n");
+	*/
         p->handlers.on_data(p, inbuf->start, inbuf->len);
     }
     dstring_free(inbuf);
@@ -186,10 +193,16 @@ static void pipe_fitting_write_callback(void *clientData, void *arg)
             pipe_fitting_error(p, evl_write);
         }
     } else {
-        /* XXX: potentially inefficient */
-        memmove(p->outbuf->start, p->outbuf->start + rv, p->outbuf->len - rv);
-        p->outbuf->len -= rv;
-        note_is_connected(p);
+      /*** Changes to see what's breaking... ***/
+      /*
+	fprintf(stderr, "wr<%d>: %ld bytes: [\x1b[1;7m", p->outfd, (long)rv);
+	fwrite(p->outbuf->start, 1, rv, stderr); 
+	fprintf(stderr, "\x1b[0m]\n");
+      */
+      /* XXX: potentially inefficient */
+      memmove(p->outbuf->start, p->outbuf->start + rv, p->outbuf->len - rv);
+      p->outbuf->len -= rv;
+      note_is_connected(p);
     }
     if (!p->outbuf->len) {
         evl_clear_callback(p->evl, p->outfd, evl_write);

@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: post_event.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $
+ * $Id: post_event.c,v 1.2 2003/05/06 04:33:11 ifindkarma Exp $
  **/
 
 #include "util.h"
@@ -41,7 +41,7 @@
 #include "dstr_interp.h"
 #include "urlencode.h"
 
-static unused char rcsid[] = "@(#) $Id: post_event.c,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $";
+static unused char rcsid[] = "@(#) $Id: post_event.c,v 1.2 2003/05/06 04:33:11 ifindkarma Exp $";
 
 static dstring *event(int serial, int payloadsize)
 {
@@ -96,6 +96,7 @@ dstring *post_event(char *dest_topic, int serial, int payloadsize, int batch)
         }
     }
     
+    if (dest_topic[0] == '/') dest_topic++;  /* Remove leading slash. */
     message = dstring_interp_s("POST /kn/%s HTTP/1.0\r\n"
                                "Content-Type: x-www-form-urlencoded\r\n"
                                "Content-Length: %d\r\n"

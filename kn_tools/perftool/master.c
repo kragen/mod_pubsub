@@ -33,7 +33,7 @@
  * 
  * @KNOWNOW_LICENSE_END@
  *
- * $Id: master.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $
+ * $Id: master.c,v 1.3 2003/05/06 04:33:11 ifindkarma Exp $
  **/
 
 #include <stdio.h>
@@ -53,12 +53,12 @@
 #include "parser.h"
 #include "post_event.h"
 
-static unused char rcsid[] = "@(#) $Id: master.c,v 1.2 2003/04/25 02:37:44 bsittler Exp $";
+static unused char rcsid[] = "@(#) $Id: master.c,v 1.3 2003/05/06 04:33:11 ifindkarma Exp $";
 
 static dstring *tunnel_req(char *basetopic, int sessionid, int journalid,
                            int simple_format)
 {
-    return dstring_interp_s("GET /kn/%s/%d/journals/%d/kn_journal?"
+    return dstring_interp_s("GET /kn?kn_from=%s/%d/journals/%d/kn_journal&"
                             "do_method=route%s HTTP/1.0\r\n\r\n", 
                             basetopic, sessionid, journalid, 
                             (simple_format ? 
@@ -185,7 +185,7 @@ static int enqueue_route(connqueue_t *cq, struct sockaddr_in *sin,
 {
     pipe_fitting_handlers handlers;
     dstring *req = 
-        dstring_interp_s("GET /kn/%k?do_method=route&kn_to=%k HTTP/1.0\r\n"
+        dstring_interp_s("GET /kn?kn_from=%k&do_method=route&kn_to=%k HTTP/1.0\r\n"
                          "\r\n",
                          from, to);
     int rv;
