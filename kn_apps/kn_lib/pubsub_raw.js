@@ -39,7 +39,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.7 2003/05/19 22:17:48 ifindkarma Exp $
+// $Id: pubsub_raw.js,v 1.8 2003/07/19 09:04:18 ifindkarma Exp $
 
 ////////////////////////////////////////////////////////////////////////
 // Notes on notation:
@@ -408,7 +408,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.7 2003/05/19 22:17:48 ifindkarma Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.8 2003/07/19 09:04:18 ifindkarma Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -1516,8 +1516,7 @@ function _kn_initTunnel(force)
 {
     _kn_tryingToInitTunnel = true;
 
-    if (! kn.isLoadedP_ ||
-        ! kn_isReady(kn.tunnelFrame_))
+    if (! kn.isLoadedP_)
     {
         // spin cycle, waiting to resolve an F5 or control-N reload
         // race condition, or a temporarily inaccessible tunnel frame
@@ -1566,7 +1565,7 @@ function _kn_initTunnel(force)
 
     if (_kn_debug() && kn_isReady(kn.tunnelFrame_)) kn.tunnelFrame_.document.bgColor="blue"; //#
 
-    if ((_l_noOtherCookies || force) && kn_isReady(kn.tunnelFrame_))
+    if ((_l_noOtherCookies || force))
         _kn_launchTunnel();
     else  // gives the leader-election alg 5 beats to converge
         setTimeout("_kn_launchTunnel()",5*_kn_heartbeat);
@@ -1753,7 +1752,8 @@ function _kn_leaderScanner()
                 {
                     // usually, kill, but if abouttoruntunnel, kill on sort order
                     if (!_kn_aboutToRunTunnel || (_l_victim < _kn_escape(kn.TFN_)))
-                        document.cookie = _l_victim + "=closing;path=/";
+                        var expDate = (new Date(Date.parse(new Date()) + (kn.tunnelMaxAge * 1000)).toString());
+                        document.cookie = _l_victim + "=closing;expires=" + expDate + ";path=/";
                 }
                 else if (_l_KNcookies[_l_victim] == "closed")
                 {
@@ -2097,16 +2097,14 @@ function _kn_onTunnelStatus(ev)
     }
 
     // record reconnect info
-    if (ev.kn_journal_reconnect_scheme == "kn_event_hash")
+    if (ev.kn_journal_reconnect_scheme == "kn_event_hash" &&
+        ev.kn_journal_reconnect_timeout)
     {
-        if (ev.kn_journal_reconnect_timeout)
-        {
-            kn.tunnelMaxAge = ev.kn_journal_reconnect_timeout;
-        }
-        else
-        {
-            kn.tunnelMaxAge = "60";
-        }
+        kn.tunnelMaxAge = ev.kn_journal_reconnect_timeout;
+    }
+    else
+    {
+        kn.tunnelMaxAge = "60";
     }
 
     // I won the leader sweepstakes!
@@ -3171,6 +3169,7 @@ function _l_escape_converter( //_
     if ((_l_code < 0x20) ||
         (ch == '+') ||
         (ch == '/') ||
+        (_l_code == 0x40) ||
         (_l_code == 0x7F))
     {
         return _l_escape_quote(_l_code);
@@ -4167,6 +4166,9 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
+// Revision 1.8  2003/07/19 09:04:18  ifindkarma
+// Added several Bug patches.
+//
 // Revision 1.7  2003/05/19 22:17:48  ifindkarma
 // Slow down the auto-reload.  Might cure space pigeons.
 //
