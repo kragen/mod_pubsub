@@ -127,8 +127,8 @@ Error" messages.
 
    http://localhost/mod_pubsub/cgi-bin/pubsub_test.cgi
 
-You should see a list of tests.  All 55 tests should say "OK", with the
-possible exception of the "replay" tests, which are flaky.
+You should see a list of tests.  All 56 tests should say "OK", with
+the possible exception of the "replay" tests, which are flaky.
 
 NOTE: This will fail if you have required HTTP authentication (as
 described below.) To make it work, you should append a valid HTTP
@@ -236,3 +236,5 @@ Read README for a list of credits.
 
 And: Join the mailing lists to work with the community on making this
 project much better.  http://mod-pubsub.sourceforge.net/
+
+$ Id: $
