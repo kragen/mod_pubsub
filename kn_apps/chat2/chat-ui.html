@@ -5,23 +5,23 @@
  Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
  @KNOWNOW_LICENSE_START@
- 
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
  are met:
- 
+
  1. Redistributions of source code must retain the above copyright
  notice, this list of conditions and the following disclaimer.
- 
+
  2. Redistributions in binary form must reproduce the above copyright
  notice, this list of conditions and the following disclaimer in
  the documentation and/or other materials provided with the
  distribution.
- 
+
  3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
  be used to endorse or promote any product without prior written
  permission from KnowNow, Inc.
- 
+
  THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -33,10 +33,10 @@
  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- 
+
  @KNOWNOW_LICENSE_END@
 
- $Id: chat-ui.html,v 1.2 2003/02/08 05:02:12 ifindkarma Exp $
+ $Id: chat-ui.html,v 1.3 2003/05/02 01:31:27 ifindkarma Exp $
 
 -->
 
@@ -63,7 +63,7 @@ instead of the previous three <script> calls, which loads the PubSub
 JavaScript Library with the prologue directly from the mod_pubsub instance. -->
 
 <!-- The PubSub Htmlsafe Helper Library -->
-<script src="../kn_lib/htmlsafe.js" /></script> 
+<script src="../kn_lib/htmlsafe.js" /></script>
 
 <body onLoad="doLoad()"
   text="black" bgcolor="#fffff4" link="blue" alink="red" vlink="purple">
@@ -93,7 +93,7 @@ function doLoad()
     kn.subscribe(topic, onMessage, {do_max_age: 600});
 }
 
-function sendChat() 
+function sendChat()
 {
     var e = new Object;
     e.displayname = document.options.displayname.value;
@@ -162,7 +162,7 @@ function chatOutput(chatline)
     chatlog[chatlog.length] = chatline;
     chatlog_string = renderLine(chatline) + chatlog_string;
     if (redrawTimer)
-    { 
+    {
         clearTimeout(redrawTimer);
         redrawTimer = null;
     }
@@ -184,7 +184,7 @@ function redrawChatOutput(complete_redraw)
         chatlog_string = strings.join('');
     }
     parent.frames[0].location.replace(
-         '/kn?do_method=blank&kn_init=' +
+         self.kn_server + '?do_method=blank&kn_init=' +
          escape('parent.rc')
          );
 }
@@ -221,7 +221,7 @@ function renderLine(chatline)
     string += ':</th><td valign="top" bgcolor="' + chatline.bgColor + '">&nbsp;';
     string += htmlSanitize(chatline.message, document.options.autohtml.checked);
     if (parent.kn_argv.kn_timestamp != void 0)
-        { 
+        {
        string += " <FONT SIZE=1 COLOR=#191970 >[";
 
        var now = new Date();
@@ -230,7 +230,7 @@ function renderLine(chatline)
        {
            d = new Date();
        }
-       else 
+       else
        {
            d = new Date(parseInt(chatline.kn_time_t) * 1000);
        }
@@ -240,12 +240,12 @@ function renderLine(chatline)
        {
            string += d.toLocaleString();
        }
-       else 
+       else
        {
-           string +=((d.getHours() % 12)  ? (d.getHours() % 12) : "12") +":"+ 
-                    ((d.getMinutes() < 10)? "0" : "")+ d.getMinutes() + " " + 
+           string +=((d.getHours() % 12)  ? (d.getHours() % 12) : "12") +":"+
+                    ((d.getMinutes() < 10)? "0" : "")+ d.getMinutes() + " " +
             ((d.getHours() < 12)  ?"AM":"PM");
-       } 
+       }
        string += "]</FONT>";
     }
     string += '&nbsp;</td></tr>\n';
@@ -254,7 +254,7 @@ function renderLine(chatline)
 
 var eventIDCache = { };
 
-function onMessage(e) 
+function onMessage(e)
 {
     var color;
     var bgcolor;

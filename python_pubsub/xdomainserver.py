@@ -11,23 +11,20 @@
     "http://PubSubServer:Port" is obtained by reading the prologue.js
     file used by the PubSub Server to setup cross domain scripting.
 
-    Note that the usual means of specifying the port on which this
-    server is to run (i.e. the command line) is ignored as currently
-    this server *must* be run on port 80 to allow any weblications
-    using frames to work.  Without port 80, it will fail to recognize
-    that the blank frame is being opened in the same domain and try to
-    open it via xdomainserver rather than the PubSub server.
-
     To run the cross domain test setup you need to :
 
     1. Setup mod_pubsub/kn_apps/kn_lib/prologue.js as required
-    2. Start pubsub.py - which will read prologue.js to determine
-    the port to run on (you still need the old command line params -
-    it just ignores the port if prologue.js is present and is read
-    successfully).
+    2. Start pubsub.py using the -a or --auto switch - this forces
+    it to read prologue.js to determine the port to run on.
+    You should not specify the port command line param, just the
+    document root and topic root (if required).
     3. Start xdomainserver.py - which will also read prologue.js to
     determine the server URL to use in its substitutions
-    4. Goto http://localhost/ which will go straight to the Demo
+    You can specify a port on the command line, i.e.
+          xdomainserver.py 8080
+    Note that the port needs to be different to where pubsub.py is
+    running
+    4. Goto http://localhost[:port]/ which will go straight to the Demo
     Weblications index.html page.
     5. Run apps/test as required.
 
@@ -70,7 +67,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: xdomainserver.py,v 1.2 2003/04/30 23:18:47 ifindkarma Exp $
+# $Id: xdomainserver.py,v 1.3 2003/05/02 01:31:54 ifindkarma Exp $
 
 import SimpleHTTPServer
 import types
@@ -84,19 +81,14 @@ from serverutils import *
 BaseClass = SimpleHTTPServer.SimpleHTTPRequestHandler
 
 # define the strings to search for
-searchStrList = ['''src="/kn''']
+searchStrList = ['src="/kn', "src='/kn"]
 
 # define the replacement strings
 # NOTE there needs to a 1-1 correlation between the search strings and the replace strings
-replaceStrList = ['''src="%s''']
+replaceStrList = ['src="%s', "src='%s"]
 
 # define the default mod_pubsub server location
 defaultMpsServer = "http://localhost"
-
-# define the overriding port to run this http server on
-# this is necessary in order for the frame based samples to work
-# TODO - find out why!
-portOverride = "80"
 
 class CrossDomainRequestHandler(BaseClass):
 
@@ -163,15 +155,7 @@ def main(argv):
 
     print "\nUsing mod_pubsub server: %s\n" % mpsServer
 
-    # override the port definition to force running on port 80
-    if len(argv) < 2:
-        argv.append(portOverride);
-    else:
-        argv[1] = portOverride;
-        print "Note - Forcing use of port 80 (to allow frames to work)\n"
-
     SimpleHTTPServer.test(CrossDomainRequestHandler)
-
 
 if __name__ == "__main__": main(sys.argv)
 
