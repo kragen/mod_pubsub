@@ -35,6 +35,7 @@ Setup
   * Install libcurl <http://curl.sourceforge.net/>
   * Install python <http://www.python.org/>
   * Install pycurl <http://pycurl.sourceforge.net/>
+  * Install libtool <http://www.gnu.org/software/libtool/>
   * Build Source:  make
 
 How To Run The Tests
