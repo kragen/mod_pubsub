@@ -14,20 +14,18 @@
     socketpair() -- instead, we have to fake it using a loopback
     TCP connection.
 
-    Version 1.0 -- February 8, 2003.  Initial implementation.
-    We include a sample multithreaded app as a test.
+    $Id: wakeup.py,v 1.3 2003/03/12 02:35:26 ifindkarma Exp $
     Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
+    We include a sample multithreaded app as a test.
 
     Known Issues:
 
-        1. Race condition on startup: Another program could open
+        *. Race condition on startup: Another program could open
            that port after we've established the listening socket
            but before we've established the connection.
 
-        2. Port allocation is not dynamic.
 
     Contact Information:
-
         http://mod-pubsub.sf.net/
         mod-pubsub-developer@lists.sourceforge.net
 """
@@ -66,7 +64,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: wakeup.py,v 1.2 2003/02/19 03:39:00 ifindkarma Exp $
+## $Id: wakeup.py,v 1.3 2003/03/12 02:35:26 ifindkarma Exp $
 
 
 
@@ -112,14 +110,15 @@ class Wakeup:
 
     class Server:
         def __init__(self):
-            # FIXME: "32700" should instead be generated from available ports.
-            self.addr = ("127.0.0.1", 32700)
+            # Dynamically allocate a listening port.
+            self.addr = ("127.0.0.1", 0)
             self.done = 0 # Set to 1 once our connection is established.
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind(self.addr)
             # Only uses one connection.
             self.socket.listen(1)
+            self.addr = self.socket.getsockname()
             # Registers this Server w event loop.
             asyncore.socket_map[self] = 1
             # Wait for a wakeup to prove it is working.
