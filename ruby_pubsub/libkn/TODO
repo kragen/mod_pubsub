@@ -1,0 +1,27 @@
+$Id: TODO,v 1.1 2003/03/15 03:57:32 ifindkarma Exp $
+
+### BEFORE 1.0 WE MUST........................................
+
+* Test/fix restart using checkpoint
+* More exeception mgmt
+* Manage redirects 30x (302) properly
+* When re-establishing router connection, re-establish the routes or
+  just hope they are there already
+* kn_event_hash is valid and not kn_route_checkpoint in cluster
+* Do HTTP-Auth properly
+  'Authorization' => 'Basic ' + ["#{account}:#{password}"].pack('m').strip )
+* kn_batch support
+* connection-keep-alive ?
+* Req/resp API?
+* Eliminate FIXME issues
+* Make an install.rb
+
+### THEN WE CAN CONSIDER......................................
+
+* Docs (write some)
+* Threads, ugh - love em, but do I need them? it would be better if I didn't
+* https support
+* tests/ need to really "test" the libkn.rb
+* Offline queues
+* microrouter.rb?  Build a MicroRouter Spec compliant interface?
+* Add in mod_pubsub/kn_apps/zack style delivery conf for proof of concept

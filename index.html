@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.3 2003/03/13 23:54:53 ifindkarma Exp $
+ $Id: index.html,v 1.4 2003/03/15 03:57:32 ifindkarma Exp $
 
 -->
 
@@ -183,9 +183,9 @@ function update_clock() {
 
 <tr>
 <td bgcolor="white"><a href="Makefile">Makefile</a></td>
-<td bgcolor="white">Makefile to create pubsub.js from
+<td bgcolor="white">Makefile to create <i>pubsub.js</i> from
 <a href="kn_apps/kn_lib/pubsub_raw.js">pubsub_raw.js</a>
-and a properly-permissioned kn_events/ directory.</td>
+and a properly-permissioned <i>kn_events/</i> directory.</td>
 </tr>
 
 <tr>
@@ -203,20 +203,25 @@ Apache license.</td>
 <td bgcolor="#eeeeee"><a href="c_pubsub/">c_pubsub/</a></td>
 <td bgcolor="#eeeeee"><b>C PubSub Client Library</b>
 (<a href="c_pubsub/libkn/">libkn</a>) that can be
-compiled on your favorite flavor of Unix.</td>
+compiled on your favorite flavor of Unix.
+It is single-threaded and partially non-blocking
+(tunnel is non-blocking, other requests block).
+</td>
 </tr>
 
 <tr>
 <td bgcolor="white"><a href="cgi-bin/">cgi-bin/</a></td>
 <td bgcolor="white"><br><ol>
-<li> <b>Perl PubSub Server</b>: A Perl script, pubsub.cgi,
-that can be called by Apache (or in Apache using mod_perl),
+<li> <b>Perl PubSub Server</b>: A Perl script, <i>pubsub.cgi</i>,
+that can be called by Apache (or in Apache using <i>mod_perl</i>),
 that turns Apache into a PubSub Server.  It is our (eventual)
-goal to turn pubsub.cgi and mod_perl into a full-fledged
-Apache module called <b>mod_pubsub</b>.
+goal to turn <i>pubsub.cgi</i> and <i>mod_perl</i> into a
+full-fledged Apache module called <b>mod_pubsub</b>.
 <li> Other useful CGI scripts.
 <li> <b>Perl PubSub Client Library</b>
 (<a href="cgi-bin/PubSub/">PubSub</a>).
+It is single-threaded and partially non-blocking
+(tunnel is non-blocking, other requests block).
 </ol></td>
 </tr>
 
@@ -224,22 +229,22 @@ Apache module called <b>mod_pubsub</b>.
 <td bgcolor="#eeeeee"><a href="cxx_pubsub/">cxx_pubsub/</a></td>
 <td bgcolor="#eeeeee"><b>C++ PubSub Client Library</b>
 (<a href="cxx_pubsub/LibKN/">LibKN</a>) that can be
-compiled on Windows or PocketPC.  There are versions for Visual
-Studio 6 and Visual Studio.NET; also included are sample
-apps such as an RSS publishing program, and documentation
-that can be built using
-<a href="http://www.doxygen.org/" target="_blank">doxygen</a>.
-</td>
+compiled on Windows or PocketPC.  It is multi-threaded and blocking.
+There are versions for Visual Studio 6 and Visual Studio.NET; also
+included are sample apps such as an RSS publishing program, and
+documentation that can be built using <a
+href="http://www.doxygen.org/" target="_blank">doxygen</a>.</td>
 </tr>
 
 <tr>
 <td bgcolor="white"><a href="kn_apps/">kn_apps/</a></td>
-<td bgcolor="white">A directory of the best PubSub-enabled
-Web Browser applications.  Includes several component
-JavaScript libraries, such as <b>JavaScript PubSub Client
-Library</b>
-(<a href="kn_apps/kn_lib/pubsub_raw.js">pubsub_raw.js</a>),
-<a href="kn_apps/kn_lib/">kn_lib</a> helper libraries, and
+<td bgcolor="white">A <a href="kn_apps/">directory</a> of
+the best PubSub-enabled Web Browser applications.  Includes
+several component JavaScript libraries, such as <b>JavaScript
+PubSub Client Library</b>
+(<a href="kn_apps/kn_lib/pubsub_raw.js">pubsub_raw.js</a>)
+that is single-threaded and non-blocking;
+<a href="kn_apps/kn_lib/">kn_lib</a> helper libraries; and
 <a href="kn_apps/jscomponents/">jscomponents</a>.
 </td>
 </tr>
@@ -255,12 +260,23 @@ have the functionality of <i>pubsub.py</i> match that of
 <li> Other helper Python libraries.
 <li> <b>Python PubSub Client Library</b>
 (<a href="python_pubsub/pubsublib.py">pubsublib.py</a>).
+It is single-threaded and non-blocking.
+<li> <b>Python PubSub Client Library</b>
+(<a href="python_pubsub/libkn/libkn.py">libkn.py</a>).
+It is multi-threaded and blocking.
 </ol></td>
 </tr>
 
 <tr>
-<td bgcolor="white"><a href="kn_docs/">kn_docs/</a></td>
-<td bgcolor="white">Documentation for this distribution, including
+<td bgcolor="white"><a href="ruby_pubsub/">ruby_pubsub/</a></td>
+<td bgcolor="white"><b>Ruby PubSub Client Library</b>
+(<a href="ruby_pubsub/libkn/libkn.rb">libkn.rb</a>).
+It is multi-threaded and blocking.</td>
+</tr>
+
+<tr>
+<td bgcolor="#eeeeee"><a href="kn_docs/">kn_docs/</a></td>
+<td bgcolor="#eeeeee">Documentation for this distribution, including
 <a href="kn_docs/developer_guide.html" target="_blank">Developer Guide</a>,
 <a href="kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol Document</a>,
 and <a href="kn_docs/javascript_reference.html" target="_blank">JavaScript
@@ -268,24 +284,25 @@ Library Reference</a>.</td>
 </tr>
 
 <tr>
-<td bgcolor="#eeeeee"><a href="kn_sense/">kn_sense/</a></td>
-<td bgcolor="#eeeeee">Sample sensors for scraping data from websites
+<td bgcolor="white"><a href="kn_sense/">kn_sense/</a></td>
+<td bgcolor="white">Sample sensors for scraping data from websites
 and publishing them to a PubSub server.  For example, see the
 <a href="kn_sense/rss/">RSS</a> sensor.</td>
 </tr>
 
 <tr>
-<td bgcolor="white"><a href="kn_tools/">kn_tools/</a></td>
-<td bgcolor="white">Useful ancillary tools, including a JavaScript
+<td bgcolor="#eeeeee"><a href="kn_tools/">kn_tools/</a></td>
+<td bgcolor="#eeeeee">Useful ancillary tools, including a JavaScript
 compressor, a JavaScript localizer, and some command-line tools
 written in Perl.</td>
 </tr>
 
 <tr>
-<td bgcolor="#eeeeee"><a href="push_manager/">push_manager/</a></td>
-<td bgcolor="#eeeeee">A connection pooler for use with pubsub.cgi
-to enable it to serve thousands of simultaneous connections.
-Note that this program does not currently work.</td>
+<td bgcolor="white"><a href="push_manager/">push_manager/</a></td>
+<td bgcolor="white">A connection pooler for use with
+<i>cgi-bin/pubsub.cgi</i> to enable it to serve thousands of
+simultaneous connections.  Note that this program does not
+currently work.</td>
 </tr>
 
 </table>

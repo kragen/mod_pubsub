@@ -1,0 +1,21 @@
+--------------------------
+Ruby PubSub Client Library
+--------------------------
+
+Created by Gregory Burd <gburd@ossus.com> http://www.ossus.com/~gburd
+$Id: README,v 1.1 2003/03/15 03:57:32 ifindkarma Exp $
+
+From the mod_pubsub distribution at http://mod-pubsub.sf.net/
+Read more about the Ruby Language at http://www.ruby-lang.org/
+======================================================================
+
+This package is not finished.  It is BETA quality code right now.
+Some tests, features, docs, etc. are not yet complete.  Despite that
+it is quite usable (and readable -- it's a good library to learn how
+publish, subscribe, and unsubscribe work with a PubSub Server).
+
+Feel free to make comments or to add code as you see fit.
+
+If you have questions, feel free to ask the mod_pubsub developer list:
+
+   mod-pubsub-developer@lists.sourceforge.net
