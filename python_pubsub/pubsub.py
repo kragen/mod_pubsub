@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.44 2003/06/17 23:58:28 ifindkarma Exp $
+# $Id: pubsub.py,v 1.45 2003/06/18 00:09:55 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -613,6 +613,9 @@ class Tunnel(Route):
     Responsibilities:
         1. Format a sequence of events and send them to a Connection.
         2. Behave as a route.
+
+    Tunnel is an abstract class that is inherited by
+    SimpleTunnel, JavaScriptTunnel, and (indirectly) FlashTunnel.
     """
 
     def __init__(self, connection):
@@ -638,16 +641,18 @@ class Tunnel(Route):
                     self.route.close()
                 else:
                     try:
-                        self.conn.send(' ')
+                        # Determine format of the heartbeat.
+                        # See SimpleTunnel's heartbeat() method and
+                        # JavaScriptTunnel's heartbeat() method.
+                        self.conn.send(self.route.heartbeat())
                         # Send a heartbeat every 30 seconds.
                         self.scheduler.schedule_processing(self, time.time() + 30,
                                                            'tickle tunnel')
-                        # FIXME: In JavaScriptTunnel, send js format's
-                        # heartbeart callback.
                     except:
                         self.conn.log_err("tickling problem on %s:" %
                                           self.conn + cgitb.html())
                         self.conn.close()
+
         if self.dead:
             return 0
         if not self.header_sent:
@@ -688,6 +693,9 @@ class SimpleTunnel(Tunnel):
         Format events in the kn_response_format=simple format.
     """
 
+    def heartbeat(self):
+        return ' '
+    
     def headerfrom(self, event):
         return http_header(event['status'], 'text/plain')
 
@@ -712,23 +720,41 @@ class SimpleTunnel(Tunnel):
         str = self.ev_encode(dict)
         return "%d\n%s\n" % (len(str), str)
 
+
 class FlashTunnel(SimpleTunnel):
+    """
+    Responsibilities:
+        Format events in the kn_response_format=flash format.
+    """
     def encode(self, dict):
         """ The terminating null byte forces Flash to invoke the onData handler. """
         return SimpleTunnel.encode(self, dict) + chr(0)
     
+
 class JavaScriptTunnel(Tunnel):
+    """
+    Responsibilities:
+        Format events in the kn_response_format=js format.
+    """
+
     def __init__(self, conn, watching):
         Tunnel.__init__(self, conn)
         self.watching = watching
         self._jsTunnel_conn = conn
+
+    def heartbeat(self):
+        return """--><script type="text/javascript"><!--
+        if(parent.kn_heartbeatCallback)parent.kn_heartbeatCallback(30,self);
+        // -->
+        </script><!--"""
 
     def headerfrom(self, event):
         return (http_header(event['status'], 'text/html; charset=utf-8') +
                 '<html><head><title>%s</title>' % event['status'] +
                 html_prologue_string(self._jsTunnel_conn) + '</head>\n' +
                 '<body bgcolor="#f0f0ff" %s>\n' % (self.watching and (' onload="if (parent.kn_tunnelLoadCallback) ' + 'parent.kn_tunnelLoadCallback(window)"') or '') +
-                '<h1>%s</h1>' % event['status'] + event['html_payload'] + '<!--');
+                '<h1>%s</h1>' % event['status'] + event['html_payload'] + '<!--' +
+                self.heartbeat());
 
     def encode(self, dict):
         return ('--><script type="text/javascript"><!--\n' +
