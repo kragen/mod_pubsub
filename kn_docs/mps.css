@@ -22,6 +22,23 @@ A {
     text-decoration: none;
 }
 
+.indent50
+{
+    margin-left:50px;
+}
+
+.faq {
+    text-align: left;
+    color: #669966;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+button
+{
+    background-color:#a8c1a4;
+}
+
 A:hover {
     text-decoration: underline;
 }
@@ -86,12 +103,6 @@ A:hover {
     background-color:#fff;
 }
 
-.faq {
-    text-align: left;
-    color: #669966;
-    font-size: 18px;
-    font-weight: bold;
-}
 
 .serendipity_Entry_Date {
     margin: 20px;
