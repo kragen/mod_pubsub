@@ -8,7 +8,7 @@
     Example of usage:
         ./publish.py http://127.0.0.1:8000/kn /what/test "1024*1024" +15
 
-    $Id: publish.py,v 1.1 2003/05/31 02:35:36 ifindkarma Exp $
+    $Id: publish.py,v 1.2 2003/05/31 02:36:20 ifindkarma Exp $
     
     Contact Information:
         http://mod-pubsub.sf.net/
@@ -75,8 +75,6 @@ class publish_payload:
                             { "kn_payload" : "X" * eval(payload_size),
                               "kn_expires" : expires },
                             self)
-                            # When there's timeout:
-                            # , 30 + int(eval(payload_size)/1024))
         self.running = 1
     def onStatus(self, event):
         print ("\n\nMessage published.  Status is " + event['status'] + ".\n" +
