@@ -97,6 +97,9 @@ function onMessage(event)
 			event.title = event.blog_name;
 		if (!event.link)
 			event.link = event.blog_url;
+		event.author = event.blog_name;
+		if (!event.description)
+			event.description = "";
 		if (event.title && event.link)
 			addItem(event);
 	}
