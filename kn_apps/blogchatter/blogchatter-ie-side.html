@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+
+ Copyright 2003 Scott Andrew LePera  All Rights Reserved.
+
+-->
+<html>
+<head>
+	<title>BlogChatter</title>
+    <script type="text/javascript" src="/kn?do_method=lib"></script>
+    <script type="text/javascript">
+    
+    function init()
+    {
+        kn.subscribe("/what/apps/blogchatter/pings",
+                    handleBlogUpdate,
+                    {do_max_n:10},
+		    {onSuccess:renderDisplay}
+        );
+    }
+    
+    var blogs = [];
+		var busy = false;
+    
+    function handleBlogUpdate(evt)
+    {
+        blogs[blogs.length] = evt;
+        renderDisplay();   
+    }
+    
+    function renderDisplay()
+    {
+        if (busy)
+        {
+        	setTimeout("renderDisplay();",5000);
+        	return;
+        }
+        busy = true;
+        var str = "<table width='100%' cellspacing='0'><tr><th>Weblog</th><th>Ping Received</th></tr>";
+        
+	if (blogs.length == 0)
+	{
+		str += "<tr><td colspan='2' valign='top'>No recent updates.</td></tr>";
+	} else
+	{
+
+		for (var i=blogs.length-1; i>-1; i--)
+	        {
+            	str += "<tr><td valign='top'><a target='_main' href='" + 
+						kn_htmlEscape(blogs[i].blog_url) + "'>" + 
+						kn_htmlEscape(blogs[i].blog_name) + "</a></td><td valign='top'>" + 
+						formatTime(blogs[i].kn_time_t) + "</td></tr>";
+        	}
+	}
+	str += "</table>";
+
+	document.getElementById("monitor").innerHTML = str;
+		
+	busy = false;        
+    }
+		
+		function formatTime(time)
+		{
+			if (time && ((time.charAt(0) == '0') || (time.substring(0, 2) == '.0') || new Number(time)))
+		  {
+		    var time = kn_htmlEscape(new Date(new Number("" + time) * 1000).toLocaleString());
+		    return time;
+		  }
+		}
+    
+    onload = init;
+    
+    </script>
+		<style type="text/css">
+    
+        body
+        {
+            margin:0px;
+		background-color:#fff;
+        }
+        
+        #monitor, #monitor tr
+        {
+            font-family:verdana, arial;
+            font-size:11px;
+        }
+        #monitor td, #monitor th
+        {
+		padding:4px;
+		text-align:left;
+		background-color:#fff;
+        }
+        
+    </style>
+		
+</head>
+
+<body>
+<div id="monitor">
+Hang on...subscribing...
+</div>
+
+</body>
+</html>
+
