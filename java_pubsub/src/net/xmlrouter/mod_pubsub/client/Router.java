@@ -1,4 +1,4 @@
-package net.xmlrouter.mod_pubsub.client;
+ package net.xmlrouter.mod_pubsub.client;
 import java.net.MalformedURLException;
 import java.util.*;
 
@@ -13,7 +13,7 @@ public class Router
 	HTTPConnection server;
 	String serverURI;
 	String basePath;
-	HashMap eventStreams = new HashMap();
+	Map eventStreams = new HashMap();
 	
 	/**
 	 * @param server URI of message server
@@ -67,7 +67,7 @@ public class Router
 	 * @param msg the message
 	 * @return route id
 	 */
-	public String publish(String topic,HashMap msg)
+	public String publish(String topic,Map msg)
 	{
 		String msg_id=null;
 		
@@ -81,7 +81,7 @@ public class Router
 			msg.put("kn_to",topic);
 			msg.put("kn_id",msg_id);
 
-			// copy hashmap into namevalue pair array
+			// copy Map into namevalue pair array
 			int i=0;
 			String name;
 			Object value;
@@ -119,7 +119,7 @@ public class Router
 	 * @param options
 	 * @return a route id
 	 */
-	public String subscribe(String topic,Listener listener,HashMap options)
+	public String subscribe(String topic,Listener listener,Map options)
 	{
 		String route_id=null;
 		String msg_id = getMessageId();
@@ -128,7 +128,7 @@ public class Router
 		// generate magic route id
 		route_id = getRouteId(topic,msg_id);
 		
-		HashMap msg = new HashMap();
+		Map msg = new HashMap();
 		try
 		{
 			HTTPResponse response;
@@ -140,7 +140,7 @@ public class Router
 			msg.put("kn_uri",route_id);
 			msg.put("kn_response_format","simple");
 			
-			// copy hashmap into namevalue pair array
+			// copy Map into namevalue pair array
 			int i=0;
 			String name;
 			Object value;
@@ -205,7 +205,7 @@ public class Router
 	 */	
 	public void unsubscribe_session(String route_id)
 	{
-		HashMap msg = new HashMap();
+		Map msg = new HashMap();
 		try
 		{
 			HTTPResponse response;
@@ -217,7 +217,7 @@ public class Router
 			msg.put("kn_to","");
 			msg.put("kn_response_format","simple");
 			
-			// copy hashmap into namevalue pair array
+			// copy Map into namevalue pair array
 			int i=0;
 			String name;
 			Object value;
@@ -254,7 +254,7 @@ public class Router
 		if (false)
 		try
 		{
-			HashMap msg = new HashMap();
+			Map msg = new HashMap();
 			Router router = new Router("http://topiczero.com:8000/kn/");
 
 			msg.put("type","comment");
