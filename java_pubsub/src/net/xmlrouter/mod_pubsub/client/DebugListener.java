@@ -3,7 +3,7 @@ package net.xmlrouter.mod_pubsub.client;
 import java.util.*;
 
 /**
- * @author mike
+ * @author msg
  *
  */
 public class DebugListener implements Listener

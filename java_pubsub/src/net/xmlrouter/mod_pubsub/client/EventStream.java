@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author mike
+ * Parse input stream and bundle data into a single message
+ * @author msg
  */
 public class EventStream
 {

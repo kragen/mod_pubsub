@@ -4,7 +4,8 @@ import java.util.*;
 import java.io.*;
 
 /**
- * @author mike
+ * @author msg
+ * Runnable class that delivers incoming messages to a message listener
  */
 public class EventStreamReader implements Runnable
 {
@@ -17,20 +18,26 @@ public class EventStreamReader implements Runnable
 		events = new EventStream(is);
 		this.listener = listener;
 	}
+	public EventStreamReader(EventStream events,Listener listener)
+	{
+		this.events = events;
+		this.listener = listener;
+	}
 
 	public void stop()
 	{
+		bKeepGoing=false;
+		
 		try {
 			events.is.close();
 		} catch (IOException e) {
 			// ignore
 			e.printStackTrace();
 		}
-		bKeepGoing=false;
 	}
 		
 	/**
-	 * Read events and dispatch to a lister.onMessage() method.
+	 * Read events and dispatch to a listener
 	 */
 	public void run()
 	{

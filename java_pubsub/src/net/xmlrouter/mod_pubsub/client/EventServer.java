@@ -1,4 +1,5 @@
 package net.xmlrouter.mod_pubsub.client;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -9,10 +10,9 @@ import java.util.Map;
 /**
  * @author msg
  * Event router that uses mod-pubsub compliant server for network messaging.
- * The subscribe() method opens a persistent connection and starts a thread which delivers
- * incoming messages to a message listener. 
+ * The openConnection() method opens a persistent connection that can deliver messages to the client 
  */
-public class SimpleRouter implements Router {
+public class EventServer {
 	private static String ROUTES_STR = "/kn_routes/";
 	String serverURI;
 	String basePath;
@@ -21,7 +21,7 @@ public class SimpleRouter implements Router {
 	/**
 	 * @param server URI of message server (ex. http://localhost/kn/)
 	 */
-	public SimpleRouter(String uri) throws MalformedURLException {
+	public EventServer(String uri) throws MalformedURLException {
 		this.serverURI = uri;
 
 		try {
@@ -39,6 +39,11 @@ public class SimpleRouter implements Router {
 	public String getRouteId(String topic, String msg_id) {
 		return serverURI + topic + ROUTES_STR + msg_id;
 	}
+	public String getJournalId(String username)
+	{
+		return "/who/"+username+"/s/"+getMessageId()+"/kn_journal";
+	}
+
 	public String getTopicFromRoute(String route_id) {
 		String retVal = "";
 
@@ -61,6 +66,14 @@ public class SimpleRouter implements Router {
 
 		return retVal;
 	}
+	
+	private void consumeResponse(java.net.HttpURLConnection conn)
+		throws IOException
+	{
+		byte buffer[] = new byte[1024];
+		InputStream is = conn.getInputStream();
+		while (is.read(buffer) > 0);
+	}
 
 	/**
 	 * Post a message to the specified topic on the pubsub server.
@@ -81,77 +94,56 @@ public class SimpleRouter implements Router {
 
 			// get response
 			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-				// @todo: consume response entity
+				consumeResponse(conn);
 			}
 		} catch (Exception e) {
-			System.err.println("subscribe() : ERROR : " + e.getMessage());
+			System.err.println("publish() : ERROR : " + e.getMessage());
 		}
 	}
 
 	/**
-	 * subscribe the specified listener to the specified topic via a randomised journal topic
-	 * @param topic the source
-	 * @param listener the listener
-	 * @param options
-	 * @return a concatenation of the listener route id and the routing route id, seperated by |
-	 */
-	public String subscribeWithRandomJournal(String topic, Listener listener, Map options) {
-		String aJournalTopic = topic + "/" + getMessageId() + "/kn_journal";
-		String aListenerID = subscribe(aJournalTopic, listener, options);
-		String aRouterID = subscribe(topic, aJournalTopic, options);
-		return aListenerID + "|" + aRouterID;
-	}
-
-	/**
-	 * Subscribe the specified listener to the specified topic.
-	 * This opens a persistent connection with the pubsub server and starts a thread
-	 * that delivers messages from the pubsub server to the specified listener.
-	 * Each call to this method will create a new connection and thread.
+	 * Open a persistent connection with the pubsub server.
+	 * This creates a 'journal' topic and starts listening to it.
 	 * 
 	 * @param topic the source
 	 * @param listener the listener
 	 * @param options
 	 * @return a route id which can be used with the unsubscribe() method
 	 */
-	public String subscribe(String topic, Listener listener, Map options) {
+	public Connection openConnection(String username,String password, Listener listener, Map options) 
+	{
+		Connection connection=null;
+		String journal=null;
 		String route_id = null;
-		String random = getMessageId();
 
-		// generate magic route id
-		route_id = getRouteId(topic, random);
-
+		// generate an id for the route we will create so we can delete it later
+		route_id = getRouteId("net.xmlrouter.mod_pubsub.client", getMessageId());
+		
+		// generate standard 'session tunnel' formatted URL
+		journal= getJournalId(username);		
+		
 		Map msg = new HashMap();
 		try {
-			HttpURLConnection conn;
-			EventStreamReader reader;
 			URL url = new URL(serverURI + basePath);
 
 			// add some things
 			msg.put("kn_response_format", "simple");
 			msg.put("do_method", "route");
-			msg.put("kn_from", topic);
+			msg.put("kn_from", journal);
 			msg.put("kn_id", route_id);
 			if (null != options) msg.putAll(options);
 
-			// send message
-			conn = HTTPUtil.Post(url, msg);
-
-			// get response
-			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-				// attach EventStream to the response
-				reader = new EventStreamReader(conn.getInputStream(), listener);
-				eventStreams.put(route_id, reader);
-
-				// start processing events
-				new Thread(reader).start();
-			}
+			connection = new Connection(this,journal,url,msg,listener);
+			connection.open();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.err.println("subscribe() : ERROR : " + e.getMessage());
+			System.err.println("openConnection() : ERROR : " + e.getMessage());
 		}
 
-		return route_id;
+		return connection;
 	}
+
 
 	/**
 	 * Establish a route between a source and a destination on the pubsub server.
@@ -165,7 +157,7 @@ public class SimpleRouter implements Router {
 		String route_id = null;
 		String msg_id = getMessageId();
 
-		// generate magic route id
+		// generate an id for the route we will create so we can delete it later
 		route_id = getRouteId(from, msg_id);
 
 		Map msg = new HashMap();
@@ -179,7 +171,7 @@ public class SimpleRouter implements Router {
 			msg.put("do_method", "route");
 			msg.put("kn_from", from);
 			msg.put("kn_to", to);
-			//msg.put("kn_id",route_id);
+			//msg.put("kn_id",route_id);	// should we do this or not??
 			//msg.put("do_max_age","3600");
 			if (null != options) msg.putAll(options);
 
@@ -187,17 +179,16 @@ public class SimpleRouter implements Router {
 			conn = HTTPUtil.Post(url, msg);
 
 			// get response
-			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-			} else {
+			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) 
+			{
+			} 
+			else 
+			{
 				System.err.println("subscribe() : ERROR : " + conn.getResponseMessage());
 			}
 
 			// consume response entity
-			{
-				byte buffer[] = new byte[1024];
-				InputStream is = conn.getInputStream();
-				while (is.read(buffer) > 0);
-			}
+			consumeResponse(conn);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("subscribe() : ERROR : " + e.getMessage());
@@ -207,32 +198,17 @@ public class SimpleRouter implements Router {
 	}
 
 	/**
-	 * Stop processing incoming events. This closes the network connection and
-	 * stops the thread for this particular route.
-	 * 
-	 * @param route_id a route id provided by the subscribe() method
-	 * @see #subscribe
-	 */
-	public void unsubscribe(String route_id) {
-		EventStreamReader reader;
-
-		reader = (EventStreamReader) eventStreams.remove(route_id);
-		if (reader != null) {
-			reader.stop();
-		}
-	}
-
-	/**
 	 * Remove a route between a source and a destination on the pubsub server.
 	 * 
 	 * @param route_id a route id from subscribe()
 	 * @see subscribe
 	 */
-	public void unsubscribe_session(String route_id) {
+	public void unsubscribe(String route_id) {
 		Map msg = new HashMap();
 		try {
 			java.net.HttpURLConnection conn;
 			String uri;
+			
 			uri = serverURI + basePath;
 			URL url = new URL(uri);
 
@@ -246,33 +222,42 @@ public class SimpleRouter implements Router {
 
 			// check for errors
 			if (conn.getResponseCode() >= 300) {
+				consumeResponse(conn);
 			}
 		} catch (Exception e) {
-			System.err.println("unsubscribe_session() : ERROR : " + e.getMessage());
+			System.err.println("unsubscribe() : ERROR : " + e.getMessage());
 		}
 	}
 
 	public static void main(String args[]) {
 		// subscribe
 		try {
-			SimpleRouter router = new SimpleRouter("http://localhost/kn/");
+			EventServer server = new EventServer("http://localhost/kn/");
+			Connection connection;
+			EventStreamReader reader;
 			Listener listener = new DebugListener();
-			router.subscribeWithRandomJournal("/what/chat", listener, null);
-			/*router.subscribe("/what/chat/kn_journal",listener,null);
-			router.subscribe("/what/chat","/what/chat/kn_journal",null);*/
-		} catch (Exception e) {
+			
+			connection=server.openConnection("snowwhite",null,listener,null);
+			reader = new EventStreamReader(connection.getEvents(),listener);
+			reader.run();
+			
+			connection.subscribe("/what/chat",null);
+		} 
+		catch (Exception e) 
+		{
+			System.err.println("main() : ERROR : unable to subscribe : "+e.getMessage());
 		}
 
 		// publish
 		try {
 			Map msg = new HashMap();
-			SimpleRouter router = new SimpleRouter("http://localhost/kn/");
+			EventServer router = new EventServer("http://localhost/kn/");
 
 			msg.put("displayname", "Snow White");
 			msg.put("kn_payload", "Someday my prince will come");
 			router.publish("/what/chat", msg);
 		} catch (Exception e) {
-			System.err.println("ERROR : " + e.getMessage());
+			System.err.println("main() : ERROR : unable to publish : " + e.getMessage());
 		}
 	}
 }

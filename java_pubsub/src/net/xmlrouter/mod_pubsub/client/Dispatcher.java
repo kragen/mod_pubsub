@@ -5,7 +5,8 @@ import java.util.*;
 
 /**
  * @author msg
- * Simple router for publish/subscribe.
+ * Simple one-to-many local router for publish/subscribe.
+ * This delivers incoming messages to each registered listener
  */
 public class Dispatcher implements Listener, Router {
 	/**
@@ -50,6 +51,10 @@ public class Dispatcher implements Listener, Router {
 	 */
 	public String getRouteId(String topic, String msg_id) {
 		return topic + "/" + msg_id;
+	}
+	private String getTopicFromRoute(String route_id)
+	{
+		return route_id.substring(0,route_id.lastIndexOf('/'));
 	}
 
 	/**
@@ -100,6 +105,9 @@ public class Dispatcher implements Listener, Router {
 		String random = getMessageId();
 		List listeners;
 
+		if (this == listener)
+			throw new RuntimeException("Circular subscription");
+
 		// generate magic route id
 		route_id = getRouteId(topic, random);
 		routes.put(route_id,listener);
@@ -134,7 +142,7 @@ public class Dispatcher implements Listener, Router {
 		listener = (Listener)routes.get(route_id);
 		routes.remove(listener);
 		
-		topic = route_id.substring(0,route_id.lastIndexOf('/'));
+		topic = getTopicFromRoute(route_id);
 		listeners = getListeners(topic);
 		if (listeners != null)
 			listeners.remove(listener);

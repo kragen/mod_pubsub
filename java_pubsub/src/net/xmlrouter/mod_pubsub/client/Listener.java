@@ -1,12 +1,9 @@
 package net.xmlrouter.mod_pubsub.client;
 import java.util.Map;
 /**
- * @author mike
+ * @author msg
  *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
+ * Message listener interface
  */
 public interface Listener
 {
