@@ -37,7 +37,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: pubsub_protocol.html,v 1.7 2003/05/22 02:57:10 ifindkarma Exp $
+ $Id: pubsub_protocol.html,v 1.8 2003/08/21 17:41:17 bsittler Exp $
 
 -->
 
@@ -505,6 +505,21 @@ events.</p>
 
 <h4><a name="2.2.1" id="2.2.1">2.2.1. All Events</a></h4>
 
+<p>Event elements fall into two general classes: hop-by-hop and
+non-hop-by-hop. Each time an event is forwarded, all hop-by-hop
+elements are removed, and a new set of hop-by-hop elements is
+calculated based on the route over which the event is forwarded.</p>
+
+<blockquote><p>Any name starting with <code>kn_route_</code> denotes a
+<dfn>hop-by-hop</dfn> element. <code>kn_routed_from</code> is also a
+<dfn>hop-by-hop</dfn> element. There are no other hop-by-hop
+elements.<p></blockquote>
+
+<p>In order to prevent routing loops, pubsub servers ignore any
+updates that differ from cached events only in their hop-by-hop
+headers. So it is important that all pubsub server versions use
+exactly the same definition of hop-by-hop.</p>
+
 <div class="dl">
 <dl>
 <dt><code>content-type</code></dt>
@@ -581,7 +596,8 @@ recently forwarded along</dd>
 
 <dt><code>kn_routed_from</code></dt>
 
-<dd>Absolute URI of topic this event was most recently forwarded from</dd>
+<dd>Absolute URI of topic this event was most recently forwarded from.
+<strong>Deprecated, use <code>kn_route_location</code> instead.</strong></dd>
 </dl>
 </div>
 
@@ -846,7 +862,7 @@ be used to determine which frame a callback was called in.</p>
 <hr />
 
 <p>
-$Id: pubsub_protocol.html,v 1.7 2003/05/22 02:57:10 ifindkarma Exp $</p>
+$Id: pubsub_protocol.html,v 1.8 2003/08/21 17:41:17 bsittler Exp $</p>
 
 </body>
 </html>
