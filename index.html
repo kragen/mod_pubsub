@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- $Id: index.html,v 1.1 2003/02/22 02:47:14 ifindkarma Exp $ -->
+
+<html>
+<head>
+<title>mod_pubsub Distribution</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<style><!--
+
+td.knownow, th {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+h1 {
+  font-size: 18pt;
+  font-weight: normal;
+}
+
+input.clock {
+  border: 0px;
+  background: white;
+  color: black;
+  font-size: 10pt;
+  text-align: right;
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+}
+
+body, td {
+  font-family: Verdana, MS Sans Serif, Geneva, Helvetica, sans-serif;
+  font-size: 12pt;
+}
+
+.rule {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: #ff9900; 
+  margin: 0px 0%;
+}
+
+a:link, a:hover, a:active, a:visited {
+  color: #3366cc;
+}
+
+a:link, a:visited, a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+--></style>
+
+<script type="text/javascript"><!--
+
+function start_clock() {
+  setInterval("update_clock()", 500);
+  if (document.all && ! document.getElementById)
+    {
+      for (var i = 0; i < document.all.length; i ++)
+      {
+        var node = document.all[i];
+	  if (node.className == "rule")
+	      {
+	            node.outerHTML = '<hr size="1" color="#ff9900" />';
+              }
+      }
+    }
+}
+
+function update_clock() {
+  var now = new Date();
+  var form = document.forms.clock;
+  if (form)
+    { 
+      var ele = form.elements.clock;
+      if (ele) {
+        var msg = now.toString();
+        // If you'd rather have UTC/GMT...
+        // var msg = now.toUTCString ? now.toUTCString() : now.toGMTString();
+        if (ele.value != msg) ele.value = msg;
+      }
+    }
+}
+
+// -->
+</script>
+</head>
+
+<body bgcolor="#ffffff" link="#3366cc" vlink="#3366cc" alink="#3366cc" text="#000000"
+      leftmargin="10" topmargin="15" marginwidth="10" marginheight="15"
+      onload="start_clock()"> 
+<base target="_top" />
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+
+   <td align="left" valign="top">
+   <h1>&nbsp;<a href="http://mod-pubsub.sourceforge.net/"
+   target="_blank">mod_pubsub</a> Distribution &nbsp;&nbsp;</h1>
+   </td>
+
+   <form action="javascript://" name="clock">
+   <td align="right" bgcolor="white" class="knownow">
+   <font size="-2"> &nbsp;
+   <a href="http://sourceforge.net/mail/?group_id=66293" target="_blank">mod_pubsub mailing list</a> &#183;
+   <a href="kn_apps/">Demo Weblications</a> <br/> &nbsp;
+   <input readonly="readonly" size="48" name="clock" class="clock" onfocus="blur()" /> &nbsp;
+   </font></td>
+   </form>
+
+</tr>
+</table>
+
+<div class="rule"></div>
+
+<br><br>
+
+<center>
+<table border="0" width="100%" cellpadding="0" cellspacing="1" bgcolor="#eeeeee">
+
+<tr>
+  <td width="25%">
+    <font color="black" size="+1"><b>Item</b></font>
+  </td>
+  <td>
+    <font color="black" size="+1"><b>Description</b></font>
+  </td>
+</tr> 
+
+<!-- Event data: server machine, last updated,
+     current status (100 = up, 0 = down). -->
+
+<tr>
+<td bgcolor="white"><a href="README">README</a></td>
+<td bgcolor="white">Introduction and credits.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="INSTALL">INSTALL</a></td>
+<td bgcolor="white">Installation instructions.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="Makefile">Makefile</a></td>
+<td bgcolor="white">Makefile to create pubsub.js from
+<a href="kn_apps/kn_lib/pubsub_raw.js">pubsub_raw.js</a>
+and a properly-permissioned kn_events/ directory.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="LICENSE">LICENSE</a></td>
+<td bgcolor="white">Our license, which is based on the
+Apache license.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="TODO">TODO</a></td>
+<td bgcolor="white">Top items on our "to do" list.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="c_pubsub/">c_pubsub/</a></td>
+<td bgcolor="white">C PubSub Client Library
+(<a href="c_pubsub/libkn/">libkn</a>) that can be
+compiled on your favorite flavor of Unix.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="cgi-bin/">cgi-bin/</a></td>
+<td bgcolor="white">Contains a script written in Perl,
+pubsub.cgi, that can be called by Apache (or in Apache
+using mod_perl), that turns Apache into a PubSub Server.
+Contains other useful CGI scripts, and also a Perl
+PubSub Client Library (<a href="cgi-bin/PubSub/">PubSub</a>).
+It is our goal to turn pubsub.cgi and mod_perl into a
+full-fledged Apache module called <b>mod_pubsub</b>.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="cxx_pubsub/">cxx_pubsub/</a></td>
+<td bgcolor="white">C++ PubSub Client Library
+(<a href="cxx_pubsub/LibKN/">LibKN</a>) that can be
+compiled on Windows.  There are versions for Visual Studio 6
+and Visual Studio.NET; also included are sample applications
+such as an RSS publishing program, and documentation that can
+be built using doxygen.
+</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="kn_apps/">kn_apps/</a></td>
+<td bgcolor="white">A directory of the best PubSub-enabled
+Web Browser applications.  Includes several component
+JavaScript libraries, such as
+<a href="kn_apps/kn_lib/pubsub_raw.js">pubsub_raw.js</a>,
+<a href="kn_apps/kn_lib/">kn_lib</a> helper libraries, and
+<a href="kn_apps/jscomponents/">jscomponents</a>.
+</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="kn_docs/">kn_docs/</a></td>
+<td bgcolor="white">Documentation for this distribution, including
+<a href="kn_docs/developer_guide.html" target="_blank">Developer Guide</a>,
+<a href="kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol Document</a>,
+and <a href="kn_docs/javascript_reference.html" target="_blank">JavaScript
+Library Reference</a>.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="kn_sense/">kn_sense/</a></td>
+<td bgcolor="white">Sample sensors for scraping data from websites
+and publishing them to a PubSub server.  For example, see the
+<a href="kn_sense/rss/">RSS</a> sensor.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="kn_tools/">kn_tools/</a></td>
+<td bgcolor="white">Useful ancillary tools, including a JavaScript
+compressor and a JavaScript localizer.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="push_manager/">push_manager/</a></td>
+<td bgcolor="white">A connection pooler for use with pubsub.cgi
+to enable it to serve thousands of simultaneous connections.
+Note that this program does not currently work.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="python_pubsub/">python_pubsub/</a></td>
+<td bgcolor="white">Python PubSub
+Standalone Server (<a href="python_pubsub/pubsub.py">pubsub.py</a>),
+Client Library (<a href="python_pubsub/pubsublib.py">pubsublib.py</a>),
+and helper libraries.  It is our goal to have the functionality
+of pubsub.py match that of cgi-bin/pubsub.cgi so we have two
+reference implementations -- one in Perl, and one in Python.</td>
+</tr>
+
+</table>
+</center>
+
+<br><br>
+       
+<div class="rule"></div>
+
+<table width="100%" border="0" cellpadding="1" cellspacing="0">
+<tr>
+<td align="left" class="knownow"><font size="-2"> &nbsp;
+<a href="kn_docs/developer_guide.html" target="_blank">Developer Guide</a> &#183;
+<a href="kn_docs/pubsub_protocol.html" target="_blank">PubSub Protocol Document</a> &#183;
+<a href="kn_docs/javascript_reference.html" target="_blank">JavaScript Library Reference</a>
+</font></td>
+
+<td align="right" class="knownow"><font size="-2">&copy; 2000-2003
+<a href="http://sourceforge.net/projects/mod-pubsub" target="_blank">mod_pubsub project</a> &nbsp; </font></td>
+
+ </tr>
+</table>
+
+</body>
+</html>

@@ -2,6 +2,8 @@
 High-level items on the "to do" list.
 -------------------------------------
 
+$Id: TODO,v 1.5 2003/02/22 02:47:13 ifindkarma Exp $
+
  0. Instruct Apache to redirect /kn to pubsub.cgi .
     (Now INSTALL has instructions for how to do this; use
     pubsub_test.cgi?url=http://localhost/kn to test it; however, various
@@ -14,10 +16,12 @@ High-level items on the "to do" list.
 
  2. After inspecting Phil Harris' python pubsub client from
     http://cvs.developer.knownow.com/
-
     it looks like we can really use a decent reference python pubsub client.
-    Commence the writing of this from scratch, being careful about the APIs
-    since this can serve as a reference pubsub client implementation.
+
+    (Update 2/2003: We have an initial Python PubSub Client in
+    python_pubsub/pubsublib.py that has publish, subscribe, and
+    unsubscribe.  This still needs several things added; see the
+    source code for FIXME's and TODO's.)
 
  3. Create a PubSub::Server.Pm and make pubsub.cgi a thin
     wrapper around it.  (Note: we have already merged "KNMS"
@@ -40,6 +44,7 @@ High-level items on the "to do" list.
 
  9. pubsub.cgi should be less lazy about detecting closed
     sessions.  Bring active presence detection to mod_pubsub.
+    Perhaps do this using a cleanup.py program.
 
 10. While we're at it, clean up any broken and/or ugly kn_apps.
     "replay" is a particularly useful kn_app that is broken.
@@ -73,5 +78,3 @@ High-level items on the "to do" list.
 
 22. Start a Wiki for this project.
     (?As part of the REST Wiki?  Talk with Mark Baker & Jeff Bone...)
-
-$Id: TODO,v 1.4 2003/02/05 02:11:21 ifindkarma Exp $
