@@ -188,7 +188,7 @@ function refresh()
         }
     }
 	// items
-	document.all.news.innerHTML = html;
+	document.getElementById("news").innerHTML = html;
 	
 	// Comments
 	html = "";
@@ -203,7 +203,7 @@ function refresh()
         }
     }
 	// items
-	document.all.comments.innerHTML = html;
+	document.getElementById("comments").innerHTML = html;
 	
     isRefreshNeeded=false;
 }
