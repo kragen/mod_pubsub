@@ -34,7 +34,7 @@ package PubSub::Tunnel;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Tunnel.pm,v 1.1 2002/11/07 07:08:03 troutgirl Exp $
+# $Id: Tunnel.pm,v 1.2 2003/12/23 00:57:09 cobbr2 Exp $
 
 # NAME
 # PubSub::Tunnel - Module for managing tunnels to mod_pubsub.
@@ -270,7 +270,8 @@ sub close
 sub fileno
 {
     my ($self) = @_;
-    return $self->{sock}->fileno;
+    return $self->{sock}->fileno if defined($self) && defined($self->{sock});
+    return undef ;
 }
 
 1;
