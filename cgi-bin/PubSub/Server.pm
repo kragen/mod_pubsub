@@ -34,7 +34,7 @@ package PubSub::Server;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: Server.pm,v 1.8 2003/04/26 03:31:32 ifindkarma Exp $
+# $Id: Server.pm,v 1.9 2003/05/16 06:17:32 ifindkarma Exp $
 
 use strict;
 
@@ -776,7 +776,7 @@ sub blank
 {
     my ($q) = @_;
     print $q->header(-type=>'text/html; charset=utf-8',
-                     -expires=>'+1y');
+                     -expires=>'+1d');
     print $q->start_html(-head=>html_prologue_string().<<HEAD, -title=><<TITLE), $q->end_html;
 <script type="text/javascript">
 <!--
