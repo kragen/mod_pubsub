@@ -25,7 +25,7 @@ For questions and comments, please refer to the mailing list.
    http://mod-pubsub.sf.net/
    mod-pubsub-developer@lists.sourceforge.net
 
-$Id: INSTALL,v 1.15 2003/04/25 02:46:08 bsittler Exp $
+$Id: INSTALL,v 1.16 2003/04/26 04:40:21 ifindkarma Exp $
 
 
 
@@ -108,9 +108,26 @@ mod_pubsub("/var/www/mod_pubsub", "/mod_pubsub", "/kn",
            \%Location, \%Directory);
 </Perl>
 
-FIXME: This won't work for mod_perl 2.0.
+Note that if you are using Apache Virtual Hosting, you will also
+need to embed this in every virtual host section you use for mod_pubsub.
+For example:
 
-At this point, your Apache and mod_perl should be working correctly.
+<VirtualHost *>
+    DocumentRoot /var/www
+    ServerName pubsub.foo.com
+    <Perl>
+       use lib "/var/www/mod_pubsub/cgi-bin";
+       use PubSub::ModPubSub 'mod_pubsub';
+       mod_pubsub("/var/www/mod_pubsub", "/mod_pubsub", "/kn",
+                \%Location, \%Directory);
+    </Perl>
+</VirtualHost>
+
+FIXME: None of step #5 thus far works with mod_perl 2.0 because
+it uses a different interface.
+
+
+6. At this point, your Apache and mod_perl should be working correctly.
 To check, view the following page:
 
    http://localhost/mod_pubsub/cgi-bin/testperl.cgi
@@ -119,13 +136,13 @@ You should see about a page of information about your Apache server.
 If you see a few lines of Perl instead, mod_perl is not enabled correctly.
 
 
-6.  Run the Makefile in this directory, for example
+7.  Run the Makefile in this directory, for example
 
    make HTTPD_USER=www-data
 
 This does two things:
 
-6A. Compresses the JavaScript PubSub library, creating pubsub.js :
+7A. Compresses the JavaScript PubSub library, creating pubsub.js :
 
    bash kn_tools/js_compress.sh < kn_apps/kn_lib/pubsub_raw.js > kn_apps/kn_lib/pubsub.js
 
@@ -133,7 +150,7 @@ NOTE: js_compress.sh depends on the "nl" tool from GNU textutils.
 Since not everyone has this tool, we ship the mod_pubsub package
 with pubsub.js already generated.
 
-6B. Creates a subdirectory called mod_pubsub/kn_events/ and make it
+7B. Creates a subdirectory called mod_pubsub/kn_events/ and make it
 writable by the user that will be running the event router code,
 typically "nobody", "httpd", or "www-data".  We recommend that you do
 this by changing the ownership of this directory to that user; as root:
@@ -149,7 +166,7 @@ apps run with debugging turned on will display "500 Internal Server
 Error" messages.
 
 
-7. Now try testing your mod_pubsub server:
+8. Now try testing your mod_pubsub server:
 
    http://localhost/mod_pubsub/cgi-bin/pubsub_test.cgi
 
@@ -167,7 +184,7 @@ Be aware that this test uses up about 10MB of disk space every time
 you run it.
 
 
-8.  Try viewing a test app in kn_apps:
+9.  Try viewing a test app in kn_apps:
 
    http://localhost/mod_pubsub/kn_apps/chat2/index.html?kn_debug
 
@@ -180,7 +197,7 @@ If you are not seeing what you expected at this point, see the
 "Troubleshooting" section below.
 
 
-9.  At this point, all the Dynamic HTML apps listed in the kn_apps
+10.  At this point, all the Dynamic HTML apps listed in the kn_apps
 index should work.  However, several of these applications require
 authentication.  We offer a (not secure) cookie_auth.js helper library
 to give you a feel for how authentication should work with these apps;
