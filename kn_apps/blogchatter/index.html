@@ -1,27 +1,194 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!--
 
- Copyright 2003 Scott Andrew LePera  All Rights Reserved.
-
--->
 <html>
 <head>
-	<title>BlogChatter</title>
-    
-    <style type="text/css">
-        p
-        {
-            font-family:verdana;
-            font-size:12px;
-        }
-    </style>
+	<title>BlogChatter - Realtime Weblog Aggregation</title>
+	<style>
+		body
+		{
+			background-color:#eee;
+			color:#000;
+			font-family:verdana, arial, sans-serif;
+            font-family:georgia, times, arial, sans-serif;
+			font-size:16px;
+			margin:50px 10%;
+            background-image:url("img_36.gif");
+		}
+		.content
+		{
+			padding-left:20px;
+			padding-right:20px;
+            background-color:#fff;
+            border:1px solid #000;
+		}
+		p, li
+		{
+			line-height:22px;
+		}
 		
+		h1
+		{
+			font-size:2em;
+			letter-spacing:8px;
+			color:#000;
+			background-color:#fff;
+            margin-bottom:0px;
+            text-align:center;
+		}
+		h2
+		{
+			font-size:1.2em;
+		}
+		
+		h3
+		{
+			font-size:1em;
+		}
+		
+		code, a:link, a:active, a:visited
+		{
+			color:#993333;
+		}
+		
+		#monitortable
+		{
+			margin:20px;
+            border:1px solid #000;
+		}
+		
+		#tagline
+		{
+			color:#000;
+            font-size:0.8em;
+            text-align:center;
+            padding:10px 20px 10px 0px;
+            background-color:#fff;
+		}
+        
+        #nav
+        {
+            height:36px;
+            padding-top:10px;
+            background-color:#fff;
+            text-align:center;
+        }
+        
+        #nav br
+        {
+            display: none;
+        }
+        
+        #nav a
+        {
+            margin-right:20px;
+            font-weight:bold;
+        }
+		
+	</style>
+    
+    <script type="text/javascript">
+  
+  function pop()
+	{
+	    var opts = "screenX=100,screenY=100,left=100,top=100,width=350," + 
+								"height=300,resizeable=no,scrollbars=yes,toolbars=no";
+			var win = self.open("http://www.mod-pubsub.org/kn_apps/blogchatter/","BlogChatterWin",opts);
+	}
+	
+	// tab code courtesy of Matt Haughey @ MetaFilter
+	function addSideBarTab()
+	{
+		if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function"))
+	 	{
+			window.sidebar.addPanel("BlogChatter","http://www.mod-pubsub.org/kn_apps/blogchatter/blogchatter-moz-side.html",""); 
+	 	} 
+ } 
+  
+    </script>
+	
 </head>
 
 <body>
-<p>The chart below tracks updated weblogs that ping the BlogChatter interface at mod-pubsub.org</p>
-<iframe frameborder="0" src="updates.html" width="300" 
-height="300" marginwidth="0" marginheight="0"></iframe>
+
+<div class="content">
+
+<h1>BlogChatter <em>Beta</em></h1>
+
+<div id="tagline">Real-time weblog aggregation. Powered by <a href="http://www.mod-pubsub.org">mod_pubsub</a></div>
+
+<div id="nav">
+<a href="#what">What Is This?</a><br />
+<a href="#how">How To Ping</a><br />
+<a href="#tools">Monitoring Tools</a><br />
+</div>
+
+<table id="monitortable" border="0" align="right"><tr><td valign="top"><iframe border="1" src="http://www.mod-pubsub.org/kn_apps/blogchatter/updates.html" width="250" height="250" marginwidth="0" marginheight="0"></iframe></td></tr></table>
+
+<a name="what"></a>
+<h2>What Is This?</h2>
+
+<p><strong>BlogChatter</strong> is a window into weblog activity <em>right now, at this moment</em>. Pings to Blogchatter are instantly displayed, and only persisted in memory for a half-hour at most. It is a real-time event stream of weblog updates, similar to the data provided by <a href="http://www.weblogs.com">weblogs.com</a>, without polling or a static data format.</p></p>
+
+<p>The box to the right is an example application which uses the BlogChatter feed. It displays the incoming weblog updates the moment they are received.</p>
+
+
+
+<h3>Cool! Can I play?</h3>
+
+<p>Sure! We're looking for a few good bloggers to start pinging us when they post to their weblogs, so we can get some data moving through it. The interface is a URL that accepts a <a href="#">weblogs.com-compatible XML-RPC ping</a>. If you're using <a href="#">Movable Type</a> as your weblog tool, you already have the ability to send this ping. This ping is transformed into an event and published to a topic at mod-pubsub.org.</p>
+
+<p>This is a <i>beta</i> web service, primarily for testing. The plan is to allow people to ping the server indefinitely and see what happens. In the best case, we'll start building apps that do interesting things with the real-time data and perhaps someday recreate it as a standalone service for stuff like real-time blogrolls.</p>
+
+<a name="how"></a>
+<h2>How To Ping</h2>
+
+<p>To ping the interface from Movable Type, follow these steps:</p>
+
+<ol>
+	<li>log in to MT and click <em>Manage Blog</em> for the blog you want to publish</li>
+	<li>choose <em>Blog Config</em></li>
+	<li>go to <em>Preferences</em></li>
+	<li>scroll down to the section labeled "Publicity/Remote Interfaces/TrackBack."</li>
+	<li>In the text box labeled "Others", add the following URL:</li>
+</ol>
+
+<p><code>http://www.mod-pubsub.org/kn_apps/blogchatter/ping.php</code></p>
+
+<p>Now save your changes. The next time you post to your weblog, the ping notification should happen automatically.</p>
+
+<h3>I don't use Movable Type, can I still ping from Blogger / Radio / Greymatter?</h3>
+
+<p>Sure, but we haven't had time to explore the capabilities of those tools, so if you have tips on how to configure them to ping BlogChatter, please share them.</p>
+
+<a name="tools"></a>
+<h2>Monitoring Tools</h2>
+
+<p>We have a number of browser-based tools for watching incoming pings. Currently, all tools initialize by showing the last 10 pings made in the last half-hour, then adds new pings to list as they arrive.</p>
+
+<p>You can <a href="http://www.mod-pubsub.org/kn_apps/blogchatter/">see the incoming pings in real-time here</a>.</p>
+
+<p>There is a <a href="#" onclick="pop(); return false;">pop-up window here</a>.</p>
+
+<p>And this is a <a href="javascript:void(win=self.open('http://www.mod-pubsub.org/kn_apps/blogchatter/','BlogChatterWin','screenX=100,screenY=100,left=100,top=100,width=350,height=300,resizeable=no,scrollbars=yes,toolbars=no'));">BlogChatter</a> bookmarklet. Drag it to your browser's shortcuts toolbar.</p>
+
+<p>Here are various sidebars for your browser:</p>
+
+<h3>Windows Internet Explorer 5+</h3>
+
+<p>Drag this link: <a href="javascript:void(_search=open('http://www.mod-pubsub.org/kn_apps/blogchatter/blogchatter-ie-side.html','_search'))">BlogChatter Side</a> to your IE links toolbar to install, click to launch the sidebar version of BlogChatter.</p>
+
+<h3>Netscape 6/7/Mozilla browsers (all platforms)</h3>
+
+<p><a href="javascript:addSideBarTab();">Add blogchatter Tab</a> to Netscape 6/7/Mozilla.</p>
+
+<h3>Mac Internet Explorer 5+</h3>
+
+<p>Drag this link: <a href="http://www.mod-pubsub.org/kn_apps/blogchatter/blogchatter-ie-side.html">BlogChatter Side</a> to your favorites bar. Control-click it, choose "Target Page Holder."</p>
+
+
+<p>There is also an ugly-but-servicable <a href="http://www.mod-pubsub.org/kn_apps/blogchatter/no_dom.html">Netscape 4.x-friendly display</a>.</p>
+
+</div>
+
 </body>
 </html>
-
