@@ -15,6 +15,20 @@
        1. The interface is URL based.
        2. All operations are in a single thread and nonblocking,
           using asyncore.
+
+    Version 1.0 -- February 18, 2003.  Initial implementation.
+    Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
+
+    Known Issues:
+
+       1. No test suite.  We plan to port the JavaScript PubSub Library
+          test suite to test this implementation.
+
+       2. Lots of FIXME and TODO things left -- see source code comments.         
+
+    Contact Information:
+       http://mod-pubsub.sf.net/
+       mod-pubsub-developer@lists.sourceforge.net          
 """
 
 
@@ -53,7 +67,7 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: pubsublib.py,v 1.1 2003/02/18 08:26:03 ifindkarma Exp $
+## $Id: pubsublib.py,v 1.2 2003/02/18 08:29:46 ifindkarma Exp $
 
 
 
