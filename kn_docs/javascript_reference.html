@@ -38,7 +38,7 @@
 
  @KNOWNOW_LICENSE_END@
 
- $Id: javascript_reference.html,v 1.5 2003/05/07 04:55:13 rloz Exp $
+ $Id: javascript_reference.html,v 1.6 2003/05/08 01:41:07 ifindkarma Exp $
 
 -->
 
@@ -52,12 +52,15 @@
 
 <p>This document briefly outlines the <a href="#1">PubSub JavaScript
 Library</a> and several JavaScript <a href="#2">helper libraries</a>
-in this distribution.</p>
+in this distribution.  For more information, see also the
+<a href="../kn_apps/javascript/" target="_blank">JavaScript
+Options, Tricks and Debugging</a> document.
+
 
 <h2><a name="1" id="1">1. The PubSub JavaScript Library</a></h2>
 
 <p>This section describes the PubSub JavaScript Library
-provided by <a href=".">mod_pubsub</a>.
+provided by <a href="../">mod_pubsub</a>.
 
 The library must be included at the very beginning of your DHTML
 application:</p>
@@ -100,16 +103,16 @@ Extra CGI parameters may be set using <var>options</var>. The
 <var>destination</var> may be:</p>
 
 <ul>
-<li>a topic, e.g. <samp>/postit</samp>,</li>
+<li>a topic, for example <samp>/postit</samp>,</li>
 
-<li>a "<samp>javascript:</samp>" URL, e.g.
+<li>a "<samp>javascript:</samp>" URL, for example
 <samp>javascript:alert('OK')</samp>,</li>
 
 <li>a function or closure accepting an <var>event</var> parameter,
-e.g. <samp>function (e) { alert(e.kn_payload) }</samp>, or</li>
+for example <samp>function (e) { alert(e.kn_payload) }</samp>, or</li>
 
 <li>an object with an <code>onMessage</code> method accepting an
-<var>event</var> parameter, e.g. <samp>{ onMessage: function (e) {
+<var>event</var> parameter, for example <samp>{ onMessage: function (e) {
 alert(e.kn_id) } }</samp></li>
 </ul>
 
@@ -153,55 +156,73 @@ called for any unsuccessful status event.</p>
 
 <p>Command-line arguments can be passed in as well. Names starting
 with "<samp>kn_</samp>" are reserved. These are available as
-properties of the <code>kn_argv</code> object (e.g.
-<samp>.../MyApp.esp?topic/subtopic;kn_debug;myParam=foo</samp> will
+properties of the <code>kn_argv</code> object (for example,
+<samp>.../myapp/?topic/subtopic;kn_debug;myParam=foo</samp> will
 set <samp>kn_argv.kn_debug</samp>, <samp>kn_argv.kn_topic</samp>,
 and <samp>kn_argv.myParam</samp>.)</p>
 
-<h3>Command-line Arguments</h3>
+<h3><a name="commandline">Command-line Arguments</a></h3>
 
 <div class="dl">
 <dl>
-<dt><code>kn_debug</code></dt>
+<dt><code><a name="kn_debug">kn_debug</a></code></dt>
 
 <dd>
-<p>The kn_debug flag controls the debugging features of the Javascript client.
+<p>The kn_debug flag controls the debugging features of the JavaScript client.
 It performs two main functions :</p>
 
-<ul><li>Disabling the client library's build-in javascript error trapping,
-letting any errors drop through to the browsers default Javascript error
+<ul><li>Disabling the client library's built-in JavaScript error trapping,
+letting any errors drop through to the browsers default JavaScript error
 handling.</li>
 
 <li>Displaying the hidden tunnel and post frames. The tunnel frame is the
 channel by which events are delivered to the browser and the post frame is
-the channel for making requests of the server (e.g. generating events). The
-tunnel frame is usually rendered with a red background, while the tunnel
-frame is most often yellow, but the colour depends on the current status
+the channel for making requests of the server (that is, generating events).
+The tunnel frame is usually rendered with a red background, while the tunnel
+frame is most often yellow, but the color depends on the current status
 of each component (see later for a more complete rundown of the various
-colour indicators).</li></ul>
+color indicators).</li></ul>
 </dd>
+
+<dd>
+<p>When no debugging flags are given, debugging is disabled <b>AND ALL
+JAVASCRIPT ERROR MESSAGES ARE SUPPRESSED!</b> To find the text of the
+last suppressed JavaScript error, check the kn.lastError JavaScript
+variable.</p></dd>
 
 <dd>
 <p>There are a number of parameters that can be used with the kn_debug flag to
 activate/deactivate various debugging features. They are specified in a comma
-separated list after the kn_debug flag, i.e.
+separated list after the kn_debug flag, for example:
      ?kn_debug=param1,param2,param3</p></dd>
 
 <dd>
 <p>The available parameters are :</p>
 
 <ul>
-<li><var>posts</var> - render the details of any server requests into the post frame.</li>
-<li><var>receipts</var> - render the details of any received events into the tunnel
-frame.</li>
-<li><var>events</var> - display a popup/message box with the details of a received event
-just prior to routing that event to the appropriate handler.</li>
-<li><var>routes</var> - display a message box when an event for a 'stale' subscription
-is detected (a 'stale' subscription is one for which the event handler is no
-longer valid). It also displays a message when an event is received from an
-'unexpected' window (i.e. one which is not registered with the microserver).</li>
-<li><var>duplicates</var> - displays a message box when a duplicate event was received
-and (subsequently) ignored.</li></ul></dd>
+
+<li><var>posts</var> - render the details of any server requests into
+the post frame.</li>
+
+<li><var>receipts</var> - render the details of any received events
+into the tunnel frame.</li>
+
+<li><var>events</var> - display a popup/message box with the details
+of a received event just prior to routing that event to the
+appropriate handler.</li>
+
+<li><var>routes</var> - display a message box when an event for a
+'stale' subscription is detected (a 'stale' subscription is one for
+which the event handler is no longer valid). It also displays a
+message when an event is received from an 'unexpected' window (that
+is, one which is not registered with the client pubsub library).</li>
+
+<li><var>duplicates</var> - displays a message box when a duplicate
+event was received and (subsequently) ignored.</li>
+
+<li><var>all</var> - turns on all debugging flags.</li>
+
+</ul></dd>
 
 <dd>
 <p>The background colour schemes are as follows:</p>
@@ -228,6 +249,38 @@ the server<p></p></li>
 <li><span style="background-color: white;">White</code> - indicates a redraw callback has been received and processed
 successfully</li></ul>
 </dd></dl>
+</dd>
+
+</dl>
+</div>
+
+<div class="dl">
+<dl>
+<dt><code><a name="kn_options">kn_options</a></code></dt>
+
+<dd>
+<p>Sometimes the most correct solution to a problem is not the most
+efficient, or is convenient in some way. To ignore correctness and
+bypass some inefficient or inconvenient PubSub JavaScript Library
+features, several options can be enabled using the kn_options URL parameter,
+or by calling the kn_options() JavaScript function with a list of options.
+Example usage of the utility function <code>kn_options("single,noforward")</code>
+would be the command-line 
+<code>http://localhost/mod_pubsub/kn_apps/chat2/?kn_debug=single,noforward</code>.
+
+<h5>Options Supported</h5>
+<ul>
+<li><var>fastdoc</var> - use document.open() for KNDocument.</li>
+<li><var>single</var> - don't batch multiple requests.</li>
+<li><var>noforward</var> - don't forward status events to the tunnel frame.</li>
+<li><var>escape</var> - use JavaScript escape() instead of kn_escape().</li>
+<li><var>unescape</var> - use JavaScript unescape() instead of kn_unescape().</li>
+<li><var>noswap</var> - don't swap tunnel and post frames periodically.</li>
+<li><var>all</var> - turn on all options.</li>
+</ul>
+
+<p>Note that all of these options have compatibility problems, bad side-effects, or
+actually break something. Use them at your own risk...</p>
 </dd>
 
 </dl>
@@ -274,16 +327,16 @@ to this URL.</p> </dd>
 JavaScript Library, the library attempts to suppress the browser's
 normal error-handling behavior and record the error message in this
 string. Replacing the <code>onerror</code> handler or supplying the
-<code>kn_debug</code> command-line argument will allow the browser to
-handle the error normally.</p> </dd>
+<code>kn_debug</code> <a href="#kn_debug">command-line argument</a>
+will allow the browser to handle the error normally.</p> </dd>
 
 <dt><code>kn.userid</code></dt>
 
 <dd>
 <p>This string identifies the user in the context of the PubSub DHTML
-application. This may be a value supplied by mod_pubsub,
-a value given for the <code>kn_userid</code> command-line argument, or
-a default value such as <code>guest</code> or <code>anonymous</code>.
+application. This may be a value supplied by mod_pubsub, a value given
+for the <code>kn_userid</code> command-line argument, or a default
+value such as <code>guest</code> or <code>anonymous</code>.
 </p>
 </dd>
 
@@ -434,9 +487,9 @@ the corresponding UCS character codes.</p>
 <var>relative</var>)</code></dt>
 
 <dd>
-<p>Given an absolute base pathname (e.g.
+<p>Given an absolute base pathname (for example
 <samp>location.pathname</samp>) and a pathname relative to that
-base (e.g. <samp>../../images/foo.gif</samp>,)
+base (for example <samp>../../images/foo.gif</samp>,)
 <code>kn_resolvePath</code> returns an absolute pathname
 identifying the same resource the relative pathname does.</p>
 </dd>
@@ -469,7 +522,7 @@ new window to display it.</p></dd>
 <dd><p>Analogous to <code>kn_inspectAsHTML</code>, but produces text
 output.</p></dd>
 
-<dt><code>debug(<var>flags</var>)</code></dt>
+<dt><code>kn_debug(<var>flags</var>)</code></dt>
 
 <dd><p>This changes the value of the
 <code>kn_debug=</code><var>...</var> parameter to the specified value;
@@ -478,19 +531,21 @@ false disables all debugging; any other string enables general
 debugging and is treated as a comma-separated list of specific
 debugging options to enable (the special debugging option
 <samp>all</samp> enables all debugging); additionally,
-<code>debug()</code> hides or unhides the tunnel and post frames to
+<code>kn_debug()</code> hides or unhides the tunnel and post frames to
 reflect the value of general debugging (but only in Windows
-MSIE.)</p></dd>
+MSIE.)  See also the <code>kn_debug</code>
+<a href="#kn_debug">command-line argument</a>.</p></dd>
 
-<dt><code>hacks(<var>flags</var>)</code></dt>
+<dt><code>kn_options(<var>flags</var>)</code></dt>
 
 <dd><p>This changes the value of the
-<code>kn_hacks=</code><var>...</var> parameter to the specified value;
-an omitted value or true enables general speed hacks; an empty string
-or false disables all speed hacks; any other string enables general
-speed hacks and is treated as a comma-separated list of specific speed
-hacks to enable (the special option <samp>all</samp> enables all speed
-hacks.)</p></dd>
+<code>kn_options=</code><var>...</var> parameter to the specified
+value; an omitted value or true enables general speed options; an empty
+string or false disables all speed options; any other string enables
+general speed options and is treated as a comma-separated list of
+specific speed options to enable (the special option <samp>all</samp>
+enables all speed options.)  See also the <code>kn_options</code>
+<a href="#kn_options">command-line argument</a>.</p></dd>
 
 
 </dl>
@@ -511,13 +566,13 @@ of the functionality provided by each one.</p>
 </tr>
 
 <tr>
-<td><a href="document_js.html">Document.js</a></td>
+<td><a href="document_js.html">document.js</a></td>
 <td>Drop in replacement for most simple uses of JavaScript Document
 object</td>
 </tr>
 
 <tr>
-<td><a href="htmlsafe_js.html">Htmlsafe.js</a></td>
+<td><a href="htmlsafe_js.html">htmlsafe.js</a></td>
 <td>Sanitize html to allow arbitrary html snippets (input by user)
 to execute safely on all subscribed clients</td>
 </tr>
@@ -539,7 +594,7 @@ Houghton</td>
 <hr />
 
 <p>
-$Id: javascript_reference.html,v 1.5 2003/05/07 04:55:13 rloz Exp $</p>
+$Id: javascript_reference.html,v 1.6 2003/05/08 01:41:07 ifindkarma Exp $</p>
 
 </body>
 </html>
