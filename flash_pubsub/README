@@ -1,5 +1,5 @@
 From: Jos Yule, http://www.theorganization.net/
-$Id: README,v 1.1 2003/07/20 07:41:30 ifindkarma Exp $
+$Id: README,v 1.2 2003/07/20 08:35:55 ifindkarma Exp $
 
 I've been working (slowly) on the Flash PubSub Lib.
 This is what i've got so far.
@@ -35,3 +35,11 @@ the socket is always closed after. Its a pain, and resource intensive to
 have to re-connect for every data send. this may be another place to look to
 the server to implement a "long term" socket connection when using Flash. 
 
+
+
+For questions and comments, see
+
+   mod-pubsub-developer@lists.sourceforge.net
+   http://mod-pubsub.sf.net/
+
+Thanks!
