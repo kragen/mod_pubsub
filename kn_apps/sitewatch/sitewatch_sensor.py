@@ -1,19 +1,24 @@
 #!/usr/bin/python
 
 """
-	sitewatch_sensor.py -- A sensor for whether a site is up or not.
+    sitewatch_sensor.py -- A sensor for whether a site is up or not.
 
-	Example of usage:
-		./sitewatch_sensor.py http://192.168.0.2/kn
+    Example of usage:
+        ./sitewatch_sensor.py http://192.168.0.2/kn
 
-        Version 1.0 -- February 8, 2003.  Initial implementation.
-        Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
+    Now works with the helper libraries in python_pubsub.
+    Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
-        Known Issues: None.
+    $ Id: $
+    
+    Known Issues:
 
-        Contact Information:
-            http://mod-pubsub.sf.net/
-            mod-pubsub-developer@lists.sourceforge.net
+        Works fine; "TO DO": remove the asyncgeturl.py import and make
+        this sensor work with mod_pubsub/python_pubsub/pubsublib.py
+
+    Contact Information:
+        http://mod-pubsub.sf.net/
+        mod-pubsub-developer@lists.sourceforge.net
 """
 
 ## Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
@@ -50,18 +55,24 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: sitewatch_sensor.py,v 1.4 2003/02/18 08:16:03 ifindkarma Exp $
 
 
+
+# Include standard system libraries:
 import os, sys, time, socket, inspect, errno, urllib, urlparse
 
-import asyncore
+# Include local libraries:
+sys.path = [ "../../python_pubsub" ] + sys.path
+
+# In this directory:
+import asyncgeturl
+
+#Included with python_pubsub distribution:
+import asyncore, asynchttp, scheduler, wakeup
 """
     Note that we are using the event-driven python_pubsub asyncore,
     not the polling "standard" asyncore. -- Ben and Adam, 2/8/2003
 """
-import asynchttp  # Included with python_pubsub distribution.
-import asyncgeturl, scheduler, wakeup   # Part of python_pubsub distribution.
 
 
 

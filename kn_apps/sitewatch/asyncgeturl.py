@@ -1,16 +1,14 @@
 #!/usr/bin/python
 
 """
-	asyncgeturl.py -- A sensor for whether a site is up or not.
+    asyncgeturl.py -- A sensor for whether a site is up or not.
+    Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
 
-        Version 1.0 -- February 8, 2003.  Initial implementation.
-        Works fine on Debian GNU Linux 3.0 with Python 2.1.3.
+    Known Issues: None.
 
-        Known Issues: None.
-
-        Contact Information:
-            http://mod-pubsub.sf.net/
-            mod-pubsub-developer@lists.sourceforge.net
+    Contact Information:
+        http://mod-pubsub.sf.net/
+        mod-pubsub-developer@lists.sourceforge.net
 """
 
 ## Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
@@ -47,17 +45,20 @@
 
 ## @KNOWNOW_LICENSE_END@
 
-## $Id: asyncgeturl.py,v 1.4 2003/02/17 01:09:33 ifindkarma Exp $
+## $Id: asyncgeturl.py,v 1.5 2003/02/19 03:41:22 ifindkarma Exp $
 
 
-import sys, string, urllib, urlparse, asynchttp
 
-import asyncore
+# Include standard system libraries:
+import sys, string, urllib, urlparse
+
+# Include local libraries:
+sys.path = [ "../../python_pubsub" ] + sys.path
+import asyncore, asynchttp  # Included with python_pubsub distribution.
 """
     Note that we are using the event-driven python_pubsub asyncore,
     not the polling "standard" asyncore. -- Ben and Adam, 2/8/2003
 """
-
 
 
 class AsyncGetURL(asynchttp.AsyncHTTPConnection):
@@ -118,6 +119,7 @@ class AsyncGetURLTest:
         if tester.response.status == 200:
             print "body:"
             print tester.response.body        
+
 
 
 def main(argv):
