@@ -35,6 +35,7 @@ public class HTTPUtil
 	{
 		OutputStream os;
 		HttpURLConnection conn;
+		String len;
 		
 		conn = (java.net.HttpURLConnection)url.openConnection();
 		conn.setRequestMethod("POST");
@@ -42,7 +43,8 @@ public class HTTPUtil
 		conn.setDoOutput(true);
 		conn.setRequestProperty("User-Agent","mod_pubsub.java/0.1");
 		conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-		conn.setRequestProperty("Content-Length",Integer.toString(body.length()*2));
+		len = Integer.toString(body.length());
+		conn.setRequestProperty("Content-Length",len);
 		conn.connect();
 		os = conn.getOutputStream();
 
@@ -54,4 +56,20 @@ public class HTTPUtil
 
 		return conn;
 	}
+
+	public static void dumpHeaders(HttpURLConnection conn)	
+	{
+		String name;
+		String value;
+		for(int i=0; i < 20; i++)
+		{
+			name = conn.getHeaderFieldKey(i);
+			value = conn.getHeaderField(i);
+			if (name== null && value==null)
+				break;
+			System.out.println(name+"="+value);
+		}
+		System.out.println();
+	}
+	
 }

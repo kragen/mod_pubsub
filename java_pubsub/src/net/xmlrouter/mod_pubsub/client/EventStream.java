@@ -32,20 +32,60 @@ public class EventStream
 		
 		try
 		{
-			/*
-			while (reader.available() == 0)
-				Thread.sleep(100); 
-			*/
-			
-			while ((reader.read(b) >= 0) && 
-					(b[0] != '\r') && 
-					(b[0] != '\n'))
+			while (reader.read(b) > 0)
 			{
+				if ((b[0] == '\r') ||
+					(b[0] == '\n'))
+				{
+					break;
+				}
+				
 				c = (char)b[0];
 				buffer.append(c);
 			}
 		}
 		catch(IOException e)
+		{
+			System.err.println("readLine() : "+e.getMessage());
+		}
+
+		return buffer.toString();
+	}
+	/**
+	 * readTrimmedLine - skip whitepace and read remaining line.
+	 */
+	String readTrimmedLine(InputStream reader) 
+	{
+		StringBuffer buffer=new StringBuffer();
+		byte b[] = new byte[1];
+		char c;
+		boolean skipping=true;
+		
+		try
+		{
+			while (reader.read(b) > 0)
+			{
+				if ((b[0] == '\r') ||
+					(b[0] == '\n'))
+				{
+					break;
+				}
+				
+				c = (char)b[0];
+				if (!Character.isWhitespace(c))
+					skipping = false;
+
+				if (!skipping)
+					buffer.append(c);
+				else
+					Thread.sleep(100);
+			}
+		}
+		catch(IOException e)
+		{
+			System.err.println("readLine() : "+e.getMessage());
+		}
+		catch(InterruptedException e)
 		{
 			System.err.println("readLine() : "+e.getMessage());
 		}
@@ -74,7 +114,7 @@ public class EventStream
 				int pos;
 				
 				// read a line
-				line = readLine(is);
+				line = readTrimmedLine(is);
 				if ((line == null) || (line.length()==0))
 					return null;
 					

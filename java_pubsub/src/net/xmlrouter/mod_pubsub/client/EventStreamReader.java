@@ -40,6 +40,7 @@ public class EventStreamReader implements Runnable
 				
 				// notify the listener
 				listener.onMessage(msg);
+				Thread.yield();
 			}
 		}
 		catch(IOException e)

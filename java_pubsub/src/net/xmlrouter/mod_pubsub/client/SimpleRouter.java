@@ -66,7 +66,7 @@ public class SimpleRouter
 			String body;
 					
 			// add some things
-			msg.put("kn_method","notify");
+			msg.put("do_method","notify");
 			msg.put("kn_to",topic);
 
 			// copy Map into namevalue pair array
@@ -113,10 +113,13 @@ public class SimpleRouter
 			
 			// add some things
 			msg.put("kn_response_format","simple");
-			msg.put("kn_method","route");
+			msg.put("do_method","route");
 			msg.put("kn_from",topic);
+			// @todo: Add options
+			/*
 			msg.put("do_max_age","3600");
-			msg.put("kn_id",random);
+			msg.put("kn_id",route_id);
+			*/
 
 			// copy Map into namevalue pair array
 			body = HTTPUtil.encodeToForm(msg);
@@ -126,16 +129,14 @@ public class SimpleRouter
 			
 			// get response
 			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
-			{
+			{			
 				// add the listener
 				EventStreamReader reader;
-				System.out.println(conn.getResponseMessage());
 				reader = new EventStreamReader(conn.getInputStream(),listener);
 				eventStreams.put(route_id,reader);
 
 				// start processing events
-				reader.run();			
-				//new Thread(reader).run();
+				new Thread(reader).start();
 			}
 		}
 		catch(Exception e)
@@ -171,7 +172,7 @@ public class SimpleRouter
 			String body;
 				
 			// add some things
-			msg.put("kn_method","route");
+			msg.put("do_method","route");
 			msg.put("kn_from",from);
 			msg.put("kn_to",to);
 			//msg.put("kn_id",route_id);
@@ -185,8 +186,18 @@ public class SimpleRouter
 
 			// get response
 			if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300)
+			{				
+			}
+			else
 			{
-				conn.getContentLength();
+				System.err.println("subscribe() : ERROR : "+conn.getResponseMessage());
+			}
+
+			// consume response entity
+			{
+				byte buffer[] = new byte[1024];
+				InputStream is = conn.getInputStream();
+				while (is.read(buffer) > 0);
 			}
 		}
 		catch(Exception e)
@@ -233,7 +244,7 @@ public class SimpleRouter
 			String body;
 			
 			// add some things
-			msg.put("kn_method","route");
+			msg.put("do_method","route");
 			msg.put("kn_from",getTopicFromRoute(route_id));
 			msg.put("kn_id",getIdFromRoute(route_id));
 			msg.put("kn_to","");
@@ -256,6 +267,18 @@ public class SimpleRouter
 	
 	public static void main(String args[])
 	{
+		// subscribe
+		try
+		{
+			SimpleRouter router = new SimpleRouter("http://localhost/kn/");
+			Listener listener = new DebugListener();
+			router.subscribe("/what/chat/kn_journal",listener,null);
+			router.subscribe("/what/chat","/what/chat/kn_journal",null);
+		}
+		catch(Exception e)
+		{
+		}
+		
 		// publish
 		try
 		{
@@ -270,18 +293,5 @@ public class SimpleRouter
 		{
 			System.err.println("ERROR : " +e.getMessage());
 		}
-
-		// subscribe
-		try
-		{
-			SimpleRouter router = new SimpleRouter("http://localhost/kn/");
-			Listener listener = new DebugListener();
-			router.subscribe("/what/chat","/what/chat/kn_journal",null);
-			router.subscribe("/what/chat/kn_journal",listener,null);
-		}
-		catch(Exception e)
-		{
-		}
-		
 	}
 }
