@@ -1,0 +1,242 @@
+<html><head><title>perftool documentation</title></head>
+<body bgcolor="white">
+<h1>perftool documentation</h1>
+<h2>NAME</h2>
+<p>perftool -- measure the performance of a PubSub Server</p>
+
+<h2>SYNOPSIS</h2>
+<blockquote>
+<table cellspacing="0" cellpadding="0">
+<tr><td>perftool </td><td>[--master=<var>hostname</var>] [-m <var>hostname</var>]</td></tr>
+<tr><td></td><td>[--origin-topics=<var>n</var>] [-o <var>n</var>]</td></tr>
+<tr><td></td><td>[--journals=<var>m</var>] [-j <var>m</var>]</td></tr>
+<tr><td></td><td>[--tunnels=<var>t</var>] [-t <var>t</var>]</td></tr>
+<tr><td></td><td>[--topic=<var>/topicname</var>] [-T <var>/topicname</var>]</td></tr>
+<tr><td></td><td>[--run-for=<var>nsec</var>] [-r <var>nsec</var>]</td></tr>
+<tr><td></td><td>[--payloadsize=<var>nbytes</var>] [-p <var>nbytes</var>]</td></tr>
+<tr><td></td><td>[--simple-format] [-f]</td></tr>
+<tr><td></td><td>[--batchsize=<var>nevents</var>] [-b 
+<var>nevents</var>]</td></tr>
+<tr><td></td><td><var>requests_per_sec</var> <var>servername</var> <var>port</var></td></tr>
+</table>
+</blockquote>
+<blockquote>
+perftool --slave | -s
+</blockquote>
+
+<h2>DESCRIPTION</h2>
+
+<p>When not running in slave mode, perftool's normal operating procedure
+is as follows:</p>
+<ol>
+<li> establish a number of tunnel connections to the PubSub Server
+<li> wait for status-event activity to settle down
+<li> set up a number of routes on the PubSub Server
+<li> post events to the PubSub Server and receive them over the tunnels,
+     printing a line of output for each event
+<li> when the number of seconds specified with -r or --run-for runs out,
+     or when interrupted by the user, exit.
+</ol>
+
+<h3>Command-line options</h3>
+
+<p>There are three mandatory command-line parameters (when not running in
+slave mode):</p>
+<dl compact="compact">
+<dt><var>requests_per_sec</var></dt><dd>The number of input requests
+to send per second.</dd>
+
+<dt><var>servername</var></dt><dd>The host on which the PubSub Server
+is running.</dd>
+
+<dt><var>port</var></dt><dd>The port on which the PubSub Server is
+listening.</dd>
+
+</dl>
+
+<p>There are also a number of optional command-line parameters:</p>
+
+<dl compact="compact">
+
+<dt>--master=<var>hostname</var>, -m
+<var>hostname</var></dt><dd>Specifies that this perftool should act as a
+master to the slave on <var>hostname</var>.  This option can be
+specified several times to control several slaves.
+
+<dt>--origin-topics=<var>n</var>, -o <var>n</var></dt><dd>Specifies
+the number of origin topics to use; see Test configuration, below.
+Default 1.
+
+<dt>--journals=<var>m</var>, -j <var>m</var></dt><dd>Specifies the
+number of journals to associate with each origin topic ---
+<em>not</em> the total number of journals.  Default 1.</dd>
+
+<dt>--tunnels=<var>t</var>, -t <var>t</var></dt><dd>Specifies the
+number of tunnels to attach to each journal --- <em>not</em> the total
+number of tunnels.  Default 1.</dd>
+
+<dt>--topic=<var>/topicname</var>, -T <var>/topicname</var></dt>
+<dd>Specifies the topic under which all this takes place, default
+/what/apps/perftool.  The structure beneath this topic is as
+follows:
+<ul>
+  <li><var>number</var> --- a number chosen to keep subsequent test 
+  runs with the same --topic from colliding
+  <ul>
+    <li>origin -- origin topics live under here
+    <ul>
+      <li>1 -- the first origin topic</li>
+      <li>2 -- the second origin topic</li>
+      <li>etc.</li>
+    </ul>
+    </li>
+    <li>journals -- journal topics live under here
+    <ul>
+      <li>1
+      <ul>
+        <li>kn_journal --- the first journal topic</li>
+      </ul>
+      <li>2
+      <ul>
+        <li>kn_journal --- the second journal topic</li>
+      </ul>
+    </ul>
+  </ul>
+  </li>
+</ul>
+</dd>
+
+<dt>--run-for=<var>nsec</var>, -r <var>nsec</var></dt>
+<dd>Run the event-posting phase of the test for the specified number of
+seconds, then exit; if not specified, runs until interrupted by the
+user.</dd>
+</dd>
+
+<dt>--payloadsize=<var>nbytes</var>, -p <var>nbytes</var></dt>
+<dd>Include the specified number of bytes in the kn_payload of each
+event; if not specified, defaults to 0.</dd>
+
+<dt>--simple-format, -f</dt>
+<dd>By default, perftool uses the JavaScript tunnel format used by the
+JavaScript microserver; this option makes it use the "simple" format,
+which consists of RFC-822 messages, with header names and values
+encoded in quoted-printable, preceded by a byte count.  Most of the
+other microservers use this other format.
+</dd>
+
+<dt>--batchsize=<var>nevents</var>, -b <var>nevents</var></dt>
+<dd>By default, perftool posts one event per input request; this option
+makes it post batches of <var>nevents</var> events instead.</dd>
+
+<dt>--slave, -s</dt><dd>Run in slave mode, obviating any other
+options.  Not implemented.</dd>
+
+</dl>
+
+<h3>Test configuration</h3>
+
+<p>perftool deals with two kinds of topics: "origin topics" to which
+events are posted and "journal topics" to which tunnels are attached.
+Each origin topic has a certain number <var>n</var> of journal topics
+associated with it.  A route is established from each origin topic to
+each journal associated with it.</p>
+
+<p>Each journal topic has some number <var>t</var> of tunnels attached
+to it.</p>
+
+<p>Each input event is posted to one of the origin topics; successive
+input events are round-robined across the origin topics.  This means
+that if more than one origin topic exists, each input event will find
+its way to only some of the tunnels.</p>
+
+<h3>Output format</h3>
+
+<p>perftool's output consists of a header line, followed by lines
+reporting on events received.  Each line consists of alternating field
+names and values separated by spaces.  </p>
+
+<p>The header line contains the following fields at present:</p>
+
+<dl compact="compact">
+<dt><b>host:</b></dt><dd>the hostname where the server under test was 
+running.</dd>
+<dt><b>port:</b></dt><dd>the port number where the server under test was 
+running.</dd>
+<dt><b>tunnels-per-origin-topic:</b></dt><dd>the number of tunnels attached
+to each origin topic; thus the number of copies to expect to receive of each
+event.  This is the product of the number of journals per origin topic and the
+number of tunnels per journal.</dd>
+<dt><b>origin-topics:</b></dt><dd>the number of origin topics.</dd>
+<dt><b>requests-per-sec:</b></dt><dd>the number of requests perftool was trying 
+to post per second.</dd>
+<dt><b>batchsize:</b></dt><dd>either 0, indicating that perftool was posting
+individual events instead of batches, or an integer indicating the number
+of events per request.</dd>
+</dl>
+
+<p>So a header line might look like this:</p>
+<blockquote><pre>
+host: circus port: 9041 tunnels-per-origin-topic: 1 origin-topics: 1 requests-per-sec: 1.000000 batchsize: 100
+</pre></blockquote>
+
+<p>The event lines contain the following fields at present:<p>
+
+<dl compact="compact">
+<dt><b>id:</b></dt><dd>the serial number of the event being received</dd>
+<dt><b>received:</b></dt><dd>the fractional number of seconds since the 
+          beginning of 1970 when the event was received</dd>
+<dt><b>latency:</b></dt><dd>the fractional number of seconds since the 
+          event was sent when it was received, i.e. the number of
+          seconds transmission through the PubSub Server delayed it</dd>
+<dt><b>conn:</b></dt><dd>the serial number of the connection on which
+          the event was received</dd>
+<dt><b>bytes:</b></dt><dd>the number of bytes received so far on that
+          connection</dd>
+</dl>
+
+<p>So an output line might look like this:</p>
+<blockquote><pre>
+id: 45 received: 991593414.487212 latency: 0.015101 conn: 10 bytes: 8818
+</pre></blockquote>
+
+<h3>Slave mode</h3>
+
+<p><i>not yet implemented.</i></p>
+
+<p>In order to handle large numbers of tunnels, perftool can be
+distributed across several machines.  On all but one of the machines,
+it should run in slave mode; it will listen on TCP port 19278 and do
+nothing until it receives a connection from a master.</p>
+
+<p>To the user, the master looks just like a normal non-distributed
+perftool, except that it scales to larger numbers of connections and
+higher data rates.  The argument semantics and output format are
+exactly the same.</p>
+
+<p>The slaves are used only for receiving events over tunnels.</p>
+
+<h2>BUGS</h2>
+
+<p>The master/slave functionality is not implemented.</p>
+
+<p>Except on Solaris, 
+perftool is still implemented on a select() event loop, which makes
+it slow on large numbers of connections.  It's still been used on up
+to 20,000 connections, though.</p>
+
+<p>perftool doesn't yet do much intelligent when connection attempts
+fail, although it does report them and exit.</p>
+
+<p>There are several places where unexpected errors will lead to
+memory leaks.</p>
+
+<p>All of its <small>HTTP</small> requests in the default
+configuration use URLs beginning with "/kn//what", which is sort of
+nasty.</p>
+
+<p>It doesn't free things when it exits, which makes most memory-leak
+checkers hard to use.</p>
+
+<!-- @(#) $Id: perftool.html,v 1.1 2003/03/21 05:23:56 ifindkarma Exp $ -->
+
+</body></html>
