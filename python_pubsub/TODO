@@ -1,7 +1,7 @@
 To Do List for Python PubSub (February 18, 2003)
 ------------------------------------------------
 
--1. Make a reaper.py which removes expired events.
+-1. Make a cleaner.py which removes expired events.
     Note: this client can work for both pubsub.py and pubsub.cgi
  0. Find out which of (asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py)
     can be removed from cvs because they ship with the standard Python
@@ -43,9 +43,11 @@ To Do List for Python PubSub (February 18, 2003)
 31. Most of read_event_pool and write_event_pool don't run.
 32. Most of the option parsing doesn't run normally.
 33. Add CGI support to pubsub.py.
-34. Add bridge.py to bridge instances of pubsub.py and pubsub.cgi.
+34. Fix bridge.py to use pubsublib.py to
+    bridge instances of pubsub.py and pubsub.cgi.
+35. Pythonize kn_tools/list_*.plx
 
-*** 35. Investigate replacing asyncore with Twisted Matrix:
+*** 36. Investigate replacing asyncore with Twisted Matrix:
 
     http://twistedmatrix.com/
 
