@@ -1,0 +1,12 @@
+$Id: README,v 1.1 2003/07/20 08:34:38 ifindkarma Exp $
+
+For a command-line utility that subscribes to blogchatter's feed, see:
+
+    mod_pubsub/python_pubsub/apps/subscribe.py
+
+For questions and comments, see
+
+   mod-pubsub-developer@lists.sourceforge.net
+   http://mod-pubsub.sf.net/
+
+Thanks!
