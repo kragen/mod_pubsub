@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.9 2003/03/21 20:29:55 ifindkarma Exp $
+# $Id: pubsub.py,v 1.10 2003/04/02 03:25:30 ifindkarma Exp $
 
 
 """
@@ -134,6 +134,8 @@ class Logger:
         errlines = string.split(err, '\n')
         log_err = "%s\n%s" % (time.time(),
                                string.join(map(lambda x: '    %s\n' % x, errlines), ''))
+        # FIXME: Handle log file size overflow.
+        # Perhaps log rotation or compaction?
         self.errlog.write(log_err)
         self.errlog.flush()
         if self.verbose:
@@ -221,7 +223,7 @@ class Event:
             for key in self.keys() + other.keys():
                 # FIXME: this should implement the correct dup-squashing algorithm
                 # instead.
-                if key not in ['kn_route_location', 'kn_time_t', 'kn_routed_from', 'kn_route_id', 'kn_tag']:
+                if key not in ['kn_route_location', 'kn_time_t', 'kn_routed_from', 'kn_route_id', 'kn_route_checkpoint']:
                     if not self.has_key(key): return -1
                     if not other.has_key(key): return 1
                     if self[key] != other[key]: return cmp(self[key], other[key])
@@ -322,7 +324,7 @@ class JournalTopic(Topic):
         if route.is_static_route():
             raise PermissionDenied, "Can't create a static route from a journal topic."
     def update_event(self, event):
-        self.events.append(event.clone({'kn_tag': uuid()}))
+        self.events.append(event.clone({'kn_route_checkpoint': uuid()}))
         return 1
     def notify(self, event):
         routes = self.get_subtopic('kn_routes').get_events()
@@ -362,11 +364,11 @@ class Route(Event):
                 events = events[-max_n:]
             for event in events:
                 self.post(event)
-        elif self.has_key('do_since_tag'):
+        elif self.has_key('do_since_checkpoint'):
             found_id = 0
             for ev in topic.get_events():
                 if found_id: self.post(ev)
-                if ev['kn_tag'] == self['do_since_tag']:
+                if ev['kn_route_checkpoint'] == self['do_since_checkpoint']:
                     found_id = 1
             if not found_id:
                 for ev in topic.get_events(): self.post(ev)
@@ -679,7 +681,7 @@ def tunnel(conn, uri, httpreq, query):
 def query_to_event(q):
     ev = {}
     for header in q.keys():
-        if header not in ['do_method', 'kn_from', 'kn_to', 'kn_tag', 'kn_debug', 'kn_status_from', 'kn_status_to',
+        if header not in ['do_method', 'kn_from', 'kn_to', 'kn_route_checkpoint', 'kn_debug', 'kn_status_from', 'kn_status_to',
                           'kn_response_format']:
             ev[header] = q[header][0]
     return Event(ev)

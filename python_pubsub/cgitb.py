@@ -21,6 +21,7 @@ def html(context=5):
     indent = '<tt><small>%s</small>&nbsp;</tt>' % ('&nbsp;' * 5)
     traceback = []
     for frame, file, lnum, func, lines, index in inspect.trace(context):
+        file = str(file) # HACK: file might not be filename, but we don't care
         file = os.path.abspath(file)
         link = '<a href="file:%s">%s</a>' % (file, pydoc.html.escape(file))
         args, varargs, varkw, locals = inspect.getargvalues(frame)

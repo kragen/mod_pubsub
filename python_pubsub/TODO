@@ -1,7 +1,7 @@
 ----------------------------
 To Do List for Python PubSub
 ----------------------------
-$Id: TODO,v 1.12 2003/03/29 08:23:12 ifindkarma Exp $
+$Id: TODO,v 1.13 2003/04/02 03:25:30 ifindkarma Exp $
 
  1. Finish test suite for pubsublib.py .
  2. Write chat.py and ping.py that use pubsublib.py .
@@ -15,45 +15,46 @@ $Id: TODO,v 1.12 2003/03/29 08:23:12 ifindkarma Exp $
  8. Find out which of (asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py)
     can be removed from cvs because they ship with the standard Python
     distribution and have not been modified here.
- 9. Verbose vs. non-verbose code not covered.
-10. Task.__repr__ never called.
-11. Scheduled tasks never have errors.
-12. Schedule never empty, so poll(None) never happens.
-13. Events never get compared to non-events.
-14. Illegal topic name characters never happen.
-15. Never create tunnels from non-journal topics.
-16. Never posted to a dead tunnel (when not restoring from persistent store).
-17. Never pickled tunnels (when not saving to persistent store).
-18. ev_encode's exception handler for string.join (needs to go away).
-19. is_utf8 never gets exceptions raised in it,
+ 9. Handle log file size overflow.  Perhaps log rotation or compaction?
+10. Verbose vs. non-verbose code not covered.
+11. Task.__repr__ never called.
+12. Scheduled tasks never have errors.
+13. Schedule never empty, so poll(None) never happens.
+14. Events never get compared to non-events.
+15. Illegal topic name characters never happen.
+16. Never create tunnels from non-journal topics.
+17. Never posted to a dead tunnel (when not restoring from persistent store).
+18. Never pickled tunnels (when not saving to persistent store).
+19. ev_encode's exception handler for string.join (needs to go away).
+20. is_utf8 never gets exceptions raised in it,
     and its exception handler is stupid anyway.
-20. server.handle_error never gets called.
-21. simple-format responses never get sent except to tunnels.
-22. Bad HTTP request lines never happen.
-23. We never parse HTTP response headers.
-24. We never get HTTP requests with continuation lines.
-25. We never get HTTP request lines without colons.
-26. We never get multiple HTTP headers with the same name
+21. server.handle_error never gets called.
+22. simple-format responses never get sent except to tunnels.
+23. Bad HTTP request lines never happen.
+24. We never parse HTTP response headers.
+25. We never get HTTP requests with continuation lines.
+26. We never get HTTP request lines without colons.
+27. We never get multiple HTTP headers with the same name
     and have to join them with commas
-27. libform and lib2form don't get tested by the automated tests.
-28. do_method=route defaulting for GET requests not tested.
-29. 'Welcome to pubsub.py' never gets run.
-30. '404 Not Found' never gets sent.
-31. Non-{GET,HEAD,POST} requests never get sent.
-32. send_response's '500 Internal Server Error' catch
+28. libform and lib2form don't get tested by the automated tests.
+29. do_method=route defaulting for GET requests not tested.
+30. 'Welcome to pubsub.py' never gets run.
+31. '404 Not Found' never gets sent.
+32. Non-{GET,HEAD,POST} requests never get sent.
+33. send_response's '500 Internal Server Error' catch
     never gets run for some reason.
-33. self.sockname never gets interpolated into a string
+34. self.sockname never gets interpolated into a string
     because Host: headers are always sent.
-34. Connection.repr never gets called because it has the wrong name.
-35. FinishRouting, ReportRouteStatus, and HttpClient are unused.
-36. Not serving any .gif or .jpg or default files in the automated tests.
-37. Most of read_event_pool and write_event_pool don't run.
-38. Most of the option parsing doesn't run normally.
-39. Pythonize kn_tools/list_*.plx
-40. asyncore is a global.
+35. Connection.repr never gets called because it has the wrong name.
+36. FinishRouting, ReportRouteStatus, and HttpClient are unused.
+37. Not serving any .gif or .jpg or default files in the automated tests.
+38. Most of read_event_pool and write_event_pool don't run.
+39. Most of the option parsing doesn't run normally.
+40. Pythonize kn_tools/list_*.plx
+41. asyncore is a global.
     Need to make it parameterized to allow multi-threaded use.
 
-*** 41. Investigate replacing asyncore with Twisted Matrix:  ************************
+*** 42. Investigate replacing asyncore with Twisted Matrix:  ************************
 
     http://twistedmatrix.com/
 
