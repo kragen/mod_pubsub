@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="java_pubsub">
+	
+	<target name="init">
+        <property name="app" value="java_pubsub"/>
+        <property name="version" value="1.1.0"/>
+		<property name="base" value="./"/>
+        <property name="lib" value="${base}/lib"/>
+		<property name="src" value="${base}/src"/>
+		<property name="src.tests" value="${base}/test"/>
+		<property name="build" value="${base}/build"/>
+		<property name="build.tests" value="${base}/build-tests"/>
+		<property name="report.tests" value="${base}/report-tests"/>
+    </target>
+    
+    <target depends="init" name="compile">
+        <javac	debug="true"
+				deprecation="false"
+				fork="yes"
+				verbose="no"
+				includeJavaRuntime="no"
+				includeAntRuntime="no"
+				destdir="${build}"
+				srcdir="${src}"
+		>
+            <classpath>
+				<!--Jar Library Dependencies-->
+                <fileset dir="${lib}">
+                  <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+	
+    <target depends="init" name="compile-test">
+        <javac	debug="true"
+				deprecation="false"
+				fork="yes"
+				verbose="no"
+				includeJavaRuntime="no"
+				includeAntRuntime="no"
+				destdir="${build.tests}"
+				srcdir="${src.tests}"
+		>
+            <classpath>
+				<!--Jar Library Dependencies-->
+                <fileset dir="${lib}">
+                  <include name="**/*.jar"/>
+                </fileset>
+                <pathelement location="${build}"/>
+            </classpath>
+        </javac>
+    </target>
+	
+    <target depends="init,compile" name="jar">
+        <jar basedir="${build}" compress="true" destfile="${app}-${version}.jar">
+			<include name="**/*"/>
+        </jar>
+    </target>
+	
+	<target depends="init,clean, build, jar" description="Build everything." name="all">
+        <echo message="${app}  built."/>
+    </target>
+	
+	<target depends="init,compile" description="Build." name="build">
+        <echo message="${app} built."/>
+    </target>
+		
+    <target depends="init" description="Clean all build products." name="clean">
+        <delete>
+            <fileset dir="${build}">
+                <include name="**/*.class"/>
+            </fileset>            
+            <fileset dir="${build.tests}">
+                <include name="**/*.class"/>
+            </fileset>            
+            <fileset dir="${report.tests}">
+                <include name="**/*.*"/>
+            </fileset>            
+        </delete>
+    </target>
+
+    <!-- ================================================== -->
+    <!--    testing                                         -->
+    <!-- ================================================== -->
+    <target name="test" depends="compile, compile-test">
+
+      <junit printsummary="yes" haltonfailure="yes">
+        <classpath>
+          <pathelement location="${build}"/>
+          <pathelement location="${build.tests}"/>
+          <!--Jar Library Dependencies-->
+          <fileset dir="${lib}">
+            <include name="**/*.jar"/>
+          </fileset>
+        </classpath>
+
+        <formatter type="plain"/>
+
+        <batchtest fork="yes" todir="${report.tests}">
+          <fileset dir="${src.tests}">
+            <include name="**/*Test*.java"/>
+            <exclude name="**/Testing*.java"/>
+            <exclude name="**/AllTests.java"/>
+          </fileset>
+        </batchtest>
+      </junit>
+      
+    </target>
+
+</project>
+
