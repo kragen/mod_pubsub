@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: subscribe.php,v 1.4 2003/05/06 02:10:06 ifindkarma Exp $';
+$RCSID = '$Id: subscribe.php,v 1.5 2003/05/06 02:59:12 ifindkarma Exp $';
 
 include('pubsublib.php');
 include('eventloop.php');
@@ -49,6 +49,7 @@ include('pipefitting.php');
 # Note: May not work with early versions of PHP4.
 # For example, it *is* known to work with php-4.3.1 -- 
 # but for php-4.1.2, all bets are off.  :)
+# Specifically, socket_select() is poorly supported in php-4.1.2.
 
 header("Content-Type: text/html; charset=utf-8");
 

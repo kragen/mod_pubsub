@@ -36,7 +36,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: eventloop.php,v 1.3 2003/05/06 02:10:05 ifindkarma Exp $';
+$RCSID = '$Id: eventloop.php,v 1.4 2003/05/06 02:57:55 ifindkarma Exp $';
 
 if (! defined("EVENTLOOP_PHP_INCLUDED"))
 {
@@ -284,8 +284,12 @@ if (! defined("EVENTLOOP_PHP_INCLUDED"))
             {
                 $_exceptsocks[$pos] = $sock;
             }
-            $rv = @socket_select($_readsocks, $_writesocks, $_exceptsocks,
+            $rv = socket_select($_readsocks, $_writesocks, $_exceptsocks,
                                 $fmaxdelay, $fmaxdelay_minor);
+            # FIXME: In PHP 4.1.2, the following gives us the error
+            # socket_select() expects parameter 1 to be resource.
+            # Therefore, we do not have PHP 4.1.2 support.
+            # if (kn_isEqualTo($rv, false) or kn_isEqualTo($rv, PUBSUB_NULL))
             if (kn_isEqualTo($rv, false))
             {
                 if (socket_last_error() == SOCKET_EAGAIN or
