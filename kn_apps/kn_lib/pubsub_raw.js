@@ -1,6 +1,12 @@
 // pubsub.js - The PubSub JavaScript Library
 
-// Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+// FIXME: Make long-lived connections work with IE 6+.
+
+// FIXME: Refactor this library so it has an ECMA runtime
+// and a separate browser piece so it can be used with
+// things like Konfabulator.
+
+// Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
 // @KNOWNOW_LICENSE_START@
 // 
@@ -34,7 +40,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: pubsub_raw.js,v 1.1 2002/11/07 07:08:18 troutgirl Exp $
+// $Id: pubsub_raw.js,v 1.2 2003/03/19 02:44:12 ifindkarma Exp $
 
 // Notes on notation:
 // 1. local variable and parameter names with four or more
@@ -393,7 +399,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.1 2002/11/07 07:08:18 troutgirl Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.2 2003/03/19 02:44:12 ifindkarma Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -3888,8 +3894,11 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
-// Revision 1.1  2002/11/07 07:08:18  troutgirl
-// Initial revision
+// Revision 1.2  2003/03/19 02:44:12  ifindkarma
+// Added FIXME for long lived connections in IE6+.
+//
+// Revision 1.1.1.1  2002/11/07 07:08:18  troutgirl
+// Initial checkin of mod_pubsub
 //
 // Revision 1.11  2002/03/26 19:25:44  bsittler
 // Fixed a nasty kn_resolvePath bug which broke the microserver after a while.
