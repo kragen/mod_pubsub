@@ -13,19 +13,36 @@ include_once("xmlrpcs.inc");
 function forward_ping($m)
 {
 
-		$host = "www.mod-pubsub.org";
+/*
+    $xml = $m->serialize();
+    error_log($xml, 3, "/tmp/blogchatter_log");
+*/
+
+	$host = "www.mod-pubsub.org";
     $path = "/kn/what/apps/blogchatter/pings";
+    $req = "";
 
     $param = $m->getParam(0);
-    $name = $param->scalarval();
     
-    $param = $m->getParam(1);
-    $url = $param->scalarval();
+    if ($param->kindOf() == "struct")
+    {
+        while (list($key,$value) = $param->structeach())
+        {
+            $req .= "blog_" . $key . "=" . urlencode($value->scalarval()) . ";";
+        }
+    } else
+    {
+        $name = $param->scalarval();
+        $param = $m->getParam(1);
+        $url = $param->scalarval();
+        
+        $req .= "blog_name=" .urlencode($name) . ";blog_url=" . urlencode($url) . ";";
+    }
     
-    $req = "kn_expires=" . urlencode("+1800") . ";blog_name=" .urlencode($name) . ";blog_url=" . urlencode($url);
+    $req .= "kn_expires=" . urlencode("+1800");
+
+    doPublish($host,$path,$req);
     
-		doPublish($host,$path,$req);
-            
      $ret = new xmlrpcval(array(
                 "flerror" => new xmlrpcval(0,"boolean"),
                 "message" => new xmlrpcval("Ping received","string")
