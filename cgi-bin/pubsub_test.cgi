@@ -1,5 +1,8 @@
 #!/usr/bin/perl -w
 
+# Example of running from the command line:
+#    ./pubsub_test.cgi url=http://127.0.0.1:8000/kn
+
 # Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
@@ -34,7 +37,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub_test.cgi,v 1.7 2003/06/14 04:56:40 ifindkarma Exp $
+# $Id: pubsub_test.cgi,v 1.8 2003/06/18 18:24:53 ifindkarma Exp $
 
 use strict;
 use PubSub::UUID;
