@@ -47,7 +47,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.24 2003/05/14 05:20:53 troutgirl Exp $
+# $Id: pubsub.py,v 1.25 2003/05/14 23:44:15 troutgirl Exp $
 
 
 """
@@ -202,7 +202,7 @@ class Event:
         if self.contents.has_key('kn_expires'):
             self.kn_expires = absolute_expiry(self.contents['kn_expires'])
         else:
-            self.kn_expires = absolute_expiry('+30')
+            self.kn_expires = absolute_expiry('+60')
         if not self.contents.has_key('kn_payload'):
             self.contents['kn_payload'] = ''
     def is_expired(self):
@@ -254,6 +254,7 @@ class Topic(Event):
         Event.__init__(self, {'kn_payload': len(name) and name[-1] or "nobody should ever see the root topic's kn_payload"})
         self.name = name
         self.kn_subtopics = None
+        self.kn_expires = None
         self.events = []
         self.eventdict = {}
     def get_descendant(self, name):
@@ -385,6 +386,7 @@ class StaticRoute(Route):
         Event.__init__(self, misc)
         self.kn_to = kn_to
         self.location = location
+        self.kn_expires = None
         if misc.has_key('kn_uri'):
             self.kn_uri = misc['kn_uri']
         elif location is not None:
