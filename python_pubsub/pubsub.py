@@ -47,7 +47,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.py,v 1.7 2003/03/15 05:04:25 ifindkarma Exp $
+# $Id: pubsub.py,v 1.8 2003/03/21 20:28:04 ifindkarma Exp $
 
 
 """
@@ -197,11 +197,7 @@ class Event:
             self.contents['kn_time_t'] = time.time()
         self.kn_expires = None
         if self.contents.has_key('kn_expires'):
-            self.contents['kn_expires'] = absolute_expiry(str(self['kn_expires']))
-            try:
-                self.kn_expires = float(self['kn_expires'])
-            except:
-                pass
+            self.kn_expires = absolute_expiry(self.contents['kn_expires'])
         else:
             self.kn_expires = None
         if not self.contents.has_key('kn_payload'):
@@ -223,6 +219,8 @@ class Event:
     def __cmp__(self, other):
         if isinstance(other, Event):
             for key in self.keys() + other.keys():
+                # FIXME: this should implement the correct dup-squashing algorithm
+                # instead.
                 if key not in ['kn_route_location', 'kn_time_t', 'kn_routed_from', 'kn_route_id', 'kn_tag']:
                     if not self.has_key(key): return -1
                     if not other.has_key(key): return 1
@@ -355,7 +353,7 @@ class Route(Event):
             now = time.time()
             max_age = self['do_max_age']
             for event in topic.get_events():
-                if max_age == 'infinity' or now - int(max_age) <= int(event['kn_time_t']):
+                if max_age == 'infinity' or now - float(max_age) <= float(event['kn_time_t']):
                     self.post(event)
         elif self.has_key('do_max_n'):
             events = topic.get_events()
@@ -644,10 +642,13 @@ def route_get_topic(conn, uri, query):
         uri = query['kn_from'][0]
     return conn.get_topic(uri)
 
-def absolute_expiry(str):
-    if str[0] == '+': return time.time() + float(str[1:])
-    elif str=="infinity": return None
-    else: return float(str)
+def absolute_expiry(value, base = 0.0):
+    print 'absolute_expiry' + str((value, base))
+    if value is None: return value
+    if value[0] == '+': return absolute_expiry(value[1:], time.time() + base)
+    if value=="infinity": return None
+    if value=="now": value = time.time()
+    return base + float(value)
 
 def status_event(query, status, payload='', htmlpayload=None):
     if htmlpayload is None: htmlpayload = cgi.escape(payload)
