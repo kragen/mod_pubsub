@@ -1,4 +1,4 @@
-<?php;
+<?php
 # pubsublib.php - PubSub PHP Client library
 
 # Copyright 2003 KnowNow, Inc.  All Rights Reserved.
@@ -857,11 +857,11 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
     ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
         <html>
         <head>
-        <?php;
+        <?php
 
     if ($show_source != "")
     {
-        ?><title><?php; echo kn_htmlEscape(__FILE__); ?></title><?php;
+        ?><title><?php echo kn_htmlEscape(__FILE__); ?></title><?php
         show_source(__FILE__);
         exit;
     }
@@ -878,13 +878,13 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
         href="http://mod-pubsub.sourceforge.net/"
         target="_blank">mod_pubsub</a> . . .</em></p>
         <br />
-        <?php;
+        <?php
 
     function _kn_unitTest()
     {
         ?>
             <h2>Unit Tests</h2>
-            <?php;
+            <?php
 
         class _kn_unitTestSuite
         {
@@ -896,13 +896,13 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
             function runTests()
             {
                 $array = $this->allTests;
-                ?><p>Running <?php;
+                ?><p>Running <?php
                 echo kn_htmlEscape(count($array));
-                ?> Test(s)...</p><?php;
-                ?><ol><?php;
+                ?> Test(s)...</p><?php
+                ?><ol><?php
                 while (list($name, $closure) = each($array))
                 {
-                    ?><li><?php;
+                    ?><li><?php
                     echo "\n" . kn_htmlEscape($name) . ":\n";
                     flush();
                     $result = kn_apply($closure, array());
@@ -914,10 +914,10 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
                     {
                         print "FAILED, " . $result;
                     }
-                    ?></li><?php;
+                    ?></li><?php
                 }
-                ?></ol><?php;
-                ?><p>Done.</p><?php;
+                ?></ol><?php
+                ?><p>Done.</p><?php
             }
             function defineTest($name, $closure)
             {
@@ -1198,11 +1198,11 @@ if (kn_fileIsEqualTo(__FILE__, $SCRIPT_FILENAME))
     ?>
         <hr size="1" />
         <p align="right" style="margin-top: 0px">You may find the <a
-        href="<?php; echo kn_htmlEscape($PHP_SELF) . '?show_source=1'; ?>"
+        href="<?php echo kn_htmlEscape($PHP_SELF) . '?show_source=1'; ?>"
         >PHP source for this application</a> instructive.</p>
         </body>
         </html>
-        <?php;
+        <?php
 }
 
 ?>

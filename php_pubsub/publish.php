@@ -1,17 +1,17 @@
-<?php;
+<?php
 header("Content-Type: text/html; charset=utf-8");
 
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
     <html>
     <head>
-    <?php;
+    <?php
 
 require('pubsublib.php');
 
 if ($show_source != "")
 {
-    ?><title><?php; echo kn_htmlEscape(__FILE__); ?></title>
-        <body text="black" bgcolor="white"><?php;
+    ?><title><?php echo kn_htmlEscape(__FILE__); ?></title>
+        <body text="black" bgcolor="white"><?php
     show_source(__FILE__);
     exit;
 }
@@ -53,14 +53,14 @@ if ($show_source != "")
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: publish.php,v 1.2 2003/03/25 06:04:27 ifindkarma Exp $';
+$RCSID = '$Id: publish.php,v 1.3 2003/03/25 19:43:15 troutgirl Exp $';
 
 ?>
 <title>PubSub PHP Publisher</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <body>
-<?php;
+<?php
 
 $publish_topic = $kn_topic;
 
@@ -76,7 +76,7 @@ if (! isset($publish_payload))
 
 if (! isset($publish))
 {
-    ?><h1>PHP Publisher</h1><?php;
+    ?><h1>PHP Publisher</h1><?php
 }
 else
 {
@@ -92,9 +92,9 @@ else
 }
 
 ?>
-<form action="<?php; echo kn_htmlEscape($PHP_SELF); ?>" method="POST">
+<form action="<?php echo kn_htmlEscape($PHP_SELF); ?>" method="POST">
 <dl>
-    <?php;
+    <?php
 
 $fields =
     array("kn_server" => array($kn->getServerURI(),
@@ -110,13 +110,13 @@ $fields =
 while (list($name, $value) = each($fields))
 {
     ?>
-        <dt><?php; echo kn_htmlEscape($value[1]); ?>:</dt>
+        <dt><?php echo kn_htmlEscape($value[1]); ?>:</dt>
         <dd><input
         size="40"
-        name="<?php; echo kn_htmlEscape($name); ?>"
-        value="<?php; echo kn_htmlEscape($value[0]); ?>"
+        name="<?php echo kn_htmlEscape($name); ?>"
+        value="<?php echo kn_htmlEscape($value[0]); ?>"
         /></dd>
-        <?php;
+        <?php
 }
 
 ?>
@@ -135,7 +135,7 @@ while (list($name, $value) = each($fields))
  align="right"
  style="margin-top: 0px"
 >You may find the <a
-href="<?php; echo kn_htmlEscape($PHP_SELF) . '?show_source=1'; ?>"
+href="<?php echo kn_htmlEscape($PHP_SELF) . '?show_source=1'; ?>"
 >PHP source for this application</a> instructive.</p>
 </body>
 </html>
