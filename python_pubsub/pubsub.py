@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.53 2003/07/23 02:16:42 bsittler Exp $
+# $Id: pubsub.py,v 1.54 2003/07/23 06:31:11 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -119,6 +119,7 @@
 
 import sys, os, os.path, re, string, socket, time, getopt, traceback, errno
 import urlparse, urllib, cgi, cgitb
+import logging, logging.handlers
 # FIXME: replace the mod_pubsub-modified asyncore with the standard asyncore.
 import asyncore
 from scheduler import scheduler
@@ -165,11 +166,9 @@ class Logger:
     def log_err(self, err):
         err = str(err)
         errlines = string.split(err, '\n')
-        log_err = ("%s\n%s" % (time.time(),
-                   string.join(map(lambda x: '    %s\n' % x, errlines), '')))
-        # FIXME: Handle logfile size overflow. Perhaps log rotation or compaction?
-        self.errlog.write(log_err)
-        self.errlog.flush()
+        log_err = ("%s" % 
+                   string.join(map(lambda x: '    %s\n' % x, errlines), ''))
+        self.errlog.error(log_err[:-1]) # Chop final newline.
         if self.verbose:
             sys.stderr.write(log_err)
             sys.stderr.flush()
@@ -944,9 +943,8 @@ class Server:
         self.peers[id(conn)] = addr
 
     def log(self, where, family, event, msg):
-        log_msg = "%s %s: <%s/%s> %s\n" % (time.time(), id(where), family, event, msg)
-        self.logfile.write(log_msg)
-        self.logfile.flush()
+        log_msg = "%s: <%s/%s> %s\n" % (id(where), family, event, msg)
+        self.logfile.info(log_msg[:-1]) # Chop final newline.
         if self.verbose > 1:
             sys.stderr.write(log_msg)
             sys.stderr.flush()
@@ -1664,8 +1662,24 @@ def main(argv):
         elif opt in ('-i', '--ignore'):
             ignorePrologue = 1
 
-    logfile = open("pubsub.log", "ab")
-    errlog = open("pubsub.err.log", "ab")
+    logname = "pubsub.log"
+    hdlr = logging.handlers.RotatingFileHandler(logname, "a", 1024*1024*1024, 3)
+    fmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s", "%x %X")
+    hdlr.setFormatter(fmt)
+    logfile = logging.getLogger("pubsub.py")
+    logfile.addHandler(hdlr)
+    logfile.setLevel(logging.DEBUG)
+    logfile.info("--------- START pubsub.py")
+
+    errlogname = "pubsub.err.log"
+    ehdlr = logging.handlers.RotatingFileHandler(errlogname, "a", 1024*1024*1024, 3)
+    efmt = logging.Formatter("%(asctime)s %(levelname)-5s %(message)s", "%x %X")
+    ehdlr.setFormatter(efmt)
+    errlog = logging.getLogger("pubsub.err.py")
+    errlog.addHandler(ehdlr)
+    errlog.setLevel(logging.DEBUG)
+    errlog.info("--------- START pubsub.py")
+
     if not autoPortNum:
         minRequiredArgs = 3
         maxRequiredArgs = 4
