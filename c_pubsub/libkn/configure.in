@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to make a configure script.
 
-AC_REVISION($Revision: 1.2 $)
+AC_REVISION($Revision: 1.3 $)
 #
 # autoconf build configuration for libkn
 # Wilfredo Sanchez
@@ -21,7 +21,13 @@ AC_CANONICAL_SYSTEM
 dnl Options:
 
 AC_ARG_ENABLE(debug, 
-[  --enable-debug 		enable debug build], debug=yes, debug=no)
+[  --enable-debug 		enable debug build], debug="yes", debug="no")
+
+AC_ARG_ENABLE(shared, 
+[  --enable-shared 		enable shared library support], shared="${enableval}", shared="yes")
+
+if test "${shared}" != "no"; then shared="yes"; fi;
+have_shared="no";
 
 openssldir=/usr/local/ssl
   LIBCRYPT=""
@@ -120,7 +126,7 @@ if test -x /usr/lib/dyld; then
      shlib_ext=.dylib
     module_ext=.bundle
 
-              LIBKN='$(LIBKN_DYNAMIC)'
+        have_shared="yes";
       LDFLAGS_SHLIB="${LDFLAGS} -dynamiclib -install_name \$(libdir)/\$(LIBKN_DYNAMIC)"
     RUN_ENVIRONMENT='DYLD_LIBRARY_PATH=.'
 
@@ -129,16 +135,25 @@ else
     AC_MSG_RESULT(no)
 fi
 
-dnl AC_MSG_CHECKING(for Solaris linker)
-dnl if test -x /usr/lib/ld.so; then
-dnl             LIBKN='$(LIBKN_DYNAMIC)'
-dnl           LDFLAGS="$LDFLAGS       '-Wl,-R\$(libdir)'"
-dnl     LDFLAGS_SHLIB="$LDFLAGS_SHLIB '-Wl,-R \$(libdir)' -G"
-dnl 
-dnl     AC_MSG_RESULT(yes)
-dnl else
-dnl     AC_MSG_RESULT(no)
-dnl fi
+AC_MSG_CHECKING(for Solaris linker)
+if test -x /usr/lib/ld.so; then
+      have_shared="yes"
+          LDFLAGS="$LDFLAGS       '-Wl,-R\$(libdir)'"
+    LDFLAGS_SHLIB="$LDFLAGS_SHLIB '-Wl,-R \$(libdir)' -G"
+
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
+fi
+
+AC_MSG_CHECKING(for shared library support)
+if test "${shared}" = "yes" && test "${have_shared}" = "yes"; then
+    LIBKN='$(LIBKN_DYNAMIC)'
+
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
+fi
 
 AC_SUBST(lib_ext)
 AC_SUBST(shlib_ext)
