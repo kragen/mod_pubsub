@@ -1,0 +1,21 @@
+$Id: README,v 1.1 2003/03/15 04:52:49 ifindkarma Exp $
+
+We'll fill in a README at some later date.
+For now, here's a typical way to start a sensor using bash.
+
+
+# This starts just the nasdaq2 sensor
+export PYTHONPATH=~/microservers/python:~/sensors/python
+cd ~/sensors/python/financial
+./sensor_nasdaq2.py
+
+
+or
+
+
+# This starts all of the sensors (sensor_*.py) in ~/sensors/python/aid
+export PYTHONPATH=~/microservers/python:~/sensors/python
+export SENSORPATH=~/sensors/python/aid
+cd ~/sensors/python
+./sensor.py
+
