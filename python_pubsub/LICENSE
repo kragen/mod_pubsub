@@ -1,3 +1,5 @@
+$Id: LICENSE,v 1.2 2003/03/19 03:38:14 ifindkarma Exp $
+
 The following files are distributed under the same license as Python.
 
 asyncore.py  cgi.py  cgitb.py  inspect.py  pydoc.py
