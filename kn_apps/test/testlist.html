@@ -36,14 +36,14 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: testlist.html,v 1.5 2003/04/26 02:43:32 ifindkarma Exp $
+ $Id: testlist.html,v 1.6 2003/04/26 03:56:39 ifindkarma Exp $
 
 -->
 
 <html>
 
 <head>
-<title>pubsub client test page</title>
+<title>pubsub javascript client test page</title>
 
 <script src="/kn?do_method=whoami"></script>
 
@@ -420,17 +420,23 @@ define_test("follower subscribes successfully", function()
 
 define_test("server-side test suite", function()
 {
+    var url = self.kn_server ? self.kn_server : "/kn";
+    if (url.charAt(0) == '/')
+    {
+        // Make the server URL fully qualified.
+        url = location.protocol + "//" + location.host + url;
+    }
+    var params = new Array();
+    params[params.length] = "url=" + escape(url);
+    params[params.length] = "jsoutput=1";
     if (document.authform.username.value)
     {
-        left_frame_esp("../../cgi-bin/pubsub_test.cgi?jsoutput=1;user=" + 
-                       escape(document.authform.username.value) + 
-                       ";password=" + 
-                       escape(document.authform.password.value));
+        params[params.length] = "user=" +
+	                       escape(document.authform.username.value);
+        params[params.length] = "password=" + 
+	                       escape(document.authform.password.value);
     }
-    else
-    {
-          left_frame_esp("../../cgi-bin/pubsub_test.cgi?jsoutput=1");
-    }
+    left_frame_esp("../../cgi-bin/pubsub_test.cgi?" + params.join(";"));
 });
 
 // -->
