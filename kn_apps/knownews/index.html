@@ -78,21 +78,32 @@ function onMessage(event)
 	if (event.type == "comment")
 		addComment(event);
 	else
-	if (event.s8_sitename)
+	if (event.s8_item_title)
 	{
-		if (!event.title)
-			event.title = event.s8_sitename;
+		// syndic8 format
+		event.title = event.s8_item_title;
+		event.link = event.s8_item_link;
+		event.author = event.s8_sitename;
+		event.description = event.s8_item_description;
+
+		if (event.title && event.link)
+			addItem(event);
+	}
+	else
+	if (event.blog_name)
+	{
+		// blogchatter format
 		if (!event.title)
 			event.title = event.blog_name;
 		if (!event.link)
-			event.link = event.s8_dataurl;
-		if (!event.link)
 			event.link = event.blog_url;
-		addItem(event);
+		if (event.title && event.link)
+			addItem(event);
 	}
 
     refresh();
 }
+
 
 function findEvent(event)
 {
