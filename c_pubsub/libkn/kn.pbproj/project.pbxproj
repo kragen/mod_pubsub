@@ -3,44 +3,61 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 32;
+	objectVersion = 38;
 	objects = {
 		0187C790005582E90A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = KNRoute.h;
 			refType = 4;
 		};
 		0187C791005582E90A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = KNRoute.m;
 			refType = 4;
 		};
 		0187C79200558D760A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = index.html;
 			path = docs/index.html;
 			refType = 4;
 		};
 		0187C7930055D1260A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Server_private.h;
 			refType = 4;
 		};
 		0187C7940056F0CC0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_String_URI.h;
 			refType = 4;
 		};
 		0187C7950056F0CC0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_String_URI.c;
 			refType = 4;
 		};
 		018B421C005EB86C0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_test.m;
 			refType = 4;
 		};
+//010
+//011
+//012
+//013
+//014
+//070
+//071
+//072
+//073
+//074
 		075854EA007192F10A0A0A23 = {
 			isa = PBXFrameworkReference;
 			path = KnowNow.framework;
@@ -55,14 +72,13 @@
 				075854FA007192F10A0A0A23,
 			);
 			buildSettings = {
-				DEPLOYMENT_OPTIMIZATION_CFLAGS = "-O3";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)";
 				INSTALL_PATH = /Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = .;
-				OPTIMIZATION_CFLAGS = "";
+				OPTIMIZATION_CFLAGS = "-O3";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOL_FLAGS = "";
@@ -73,8 +89,6 @@
 				WARNING_CFLAGS = "-Wall -Werror";
 				WRAPPER_EXTENSION = framework;
 			};
-			conditionalBuildSettings = {
-			};
 			dependencies = (
 				075854EC007192F10A0A0A23,
 			);
@@ -84,8 +98,8 @@
 			productName = Framework;
 			productReference = 075854EA007192F10A0A0A23;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist SYSTEM \"file://localhost/System/Library/DTDs/PropertyList.dtd\">
-<plist version=\"0.9\">
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
@@ -109,14 +123,11 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>0.0.1</string>
-	<key>NSHelpFile</key>
-	<string></string>
 	<key>NSPrincipalClass</key>
 	<string></string>
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 0;
 		};
 		075854EC007192F10A0A0A23 = {
 			isa = PBXTargetDependency;
@@ -132,7 +143,7 @@
 				075854F1007192F10A0A0A23,
 			);
 			isa = PBXHeadersBuildPhase;
-			name = Headers;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		075854EE007192F10A0A0A23 = {
 			fileRef = 6E5FCDC4005438FF0A0A0A23;
@@ -175,7 +186,7 @@
 			files = (
 			);
 			isa = PBXResourcesBuildPhase;
-			name = "Bundle Resources";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		075854F3007192F10A0A0A23 = {
 			buildActionMask = 2147483647;
@@ -186,7 +197,7 @@
 				075854F7007192F10A0A0A23,
 			);
 			isa = PBXSourcesBuildPhase;
-			name = Sources;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		075854F4007192F10A0A0A23 = {
 			fileRef = 6E5FCDC5005438FF0A0A0A23;
@@ -219,14 +230,14 @@
 				075854FF00719E660A0A0A23,
 			);
 			isa = PBXFrameworksBuildPhase;
-			name = "Frameworks & Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		075854FA007192F10A0A0A23 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXRezBuildPhase;
-			name = "ResourceManager Resources";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		075854FB00719DA70A0A0A23 = {
 			isa = PBXFileReference;
@@ -273,10 +284,9 @@
 				0758550700719F1B0A0A0A23,
 			);
 			buildSettings = {
-				DEPLOYMENT_OPTIMIZATION_CFLAGS = "-O3";
 				HEADER_SEARCH_PATHS = .;
 				LIBRARY_SEARCH_PATHS = .;
-				OPTIMIZATION_CFLAGS = "";
+				OPTIMIZATION_CFLAGS = "-O3";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -284,8 +294,6 @@
 				REZ_EXECUTABLE = YES;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wall -Werror";
-			};
-			conditionalBuildSettings = {
 			};
 			dependencies = (
 				0758550300719F1B0A0A0A23,
@@ -295,7 +303,6 @@
 			productInstallPath = /usr/local/bin;
 			productName = test;
 			productReference = 0758550100719F1B0A0A0A23;
-			shouldUseHeadermap = 0;
 		};
 		0758550300719F1B0A0A0A23 = {
 			isa = PBXTargetDependency;
@@ -306,7 +313,7 @@
 			files = (
 			);
 			isa = PBXHeadersBuildPhase;
-			name = Headers;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		0758550500719F1B0A0A0A23 = {
 			buildActionMask = 2147483647;
@@ -314,7 +321,7 @@
 				0758550C0071A12A0A0A0A23,
 			);
 			isa = PBXSourcesBuildPhase;
-			name = Sources;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		0758550600719F1B0A0A0A23 = {
 			buildActionMask = 2147483647;
@@ -324,14 +331,14 @@
 				1B31B9BF0071A24A0A0A0A23,
 			);
 			isa = PBXFrameworksBuildPhase;
-			name = "Frameworks & Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		0758550700719F1B0A0A0A23 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXRezBuildPhase;
-			name = "ResourceManager Resources";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		075855090071A09F0A0A0A23 = {
 			children = (
@@ -345,8 +352,6 @@
 				448D8D9A004C543D0A0A0A23,
 				448D8D9B004C543D0A0A0A23,
 				448D8D9C004C543D0A0A0A23,
-				448D8D9D004C543D0A0A0A23,
-				448D8D9E004C543D0A0A0A23,
 				0187C7940056F0CC0A0A0A23,
 				0187C7950056F0CC0A0A0A23,
 				448D8D9F004C543D0A0A0A23,
@@ -365,6 +370,7 @@
 				6E5FCDCE005497430A0A0A23,
 				6E5FCDCF005497430A0A0A23,
 				448D8DA5004C543D0A0A0A23,
+				35BB46AD0418641900CF0C49,
 			);
 			isa = PBXGroup;
 			name = Source;
@@ -415,25 +421,39 @@
 			settings = {
 			};
 		};
+//070
+//071
+//072
+//073
+//074
+//090
+//091
+//092
+//093
+//094
 		094D316B00A21CB70A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = Makefile.in;
 			path = docs/Makefile.in;
 			refType = 4;
 		};
 		094D316C00A21CB70A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = objects.html.in;
 			path = docs/objects.html.in;
 			refType = 4;
 		};
 		094D316D00A21E260A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = objects.html;
 			path = docs/objects.html;
 			refType = 4;
 		};
 		094D316E00A22FEE0A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = ex_publish.html.in;
 			path = docs/ex_publish.html.in;
@@ -450,32 +470,48 @@
 			refType = 4;
 		};
 		094D317000A2306D0A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_publish.c;
 			refType = 4;
 		};
 		094D317100A2306D0A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_subscribe.c;
 			refType = 4;
 		};
 		094D317200A236A50A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = ex_subscribe.html.in;
 			path = docs/ex_subscribe.html.in;
 			refType = 4;
 		};
+//090
+//091
+//092
+//093
+//094
+//0F0
+//0F1
+//0F2
+//0F3
+//0F4
 		0F7E4FC900B2F7FB0A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = NOTES;
 			refType = 4;
 		};
 		0F7E4FCA00B2F7FB0A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = README;
 			refType = 4;
 		};
 		0F7E4FCB00B2F7FB0A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXExecutableFileReference;
 			path = setup;
 			refType = 4;
@@ -488,6 +524,7 @@
 				0F7E4FCE00B2F8B70A0A1623,
 				0F7E4FCF00B2F8B70A0A1623,
 				0F7E4FD000B2F8B70A0A1623,
+				35BB46A8041860D300CF0C49,
 				0F7E4FD100B2F8B70A0A1623,
 				0F7E4FD200B334EE0A0A1623,
 			);
@@ -496,95 +533,121 @@
 			refType = 4;
 		};
 		0F7E4FCD00B2F8B70A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = acconfig.h;
 			path = buildconf/acconfig.h;
 			refType = 4;
 		};
 		0F7E4FCE00B2F8B70A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = common.mk.in;
 			path = buildconf/common.mk.in;
 			refType = 4;
 		};
 		0F7E4FCF00B2F8B70A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXExecutableFileReference;
 			name = config.guess;
 			path = buildconf/config.guess;
 			refType = 4;
 		};
 		0F7E4FD000B2F8B70A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXExecutableFileReference;
 			name = config.sub;
 			path = buildconf/config.sub;
 			refType = 4;
 		};
 		0F7E4FD100B2F8B70A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXExecutableFileReference;
 			name = "install-sh";
 			path = "buildconf/install-sh";
 			refType = 4;
 		};
 		0F7E4FD200B334EE0A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = Makefile.in;
 			refType = 4;
 		};
+//0F0
+//0F1
+//0F2
+//0F3
+//0F4
+//190
+//191
+//192
+//193
+//194
 		1934B73C00973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_base;
 			path = docs/kn_base;
 			refType = 4;
 		};
 		1934B73D00973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_Dictionary;
 			path = docs/kn_Dictionary;
 			refType = 4;
 		};
 		1934B73E00973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_Error;
 			path = docs/kn_Error;
 			refType = 4;
 		};
 		1934B73F00973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_Event;
 			path = docs/kn_Event;
 			refType = 4;
 		};
 		1934B74000973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_Object;
 			path = docs/kn_Object;
 			refType = 4;
 		};
 		1934B74100973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_Route;
 			path = docs/kn_Route;
 			refType = 4;
 		};
 		1934B74200973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_Server;
 			path = docs/kn_Server;
 			refType = 4;
 		};
 		1934B74300973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_String;
 			path = docs/kn_String;
 			refType = 4;
 		};
 		1934B74400973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_String_URI;
 			path = docs/kn_String_URI;
 			refType = 4;
 		};
 		1934B74500973EB50A0A0A23 = {
+			includeInIndex = 0;
 			isa = PBXFolderReference;
 			name = kn_String_WebEncoding;
 			path = docs/kn_String_WebEncoding;
@@ -609,6 +672,16 @@
 			name = Documentation;
 			refType = 4;
 		};
+//190
+//191
+//192
+//193
+//194
+//1B0
+//1B1
+//1B2
+//1B3
+//1B4
 		1B31B9BF0071A24A0A0A0A23 = {
 			fileRef = 075854FB00719DA70A0A0A23;
 			isa = PBXBuildFile;
@@ -617,9 +690,8 @@
 		};
 		1B31B9C10071A3A60A0A0A23 = {
 			isa = PBXExecutableFileReference;
-			name = kn_test;
-			path = build/kn_test;
-			refType = 2;
+			path = kn_test;
+			refType = 3;
 		};
 		1B31B9C20071A3A60A0A0A23 = {
 			buildPhases = (
@@ -629,10 +701,9 @@
 				1B31B9C60071A3A60A0A0A23,
 			);
 			buildSettings = {
-				DEPLOYMENT_OPTIMIZATION_CFLAGS = "-O3";
 				HEADER_SEARCH_PATHS = .;
 				LIBRARY_SEARCH_PATHS = .;
-				OPTIMIZATION_CFLAGS = "";
+				OPTIMIZATION_CFLAGS = "-O3";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -640,8 +711,6 @@
 				REZ_EXECUTABLE = YES;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wall -Werror";
-			};
-			conditionalBuildSettings = {
 			};
 			dependencies = (
 				1BA73B910071A44E0A0A0A23,
@@ -651,14 +720,13 @@
 			productInstallPath = /usr/local/bin;
 			productName = test_posix;
 			productReference = 1B31B9C10071A3A60A0A0A23;
-			shouldUseHeadermap = 0;
 		};
 		1B31B9C30071A3A60A0A0A23 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXHeadersBuildPhase;
-			name = Headers;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1B31B9C40071A3A60A0A0A23 = {
 			buildActionMask = 2147483647;
@@ -666,7 +734,7 @@
 				1BA73B920071A44E0A0A0A23,
 			);
 			isa = PBXSourcesBuildPhase;
-			name = Sources;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1B31B9C50071A3A60A0A0A23 = {
 			buildActionMask = 2147483647;
@@ -674,14 +742,14 @@
 				1BA73B930071A44E0A0A0A23,
 			);
 			isa = PBXFrameworksBuildPhase;
-			name = "Frameworks & Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1B31B9C60071A3A60A0A0A23 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXRezBuildPhase;
-			name = "ResourceManager Resources";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1BA73B910071A44E0A0A0A23 = {
 			isa = PBXTargetDependency;
@@ -700,6 +768,7 @@
 			};
 		};
 		1BA73B940071AD5B0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = KnowNow.h;
 			refType = 4;
@@ -713,35 +782,150 @@
 				);
 			};
 		};
+//1B0
+//1B1
+//1B2
+//1B3
+//1B4
+//350
+//351
+//352
+//353
+//354
+		35BB46A8041860D300CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = configure.in;
+			refType = 4;
+		};
+		35BB46A9041863DE00CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = atomicio.c;
+			refType = 4;
+		};
+		35BB46AA041863DE00CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = entropy.c;
+			refType = 4;
+		};
+		35BB46AB041863DE00CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = prng_cmds.h;
+			refType = 4;
+		};
+		35BB46AC041863DE00CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = prng_cmds.in;
+			refType = 4;
+		};
+		35BB46AD0418641900CF0C49 = {
+			children = (
+				448D8D9D004C543D0A0A0A23,
+				448D8D9E004C543D0A0A0A23,
+				35BB46A9041863DE00CF0C49,
+				35BB46AA041863DE00CF0C49,
+				35BB46AB041863DE00CF0C49,
+				35BB46AC041863DE00CF0C49,
+				35BB46B1041864C100CF0C49,
+			);
+			isa = PBXGroup;
+			name = Support;
+			refType = 4;
+		};
+		35BB46AE0418644700CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = acknowledgements.html;
+			path = docs/acknowledgements.html;
+			refType = 4;
+		};
+		35BB46AF0418644700CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = api.html.in;
+			path = docs/api.html.in;
+			refType = 4;
+		};
+		35BB46B00418649E00CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = LICENSE;
+			refType = 4;
+		};
+		35BB46B1041864C100CF0C49 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = strlcpy.c;
+			refType = 4;
+		};
+//350
+//351
+//352
+//353
+//354
+//3B0
+//3B1
+//3B2
+//3B3
+//3B4
 		3BC4B15400A774980A0A1623 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Server_http.c;
 			refType = 4;
 		};
+//3B0
+//3B1
+//3B2
+//3B3
+//3B4
+//3F0
+//3F1
+//3F2
+//3F3
+//3F4
 		3FA55DB50087760B0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Server_publish.c;
 			refType = 4;
 		};
 		3FA55DB60087760B0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Server_subscribe.c;
 			refType = 4;
 		};
 		3FA55DB70087760B0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Server_callback.c;
 			refType = 4;
 		};
+//3F0
+//3F1
+//3F2
+//3F3
+//3F4
+//440
+//441
+//442
+//443
+//444
 		448D8D90004C53850A0A0A23 = {
 			buildStyles = (
 				57C8A5CF004C57590A0A0A23,
 				57C8A5D0004C57590A0A0A23,
 			);
+			hasScannedForEncodings = 1;
 			isa = PBXProject;
 			mainGroup = 448D8D91004C53850A0A0A23;
 			productRefGroup = 448D8D91004C53850A0A0A23;
-			projectDirPath = .;
+			projectDirPath = "";
 			targets = (
 				075854EB007192F10A0A0A23,
 				0758550200719F1B0A0A0A23,
@@ -751,6 +935,7 @@
 		};
 		448D8D91004C53850A0A0A23 = {
 			children = (
+				35BB46B00418649E00CF0C49,
 				0F7E4FC900B2F7FB0A0A1623,
 				448D8D92004C53BC0A0A0A23,
 				6E5FCDC2005438FF0A0A0A23,
@@ -771,86 +956,103 @@
 			refType = 4;
 		};
 		448D8D94004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_base.h;
 			refType = 4;
 		};
 		448D8D95004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_base.c;
 			refType = 4;
 		};
 		448D8D96004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Error.h;
 			refType = 4;
 		};
 		448D8D97004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Error.c;
 			refType = 4;
 		};
 		448D8D99004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Object.h;
 			refType = 4;
 		};
 		448D8D9A004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Object.c;
 			refType = 4;
 		};
 		448D8D9B004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_String.h;
 			refType = 4;
 		};
 		448D8D9C004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_String.c;
 			refType = 4;
 		};
 		448D8D9D004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = apr_base64.h;
 			refType = 4;
 		};
 		448D8D9E004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = apr_base64.c;
 			refType = 4;
 		};
 		448D8D9F004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_String_WebEncoding.h;
 			refType = 4;
 		};
 		448D8DA0004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_String_WebEncoding.c;
 			refType = 4;
 		};
 		448D8DA1004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Dictionary.h;
 			refType = 4;
 		};
 		448D8DA2004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Dictionary.c;
 			refType = 4;
 		};
 		448D8DA3004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Event.h;
 			refType = 4;
 		};
 		448D8DA4004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Event.c;
 			refType = 4;
 		};
 		448D8DA5004C543D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_test.c;
 			refType = 4;
@@ -858,6 +1060,8 @@
 		448D8DA9004C552D0A0A0A23 = {
 			children = (
 				094D316B00A21CB70A0A1623,
+				35BB46AE0418644700CF0C49,
+				35BB46AF0418644700CF0C49,
 				448D8DAC004C552D0A0A0A23,
 				094D316C00A21CB70A0A1623,
 				094D316E00A22FEE0A0A1623,
@@ -870,12 +1074,14 @@
 			refType = 4;
 		};
 		448D8DAB004C552D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = headerDoc2HTML.config;
 			path = docs/headerDoc2HTML.config;
 			refType = 4;
 		};
 		448D8DAC004C552D0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			name = index.html.in;
 			path = docs/index.html.in;
@@ -890,23 +1096,32 @@
 			};
 			buildToolPath = /bin/sh;
 			buildWorkingDirectory = "";
-			conditionalBuildSettings = {
-			};
 			dependencies = (
 			);
 			isa = PBXLegacyTarget;
 			name = library;
+			passBuildSettingsInEnvironment = 1;
 			productName = debug;
 			settingsToExpand = 6;
 			settingsToPassInEnvironment = 287;
 			settingsToPassOnCommandLine = 280;
-			shouldUseHeadermap = 0;
 		};
+//440
+//441
+//442
+//443
+//444
+//570
+//571
+//572
+//573
+//574
 		57C8A5CF004C57590A0A0A23 = {
 			buildRules = (
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				OPTIMIZATION_CFLAGS = "-O0";
 			};
 			isa = PBXBuildStyle;
 			name = Development;
@@ -920,7 +1135,18 @@
 			isa = PBXBuildStyle;
 			name = Deployment;
 		};
+//570
+//571
+//572
+//573
+//574
+//580
+//581
+//582
+//583
+//584
 		58D83753004C695F0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Object_private.h;
 			refType = 4;
@@ -938,20 +1164,33 @@
 			refType = 2;
 		};
 		58D83759004C8B1F0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn.h;
 			refType = 4;
 		};
 		58D8375E004C982E0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Server.h;
 			refType = 4;
 		};
 		58D8375F004C982E0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Server.c;
 			refType = 4;
 		};
+//580
+//581
+//582
+//583
+//584
+//6E0
+//6E1
+//6E2
+//6E3
+//6E4
 		6E5FCDC2005438FF0A0A0A23 = {
 			children = (
 				0758550A0071A12A0A0A0A23,
@@ -964,41 +1203,49 @@
 			refType = 4;
 		};
 		6E5FCDC4005438FF0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = FoundationExtensions.h;
 			refType = 4;
 		};
 		6E5FCDC5005438FF0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = FoundationExtensions.m;
 			refType = 4;
 		};
 		6E5FCDC6005438FF0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = KNEvent.h;
 			refType = 4;
 		};
 		6E5FCDC7005438FF0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = KNEvent.m;
 			refType = 4;
 		};
 		6E5FCDC8005438FF0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = KNServer.h;
 			refType = 4;
 		};
 		6E5FCDC9005438FF0A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = KNServer.m;
 			refType = 4;
 		};
 		6E5FCDCE005497430A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Route.h;
 			refType = 4;
 		};
 		6E5FCDCF005497430A0A0A23 = {
+			fileEncoding = 4;
 			isa = PBXFileReference;
 			path = kn_Route.c;
 			refType = 4;
