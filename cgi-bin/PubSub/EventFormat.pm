@@ -1,6 +1,6 @@
 package PubSub::EventFormat;
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,7 +34,7 @@ package PubSub::EventFormat;
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: EventFormat.pm,v 1.1 2002/11/07 07:08:00 troutgirl Exp $
+# $Id: EventFormat.pm,v 1.2 2003/03/22 11:05:12 ifindkarma Exp $
 
 # NAME
 # PubSub::EventFormat - Library for PubSub's filesystem handling.
@@ -224,7 +224,7 @@ sub read_file
 
     my $now = time();
     if (defined($rv->{'kn_expires'}) and
-        $rv->{'kn_expires'} != 'infinity' and
+        $rv->{'kn_expires'} ne 'infinity' and
         $rv->{'kn_expires'} < $now and 
         not is_journal($dir))
     {
