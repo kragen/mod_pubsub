@@ -1,4 +1,4 @@
-// Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+// Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
 // @KNOWNOW_LICENSE_START@
 // 
@@ -32,7 +32,7 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: htmlsafe.js,v 1.1 2002/11/07 07:08:05 troutgirl Exp $
+// $Id: htmlsafe.js,v 1.2 2003/04/19 00:31:07 ifindkarma Exp $
 
 // htmlsafe.js uses kn_server and kn_resolvePath from do_method=lib.
 
@@ -41,6 +41,7 @@
 // We do this here so that people can get some exciting benefits: big
 // and small text, gigantic inline images, and hyperlinks.  Mostly
 // hyperlinks.
+
 
 
 // ascii_string = enitfyUTF16(string)
