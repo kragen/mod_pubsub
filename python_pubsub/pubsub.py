@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.38 2003/06/14 08:07:07 ifindkarma Exp $
+# $Id: pubsub.py,v 1.39 2003/06/17 03:35:52 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -234,8 +234,10 @@ class Event:
 
 
 def is_bad_topic_name(name):
-    """ Duplicates the gratuitous topic-name rejection done by pubsub.cgi,
-    to provide an easy way of causing posting and subscribing to fail. """
+    """
+    Duplicates the gratuitous topic-name rejection done by pubsub.cgi,
+    to provide an easy way of causing posting and subscribing to fail.
+    """
     for c in name:
         if (not ('a' <= c <= 'z') and
             not ('A' <= c <= 'Z') and
@@ -248,18 +250,7 @@ def is_bad_topic_name(name):
 
 class Topic(Event):
     """
-    A Topic is a cache of Events that:
-        1. Allows idempotent notification through duplicate suppression
-        2. Manages resources through event expiration.
-        3. Proxies by routing notifications to subscribers.
-
-    The subscriber list for a Topic is itself managed as a Topic.
-    The route table for a Topic is itself managed as a Topic, too.
-
-    do_max_age and do_max_n are queries against a Topic's cache,
-    and they deliver along a Route.
-
-    Responsibilities of Topic:
+    Responsibilities:
         1. Hold a collection of Events, accessible by name,
            but kept in sequence of last update.
            FIXME: Events should be indexed by timestamp instead.
@@ -272,6 +263,17 @@ class Topic(Event):
            (This lets us delete routes, and delete subtopics.)
         2. Provide access to descendents.
         3. Clean events, subtopics, and routes when they expire.
+
+    A Topic is a cache of Events that:
+        1. Allows idempotent notification through duplicate suppression
+        2. Manages resources through event expiration.
+        3. Proxies by routing notifications to subscribers.
+
+    The subscriber list for a Topic is itself managed as a Topic.
+    The route table for a Topic is itself managed as a Topic, too.
+
+    do_max_age and do_max_n are queries against a Topic's cache,
+    and they deliver along a Route.
     """
 
     def __init__(self, name):
@@ -285,17 +287,21 @@ class Topic(Event):
         return 0
 
     def get_descendent(self, name):
-        """ Find a subtopic by name.
+        """
+        Find a subtopic by name.
         get_descendent(root, ['a', 'b']) should return the topic /a/b;
-        get_descendent(basetopic, ['c', 'd']) where basetopic is /a/b should return /a/b/c/d.
-        Creates the topic if necessary. """
+        get_descendent(basetopic, ['c', 'd']) where basetopic is /a/b
+            should return /a/b/c/d.
+        Creates the topic if necessary.
+        """
         if name == []: return self
         else: return self.get_subtopic(name[0]).get_descendent(name[1:])
 
     def get_subtopic(self, name):
         if is_bad_topic_name(name):
             raise PermissionDenied, "Bad topic name '%s'" % name
-        # kn_subtopics is handled special, because we cannot look in kn_subtopics to find it.
+        # kn_subtopics is handled special,
+        # because we cannot look in kn_subtopics to find it.
         if name == 'kn_subtopics':
             if self.kn_subtopics is None:
                 self.kn_subtopics = create_topic(self.name + [name])
@@ -321,8 +327,10 @@ class Topic(Event):
             raise PermissionDenied, "Only static routes are allowed from regular topics like %s" % self.getname()
 
     def post(self, event):
-        """ Given an Event, add it to the topic, and
-        route it to the appropriate places before returning. """
+        """
+        Given an Event, add it to the topic, and
+        route it to the appropriate places before returning.
+        """
         if self.update_event(event):
             if self.kn_subtopics is not None:  # A kludge to avoid infinite recursion.
                 kn_routes = self.get_subtopic('kn_routes')
@@ -442,31 +450,36 @@ class JournalTopic(Topic):
     or some other workaround needs to be found for the behavior in the
     JavaScript PubSub Client Library.
 
-    # FIXME: Move where routing happens from Journal.notify and
-    # Topic.post to Topic.update_event.
-    # FIXME: To do that, we need to fix Journals to not be such
-    # special cases and instead have structure like a regular Topic,
-    # and index on kn_route_location and kn_id.
-    # FIXME: To do that, we need to remove do_since_checkpoint and
-    # kn_route_since_checkpoint, and implement kn_event_hash
-    # and do_max_age on Tunnels.
-    # FIXME: To do that, we need to clearly define the duplicate
-    # supression algorithm and the set of hop-by-hop headers.
-    # Do a separate content hash for hop-by-hop?
-    # At each hop, when not delivering down a Tunnel,
-    # obliterate hop-by-hop headers from previous hop.
-    # FIXME: To do that, we need to decide at what point to add
-    # kn_time_t and to add and normalize kn_time_t and kn_expires
-    # so they can properly participate in duplicate suppression.
-    # Also decide when to add kn_event_hash, and how to represent
-    # an Event as it gets routed through the system.
-    # FIXME: Start here and work our way up.
-
     Hop-by-hop headers used by the duplicate suppression algorithm:
         kn_route_*
         kn_routed_from
     """    
     
+    # FIXME: Move where routing happens from Journal.notify and
+    # Topic.post to Topic.update_event.
+
+    # FIXME: To do that, we need to fix Journals to not be such
+    # special cases and instead have structure like a regular Topic,
+    # and index on kn_route_location and kn_id.
+
+    # FIXME: To do that, we need to remove do_since_checkpoint and
+    # kn_route_since_checkpoint, and implement kn_event_hash
+    # and do_max_age on Tunnels.
+
+    # FIXME: To do that, we need to clearly define the duplicate
+    # supression algorithm and the set of hop-by-hop headers.
+    # Do a separate content hash for hop-by-hop?
+    # At each hop, when not delivering down a Tunnel,
+    # obliterate hop-by-hop headers from previous hop.
+
+    # FIXME: To do that, we need to decide at what point to add
+    # kn_time_t and to add and normalize kn_time_t and kn_expires
+    # so they can properly participate in duplicate suppression.
+    # Also decide when to add kn_event_hash, and how to represent
+    # an Event as it gets routed through the system.
+
+    # FIXME: Start here and work our way up.
+
     def is_journal(self):
         return 1
 
@@ -497,13 +510,13 @@ def create_topic(name):
 
 class Route(Event):
     """
-    Route is a virtual base class.
-    It relies on subclasses to implement post() and is_static_route().
-
     Responsibilities:
         1. Handle Initial Route Population.
         2. Inform code readers that the various kinds of route
            have more in common than just being kinds of Events.
+
+    Route is a virtual base class.
+    It relies on subclasses to implement post() and is_static_route().
     """
 
     def populate(self, topic):
@@ -659,7 +672,8 @@ class Tunnel(Route):
         # FIXME: Attempts to re-connect to a nonworking journal works.
         self.conn.server.scheduler.schedule_processing(lambda self=self: self.become_stale(), time.time() + 100, 'stalify old tunnel')
     def __getstate__(self):
-        return {'contents': {'kn_payload': self['kn_payload'], 'stale': 1}, 'dead': 1} # And omit 'header_sent' and 'conn'
+        # Omit 'header_sent' and 'conn'
+        return {'contents': {'kn_payload': self['kn_payload'], 'stale': 1}, 'dead': 1}
 
 
 class SimpleTunnel(Tunnel):
@@ -1544,26 +1558,28 @@ def main(argv):
     autoPortNum = 0
     ignorePrologue = 0
 
-    optlist, argv[1:] = getopt.getopt(argv[1:], "vhaif:", ["verbose", "help", "auto", "ignore", "file="])
+    optlist, argv[1:] = getopt.getopt(argv[1:], "vhaif:",
+                                      ["verbose", "help", "auto", "ignore", "file="])
 
     for opt, val in optlist:
         if opt in ('-v', '--verbose'):
             verbose = verbose + 1
         elif opt in ('-h', '--help'):
             print (
-                "%s: Usage: %s [options...] ( portnum | --auto ) docroot [topicroot]\n"
+                "%s: Usage: %s "
+                "[options...] ( portnum | --auto ) docroot [topicroot]\n"
                 % (argv[0], argv[0]) + "\n"
-                "  -h, --help                 print this message and exit\n"
-                "  -v, --verbose              increase verbosity of logging to stderr and stdout\n"
-                "  -f, --file                 filename to use as persistent event pool\n"
-                "                             (multiple occurrences have a cumulative effect)\n"
-                "                             (default is *not* to have a persistent event pool)\n"
-                "  -a, --auto                 automatically extract the portnum \n"
-                "                             from the {docroot}/kn_apps/kn_lib/prologue.js file;\n"
-                "                             in this case the portnum must *not* be supplied\n"
-                "  -i, --ignore               ignore the prologue.js file; \n"
-                "                             used to run pubsub.py standalone, without being \n"
-                "                             affected by the cross domain setup in prologue.js\n"
+                "  -h, --help        print this message and exit\n"
+                "  -v, --verbose     increase logging to include stderr and stdout\n"
+                "  -f, --file        filename to use as persistent event pool;\n"
+                "                    multiple occurrences have a cumulative effect\n"
+                "                    (default is *no* persistent event pool)\n"
+                "  -a, --auto        automatically extract the portnum from the\n"
+                "                    {docroot}/kn_apps/kn_lib/prologue.js file;\n"
+                "                    the portnum must *not* be supplied\n"
+                "  -i, --ignore      ignore the prologue.js file;\n"
+                "                    run pubsub.py standalone, without being\n"
+                "                    affected by cross-domain setup in prologue.js\n"
             )
             return
         elif opt in ('-f', '--file'):
@@ -1583,16 +1599,14 @@ def main(argv):
         maxRequiredArgs = 3
 
     if len(argv) < minRequiredArgs or len(argv) > maxRequiredArgs:
-        exitWithError(
-            "%s: Usage: %s [--help] [options...] ( portnum | --auto ) docroot [topicroot]\n" % (argv[0], argv[0])
-        )
+        exitWithError("%s: Usage: %s [--help] [options...] ( portnum | --auto ) "
+                      "docroot [topicroot]\n" % (argv[0], argv[0]))
     else:
 
         docroot = argv[minRequiredArgs - 1]
         if not os.access(docroot, os.F_OK):
-            exitWithError(
-                "Specified document root: %s is not an accessible directory, exiting...\n" % docroot
-            )
+            exitWithError("Specified document root: %s is not an accessible "
+                          "directory, exiting...\n" % docroot)
 
         if len(argv) == maxRequiredArgs: topicroot = argv[maxRequiredArgs-1]
         else: topicroot = ""
@@ -1603,7 +1617,8 @@ def main(argv):
         else:
             # Attempt to override the port using the one in the prologue.js file.
             try:
-                prologuePath = os.path.join(docroot, 'kn_apps', 'kn_lib', 'prologue.js')
+                prologuePath = os.path.join(docroot,
+                                            'kn_apps', 'kn_lib', 'prologue.js')
                 serverAddress = readPubSubServerAddress (prologuePath)
                 if serverAddress != None:
                     serverLocation = urlparse.urlparse(serverAddress)[1]
@@ -1614,23 +1629,21 @@ def main(argv):
                     else:
                         portNumStr = "80"
             except IOError, (errno, strerror):
-                exitWithError(
-                    "Error accessing %s, (%s): %s\n"
-                    "It is required when auto is used." % (prologuePath, errno, strerror)
-                )
+                exitWithError("Error accessing %s, (%s): %s\n"
+                              "It is required when auto is used." %
+                              (prologuePath, errno, strerror))
 
         try:
             portNum = int(portNumStr)
             if portNum < 1 or portNum > 65535 :
-                exitWithError(
-                    "Specified port number: %s is not in the valid range 1-65535, exiting...\n" % portNumStr
-                )
+                exitWithError("Specified port number: %s is not in the "
+                              "valid range 1-65535, exiting...\n" % portNumStr)
         except ValueError:
-            exitWithError(
-                "Specified port number: %s is not a valid number, exiting...\n" % portNumStr
-            )
+            exitWithError("Specified port number: %s is not a "
+                          "valid number, exiting...\n" % portNumStr)
 
-        server = Server(portNum, logfile, errlog, scheduler, docroot, topicroot, verbose, filename, ignorePrologue)
+        server = Server(portNum, logfile, errlog, scheduler,
+                        docroot, topicroot, verbose, filename, ignorePrologue)
 
         if verbose:
             if ignorePrologue:
@@ -1644,7 +1657,8 @@ def main(argv):
                 "    Document root: %s\n"
                 "    Topic root: %s\n"
                 "    Event pool file: %s\n"
-                "    Prologue ignored: %s\n" % (str(portNum), docroot, topicroot, filename, ignorePrologueStr))
+                "    Prologue ignored: %s\n" %
+                (str(portNum), docroot, topicroot, filename, ignorePrologueStr))
         else:
             print "\nPubSub Server initialized.\n"
 
@@ -1654,7 +1668,7 @@ def main(argv):
 
 if __name__ == "__main__": main(sys.argv)
 
-# Some features to add...
+# Some features to add later...
 # FIXME: kn_content_transform header
 # FIXME: off-host routes
 # FIXME: bridge.py working using pubsublib.py
