@@ -45,3 +45,18 @@ To Do List for Python PubSub (February 14, 2003)
 32. Most of the option parsing doesn't run normally.
 33. Add CGI support to pubsub.py.
 34. Add bridge.py to bridge instances of pubsub.py and pubsub.cgi.
+
+*** 35. Investigate replacing asyncore with Twisted Matrix:
+
+    http://twistedmatrix.com/
+
+    Twisted Matrix Laboratories is a distributed group of open-source
+    developers working on Twisted, an event-driven networking framework
+    written in Python and licensed under the LGPL. Twisted supports TCP,
+    UDP, SSL/TLS, multicast, Unix sockets, a large number of protocols
+    (including HTTP, NNTP, SSH, IRC, FTP, and others), and much more.
+
+    This would give us much cleaner multiprotocol handling.  It has some
+    very useful abstractions that we don't have yet, such as a
+    non-polling Reactor.
+
