@@ -56,6 +56,11 @@ public class Dispatcher implements Listener, Router {
 	{
 		return route_id.substring(0,route_id.lastIndexOf('/'));
 	}
+	
+	public boolean hasRoute(String route_id)
+	{
+		return routes.containsKey(route_id);
+	}
 
 	/**
 	 * Route message to destination specified within the message.

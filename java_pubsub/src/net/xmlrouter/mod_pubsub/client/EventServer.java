@@ -16,7 +16,6 @@ public class EventServer {
 	private static String ROUTES_STR = "/kn_routes/";
 	String serverURI;
 	String basePath;
-	Map eventStreams = new HashMap();
 
 	/**
 	 * @param server URI of message server (ex. http://localhost/kn/)
