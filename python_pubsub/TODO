@@ -1,16 +1,17 @@
 ----------------------------
 To Do List for Python PubSub
 ----------------------------
-$Id: TODO,v 1.14 2003/04/29 06:44:17 ifindkarma Exp $
+$Id: TODO,v 1.15 2003/05/16 06:26:07 ifindkarma Exp $
 
- 1. Finish test suite for pubsublib.py .
- 2. Write chat.py and ping.py that use pubsublib.py .
- 3. Off host routes and kn_content_transform in pubsub.py .
- 4. Make a cleaner.py which removes expired events.
+ 1. Off host routes and kn_content_transform in pubsub.py .
+ 2. Make a cleaner.py which removes expired events.
     Note: this client can work for both pubsub.py and pubsub.cgi .
- 5. Fix bridge.py to use pubsublib.py to
+ 3. Add "Depth: " header to prevent infinite introspection.
+ 4. Fix bridge.py to use pubsublib.py to
     bridge instances of pubsub.py and pubsub.cgi.
- 6. Add SSL support.
+ 5. Add "ulimit"-like functionality to pubsub.py.
+    Add statistics that are dumped out by pubsub.py.
+ 6. Add SSL and authentication/authorization support.
  7. Add CGI support to pubsub.py.
  8. Find out which of (asyncore.py, cgi.py, cgitb.py, inspect.py, pydoc.py)
     can be removed from cvs because they ship with the standard Python
@@ -53,8 +54,10 @@ $Id: TODO,v 1.14 2003/04/29 06:44:17 ifindkarma Exp $
 40. Pythonize kn_tools/list_*.plx
 41. asyncore is a global.
     Need to make it parameterized to allow multi-threaded use.
+42. Write python_pubsub/apps/ping.py that uses pubsublib.py .
+43. Finish test suite for pubsublib.py .
 
-*** 42. Investigate replacing asyncore with Twisted Matrix:  ************************
+*** 44. Investigate replacing asyncore with Twisted Matrix:  ************************
 
     http://twistedmatrix.com/
 
