@@ -36,12 +36,9 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.1 2002/12/07 10:08:19 ifindkarma Exp $
+ $Id: index.html,v 1.2 2002/12/09 06:33:49 msg Exp $
 
 -->
-
-<html>
-<head>
 
 <title>pubsub knowbuddy</title>
 
@@ -61,8 +58,6 @@
 instead of the previous three <script> calls, which loads the PubSub
 JavaScript Library with the prologue directly from the mod_pubsub instance. -->
 
-</head>
-<body>
 
 <script><!--
 function doLoad()
@@ -72,12 +67,8 @@ function doLoad()
 // -->
 </script>
 
-</head>
-
 <frameset onLoad='doLoad();' rows='104,*,100' title='KnowBuddy' border='1' resizable='true'>
 <frame name='control' src='control.html' NORESIZE>
 <frame name='contents' src='../../cgi-bin/pubsub.cgi?do_method=blank'>
 <frame name='profile' src='../../cgi-bin/pubsub.cgi?do_method=blank' frameborder='1'>
 </frameset>
-
-</html>
