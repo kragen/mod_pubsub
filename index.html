@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.10 2003/03/22 07:28:07 ifindkarma Exp $
+ $Id: index.html,v 1.11 2003/03/22 08:49:40 ifindkarma Exp $
 
 -->
 
@@ -259,8 +259,17 @@ that is single-threaded and non-blocking;
 </tr>
 
 <tr>
-<td bgcolor="#eeeeee"><a href="python_pubsub/">python_pubsub/&nbsp;&nbsp;</a></td>
-<td bgcolor="#eeeeee"><br><ol>
+<td bgcolor="#eeeeee"><a href="php_pubsub/">php_pubsub/</a></td>
+<td bgcolor="#eeeeee"><b>PHP PubSub Client Library</b>
+(<a href="php_pubsub/">publish.php</a>).
+For subscribe, use the
+<a href="kn_docs/javascript_reference.html" target="_blank">JavaScript
+PubSub Client Library</a>.</td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="python_pubsub/">python_pubsub/&nbsp;&nbsp;</a></td>
+<td bgcolor="white"><br><ol>
 <li> <b>Python PubSub Server</b>
 (<a href="python_pubsub/pubsub.py">pubsub.py</a>)
 that runs standalone from the command line.  It is our goal to
@@ -274,6 +283,14 @@ It is single-threaded and non-blocking.
 (<a href="python_pubsub/libkn/libkn.py">libkn.py</a>).
 It is multi-threaded and blocking.
 </ol></td>
+</tr>
+
+<tr>
+<td bgcolor="#eeeeee"><a href="perl_pubsub/">perl_pubsub/</a></td>
+<td bgcolor="#eeeeee">The <b>Perl PubSub Client Library</b>
+and <b>Perl PubSub Server</b> live in the <i>cgi-bin/</i> directory
+(<a href="cgi-bin/PubSub/">PubSub</a>).
+</td>
 </tr>
 
 <tr>
@@ -300,15 +317,8 @@ Library Reference</a>.</td>
 </tr>
 
 <tr>
-<td bgcolor="#eeeeee"><a href="kn_sense/">kn_sense/</a></td>
-<td bgcolor="#eeeeee">Sample sensors for scraping data from websites
-and publishing them to a PubSub Server.  For example, see the
-<a href="kn_sense/rss/">RSS</a> sensor.</td>
-</tr>
-
-<tr>
-<td bgcolor="white"><a href="kn_tools/">kn_tools/</a></td>
-<td bgcolor="white">Useful ancillary utilities, including<ol>
+<td bgcolor="#eeeeee"><a href="kn_tools/">kn_tools/</a></td>
+<td bgcolor="#eeeeee">Useful ancillary utilities, including<ol>
 <li> Command-line chat using the Perl PubSub Client Library
  (<a href="kn_tools/chat.plx">chat.plx</a>).
 <li> Command-line ping using the C PubSub Client Library
@@ -330,6 +340,13 @@ and publishing them to a PubSub Server.  For example, see the
 <li> Some useful JavaScript
  <a href="kn_tools/bookmarklets.html">bookmarklets</a>.
 </ol></td>
+</tr>
+
+<tr>
+<td bgcolor="white"><a href="kn_sense/">kn_sense/</a></td>
+<td bgcolor="white">Sample sensors for scraping data from websites
+and publishing them to a PubSub Server.  For example, see the
+<a href="kn_sense/rss/">RSS</a> sensor.</td>
 </tr>
 
 <tr>
