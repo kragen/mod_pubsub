@@ -4,7 +4,7 @@ About This Distribution
 
 This distribution contains a set of files that add publish-and-subscribe
 to the web for users of Perl, Python, JavaScript, C, COM/ActiveX/.NET,
-and Ruby.  (Coming soon: PHP and Java, we hope.)
+Java, and Ruby.  (Coming soon: PHP, we hope.)
 
 This is an early snapshot that includes the PubSub Server as Perl CGI
 scripts that are called from Apache (or run inside mod_perl in
@@ -19,7 +19,7 @@ for the current Apache-based Perl PubSub Server and standalone Python
 PubSub Server.
 
 We plan to subsume the best of the Perl and Python servers into an
-Apache module, mod_pubsub.  Other plans are in the TODO file.
+Apache module called mod_pubsub.  Other plans are in the TODO file.
 
 See also the index.html files in the mod_pubsub directory and the
 mod_pubsub/kn_apps directory.  If you have questions not covered in
@@ -35,7 +35,7 @@ liability while promoting free use of this set of code, tools, and
 documentation.  Enjoy!
 
   -- Adam Rifkin
-     $Id: README,v 1.4 2003/03/15 04:57:42 ifindkarma Exp $
+     $Id: README,v 1.5 2003/03/18 01:43:43 ifindkarma Exp $
 
 
 
@@ -51,24 +51,6 @@ In the kn_apps directory, jscomponents is version 1.5.10 of KnowNow's
 JavaScript Components libraries, released in January 2002.  We found
 these on http://developer.knownow.com/ and since they use the KnowNow
 license we're including them with this distribution.
-
-Jef Poskanzer's excellent thttpd is used for the push_manager; these
-parts are copyright <A9> 1995,1998,1999,2000 by Jef Poskanzer
-<jef@acme.com>, distributed under a separate license.  See the file
-LICENSE in the push_manager directory for full details.
-
-Michael Houghton's nice 'xml for <SCRIPT>' JavaScript XML parser in
-kn_apps/KN/xmljs is distributed under a separate license.  See the
-file LICENSE in that directory for full details.
-
-Kudos to Scott Thomason for the RSSLite.pm we use in our RSS sensor
-in the kn_sense/rss directory.
-
-Many thanks go to Dave Winer who showed us many of the RSS feeds we
-use in the kn_sense/rss directory.
-
-We also thank Dieter Bungers for the table widget we use in the
-kn_apps/rsstable application.
 
 kn_apps/soapstock uses an SOAP service from http://www.xmethods.com/ .
 Thanks, xmethods!
@@ -96,6 +78,28 @@ Also in the python_pubsub directory, we use an asynchronous HTTP/1.1
 client library called asynchttp.py .  We thank Downright Software
 <http://www.dougfort.com/> and Doug Fort <dougfort@downright.com> for
 this library, which we found at http://asynchttp.sourceforge.net/ .
+
+In the java_pubsub directory, we use HTTPClient from Ronald Tschalar
+<http://www.innovation.ch/java/HTTPClient/>.  The .jar is included
+in the lib subdirectory.
+
+Jef Poskanzer's excellent thttpd is used for the push_manager; these
+parts are copyright <A9> 1995,1998,1999,2000 by Jef Poskanzer
+<jef@acme.com>, distributed under a separate license.  See the file
+LICENSE in the push_manager directory for full details.
+
+Michael Houghton's nice 'xml for <SCRIPT>' JavaScript XML parser in
+kn_apps/KN/xmljs is distributed under a separate license.  See the
+file LICENSE in that directory for full details.
+
+We also thank Dieter Bungers for the table widget we use in the
+kn_apps/rsstable application.
+
+Kudos to Scott Thomason for the RSSLite.pm we use in our RSS sensor
+in the kn_sense/rss directory.
+
+Many thanks go to Dave Winer who showed us many of the RSS feeds we
+use in the kn_sense/rss directory.
 
 If this distribution gets far, it is because we are standing on the
 shoulders of the giants who came before us.  Thank you all.
