@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub_test.cgi,v 1.6 2003/04/26 03:55:51 ifindkarma Exp $
+# $Id: pubsub_test.cgi,v 1.7 2003/06/14 04:56:40 ifindkarma Exp $
 
 use strict;
 use PubSub::UUID;
@@ -1242,6 +1242,7 @@ sub expect_unpostable
 {
     my ($topic) = @_;
     my $topic_state = new PubSub::TopicState($topic);
+    $topic_state->new_events; 
     my $result = eval { unique_event->post($topic); };
     die "Successfully posted to $topic: " . $result->as_string unless $@;
 
