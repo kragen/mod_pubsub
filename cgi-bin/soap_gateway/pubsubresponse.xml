@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance" xmlns:xsd="http://www.w3.org/1999/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <SOAP-ENV:Body>
+    <namesp1:publishResponse xmlns:namesp1="http://tempuri.org/PubSub">
+      <return xsi:type="xsd:string">27479324</return>
+      <statusEvent xmlns:apachens="http://xml.apache.org/xml-soap" xsi:type="apachens:Map">
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">mime-version</key>
+          <value xsi:type="xsd:string">1.0</value>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">kn_id</key>
+          <value xsi:type="xsd:string">BEA7A651-BDE5-4DC7-ADA7-088E13F660B7</value>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">expires</key>
+          <value xsi:type="xsd:string">Sun, 16 Mar 2003 03:27:43 GMT</value>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">kn_time_t</key>
+          <value xsi:type="xsd:string">1036812463</value>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">content-type</key>
+          <value xsi:type="xsd:string">text/plain</value>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">server</key>
+          <value xsi:type="xsd:string">PubSub Server</value>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">status</key>
+          <value xsi:type="xsd:string">200 Notified.</value>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">kn_route_location</key>
+          <value xsi:type="xsd:string">/kn</value>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">kn_payload</key>
+          <value xsi:type="xsd:string"/>
+        </item>
+        <item xsi:type="apachens:MapItem">
+          <key xsi:type="xsd:string">date</key>
+          <value xsi:type="xsd:string">Sun, 16 Mar 2003 03:27:43 GMT</value>
+        </item>
+      </statusEvent>
+    </namesp1:publishResponse>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

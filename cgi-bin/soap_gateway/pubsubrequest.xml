@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:apachens="http://xml.apache.org/xml-soap" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance" xmlns:xsd="http://www.w3.org/1999/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <SOAP-ENV:Body>
+    <namesp1:publish xmlns:namesp1="http://tempuri.org/PubSub">
+      <kn_to xsi:type="xsd:string">/what/chat</kn_to>
+      <event xsi:type="apachens:Map">
+        <item>
+          <key xsi:type="xsd:string"/>
+          <value xsi:type="xsd:string">ignore</value>
+        </item>
+        <item>
+          <key xsi:type="xsd:string">userid</key>
+          <value xsi:type="xsd:string">homer</value>
+        </item>
+        <item>
+          <key xsi:type="xsd:string">kn_payload</key>
+          <value xsi:type="xsd:string">hi
+</value>
+        </item>
+        <item>
+          <key xsi:type="xsd:string">displayname</key>
+          <value xsi:type="xsd:string">Homer DuFree</value>
+        </item>
+      </event>
+    </namesp1:publish>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

@@ -1,0 +1,899 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+
+Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+@KNOWNOW_LICENSE_START@
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in
+the documentation and/or other materials provided with the
+distribution.
+
+3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+be used to endorse or promote any product without prior written
+permission from KnowNow, Inc.
+
+THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+@KNOWNOW_LICENSE_END@
+
+$Id: soapdesign.html,v 1.1 2003/03/18 05:52:09 ifindkarma Exp $
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>PubSub SOAP Interface Design $Revision: 1.1 $</title>
+    <link rel="stylesheet" href="doc_style.css" type="text/css" />
+  </head>
+  <body link="#ff9900" vlink="#cc6600" alink="#ffbbee" bgcolor="#ffffff">
+    <h1><a name="top" id="top">SOAP Interface Design</a></h1>
+    <blockquote>
+      <p>Version: $Id: soapdesign.html,v 1.1 2003/03/18 05:52:09 ifindkarma Exp $</p>
+    </blockquote>
+
+    <h2><a name="toc" id="toc">Table of Contents</a></h2>
+
+    <ol>
+      <li><a href="#toc">Table of Contents</a></li>
+      <li><a href="#revisions">Revision History</a></li>
+      <li><a href="#tasks">Tasks</a></li>
+      <li><a href="#design">Design Sketch</a>
+        <ol>
+          <li><a href="#incoming">Incoming SOAP Requests</a>
+            <ol>
+              <li><a href="#http">HTTP Protocol Binding</a></li>
+              <li><a href="#soap">Invoke a SOAP Method</a></li>
+              <li><a href="#wsdl">SOAP Interface Description</a></li>
+            </ol>
+          </li>
+          <li><a href="#offhost">Off-Host SOAP Routes</a></li>
+          <li><a href="#mod_xslt">XSLT Module</a></li>
+          <li><a href="#external">External SOAP Service Invocation</a></li>
+          <li><a href="#mod_http">HTTP Module</a></li>
+        </ol>
+      </li>
+      <li><a href="#api">Proposed API</a>
+        <ol>
+          <li><a href="#commands">New PubSub Server Commands</a></li>
+          <li><a href="#methods">Exposed SOAP Methods</a></li>
+          <li><a href="#modules">Route Transformation Modules</a></li>
+        </ol>
+      </li>
+      <li><a href="#dependencies">Dependencies</a></li>
+      <li><a href="#examples">Examples</a>
+        <ol>
+          <li><a href="#perlexamples">Examples using Perl and SOAP::Lite</a></li>
+          <li><a href="#dotnetexamples">Examples using the .NET SOAP Tools</a></li>
+        </ol>
+      </li>
+      <li><a href="#references">References</a></li>
+    </ol>
+
+    <h2><a name="revisions" id="revisions">Revision History</a></h2>
+
+    <blockquote><form><textarea style="width:100%" cols="80" rows="15" readonly="readonly">
+$Log: soapdesign.html,v $
+Revision 1.1  2003/03/18 05:52:09  ifindkarma
+Added a (poorly documented) sample mod_pubsub SOAP gateway.
+FIXME: Add more documentation!
+
+    </textarea></form></blockquote>
+
+    <h2><a name="tasks" id="tasks">Tasks</a></h2>
+
+    <ul>
+
+      <li>write and test samples using all three SOAP methods</li>
+
+      <li>correctly pass through auth headers (in both directions!);
+      document auth model</li>
+
+      <li>clearly state design constraints</li>
+
+      <li>perform interop testing with AXIS</li>
+
+      <li>finish <code>subscribe</code> method</li>
+
+      <li>make sure there is no licensing problem with our use of
+      SOAP::Lite (i.e. check with author to find out what constitutes
+      &quot;embedding&quot;</li>
+
+      <li>document use of XSLT and HTTP modules</li>
+
+    </ul>
+
+    <h2><a name="design" id="design">Design Sketch</a></h2>
+
+    <p>When complete, the SOAP interface will include support for <a
+    href="#incoming">incoming SOAP requests</a>, <a
+    href="#offhost">off-host SOAP routes</a>, and <a
+    href="#external">external SOAP service invocation</a>.</p>
+
+    <h3><a name="incoming" id="incoming">Incoming SOAP Requests</a></h3>
+
+    <blockquote>
+
+      <p><strong>Note:</strong> Earlier revisions of the design called
+      for a separate thread pool to process SOAP requests; they have
+      been superseded by a new, simpler approach for the initial
+      implementation described below; this eliminates
+      complex configuration parameters and inter-thread communication,
+      at the expense of increased probability of deadlock under heavy
+      SOAP load; elimination of the loopback HTTP requests would
+      eliminate this risk.</p>
+
+    </blockquote>
+
+    <p>The PubSub Server's SOAP interface will include three parts: an <a
+    href="#http">HTTP protocol binding</a>, a command to <a
+    href="#soap">invoke a SOAP method</a>, and a command to return the
+    <a href="#wsdl">SOAP interface description</a>. Refer to the <a
+    href="#api">Proposed API</a> section for documentation.</p>
+
+    <h4><a name="http" id="http">HTTP Protocol Binding</a></h4>
+
+    <p>Incoming requests with the URL query string parameter
+    <samp>kn_request_format=soap</samp> will be deserialized by a
+    special handler which will place the SOAP request in a
+    <code>kn_payload</code> header and will add a
+    <code>do_method</code> header with the value
+    <code>soap</code> and a <code>kn_response_format</code> header
+    with the value <code>http</code>, and update the
+    <code>kn_request_format</code> header to use the value
+    <code>http</code>.</p>
+
+    <p>Likewise, incoming requests with the URL query string parameter
+    <samp>kn_request_format=wsdl</samp> will be deserialized by a
+    special handler which will add a
+    <code>do_method</code> header with the value
+    <code>wsdl</code> and a <code>kn_response_format</code> header
+    with the value <code>http</code>, and update the
+    <code>kn_request_format</code> header to use the value
+    <code>http</code>.</p>
+
+    <h4><a name="soap" id="soap">Invoke a SOAP Method</a></h4>
+
+    <p>A new command <samp>do_method=soap</samp> will be added to the
+    PubSub Server. The initial implementation of this command
+    will use <dfn>perlembed</dfn> to call into
+    <code>PubSubService.cgi</code>, which will decode and process
+    the SOAP request, then return a SOAP response which will be
+    written back to the requesting connection. The embedded
+    implementation will be specialized by the command to point to the
+    correct URL for loopback HTTP communication with the PubSub
+    Server, as determined by KnProperties::getLocalHost() and
+    KnProperties::getUrlRoot(). <em>Note that this may be replaced by
+    a shortcut call directly into the PubSub Server engine; this
+    part of the design is still under discussion; all batch-capable
+    commands would need to be exposed to the shortcut call (also, the
+    <samp>do_method=shutdown</samp> command needs to be made
+    batch-capable.)</em> Any auxiliary files needed by the SOAP
+    implementation will be installed in a subdirectory
+    <samp>lib/soap</samp> of the PubSub Server installation
+    directory [Ns_InfoHomePath()].</p>
+
+    <p>Note that the PubSub Server will <strong>not</strong>
+    support an explicit SOAP response format (i.e. there is no
+    <samp>kn_response_format=soap</samp>); instead, SOAP-formatted
+    requests will have SOAP-formatted responses using
+    <samp>do_method=soap</samp>, as described above.</p>
+
+    <p>Typically <samp>do_method=soap</samp> will be specified in
+    conjunction with <samp>kn_response_format=http</samp> <em>[this is
+    implicit when using <samp>kn_request_format=soap</samp>]</em> in
+    order to receive the SOAP response in HTTP format (i.e. as an HTTP
+    response message with XML content.) However, the SOAP response is
+    actually packaged inside a status event, and can be forwarded,
+    identified or reformatted using the
+    <code>kn_status_to</code>, <code>kn_status_from</code>, and
+    <code>kn_response_format</code> parameters (documented
+    elsewhere.) Typically <samp>do_method=soap</samp> will also be
+    specified in conjunction with <samp>kn_request_format=http</samp>
+    <em>[this is also implicit when using
+    <samp>kn_request_format=soap</samp>]</em> in order to process a
+    SOAP request in HTTP format (i.e. as an HTTP <code>POST</code>
+    request message with XML content.) However, the SOAP request is
+    actually processed as a PubSub Server request, and can be
+    given in any of the request formats supported by the
+    <code>kn_request_format</code> parameter (also documented
+    elsewhere.)</p>
+
+    <h4><a name="wsdl" id="wsdl">SOAP Interface Description</a></h4>
+
+    <p>Another new command <samp>do_method=wsdl</samp> will be added
+    to the PubSub Server to return a WSDL description of the
+    services exposed by <samp>do_method=soap</samp>; this WSDL will be
+    specialized by the command to point to the correct URL for
+    external communication with the PubSub Server, as determined
+    by Ns_ConnLocation() and KnProperties::GetUrlRoot().
+    <em>Conceptually this is similar to the
+    <code>javascript_kn_server</code> configuration parameter, and in
+    fact the same value may be used here.</em> Typically
+    <samp>do_method=wsdl</samp> will be specified in conjunction with
+    <samp>kn_response_format=http</samp> <em>[this is also implicit
+    when using <samp>kn_request_format=wsdl</samp>]</em> in order to
+    generate the WSDL in plain HTTP format (i.e. as an HTTP response
+    message with XML content.) However, the WSDL is actually packaged
+    inside a status event, and can be forwarded, identified or
+    reformatted using the
+    <code>kn_status_to</code>, <code>kn_status_from</code>, and
+    <code>kn_response_format</code> parameters (documented
+    elsewhere.)</p>
+
+    <p>Note that the generated WSDL description is customized to include
+    the same <code>kn_request_format</code> and
+    <code>kn_response_format</code> parameters as used in the
+    <samp>do_method=wsdl</samp> request, and to refer to the URI of
+    the PubSub Server that generated the WSDL.</p>
+
+    <h3><a name="offhost" id="offhost">Off-Host SOAP Routes</a></h3>
+
+    <p>Off-host SOAP routes will use the <cite>Flexible
+    Messaging</cite> parameter
+    <samp>kn_route_request_format=http</samp> in conjunction with
+    appropriate transformation modules (e.g. <a href="#mod_xslt">XSLT</a>) to produce valid
+    SOAP requests for the services used.</p>
+
+    <h3><a name="mod_xslt" id="mod_xslt">XSLT Module</a></h3>
+
+    <pre>
+
+  The XSLT transformation module is already written, but it needs the following modifications:
+
+  * Allow access to incoming event headers other than &quot;kn_payload&quot; through the XSLT parameters interface
+
+  * Allow generating headers other than kn_payload with simple, fixed values. For this reason, the module parameter string needs to be parsed before
+  passing it to the xslt engine. The following elements need to be present in some form:
+
+          + transformation (XSL script)
+
+          + set of additional output headers with values
+
+          + a flag to disable XML parsing of the incoming kn_payload and treat it as an empty document (at which point the actual value will be accessible
+  only via the properties)
+
+          + a flag to include only the innerText of the output in the response document in the output kn_payload
+
+          </pre>
+
+    <h3><a name="external" id="external">External SOAP Service Invocation</a></h3>
+
+    <p>A generic <a href="#mod_http">HTTP service invocation
+    transformation and filtering module</a> will be implemented using
+    the new 2.0 Topic API; an <a href="#mod_xslt">XSLT module</a> will
+    be used to prepare requests and process responses.</p>
+
+    <h3><a name="mod_http" id="mod_http">HTTP Module</a></h3>
+
+    <pre>
+    An HTTP route module needs to be written to:
+
+  * Have a service URI (an http: or https: URL) specified in the module parameters.
+
+  * Turn routed events into HTTP requests to the service indicated in the module parameters.
+
+  * &quot;Transform&quot; by replacing the incoming event with the HTTP response (mapped onto an event in similar style -- response body in &quot;kn_payload&quot;,
+  response status line in &quot;status&quot;, and other HTTP headers mapped into the event with header names lowercased.)
+
+  * &quot;Filter&quot; by analyzing the response event status code and dropping the event if the response was a 204 No Content response.
+    </pre>
+
+    <h2><a name="api" id="api">Proposed API</a></h2>
+
+    <p>This design adds <a href="#commands">new PubSub Server
+    commands</a>, <a href="#methods">exposed SOAP methods</a>, and <a
+    href="#modules">route transformation modules</a>, as described in
+    the <a href="#design">Design Sketch</a> section.</p>
+
+    <p>
+      This interface uses a <code>Map</code> serialization
+      mostly compatible with the Apache Map. This
+      <code>Map</code> is specified as an array of
+      <code>MapItem</code> structures (also known as <dfn>header
+      name-value pairs</dfn>, or simply <dfn>headers</dfn>), where each
+      <code>MapItem</code> is a struct with <code>key</code> and
+      <code>value</code> properties. The <code>key</code> property
+      (also known as the <dfn>header name</dfn>) is a string, and the
+      <code>value</code> property (also known as the <dfn>header
+      value</dfn>) is either a string or a nested
+      <code>Map</code> <em>[only string header values will be returned by the SOAP
+      interface; nested <code>Map</code> header values are used with the
+      <code>kn_batch</code> header name when invoking the
+      <code>do_method=batch</code> PubSub Server command, which
+      allows multiple nested commands to be given in a single
+      PubSub Server request.]</em> Note that this interface allows
+      other types to be substituted for this <code>Map</code>
+      serialization in input values, with the following behaviors:
+    </p>
+
+      <ul>
+        <li>
+          A string, integer or other &quot;scalar&quot; input value is
+          considered to be the header value corresponding to the
+          <code>kn_payload</code> header name.
+        </li>
+        <li>
+          A null value is considered to be an empty string value
+          corresponding to the <code>kn_payload</code> header name.
+        </li>
+        <li>
+          An array is considered to be a list of interspersed header
+          names and header values; the 1st element is the first header
+          name, the 2nd element is the first header value, the 3rd
+          element is the second header name, the 4th element in the
+          2nd header value, etc. If the array has an odd number of
+          elements, the last element is considered to be the header
+          value corresponding to the <code>kn_payload</code> header
+          name.
+        </li>
+        <li>
+          Any other type is considered to be a struct. Each property
+          name in the struct is used as a header name, with the
+          property value used as the corresponding header value.
+        </li>
+      </ul>
+
+    <center>
+    <h3><a name="commands" id="commands">New PubSub Server Commands</a></h3>
+    <table border="border"
+           summary="New PubSub Server Commands for Incoming SOAP Requests">
+      <thead>
+      <tr>
+        <th>Command</th>
+        <th colspan="2">Command Description</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td align="left" valign="top"><samp>kn_request_format=<strong>soap</strong></samp></td>
+        <td align="left" colspan="2"><em>SOAP HTTP Protocol Binding:</em>
+        Equivalent to specifying the
+        <cite>Flexible Messaging</cite> parameters
+        <samp>kn_request_format=http</samp> (which places the HTTP
+        request body in the <code>kn_payload</code> header) and
+        <samp>kn_response_format=http</samp> (which returns a status
+        event as the HTTP response body) in conjunction with the
+        PubSub Server command
+        <samp>do_method=soap</samp>
+        <em>(described below)</em>; this allows a SOAP request to be
+        POSTed to the PubSub Server using the standard SOAP HTTP
+        protocol binding with only a single query-string parameter
+        in the service proxy URL.</td>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><samp>kn_request_format=<strong>wsdl</strong></samp></td>
+        <td align="left" colspan="2"><em>WSDL HTTP Protocol Binding:</em>
+        Equivalent to specifying the
+        <cite>Flexible Messaging</cite> parameters
+        <samp>kn_request_format=http</samp> and
+        <samp>kn_response_format=http</samp> (which returns a status
+        event as the HTTP response body) in conjunction with the
+        PubSub Server command
+        <samp>do_method=wsdl</samp>
+        <em>(described below)</em>; this allows a WSDL service
+        description to be generated by the PubSub Server using
+        the standard WSDL HTTP format with only a single query-string
+        parameter in the service description URL.</td>
+      </tr>
+      <tr>
+        <td align="left" rowspan="3" valign="top"><samp>do_method=<strong>soap</strong></samp></td>
+        <td align="left" colspan="2"><em>Invoke a SOAP Method:</em> Deserializes the
+        SOAP request stored in the <code>kn_payload</code> parameter
+        and invokes one of the <a href="#methods">exposed SOAP
+        methods</a> described below. The SOAP-formatted response is
+        returned as the status event.</td>
+      </tr>
+      <tr>
+        <th>Parameter</th>
+        <th>Parameter Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>kn_payload</code></td>
+
+        <td align="left"><em>Message Body:</em> SOAP request message to be
+        deserialized and processed by the PubSub Server.</td>
+
+      </tr>
+      <tr>
+        <td align="left" rowspan="1" valign="top"><samp>do_method=<strong>wsdl</strong></samp></td>
+        <td align="left" colspan="2"><em>SOAP Interface Description:</em> Returns a
+        machine-readable WSDL description of the PubSub Server's
+        SOAP interface; see <a
+        href="#references"><code>pubsubrequest.wsdl</code></a>.</td>
+      </tr>
+      </tbody>
+    </table>
+    </center>
+
+    <center>
+    <h3><a name="methods" id="methods">Exposed SOAP Methods</a></h3>
+    <table border="border"
+           summary="Methods for SOAP Interface to the PubSub Server">
+      <thead>
+      <tr>
+        <th>Method</th>
+        <th colspan="2">Method Description</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td align="left" rowspan="7" valign="top"><samp>return = <strong>publish</strong>(kn_to, event, statusEvent)</samp></td>
+        <td align="left" colspan="2"><em>Publish an Event:</em> Delivers an
+        <dfn>event</dfn> (notification message) to a topic on the
+        PubSub Server.</td>
+      </tr>
+      <tr>
+        <th>Input</th>
+        <th>Input Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>kn_to</code></td>
+        <td align="left"><em>Destination Topic URI:</em> The topic to publish the
+        event to, specified as a string containing either a relative
+        topic URI (e.g. <samp>/what/chat</samp>) or a fully-qualified
+        topic URI
+        (e.g. <samp>http://pubsub.bigcorp.com:8000/kn/what/chat</samp>).</td>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>event</code></td>
+        <td align="left"><em>Message:</em> The event to be published, specified as
+        a <code>Map</code> of name-value pairs (called <dfn>event
+        headers</dfn>). This could include a message body (in the
+        <code>kn_payload</code> event header), and could also
+        optionally include other parameters supported by the
+        PubSub Server's
+        <samp>do_method=notify</samp> command.</td>
+      </tr>
+      <tr>
+        <th>Output</th>
+        <th>Output Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>return</code></td>
+        <td align="left"><em>Event ID:</em> If the event is lacking an <dfn>event
+        ID</dfn> (the
+        <code>kn_id</code> event header), the <code>publish</code>
+        method will generate one. Regardless of whether the event ID
+        is specified by the publishing application or generated by
+        this method, it will be returned as a string in the
+        <code>return</code> value.</td>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>statusEvent</code></td>
+        <td align="left"><em>PubSub Server Response:</em> Contains a status
+        event with the PubSub Server's response. This status
+        event is a <code>Map</code> with an HTTP-style status line (in the
+        <code>status</code> event header) and possibly a description
+        (in the <code>kn_payload</code> event header,) as well as any
+        other headers returned by the PubSub Server.</td>
+      </tr>
+      
+      <tr>
+        <td align="left" rowspan="8" valign="top"><samp>return = <strong>subscribe</strong>(kn_from, kn_to, options, statusEvent)</samp></td>
+        <td align="left" colspan="2"><em>Start a Subscription:</em> Creates a
+        <dfn>route</dfn> (subscription record) connecting a source
+        topic on the PubSub Server to a destination URI.</td>
+      </tr>
+      <tr>
+        <th>Input</th>
+        <th>Input Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>kn_from</code></td>
+        <td align="left"><em>Source Topic URI:</em> The topic to subscribe to,
+        specified as a string containing either a relative topic URI
+        (e.g. <samp>/what/chat</samp>) or a fully-qualified topic URI
+        (e.g. <samp>http://pubsub.bigcorp.com:8000/kn/what/chat</samp>)</td>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>kn_to</code></td>
+        <td align="left"><em>Destination URI:</em> The subscriber URI, specified as
+        a string containing either a relative topic URI
+        (e.g. <samp>/what/all</samp> or
+        <samp>/who/anonymous/connector/12376454/kn_journal</samp>) or
+        a fully-quailified URI
+        (e.g. <samp>http://pubsub2.bigcorp.com:8000/kn/what/chat</samp>
+        or
+        <samp>https://secure.bigcorp.com/ChatListener.asp</samp>)</td>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>options</code></td>
+        <td align="left"><em>Additional Subscription Parameters:</em> Additional
+        parameters for the subscription request, specified as a
+        <code>Map</code> of name-value pairs. This may include any
+        parameter supported by the PubSub Server's
+        <samp>do_method=route</samp> command.</td>
+      </tr>
+      <tr>
+        <th>Output</th>
+        <th>Output Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>return</code></td>
+        <td align="left"><em>Subscription URI:</em> If the subscription request is
+        lacking an ID (the <code>kn_id</code> subscription parameter),
+        the <code>subscribe</code> method will generate one; if the
+        subscription request is lacking a <dfn>route URI</dfn> (the
+        <code>kn_uri</code> subscription parameter), this method will
+        generate one by concatenating a fully-qualified form of the
+        source topic URI, the &quot;magic&quot; string
+        <code>/kn_routes/</code>, and the subscription ID. Regardless
+        of whether the route URI is specified by the subscribing
+        application or generated by this method, it will be returned
+        as a string in the
+        <code>return</code> value.</td>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>statusEvent</code></td>
+        <td align="left"><em>PubSub Server Response:</em> Contains a status
+        event with the PubSub Server's response. This status
+        event is a <code>Map</code> with an HTTP-style status line (in the
+        <code>status</code> event header) and possibly a description
+        (in the <code>kn_payload</code> event header,) as well as any
+        other headers returned by the PubSub Server.</td>
+      </tr>
+      
+      <tr>
+        <td align="left" rowspan="5" valign="top"><samp><strong>unsubscribe</strong>(rid, statusEvent)</samp></td>
+        <td align="left" colspan="2"><em>End a Subscription:</em> Given a route URI
+        containing the &quot;magic&quot; <code>/kn_routes/</code>
+        substring (as returned by the <code>subscribe</code> method),
+        the <code>unsubscribe</code> method removes the
+        corresponding route from the PubSub Server.</td>
+      </tr>
+      <tr>
+        <th>Input</th>
+        <th>Input Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>rid</code></td>
+        <td align="left"><em>Subscription URI:</em> A route URI containing the
+        &quot;magic&quot; <code>/kn_routes/</code> substring (as
+        returned by the <code>subscribe</code> method),
+        specified as a string.</td>
+      </tr>
+      <tr>
+        <th>Output</th>
+        <th>Output Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>statusEvent</code></td>
+        <td align="left"><em>PubSub Server Response:</em> Contains a status
+        event with the PubSub Server's response. This status
+        event is a <code>Map</code> with an HTTP-style status line (in the
+        <code>status</code> event header) and possibly a description
+        (in the <code>kn_payload</code> event header,) as well as any
+        other headers returned by the PubSub Server.</td>
+      </tr>
+
+      <tr>
+        <td align="left" rowspan="5" valign="top"><samp><strong>pubsubrequest</strong>(request, statusEvent)</samp></td>
+        <td align="left" colspan="2"><em>Invoke a PubSub Server Command:</em>
+        Exposes the PubSub Server's HTTP interface to SOAP
+        clients.</td>
+      </tr>
+      <tr>
+        <th>Input</th>
+        <th>Input Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>request</code></td>
+        <td align="left"><em>PubSub Server Request:</em> Contains the request
+        to be processed, specified as a <code>Map</code> of name-value
+        pairs (called <dfn>request headers</dfn>). This could include
+        a PubSub Server command (in the <code>do_method</code>
+        request header), and could also optionally include other
+        parameters supported by the PubSub Server's HTTP
+        interface.</td>
+      </tr>
+      <tr>
+        <th>Output</th>
+        <th>Output Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>statusEvent</code></td>
+        <td align="left"><em>PubSub Server Response:</em> Contains a status
+        event with the PubSub Server's response. This status
+        event is a <code>Map</code> with an HTTP-style status line (in the
+        <code>status</code> event header) and possibly a description
+        (in the <code>kn_payload</code> event header,) as well as any
+        other headers returned by the PubSub Server.</td>
+      </tr>
+      </tbody>
+    </table>
+    </center>
+
+
+    <center>
+    <h3><a name="modules" id="modules">Route Transformation Modules</a></h3>
+    <table border="border"
+           summary="Route Transformation Modules useful for SOAP Service Invocation">
+      <thead>
+      <tr>
+        <th>Module</th>
+        <th colspan="2">Module Description</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td align="left" rowspan="3" valign="top"><samp>kn_module=<strong>kn_xslt</strong></samp></td>
+        <td align="left" colspan="2"><em>XSL Transformation (XSLT)
+        Route Module:</em> Transforms the XML document in the payload
+        of each routed event into another XML document according to
+        the XSL transformation rule associated with the route.  The
+        <code>kn_payload</code> header value from the source event is
+        parsed and used as the XML source, and each of the headers
+        from the source event is also made available to the
+        transformation as a string parameter. The output of the XSL
+        transformation is used as the
+        <code>kn_payload</code> header value of the transformed
+        event.</td>
+      </tr>
+      <tr>
+        <th>Route Parameter</th>
+        <th>Route Parameter Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>kn_module_params</code></td>
+        <td align="left"><em>XSL Transformation Rule:</em> Describes
+        the XSL transformation to apply to XML documents in events
+        delivered across the route.</td>
+      </tr>
+      <tr>
+        <td align="left" rowspan="3" valign="top"><samp>kn_module=<strong>kn_http</strong></samp></td>
+        <td align="left" colspan="2"><em>HTTP Route Module:</em> Uses
+        the headers and payload of each routed event to construct an
+        HTTP <code>POST</code> request, using the same mapping used by
+        the Flexible Messaging off-host route request type
+        <samp>kn_route_request_format=http</samp>. The request is
+        POSTed to the URL given in the <code>kn_module_params</code>
+        header value associated with the route. The HTTP status code
+        of the response message is analyzed; if the status is
+        <code>204 No Content</code> the event is not routed by the
+        module, otherwise the HTTP response is converted into an event
+        and routed onward in place of the original event. Any
+        resulting event has the same structure as a PubSub Server status
+        event, with the HTTP status line in the <code>status</code>
+        header value, the HTTP response body in the
+        <code>kn_payload</code> event header, and other HTTP headers
+        from the response mapped onto event headers with the header
+        names in lower case.</td>
+      </tr>
+      <tr>
+        <th>Route Parameter</th>
+        <th>Route Parameter Description</th>
+      </tr>
+      <tr>
+        <td align="left" valign="top"><code>kn_module_params</code></td>
+        <td align="left"><em>Service URL:</em> URL of the HTTP service
+        to POST routed events to.</td>
+      </tr>
+      </tbody>
+    </table>
+    </center>
+
+    <h2><a name="dependencies" id="dependencies">Dependencies</a></h2>
+
+    <p>Package dependencies with licensing notes:</p>
+
+    <dl>
+
+<dt>expat-1.95.5</dt>
+<dd>
+ ... &quot;MIT/X Consortium license&quot;</dd>
+<dt>zlib-1.1.4</dt>
+<dd>
+ ... &quot;an acknowledgment in the product documentation would be
+      appreciated but is not required&quot;</dd>
+<dt>perl-5.8.0</dt>
+<dd>
+ ... &quot;8. Aggregation of this Package with a commercial distribution is
+      always permitted provided that the use of this Package is
+      embedded; that is, when no overt attempt is made to make this
+      Package's interfaces visible to the end user of the commercial
+      distribution.  Such use shall not be construed as a distribution
+      of this Package.&quot;</dd>
+<dt>Compress-Zlib-1.18</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>SOAP-Lite-0.55</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;
+ <em>[is using SOAP::Lite to expose the PubSub Server &quot;overt exposure&quot;?]</em></dd>
+<dt>URI-1.22</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>XML-Parser-2.31</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>libwww-perl-5.65</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>openssl-0.9.6g</dt>
+<dd>
+ ... &quot;both licenses are BSD-style Open Source licenses&quot;
+ <em>[already incorporated into the server]</em></dd>
+<dt>Crypt-SSLeay-0.45</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>MIME-Lite-2.117</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>MIME-tools-5.411</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>IO-stringy-2.108</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>MailTools-1.50</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>MIME-Base64-2.12</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>HTML-Parser-3.26</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>libnet-1.12</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>Digest-MD5-2.20</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+<dt>HTML-Tagset-3.03</dt>
+<dd>
+ ... &quot;same terms as Perl itself&quot;</dd>
+    </dl>
+
+    <h2><a name="examples" id="examples">Examples</a></h2>
+
+    <p>The following samples assume your PubSub Server is
+    running on the same machine on port 8000, waiting for requests on
+    the <samp>/kn</samp> URL
+    (i.e. <samp>http://127.0.0.1:8000/kn</samp>.) If your server is at
+    some other URL, replace <samp>http://127.0.0.1:8000/kn</samp> with
+    the correct URL for your server:</p>
+
+    <h3><a name="perlexamples" id="perlexamples">Examples using Perl and SOAP::Lite</a></h3>
+
+    <ul>
+
+      <li>A Perl RPC stub generated using stubmaker.pl from the
+      SOAP::Lite distro; the resulting perl module
+      <samp>PubSubService.pm</samp> will be used in the following
+      example:
+
+      <blockquote><pre>perl stubmaker.pl &quot;http://127.0.0.1:8000/kn?kn_request_format=wsdl&quot;</pre></blockquote></li>
+
+      <li>A Perl publisher using the RPC stub module generated in the previous example:
+
+      <blockquote><pre>perl -MPubSubService -e '
+        print ((PubSubService::publish(&quot;/what/chat&quot;,[&quot;hello&quot;]))[1]->{&quot;status&quot;}.&quot;\n&quot;)'</pre></blockquote></li>
+
+      <li>A Perl &amp; SOAP::Lite sample client demonstrating nested requests:
+
+      <blockquote><pre>perl -MSOAP::Lite -e '
+        print (SOAP::Lite
+                -&gt;service(&quot;http://127.0.0.1:8000/kn?kn_request_format=wsdl&quot;)
+                -&gt;pubsubrequest([
+                        do_method=&gt;batch,
+                        kn_batch=&gt;{do_method=&gt;notify, kn_to=&gt;&quot;/what/chat&quot;, kn_payload=&gt;&quot;Hello&quot;},
+                        kn_batch=&gt;{do_method=&gt;batch,
+                                kn_batch=&gt;{do_method=&gt;notify,kn_to=&gt;&quot;/what/chat&quot;,kn_payload=&gt;hi}
+                        }])-&gt;{status}.&quot;\n&quot;)
+        '</pre></blockquote></li>
+
+    </ul>
+
+    <h3><a name="dotnetexamples" id="dotnetexamples">Examples using the .NET SOAP Tools</a></h3>
+
+    <ul>
+
+      <li>To generate an RPC stub for the .NET SOAP tools, either use
+      <code>wsdl.exe</code> or the Visual Studio .NET &quot;Add Web
+      Reference...&quot; feature. The URI for the service description
+      should be
+      <samp>http://127.0.0.1:8000/kn?kn_request_format=wsdl</samp>
+      in either case. This will generate a stub class in whatever
+      language you've specified <em>[but note that only Visual Basic
+      has been tested.]</em></li>
+
+      <li>Once your stub class has been generated for Visual Basic,
+      you can write a simple publisher. This one uses the
+      <code>pubsubrequest</code> method for the sake of variety, and
+      publishes to the default topic, <samp>/</samp>:
+
+        <blockquote><pre>
+        Dim proxy As New kn.PubSubService() ' or whatever the stub generator called it
+
+        Dim myMap(1) As kn.MapItem
+
+        Dim statusEvent As Object()
+        Dim result As String
+
+        myMap(0) = New kn.MapItem()
+
+        myMap(0).key = &quot;kn_payload&quot;
+        myMap(0).value = &quot;Hello, world!&quot;
+        proxy.pubsubrequest(myMap, statusEvent)
+        If (statusEvent Is Nothing) Then
+            MsgBox(&quot;statusEvent is nothing&quot;)
+        Else
+            Dim statusEventHash As Hashtable = New Hashtable()
+            Dim idx As Integer
+            For idx = 0 To statusEvent.Length - 1
+                If (statusEvent(idx).GetType.Name = &quot;XmlElement&quot;) Then
+                    Dim xmlitem As Xml.XmlElement = statusEvent(idx)
+                    Dim key As String = xmlitem.GetElementsByTagName(&quot;key&quot;).Item(0).InnerText
+                    Dim value As String = xmlitem.GetElementsByTagName(&quot;value&quot;).Item(0).InnerText
+                    statusEventHash.Add(key, value)
+                End If
+            Next
+            Dim msg As String
+            Dim item As DictionaryEntry
+            For Each item In statusEventHash
+                msg = msg + Chr(9) + item.Key + &quot;: &quot; + item.Value + Chr(13) + Chr(10)
+            Next
+            MsgBox(&quot;statusEvent: {&quot; + Chr(13) + Chr(10) + msg + &quot;}&quot;)
+        End If
+        </pre></blockquote></li>
+
+    </ul>
+
+    <h2><a name="references" id="references">References</a></h2>
+
+    <ul>
+
+      <li><a href="pubsubrequest.wsdl">pubsubrequest.wsdl</a>, an initial WSDL for the SOAP interface</li>
+
+      <li><a href="PubSubService.cgi">PubSubService.cgi</a>, an initial implementation of the SOAP interface</li>
+
+      <li><a href="publish.pl">publish.pl</a>, a sample client</li>
+
+      <li><a href="logwatcher.pl">logwatcher.pl</a>, another sample client</li>
+
+      <li><a href="pubsubrequest.xml">pubsubrequest.xml</a>, a sample request</li>
+
+      <li><a href="pubsubresponse.xml">pubsubresponse.xml</a>, a sample response</li>
+
+      <li><a href="pubsubresponse2status.xsl">pubsubresponse2status.xsl</a>,
+      an XSL transformation to extract the status code from a SOAP
+      response produced by PubSubService.cgi and format it as plain
+      text</li>
+
+      <li><a href="modules.txt">modules.txt</a>, a more-complete list
+      of Perl module dependencies generated by temporarily adding a
+      line to PubSubService.cgi:
+
+        <blockquote><pre>print join(&quot;\n&quot;,keys(%INC)).&quot;\n&quot;;</pre></blockquote>
+
+      </li>
+
+      <li><a href="soapembed.c">soapembed.c</a>, a C program that uses
+      PubSubService.cgi inside an embedded Perl interpreter</li>
+
+    </ul>
+
+  </body>
+</html>
