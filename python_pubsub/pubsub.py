@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.48 2003/06/21 03:03:14 ifindkarma Exp $
+# $Id: pubsub.py,v 1.49 2003/06/21 04:25:37 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -830,6 +830,7 @@ class JavaScriptTunnel(Tunnel):
         self.conn.send('-->\n</body></html>\n')
         Tunnel.close(self)
 
+
 class ServerSaver:
     """
     Responsibilities:
@@ -846,10 +847,18 @@ class ServerSaver:
     def __call__(self):
         self.root.clean()
         write_event_pool(self.filename, self.root)
+        self.update_stats()
         self.reschedule()
 
+    def update_stats(self):
+        # FIXME: Call get_topic to create statistics topic.
+        # self.root is the root topic.
+        # FIXME: Post new stats (uptime, active connections) to it.
+        pass
+        
     def reschedule(self):
         scheduler.schedule_processing(self, time.time() + self.interval)
+
 
 class Server:
     """
@@ -938,6 +947,17 @@ class Server:
     def kill(self):
         self.alive = 0
 
+    def getstarttime(self):
+        # Uptime = time.time() - starttime
+        return self.starttime
+    
+    def getopenedconns(self):
+        return self.openedconns
+    
+    def getclosedconns(self):
+        # Active connections = openedconns - closedconns
+        return self.closedconns
+    
     def getdocroot(self):
         return self.docroot
 
