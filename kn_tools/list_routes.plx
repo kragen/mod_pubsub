@@ -34,54 +34,56 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: chat.plx,v 1.2 2003/02/22 03:12:43 ifindkarma Exp $
+# $Id: list_routes.plx,v 1.1 2003/02/22 03:12:43 ifindkarma Exp $
 
-# chat.plx tests the functionality of PubSub::Client.
-# Functionality: It's a command-line chat client.
+# list_routes.plx is a command line utility.
+
+# Input: a router uri and a topic name.
+# Output: the routes out of that topic.
+
+# NOTE: you must include a trailing '/' at the end of the router uri.
+# See this example usage:
+
+#   $ perl list_routes.plx http://127.0.0.1:8000/kn/ /what/chat
+#   http://127.0.0.1:8000/kn/who/anonymous/s/981587186063738/kn_journal [Fri Jan 24 15:54:00 2003]
+#   http://127.0.0.1:8000/kn/who/anonymous/s/280702445264073/kn_journal [Fri Jan 24 15:55:10 2003]
 
 use strict;
 use lib '../cgi-bin';
 use PubSub::Client;
 
-my $sgr0 = `tput sgr0`;
-my $bold = `tput bold`;
-my $red = `tput setaf 1`;
-my $cyan = `tput setaf 6`;
 my $serv = new PubSub::Client(shift @ARGV);
 my $me = (getpwuid($<))[0];
 $serv->displayname($me);
-$serv->subscribe("/what/chat", sub {
+my $topic = (shift @ARGV || '').'/kn_routes';
+my $requestid = $serv->{tunneluri} . '/kn_status/' . PubSub::UUID::uuid();
+$serv->{dispatch}->{$requestid} = sub {
+    delete $serv->{dispatch}->{$requestid};
+    exit 0;
+};
+$serv->handle_events(); # jump-start event processing so we don't miss any...
+$serv->subscribe($topic, sub {
                      my ($event) = @_;
-                     my $displayname = $event->{displayname} || 'unknown';
-                     my $payload = $event->{kn_payload};
+                     my $kn_payload = $event->{kn_payload};
                      my $time = localtime($event->{kn_time_t});
-                     if ($displayname eq $me)
-                     {
-                         print "$red";
-                     }
-                     print "$bold$displayname$sgr0: $payload $cyan"."[$time]$sgr0\n";
-                 }, { do_max_age => '600' });
-
+                     print "$kn_payload [$time]\n";
+                 }, {
+                     do_max_age => 'infinity',
+                     kn_status_from => $requestid,
+                     kn_status_to => "$serv->{tunneluri}"
+                  });
 
 my $rin = '';
 
 for (;;) {
     $rin = '';
-    vec($rin, fileno STDIN, 1) = 1;
     my @servnos = $serv->filenos();
     for my $fileno (@servnos) 
     {
         vec($rin, $fileno, 1) = 1;
     }
     select($rin, undef, undef, undef);
-    if (vec($rin, fileno STDIN, 1)) 
-    {
-        my $msg = <STDIN>;  # assume a line or EOF is there; hang if not
-        exit if not defined $msg;
-        chomp $msg;
-        $serv->publish("/what/chat", {kn_payload => $msg});
-    }
     $serv->handle_events(); # always handle events because looking at $rin is too hard
 }
 
-# End of chat.plx
+# End of list_routes.plx
