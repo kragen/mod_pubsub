@@ -34,7 +34,7 @@
 
 # @KNOWNOW_LICENSE_END@
 
-# $Id: session2html.bash,v 1.1 2003/05/28 00:48:43 bsittler Exp $
+# $Id: session2html.bash,v 1.2 2003/05/28 01:30:45 bsittler Exp $
 
 if [ $# = 0 ]
 then
@@ -45,7 +45,7 @@ echo '<title>session summaries</title>'
 echo '<table border="border">'
 echo '<tr><th rowspan="3" valign="bottom">session</th><th colspan="7">latency test</th><th colspan="10">throughput test, second run</th></tr>'
 echo '<tr><th colspan="3">events</th><th colspan="4">round trip</th><th colspan="5">subscriber</th><th colspan="5">publisher</th></tr>'
-echo '<tr><th>transmitted</th><th>received</th><th>loss</th><th>min (s)</th><th>avg (s)</th><th>max (s)</th><th>std. dev. (s)</th><th>min elapsed (s)</th><th>avg elapsed (s)</th><th>max elapsed (s)</th><th>total events</th><th>avg throughput (Hz)</th><th>min elapsed (s)</th><th>avg elapsed (s)</th><th>max elapsed (s)</th><th>total events</th><th>avg throughput (Hz)</th></tr>'
+echo '<tr><th>transmitted</th><th>received</th><th>loss</th><th>min (ms)</th><th>avg (ms)</th><th>max (ms)</th><th>std. dev. (ms)</th><th>min elapsed (s)</th><th>avg elapsed (s)</th><th>max elapsed (s)</th><th>total events</th><th>avg throughput (Hz)</th><th>min elapsed (s)</th><th>avg elapsed (s)</th><th>max elapsed (s)</th><th>total events</th><th>avg throughput (Hz)</th></tr>'
 for session in "$@"
 do
  [ -f "$session"/latency* -a -f "$session"/Res*second.ini/*.ini ] ||
