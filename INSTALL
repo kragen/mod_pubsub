@@ -79,6 +79,7 @@ You can do this by adding lines like the following to httpd.conf.
 
     <Directory /var/www/mod_pubsub/cgi-bin>
       <Files *.cgi>
+        Options +ExecCGI
         SetHandler perl-script
         PerlHandler Apache::Registry
         PerlSendHeader On
