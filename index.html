@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.24 2003/05/10 04:33:19 ifindkarma Exp $
+ $Id: index.html,v 1.25 2003/05/10 04:50:56 ifindkarma Exp $
 
 -->
 
@@ -145,6 +145,7 @@ function update_clock() {
    <form action="javascript://" name="clock">
    <td align="right" bgcolor="white" class="knownow">
    <font size="-2"> &nbsp;
+   <a href="kn_docs/faq.html" target="_blank">FAQ</a> &#183;
    <a href="http://sourceforge.net/mail/?group_id=66293" target="_blank">mod_pubsub mailing list</a> &#183;
    <a href="kn_apps/">Demo Weblications</a> <br/> &nbsp;
    <input readonly="readonly" size="48" name="clock" class="clock" onfocus="blur()" /> &nbsp;
@@ -337,12 +338,14 @@ It is multi-threaded and blocking.</td>
 <td bgcolor="white">Useful ancillary utilities, including<ol>
 <li> Command-line chat using the Perl PubSub Client Library
  (<a href="kn_tools/chat.plx">chat.plx</a>).
-<li> Command-line ping using the C PubSub Client Library
- (<a href="kn_tools/pubsub_ping/">pubsub_ping</a>).
 <li> Command-line tools using the Perl PubSub Client Library
  (<a href="kn_tools/list_events.plx">list_events.plx</a>,
  <a href="kn_tools/list_routes.plx">list_routes.plx</a>, and
  <a href="kn_tools/list_subtopics.plx">list_subtopics.plx</a>).
+<li> Command-line ping using the C PubSub Client Library
+ (<a href="kn_tools/pubsub_ping/">pubsub_ping</a>).
+<li> Command-line throughput performance testing tool in ANSI C
+ (<a href="kn_tools/pubsub_throughput/">pubsub_throughput</a>).
 <li> Command-line performance testing tool in ANSI C
  (<a href="kn_tools/perftool/perftool.html">perftool</a>).
 <li> Command-line throughput performance testing tool in Java
