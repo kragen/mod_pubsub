@@ -36,7 +36,7 @@
  @KNOWNOW_LICENSE_END@
  
 
- $Id: control.html,v 1.2 2004/04/19 05:39:12 bsittler Exp $
+ $Id: control.html,v 1.3 2004/09/07 05:22:19 msg Exp $
 
 -->
 
@@ -222,13 +222,13 @@ function doRefreshCheck()
     {
         bActive=false;
         bWasActive=true;
-        document.images["connection"].src = '../images/g_green_on.gif';
+        document.images["connection"].src = 'img/g_green_on.gif';
     }
     else
     if (bWasActive)
     {
         bWasActive=false;
-        document.images["connection"].src = '../images/g_green.gif';
+        document.images["connection"].src = 'img/g_green.gif';
     }
     
     setTimeout("doRefreshCheck()",500);
@@ -903,7 +903,7 @@ function doLaunchApp(selectbox)
 
 <form name='tools' style='margin-top : 0'>
 <font size='+1'><b>KnowBuddy</b></font>
-<img name='connection' src='../images/g_green.gif' width='12' height='12'>
+<img name='connection' src='img/g_green.gif' width='12' height='12'>
 <b><script language='javascript'>document.write(parent.kn.displayname);</script></b>
 is 
 <select onChange='doSetStatus(this)' style='font-size:12'> 
