@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub.cgi,v 1.1 2002/11/07 07:07:56 troutgirl Exp $
+# $Id: pubsub.cgi,v 1.2 2003/02/18 05:40:00 ifindkarma Exp $
 
 # If you see this text in a web browser,
 # pubsub.cgi is not working properly and
@@ -373,7 +373,20 @@ sub notify
         $status->send_to($status_topic);
         return;
     }
+    # In case we've been handed an absolute URL for kn_to.
+    $topic = local_url_to_topic($cgi_url, $topic);
+    if (not defined $topic)
+    {
+        $status->status("403 Proxying not supported by this server");
+        $status->log("The route request specified a URL on another server," .
+                     " '$topic', as the route source.  At present,".
+                     " creating routes on other servers is not supported.");
+        $status->send_to($status_topic);
+        return;
+    }
+
     $topic = canonicalize_topic($topic);
+
     my $topic_name_badness = is_bad_topic_name($topic);
     if ($topic_name_badness)
     {

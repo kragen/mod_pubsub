@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+# Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 #
 # @KNOWNOW_LICENSE_START@
 # 
@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub_test.cgi,v 1.1 2002/11/07 07:07:59 troutgirl Exp $
+# $Id: pubsub_test.cgi,v 1.2 2003/02/18 05:40:00 ifindkarma Exp $
 
 use strict;
 use PubSub::UUID;
@@ -455,6 +455,16 @@ make_test "post", sub
     my $topic_state = new PubSub::TopicState($topic);
     my $event = unique_event;
     $event->post($topic);
+    expect_events($topic_state, ($event));
+    return 1;
+};
+
+make_test "post absolute url", sub
+{
+    my $topic = get_topic;
+    my $topic_state = new PubSub::TopicState($topic);
+    my $event = unique_event;
+    $event->post($url . $topic);
     expect_events($topic_state, ($event));
     return 1;
 };
