@@ -18,7 +18,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.51 2003/06/23 22:34:30 ifindkarma Exp $
+# $Id: pubsub.py,v 1.52 2003/07/22 03:11:33 ifindkarma Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -1539,95 +1539,6 @@ def http_header(statusline, contenttype, expires = None):
                 (statusline, contenttype, expires))
 
 
-# Here's a big, long FIXME: Blocking vs. nonblocking HttpClient.
-# The correct way to do it is nonblocking.  Right now we do neither.
-# The right way is to use sendMessage() from pubsublib.py .
-
-# How to use HttpClient?
-# Well, we need it for two things: outbound routes and content-transform routes.
-# For both, we want to follow redirects.
-# For both, we care about success or failure; for outbound routes, we
-# want to delete the route on failure, and for content-transform
-# routes, actually, I think we want that as well.
-# For content-transform routes, we need the response body to be passed to
-# the route guy to modify the event with; for outbound routes, we need
-# no such thing.
-# So something like this for kn_content_transform:
-# HttpClient(http_post(url, ['kn_payload', payload]),
-#            FinishRouting(event, topic, self))
-# where FinishRouting looks like
-
-class FinishRouting:
-    def __init__(self, event, topic, route):
-        self.event = event
-        self.topic = topic
-        self.route = route
-    def __call__(self, response):
-        if response.is_success():
-            self.route.deliver(self.event.clone({'kn_payload': response.body()}))
-        else:
-            self.topic.poison_route(self.route)
-
-# And for external routes, something like
-# HttpClient(http_post(url, event),
-#            ReportRouteStatus(event, topic, self))
-# where ReportRouteStatus looks like
-
-class ReportRouteStatus:
-    def __init__(self, topic, route):
-        self.topic = topic
-        self.route = route
-    def __call__(self, response):
-        if not response.is_success():
-            self.topic.poison_route(self.route)
-
-# Perhaps these could be changed to
-
-# class ReportRouteStatus:
-#     def __init__(self, topic, route):
-#         self.topic = topic
-#         self.route = route
-#     def handle_success(self, response): pass
-#     def handle_failure(self, response):
-#         self.topic.poison_route(self.route)
-#     def __call__(self, response):
-#         if response.is_success(): self.handle_success(response)
-#         else: self.handle_failure(response)
-# 
-# class FinishRouting(ReportRouteStatus):
-#     def __init__(self, event, topic, route):
-#         ReportRouteStatus.__init__(self, topic, route)
-#         self.event = event
-#     def handle_success(self, response):
-#         self.route.deliver(self.event.clone({'kn_payload': response.body()}))
-
-# On second thought, that's the same number of lines, but 77 more
-# characters, and it involves inheritance, so it's probably better
-# to do it the other way.
-
-# So it looks like I want a class for HTTP messages, anyway; I wrote the
-# above response-code-checking code originally as if response['code'][0]
-# in '123':
-
-class HttpClient(asyncore.dispatcher_with_send):
-    def __init__(self, addr, request):
-        socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket.setblocking(0)
-        socket.connect(addr)
-        asyncore.dispatcher_with_send.__init__(self, socket)
-        self.send(request)
-    def readable(self): return 1
-    def handle_read_event(self):
-        try:
-            data = self.socket.recv(4096)
-            if data == '': self.handle_eof()
-            else: self.handle_data(data)
-        except socket.error, val:
-            print "Socket error %s" % val
-
-    # FIXME: This should be replaced with a reasonable configuration system!
-
-
 def urlpath(filename):
     filenamechunks = string.split(filename, '/')
     if len(filename) > 0 and filename[-1] == '/':
@@ -1831,16 +1742,17 @@ def main(argv):
 if __name__ == "__main__": main(sys.argv)
 
 # Some features to add later...
+# FIXME: add logrolling
+# FIXME: new event model to make unsubscribe work
+# FIXME: add pluggability for off-host routes and persistence
 # FIXME: kn_content_transform header
 # FIXME: off-host routes
-# FIXME: bridge.py working using pubsublib.py
 # FIXME: use ZODB for event pool manipulation
-# FIXME: add Depth: header to avoid kn_subtopics infinite recursion
 # FIXME: add "ulimit" in pubsub.py
 # FIXME: add auth in pubsub.py
 # FIXME: add SSL support to pubsub.py
 # FIXME: add CGI support in pubsub.py
 # FIXME: add pubsub.py watchdog
-# FIXME: add pubsub.py statistics
+# FIXME: add Depth: header to avoid kn_subtopics infinite recursion
 
 # End of pubsub.py
