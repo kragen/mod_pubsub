@@ -32,10 +32,17 @@
 // 
 // @KNOWNOW_LICENSE_END@
 
-// $Id: cookie_auth.js,v 1.2 2003/04/14 20:56:40 ifindkarma Exp $
+// $Id: cookie_auth.js,v 1.3 2003/06/07 03:43:50 ifindkarma Exp $
 
 // Client-side "authentication" stored in brower cookies.
 // Note that this is not real security like Apache auth is.
+
+// FIXME: This helper library needs to be changed to encode before
+// storing its cookie, and decode after recovering it. The encoding
+// chosen should preserve all special characters and the encoded form
+// should be a valid cookie string (i.e. identifier characters only).
+// Maybe it's time to use that JavaScript base64 encoder/decoder
+// Scott found a while back.
 
 // FIXME: This helper library sets a cookie that lasts a year.
 // Make cookies have a rolling one-week expiration window.
