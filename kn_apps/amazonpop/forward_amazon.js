@@ -1,9 +1,8 @@
 // <%@LANGUAGE = JScript %>
 // <%
 
-main(WScript.Arguments);
-
 var g_routerURI = "http://www.topiczero.com:8000/kn/";
+main(WScript.Arguments);
 
 function alert(text)
 {
@@ -88,12 +87,12 @@ if (poster.status == '400')
 		
 }
 
-function forward(pages,categoryId,topic)
+function forward(pages,categoryId,mode,topic)
 {
 	var sales;
 	for (var i=1; i <= pages; i++)
 	{
-		sales=loadSales("http://xml.amazon.com/onca/xml2?t=webservices-20&dev-t=D2W7SBNOI2U2ML&BrowseNodeSearch="+categoryId+"&mode=books&type=heavy&page="+i+"&f=xml&sort=+salesrank");
+		sales=loadSales("http://xml.amazon.com/onca/xml2?t=topiczero-20&dev-t=DSJ8HIOHBMG48&BrowseNodeSearch="+categoryId+"&mode="+mode+"&type=heavy&page="+i+"&f=xml&sort=+salesrank");
 		forwardSales(topic,sales);
 	}	
 }
@@ -101,12 +100,12 @@ function forward(pages,categoryId,topic)
 function main(args)
 {
 	// books, top selling=1000
-	forward(4,1000,"/amazon.com/sales/books/");
-	forward(4,301668,"/amazon.com/sales/music/");
-	forward(4,404272,"/amazon.com/sales/movies/");
-	forward(4,130,"/amazon.com/sales/movies/");
-	forward(4,491286,"/amazon.com/sales/software/");
-	forward(4,491290,"/amazon.com/sales/toys/");
+	forward(4,1000,"books","/amazon.com/sales/books/");
+	forward(4,301668,"music","/amazon.com/sales/music/");
+	forward(4,404272,"vhs","/amazon.com/sales/movies/");
+	forward(4,130,"dvd","/amazon.com/sales/movies/");
+	forward(4,491286,"software","/amazon.com/sales/software/");
+	forward(4,491290,"toys","/amazon.com/sales/toys/");
 }	
 
 // %>

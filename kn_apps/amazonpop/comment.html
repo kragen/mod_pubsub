@@ -1,10 +1,9 @@
 <html>
 
 <head>
-<title>NewsCast</title>
+<title>AmazonPop</title>
 </head>
-<style>
-	A.topics { color:white }
+<style>	A.topics { color:white }
 	.topics { color:white }
 </style>
 <!-- The KnowNow Library -->
@@ -13,7 +12,7 @@
 <!--
 var topic = (kn_argv.kn_topic ?
              kn_argv.kn_topic :
-             ("/topiczero.com/news/" ));
+             ("/amazon.com/sales/books/" ));
 
 function doNotify(form)
 {
@@ -44,11 +43,8 @@ function doLoad()
 
 <body onLoad='doLoad()' bgcolor='white' leftmargin='0' topmargin='0'>
 <basefont face='arial' />
-<table width='100%' bgcolor='#6040a0' class='topics'>
-<tr><td>
-<font size='+2' color='white'>
-<b>NewsCast</b></font> - add comment
-</td></tr>
+<table width='100%' bgcolor='#60a040' class='topics'>
+<tr><td><font size='+2' color='white'><b>AmazonPop</b></font> - add comment</td></tr>
 </table>
 
 
@@ -56,15 +52,12 @@ function doLoad()
 <table>
 <input type='hidden' name='do_method' value='notify' />
 <input type='hidden' name='kn_payload' value='' />
-<input type='hidden' name='kn_expires' value='+28800' />
-<input type='hidden' name='type' value='comment' />
-
-<tr valign='top'>
+<input type='hidden' name='kn_expires' value='+28800' /><input type='hidden' name='type' value='comment' />
+<tr valign='top'>
 <td>Topic</td>
 <td><input type='text' size='42' name='kn_to' /></td>
 </tr>
-
-<tr valign='top'>
+<tr valign='top'>
 <td>Nickname</td>
 <td><input type='text' size='42' name='nickname' /></td>
 </tr>
