@@ -1,13 +1,12 @@
 -------------------------------------
 High-level items on the "to do" list.
 -------------------------------------
-$Id: TODO,v 1.15 2003/06/14 03:27:41 ifindkarma Exp $
+$Id: TODO,v 1.16 2003/06/21 05:22:20 ifindkarma Exp $
 
  1. Fix kn_apps/kn_lib/cookie_auth.js so that it properly escapes userids.
 
- 2. Modify the Perl PubSub Server and the Python PubSub Server to not
+ 2. Modify the Perl PubSub Server to not
     send so many flush spaces when writing simple response format.
-    This will make our simple wire format less chatty.
 
  3. We have an initial Python PubSub Client in python_pubsub/pubsublib.py
     that has publish, subscribe, and unsubscribe.  This still needs a
