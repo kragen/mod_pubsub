@@ -200,11 +200,13 @@ public class TestSimpleClient extends TestCase implements Constants {
 		// override journal route command factory method to return one 
 		// we have control over i.e. that alwasy succeeds and preserves its calls
 		SimpleClient aSimpleClient = new SimpleClient(DEFAULT_SERVER_URL) {
+			boolean myIsConnected = false;
 
 			protected SimpleJournalRouteCommand createJournalRouteCommand() {
 				return new SimpleJournalRouteCommand(getJournalURL()) {
 					public boolean doExecute(URL theServerURL) {
 						anExecuteCalledList.add(theServerURL);
+						myIsConnected = true;
 						return true;
 					}
 				};
@@ -219,6 +221,10 @@ public class TestSimpleClient extends TestCase implements Constants {
 						return true;
 					}
 				};
+			}
+			
+			protected boolean isConnected() {
+				return myIsConnected;
 			}
 		};
 
@@ -346,6 +352,29 @@ public class TestSimpleClient extends TestCase implements Constants {
 			aSimpleClient.unsubscribe(aURI, aRequestStatusHandler));
 	}
 
+	public void testUnsubscribeHandlesNullURI() throws MalformedURLException, URISyntaxException {
+
+		//get a simple client where all succeed
+		SimpleClient aSimpleClient =
+			createSimpleClientWithSuccessfulJournalRouteSubscribeAndDeleteCmd();
+
+		assertFalse(
+			"Unsubscribe succeeded w/o subscribing",
+			aSimpleClient.unsubscribe(null, null));
+
+		URI aURI =
+			aSimpleClient.subscribe(
+				new URI("/test/topic/"),
+				null,
+				null);
+		assertNotNull("Subscribe failed", aURI);
+
+		assertFalse(
+			"Unsubscribe succeeded with null uri",
+			aSimpleClient.unsubscribe(null, null));
+		
+	}
+
 	//===========================================================================
 	// HELPER METHODS
 	//===========================================================================
@@ -422,13 +451,19 @@ public class TestSimpleClient extends TestCase implements Constants {
 		// override journal route command factory method 
 		// to return one we have control over i.e. that alwasy succeeds
 		SimpleClient aSimpleClient = new SimpleClient(DEFAULT_SERVER_URL) {
+			boolean myIsConnected = false;
 			protected SimpleJournalRouteCommand createJournalRouteCommand() {
 				return new SimpleJournalRouteCommand(getJournalURL()) {
 					public boolean doExecute(URL theServerURL) {
+						myIsConnected = true;
 						return true;
 					}
 				};
 			}
+			protected boolean isConnected() {
+				return myIsConnected;
+			}
+
 		};
 		return aSimpleClient;
 	}
@@ -437,11 +472,13 @@ public class TestSimpleClient extends TestCase implements Constants {
 		throws MalformedURLException {
 
 		SimpleClient aSimpleClient = new SimpleClient(DEFAULT_SERVER_URL) {
+			boolean myIsConnected = false;
 				// override journal route command factory method 
 		// to return one we have control over i.e. that alwasy succeeds
 	protected SimpleJournalRouteCommand createJournalRouteCommand() {
 				return new SimpleJournalRouteCommand(getJournalURL()) {
 					public boolean doExecute(URL theServerURL) {
+						myIsConnected = true;
 						return true;
 					}
 				};
@@ -457,6 +494,9 @@ public class TestSimpleClient extends TestCase implements Constants {
 					}
 				};
 			}
+			protected boolean isConnected() {
+				return myIsConnected;
+			}
 		};
 		return aSimpleClient;
 	}
@@ -465,11 +505,13 @@ public class TestSimpleClient extends TestCase implements Constants {
 		throws MalformedURLException {
 
 		SimpleClient aSimpleClient = new SimpleClient(DEFAULT_SERVER_URL) {
-				// override journal route command factory method 
-		// to return one we have control over i.e. that alwasy succeeds
-	protected SimpleJournalRouteCommand createJournalRouteCommand() {
+			boolean myIsConnected = false;
+			// override journal route command factory method 
+			// to return one we have control over i.e. that alwasy succeeds
+			protected SimpleJournalRouteCommand createJournalRouteCommand() {
 				return new SimpleJournalRouteCommand(getJournalURL()) {
 					public boolean doExecute(URL theServerURL) {
+						myIsConnected = true;
 						return true;
 					}
 				};
@@ -485,6 +527,9 @@ public class TestSimpleClient extends TestCase implements Constants {
 						return false;
 					}
 				};
+			}
+			protected boolean isConnected() {
+				return myIsConnected;
 			}
 		};
 		return aSimpleClient;

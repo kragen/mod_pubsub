@@ -15,7 +15,10 @@ import org.mod_pubsub.client.IEvent;
 import org.mod_pubsub.client.IEventHandler;
 import org.mod_pubsub.client.IRequestStatusHandler;
 import org.mod_pubsub.client.JournalTopic;
-import org.mod_pubsub.client.command.*;
+import org.mod_pubsub.client.command.CommandOptions;
+import org.mod_pubsub.client.command.DeleteRouteCommand;
+import org.mod_pubsub.client.command.NotifyCommand;
+import org.mod_pubsub.client.command.RouteCommand;
 
 /**
  * @author rtl
@@ -53,7 +56,11 @@ public class SimpleClient implements Constants {
 	 * @return
 	 */
 	protected boolean isConnected() {
-		return myConnectedFlag;
+		if (null != myJournalCommand) {
+			return myJournalCommand.isConnected();
+		}
+		else
+			return false;
 	}
 
 	//===========================================================================
@@ -135,7 +142,7 @@ public class SimpleClient implements Constants {
 		boolean retVal = false;
 
 		// detach from the journal so as not to receive any events
-		if (null != myJournalCommand) {
+		if (null != myJournalCommand && null != theRouteLocationURI) {
 			// if was attached then we can unsubscribe from the server
 			if (null != myJournalCommand.detachEventHandler(theRouteLocationURI.toString())) {
 				retVal = true;
@@ -156,6 +163,12 @@ public class SimpleClient implements Constants {
 
 		return retVal;
 	}
+	
+	public void shutdown() {
+		if (null != myJournalCommand) {
+			myJournalCommand.disconnect();
+		}
+	}
 
 	//===========================================================================
 	// HELPER METHODS
@@ -166,13 +179,13 @@ public class SimpleClient implements Constants {
 	 * @return
 	 */
 	protected boolean connect(IRequestStatusHandler theRequestStatusHandler) {
+		boolean retVal = false;
 		if (null == myJournalCommand) {
 			// create a route command and execute it
 			myJournalCommand = createJournalRouteCommand();
 		}
-		myConnectedFlag =
-			myJournalCommand.execute(myServerURL, theRequestStatusHandler);
-		return myConnectedFlag;
+		retVal = myJournalCommand.execute(myServerURL, theRequestStatusHandler);
+		return retVal;
 	}
 
 	/**
@@ -246,7 +259,6 @@ public class SimpleClient implements Constants {
 	private URL myServerURL;
 	private JournalTopic myJournalTopic;
 	private URL myJournalURL;
-	private boolean myConnectedFlag = false;
 	private SimpleJournalRouteCommand myJournalCommand = null;
 
 	//===========================================================================
