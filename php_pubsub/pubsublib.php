@@ -1,4 +1,5 @@
 <?php
+
 # pubsublib.php - PubSub Client library for PHP
 
 # Copyright 2003 KnowNow, Inc.  All Rights Reserved.
@@ -34,6 +35,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # @KNOWNOW_LICENSE_END@
+
+$RCSID = '$Id: pubsublib.php,v 1.5 2003/04/29 00:04:30 ifindkarma Exp $';
 
 if (! defined("PUBSUBLIB_PHP_INCLUDED"))
 {

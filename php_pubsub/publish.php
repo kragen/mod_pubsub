@@ -1,23 +1,9 @@
 <?php
-header("Content-Type: text/html; charset=utf-8");
 
-?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-    <html>
-    <head>
-    <?php
+# publish.php - pubsub publisher for php
 
-require('pubsublib.php');
-
-if (kn__gpc("show_source", false, array("_GET")))
-{
-    ?><title><?php echo kn_htmlEscape(__FILE__); ?></title>
-        <body text="black" bgcolor="white"><?php
-    show_source(__FILE__);
-    exit;
-}
-
-#  For a sample subscriber application, see mod_pubsub/kn_apps/chat1/ .
-#  Note that chat1 is a JavaScript PubSub Client Library subscriber.
+# For a sample client subscriber, see mod_pubsub/kn_apps/chat1/ .
+# Note that chat1 is a JavaScript PubSub Client Library subscriber.
 
 # Copyright 2003 KnowNow, Inc.  All Rights Reserved.
 #
@@ -53,8 +39,24 @@ if (kn__gpc("show_source", false, array("_GET")))
 #
 # @KNOWNOW_LICENSE_END@
 
-$RCSID = '$Id: publish.php,v 1.5 2003/04/28 23:42:44 ifindkarma Exp $';
+$RCSID = '$Id: publish.php,v 1.6 2003/04/29 00:04:30 ifindkarma Exp $';
 
+header("Content-Type: text/html; charset=utf-8");
+
+?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    <html>
+    <head>
+    <?php
+
+require('pubsublib.php');
+
+if (kn__gpc("show_source", false, array("_GET")))
+{
+    ?><title><?php echo kn_htmlEscape(__FILE__); ?></title>
+        <body text="black" bgcolor="white"><?php
+    show_source(__FILE__);
+    exit;
+}
 ?>
 <title>pubsub publisher for php</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />

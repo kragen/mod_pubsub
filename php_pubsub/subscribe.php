@@ -1,22 +1,6 @@
 <?php
-header("Content-Type: text/html; charset=utf-8");
 
-?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-    <html>
-    <head>
-    <?php
-
-require('pubsublib.php');
-
-if (kn__gpc("show_source", false, array("_GET")))
-{
-    ?><title><?php echo kn_htmlEscape(__FILE__); ?></title>
-        <body text="black" bgcolor="white"><?php
-    show_source(__FILE__);
-    exit;
-}
-
-# subscribe.php - pubsub subscriber for php
+# subscribe.php - pubsub server-side subscriber for php
 
 # Copyright 2003 KnowNow, Inc.  All Rights Reserved.
 #
@@ -52,13 +36,31 @@ if (kn__gpc("show_source", false, array("_GET")))
 #
 # @KNOWNOW_LICENSE_END@
 
+$RCSID = '$Id: subscribe.php,v 1.2 2003/04/29 00:04:30 ifindkarma Exp $';
+
 include('pubsublib.php');
 include('eventloop.php');
 include('pipefitting.php');
 
-#
-# FIXME: This doesn't actually work yet!!!
-#
+# FIXME: This program doesn't actually parse the data returned by the
+# PubSub Server; it just displays it.
+
+# FIXME: Only works with PHP4 and requires the Socket extension.
+
+header("Content-Type: text/html; charset=utf-8");
+
+?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    <html>
+    <head>
+    <?php
+
+if (kn__gpc("show_source", false, array("_GET")))
+{
+    ?><title><?php echo kn_htmlEscape(__FILE__); ?></title>
+        <body text="black" bgcolor="white"><?php
+    show_source(__FILE__);
+    exit;
+}
 
 $ctx = array();
 

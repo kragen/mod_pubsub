@@ -1,4 +1,5 @@
 <?php
+
 # pipefitting.php - Network Pipe Fitting for PHP
 
 # Copyright 2003 KnowNow, Inc.  All Rights Reserved.
@@ -34,6 +35,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # @KNOWNOW_LICENSE_END@
+
+$RCSID = '$Id: pipefitting.php,v 1.2 2003/04/29 00:04:30 ifindkarma Exp $';
 
 if (! defined("PIPEFITTING_PHP_INCLUDED"))
 {
