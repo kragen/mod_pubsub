@@ -1,8 +1,12 @@
-$Id: MOVED,v 1.1 2003/05/10 03:18:18 ifindkarma Exp $
+$Id: MOVED,v 1.2 2003/05/10 04:05:34 ifindkarma Exp $
 
 For a SOAP gateway to mod_pubsub, see
 
    mod_pubsub/cgi-bin/soap_gateway/
+
+For the design of this SOAP gateway, see
+
+   mod_pubsub/cgi-bin/soap_gateway/soapdesign.html
 
 For a third-party SOAP Service Proxy for mod_pubsub, see
 
