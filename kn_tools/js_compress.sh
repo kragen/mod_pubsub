@@ -34,7 +34,7 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: js_compress.sh,v 1.2 2003/03/19 05:34:39 ifindkarma Exp $
+# $Id: js_compress.sh,v 1.3 2003/07/19 09:27:50 ifindkarma Exp $
 
 ## JAVASCRIPT COMPRESSION FILTER
 # This heuristic filter automatically compresses a JavaScript file
@@ -85,7 +85,7 @@ trap '/bin/rm -f -- "$tmp" "$tmp2" "$tmp3"' EXIT
 cat > "$tmp" &&
 (
 cat <<.
-// Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+// mod_pubsub JavaScript PubSub Client Library.
 .
 expand < "$tmp" |
     # strip comments, blank lines, and leading and trailing whitespace
