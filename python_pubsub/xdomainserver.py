@@ -20,12 +20,12 @@
     document root and topic root (if required).
     3. Start xdomainserver.py - which will also read prologue.js to
     determine the server URL to use in its substitutions
-    You can specify a port on the command line, i.e.
+    You can specify a port on the command line, that is,
           xdomainserver.py 8080
     Note that the port needs to be different to where pubsub.py is
     running
-    4. Goto http://localhost[:port]/ which will go straight to the Demo
-    Weblications index.html page.
+    4. Goto http://localhost[:port]/ which will go straight to the
+    Demo Weblications index.html page.
     5. Run apps/test as required.
 
     Contact Information:
@@ -67,7 +67,7 @@
 #
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: xdomainserver.py,v 1.3 2003/05/02 01:31:54 ifindkarma Exp $
+# $Id: xdomainserver.py,v 1.4 2003/05/06 00:16:50 ifindkarma Exp $
 
 import SimpleHTTPServer
 import types
