@@ -1,0 +1,182 @@
+// LibKNCom.idl : IDL source for LibKNCom.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (LibKNCom.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(CAAB334A-BFE6-4C73-9DE3-7A052DA43B62),
+		dual,
+		helpstring("IMessageEntry Interface"),
+		pointer_default(unique)
+	]
+	interface IMessageEntry : IDispatch
+	{
+		[propget, id(1), helpstring("property Name")] HRESULT Field([out, retval] BSTR* pVal);
+		[propget, id(2), helpstring("property Name")] HRESULT Value([out, retval] BSTR* pVal);
+	};
+	[
+		object,
+		uuid(9FED2E8D-A992-4DA9-872C-110C55B1AF92),
+		dual,
+		helpstring("IMessage Interface"),
+		pointer_default(unique)
+	]
+	interface IMessage : IDispatch
+	{
+		[propget, id(DISPID_NEWENUM), helpstring("property _NewEnum"), restricted] HRESULT _NewEnum([out, retval] IUnknown** pVal);
+		[id(1), helpstring("method Set")] HRESULT Set([in] BSTR field, [in] BSTR value);
+		[id(2), helpstring("method Get")] HRESULT Get([in] BSTR field, [out, retval] BSTR* pVal);
+		[id(3), helpstring("method Remove")] HRESULT Remove([in] BSTR field);
+		[id(4), helpstring("method Empty")] HRESULT Empty();
+		[id(5), helpstring("method IsEmpty")] HRESULT IsEmpty([out, retval] VARIANT_BOOL* pVal);
+		[id(6), helpstring("method Copy")] HRESULT Copy([in] IMessage* msg);
+//      [id(7), helpstring("method GetAsHttpParam")] HRESULT GetAsHttpParam([out, retval] BSTR* pVal);
+      [id(1000), helpstring("method GetImpl"), restricted, hidden] HRESULT _GetImpl([out, retval] long* pVal);
+	};
+	[
+		object,
+		uuid(72AE2756-8E4C-4eca-AE07-16E49439B177),
+		dual,
+		helpstring("IComRequestStatusHandler Interface"),
+		pointer_default(unique)
+	]
+	interface IComRequestStatusHandler : IDispatch
+	{
+      [id(1), helpstring("method OnStatus")] HRESULT OnStatus([in] IMessage* msg);
+	};
+	[
+		object,
+		uuid(42A593D0-96CF-4feb-BB54-C6AA44DE1C30),
+		dual,
+		helpstring("IComListener Interface"),
+		pointer_default(unique)
+	]
+	interface IComListener : IDispatch
+	{
+      [id(1), helpstring("method OnUpdate")] HRESULT OnUpdate([in] IMessage* msg);
+	};
+	[
+		object,
+		uuid(0B3E3DD2-AF93-4FA7-8243-6D8B10BDD8F1),
+		dual,
+		helpstring("IParameters Interface"),
+		pointer_default(unique)
+	]
+	interface IParameters : IDispatch
+	{
+		[propget, id(1), helpstring("property ServerUrl")] HRESULT ServerUrl([out, retval] BSTR *pVal);
+		[propput, id(1), helpstring("property ServerUrl")] HRESULT ServerUrl([in] BSTR newVal);
+		[propget, id(2), helpstring("property Username")] HRESULT Username([out, retval] BSTR *pVal);
+		[propput, id(2), helpstring("property Username")] HRESULT Username([in] BSTR newVal);
+		[propget, id(3), helpstring("property Password")] HRESULT Password([out, retval] BSTR *pVal);
+		[propput, id(3), helpstring("property Password")] HRESULT Password([in] BSTR newVal);
+		[propget, id(4), helpstring("property UseProxy")] HRESULT UseProxy([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(4), helpstring("property UseProxy")] HRESULT UseProxy([in] VARIANT_BOOL newVal);
+		[propget, id(5), helpstring("property ProxyServer")] HRESULT ProxyServer([out, retval] BSTR *pVal);
+		[propput, id(5), helpstring("property ProxyServer")] HRESULT ProxyServer([in] BSTR newVal);
+		[propget, id(6), helpstring("property ProxyUsername")] HRESULT ProxyUsername([out, retval] BSTR *pVal);
+		[propput, id(6), helpstring("property ProxyUsername")] HRESULT ProxyUsername([in] BSTR newVal);
+		[propget, id(7), helpstring("property ProxyPassword")] HRESULT ProxyPassword([out, retval] BSTR *pVal);
+		[propput, id(7), helpstring("property ProxyPassword")] HRESULT ProxyPassword([in] BSTR newVal);
+		[propget, id(8), helpstring("property ProxyExceptionList")] HRESULT ProxyExceptionList([out, retval] BSTR *pVal);
+		[propput, id(8), helpstring("property ProxyExceptionList")] HRESULT ProxyExceptionList([in] BSTR newVal);
+		[propget, id(9), helpstring("property CustomHeader")] HRESULT CustomHeader([out, retval] BSTR *pVal);
+		[propput, id(9), helpstring("property CustomHeader")] HRESULT CustomHeader([in] BSTR newVal);
+		[propget, id(10), helpstring("property ShowUI")] HRESULT ShowUI([out, retval] VARIANT_BOOL *pVal);
+		[propput, id(10), helpstring("property ShowUI")] HRESULT ShowUI([in] VARIANT_BOOL newVal);
+	};
+	[
+		object,
+		uuid(AA24822F-7377-44B2-8FDC-B0569C2EBDBF),
+		dual,
+		helpstring("IConnector Interface"),
+		pointer_default(unique)
+	]
+	interface IConnector : IDispatch
+	{
+		[id(1), helpstring("method IsConnected")] HRESULT IsConnected([out, retval] VARIANT_BOOL* pVal);
+		[id(2), helpstring("method Open")] HRESULT Open([in] IParameters* p, [out, retval] VARIANT_BOOL* pVal);
+		[id(3), helpstring("method GetParameters")] HRESULT GetParameters([out, retval] IParameters** p);
+		[id(4), helpstring("method Close")] HRESULT Close([out, retval] VARIANT_BOOL* pVal);
+		[id(5), helpstring("method EnsureConnected")] HRESULT EnsureConnected([out, retval] VARIANT_BOOL* pVal);
+		[id(6), helpstring("method Publish")] HRESULT Publish([in] IMessage* m, [in, optional] IComRequestStatusHandler* sh);
+		[id(7), helpstring("method Subscribe")] HRESULT Subscribe([in] BSTR topic, [in, optional] IComListener* listener, [in, optional] IComRequestStatusHandler* sh, [out, retval] BSTR* pVal);
+		[id(8), helpstring("method Unsubscribe")] HRESULT Unsubscribe([in] BSTR rid, [in, optional] IComRequestStatusHandler* sh, [out, retval] VARIANT_BOOL* pVal);
+	};
+
+[
+	uuid(7065681D-3001-4F97-82D7-190855D936C1),
+	version(1.0),
+	helpstring("LibKNCom 1.0 Type Library")
+]
+library LIBKNCOMLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(F146EBAB-B76E-4CB7-BDA4-9BE413D03C21),
+		helpstring("MessageEntry Class")
+	]
+	coclass MessageEntry
+	{
+		[default] interface IMessageEntry;
+	};
+	[
+		uuid(B32E3222-730B-493C-BD62-052D45383B38),
+		helpstring("Message Class")
+	]
+	coclass Message
+	{
+		[default] interface IMessage;
+	};
+	[
+		uuid(84458F40-2A17-491b-A6BF-1C8C96E853DC),
+		helpstring("StatusHandler Class")
+	]
+	coclass RequestStatusHandler
+	{
+		[default] interface IComRequestStatusHandler;
+	};
+	[
+		uuid(FC37C6D8-2463-4b0f-8397-924FA5314BA2),
+		helpstring("Listener Class")
+	]
+	coclass Listener
+	{
+		[default] interface IComListener;
+	};
+   [
+      uuid(F91E756A-C698-42ba-BDDC-D93971125AA9),
+      helpstring("_IConnectorEvents Interface")
+   ]
+   dispinterface _IConnectorEvents
+   {
+      properties:
+      methods:
+		[id(1), helpstring("method OnStatus")] HRESULT OnStatus([in] IMessage* msg);
+		[id(2), helpstring("method OnUpdate")] HRESULT OnUpdate([in] IMessage* msg);
+		[id(3), helpstring("method OnUpdate")] HRESULT OnConnectionStatus([in] IMessage* msg);
+   };
+	[
+		uuid(AF9469CA-A307-4BF9-BD3E-2F65E6FC87A9),
+		helpstring("Connector Class")
+	]
+	coclass Connector
+	{
+		[default] interface IConnector;
+      [default, source] dispinterface _IConnectorEvents;
+	};
+	[
+		uuid(516BB624-7FDA-4712-A8CD-474EB1844661),
+		helpstring("Parameters Class")
+	]
+	coclass Parameters
+	{
+		[default] interface IParameters;
+	};
+};

@@ -1,0 +1,26 @@
+HKCR
+{
+	LibKNCom.Parameters.1 = s 'Parameters Class'
+	{
+		CLSID = s '{516BB624-7FDA-4712-A8CD-474EB1844661}'
+	}
+	LibKNCom.Parameters = s 'Parameters Class'
+	{
+		CLSID = s '{516BB624-7FDA-4712-A8CD-474EB1844661}'
+		CurVer = s 'LibKNCom.Parameters.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {516BB624-7FDA-4712-A8CD-474EB1844661} = s 'Parameters Class'
+		{
+			ProgID = s 'LibKNCom.Parameters.1'
+			VersionIndependentProgID = s 'LibKNCom.Parameters'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{7065681D-3001-4F97-82D7-190855D936C1}'
+		}
+	}
+}

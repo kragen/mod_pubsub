@@ -1,0 +1,6 @@
+#if !defined(CRC32_H)
+#define CRC32_H
+
+unsigned long crc32(unsigned long crc, const unsigned char* buf, unsigned int len);
+
+#endif

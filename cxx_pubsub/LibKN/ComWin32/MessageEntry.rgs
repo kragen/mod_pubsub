@@ -1,0 +1,26 @@
+HKCR
+{
+	LibKNCom.MessageEntry.1 = s 'MessageEntry Class'
+	{
+		CLSID = s '{F146EBAB-B76E-4CB7-BDA4-9BE413D03C21}'
+	}
+	LibKNCom.MessageEntry = s 'MessageEntry Class'
+	{
+		CLSID = s '{F146EBAB-B76E-4CB7-BDA4-9BE413D03C21}'
+		CurVer = s 'LibKNCom.MessageEntry.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {F146EBAB-B76E-4CB7-BDA4-9BE413D03C21} = s 'MessageEntry Class'
+		{
+			ProgID = s 'LibKNCom.MessageEntry.1'
+			VersionIndependentProgID = s 'LibKNCom.MessageEntry'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{7065681D-3001-4F97-82D7-190855D936C1}'
+		}
+	}
+}

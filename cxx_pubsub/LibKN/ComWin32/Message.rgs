@@ -1,0 +1,26 @@
+HKCR
+{
+	LibKNCom.Message.1 = s 'Message Class'
+	{
+		CLSID = s '{B32E3222-730B-493C-BD62-052D45383B38}'
+	}
+	LibKNCom.Message = s 'Message Class'
+	{
+		CLSID = s '{B32E3222-730B-493C-BD62-052D45383B38}'
+		CurVer = s 'LibKNCom.Message.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {B32E3222-730B-493C-BD62-052D45383B38} = s 'Message Class'
+		{
+			ProgID = s 'LibKNCom.Message.1'
+			VersionIndependentProgID = s 'LibKNCom.Message'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{7065681D-3001-4F97-82D7-190855D936C1}'
+		}
+	}
+}

@@ -1,0 +1,26 @@
+HKCR
+{
+	LibKNCom.Connector.1 = s 'Connector Class'
+	{
+		CLSID = s '{AF9469CA-A307-4BF9-BD3E-2F65E6FC87A9}'
+	}
+	LibKNCom.Connector = s 'Connector Class'
+	{
+		CLSID = s '{AF9469CA-A307-4BF9-BD3E-2F65E6FC87A9}'
+		CurVer = s 'LibKNCom.Connector.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {AF9469CA-A307-4BF9-BD3E-2F65E6FC87A9} = s 'Connector Class'
+		{
+			ProgID = s 'LibKNCom.Connector.1'
+			VersionIndependentProgID = s 'LibKNCom.Connector'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{7065681D-3001-4F97-82D7-190855D936C1}'
+		}
+	}
+}

@@ -1,0 +1,2 @@
+Add const Message& options to Connector::Subscribe().
+

@@ -1,0 +1,9 @@
+; LibKNCom.def : Declares the module parameters.
+
+LIBRARY      "LibKNCom.DLL"
+
+EXPORTS
+	DllCanUnloadNow      PRIVATE
+	DllGetClassObject    PRIVATE
+	DllRegisterServer    PRIVATE
+	DllUnregisterServer	 PRIVATE
