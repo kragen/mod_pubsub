@@ -34,13 +34,14 @@
 # 
 # @KNOWNOW_LICENSE_END@
 #
-# $Id: pubsub_test.cgi,v 1.4 2003/04/26 02:32:19 ifindkarma Exp $
+# $Id: pubsub_test.cgi,v 1.5 2003/04/26 02:44:01 ifindkarma Exp $
 
 use strict;
 use PubSub::UUID;
 use PubSub::Event;
 use PubSub::WebHelper 'encode_form';
 use PubSub::TopicState;
+use PubSub::Htmlsafe 'entify';
 use CGI ':standard';
 use LWP::UserAgent;
 use LWP::Simple (); # Don't import anything! 
@@ -247,35 +248,15 @@ sub test_header
     return "Running " . @tests . " tests:\n";
 }
 
-sub js_prologue_string
-{
-    my $str = "";
-    eval
-    {
-	my $resp = $ua->get($url.'?do_method=whoami');
-	if ($resp->is_success) 
-	{
-	    $str = $resp->content;
-	}
-    };
-    return $str;
-}
-
-sub html_prologue_string
-{
-    return ("<script type=\"text/javascript\">\n" .
-            "<!--\n" .
-            js_prologue_string . "\n" .
-            "// -->\n" .
-            "</script>");
-}
-
 sub run_all_tests 
 {
     my $start = time();
+    my $quoted_url = PubSub::Htmlsafe::entify($url);
     print(header('text/html; charset=utf-8'),
           start_html(-title => "PubSub test results from " . localtime($start),
-		     -head => html_prologue_string,
+		     -head => <<HEAD,
+<script type="text/javascript" src="$quoted_url?do_method=whoami"></script>
+HEAD
                      -text => "black",
                      -bgcolor => "white"), 
           h1(test_header @tests), "<ol>\n");
