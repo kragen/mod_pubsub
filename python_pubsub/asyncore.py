@@ -1,4 +1,14 @@
 # -*- Mode: Python; tab-width: 4 -*-
+
+"""
+   Note that this is not the "standard" system asyncore.py ...
+   It has been modified to be event-driven instead of polling.
+   As a consequence, it is incompatible with the standard asyncore.py ...
+
+   FIXME: Either change the name of this file, or get the changes
+   we made adopted by the main asyncore.  -- Ben and Adam, 2/8/2003
+"""
+
 #   Id: asyncore.py,v 2.40 1999/05/27 04:08:25 rushing Exp 
 #   Author: Sam Rushing <rushing@nightmare.com>
 
