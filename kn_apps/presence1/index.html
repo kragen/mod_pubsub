@@ -2,7 +2,7 @@
 
 <!--
 
- Copyright 2000-2002 KnowNow, Inc.  All Rights Reserved.
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
 
  @KNOWNOW_LICENSE_START@
  
@@ -36,7 +36,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: index.html,v 1.2 2003/02/08 05:02:18 ifindkarma Exp $
+ $Id: index.html,v 1.3 2003/04/25 22:11:55 ifindkarma Exp $
 
 -->
 
@@ -154,9 +154,11 @@ function presenceOnMessage(event)
     var name = event.displayname || event.userid || "(unknown)";
 
     presenceLog.value =
-        $_("[%{0}] %{1}\n",
+        $_("[%{0}] %{1}  (%{2})\n",
            name,
-           event.kn_payload) +
+           event.kn_payload,
+        // new Date().toTimeString()) +
+           new Date(parseFloat(event.kn_time_t) * 1000).toTimeString()) +
         presenceLog.value;
 
 }
@@ -201,9 +203,10 @@ function presenceShowStatus()
                     presenceLog.value =
                         $_("=%{0}= Client connected at %{1}.\n",
                            clientId,
-                           (session.date.toUTCString ?
-                            session.date.toUTCString() :
-                            session.date.toGMTString())) +
+                           session.date.toString()) +
+                         // (session.date.toUTCString ?
+                         //  session.date.toUTCString() :
+                         //  session.date.toGMTString())) +
                         presenceLog.value;
 
 		}
@@ -261,9 +264,10 @@ function presenceShowStatus()
             presenceLog.value =
                 $_("=%{0}= Client disconnected at %{1}.\n",
                    otherClient,
-                   (session.date.toUTCString ?
-                    session.date.toUTCString() :
-                    session.date.toGMTString())) +
+                   session.date.toString()) +
+                 // (session.date.toUTCString ?
+                 //  session.date.toUTCString() :
+                 //  session.date.toGMTString())) +
                 presenceLog.value;
 
 	}
@@ -876,11 +880,12 @@ function presenceOnLoad()
     var now = new Date();
 
     presenceLog.value =
-        $_("\r\n[=Startup=] Client initialized for %{0} at %{1}.\n",
+        $_("\r\n=Startup= Client initialized for %{0} at %{1}.\n",
            presenceClientId,
-           (now.toUTCString ?
-            now.toUTCString() :
-            now.toGMTString()));
+           now.toString());
+         // (now.toUTCString ?
+         //  now.toUTCString() :
+         //  now.toGMTString()));
 
     // this subscription monitors subscriptions to presenceMessageTopic,
     // including subscription deletions. we ask for old events so that
@@ -905,7 +910,7 @@ function presenceOnLoad()
     presenceMessageRoute =
         kn.subscribe(presenceMessageTopic,
                      presenceOnMessage,
-                     ({ do_max_age: "30", client_id: presenceClientId, displayname: presenceClientId, userid: presenceClientId }));
+                     ({ do_max_n: "10", client_id: presenceClientId, displayname: presenceClientId, userid: presenceClientId }));
 
 }
 
@@ -1173,7 +1178,7 @@ function presenceTrimLog(lines)
      --><font color="black"><!--
      --><textarea
            name="logElement"
-           cols="80"
+           cols="120"
            rows="30"
            wrap="virtual"
            readonly="readonly"
