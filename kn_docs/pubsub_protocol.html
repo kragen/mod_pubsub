@@ -37,7 +37,7 @@
  
  @KNOWNOW_LICENSE_END@
 
- $Id: pubsub_protocol.html,v 1.4 2003/05/15 01:43:42 ifindkarma Exp $
+ $Id: pubsub_protocol.html,v 1.5 2003/05/22 01:13:27 ifindkarma Exp $
 
 -->
 
@@ -147,6 +147,46 @@ the part of the URL path following the server URL,
 can be used to specify a default topic for
 <code>route</code> and <code>notify</code> requests, but does not count
 as a parameter.</p>
+
+<p>For example, consider how a Flash application interacts with
+a PubSub Server.  To send a request to a PubSub server, the application
+constructs an HTTP request like this:
+<pre>
+"POST /kn HTTP/1.0\r\n" +
+"Host: localhost\r\n" +
+"Content-Length: " + myContent.length + "\r\n" +
+"\r\n" +
+myContent
+</pre>
+where <code>myContent</code> might be for example
+<pre>
+"kn_response_format=flash;" +
+"do_method=route;" +
+"kn_from=/who/jos/s/24/kn_journal"
+</pre>
+to set up a streaming flash-formatted "tunnel" (note that
+<code>kn_response_format=flash</code> will not work until
+we add support for it to the PubSub Server; to get started
+the application might use <code>kn_response_format=simple</code>
+instead).</p>
+
+<p>To establish a subscription (say, to "<code>/what/chat</code>"),
+the application constructs an HTTP request like this:
+<pre>
+"kn_response_format=flash;" +
+"do_method=route;" +
+"kn_from=/what/chat;" +
+"kn_to=/who/jos/s/24/kn_journal"
+</pre>
+Then to publish to that topic, the application constructs an
+HTTP request like this:
+<pre>
+"kn_response_format=flash;" +
+"do_method=notify;" +
+"kn_to=/what/chat;" +
+"kn_payload=Hello%20World%21"
+</pre>
+</p>
 
 <p>The parameters described in section <a href="#2.1">2.1</a> select
 operations and options; those described in section
@@ -335,6 +375,8 @@ behavior.</dd>
 </dl>
 </div>
 </dd>
+
+<br><br>
 
 <dt><code>kn_response_format</code></dt>
 
@@ -802,7 +844,7 @@ be used to determine which frame a callback was called in.</p>
 <hr />
 
 <p>
-$Id: pubsub_protocol.html,v 1.4 2003/05/15 01:43:42 ifindkarma Exp $</p>
+$Id: pubsub_protocol.html,v 1.5 2003/05/22 01:13:27 ifindkarma Exp $</p>
 
 </body>
 </html>
