@@ -1,0 +1,112 @@
+<!--
+
+ Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+
+ @KNOWNOW_LICENSE_START@
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 
+ 1. Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
+ 
+ 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
+ be used to endorse or promote any product without prior written
+ permission from KnowNow, Inc.
+ 
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ @KNOWNOW_LICENSE_END@
+
+ $Id: index.html,v 1.1 2003/03/22 08:31:46 ifindkarma Exp $
+
+-->
+
+<html>
+<head>
+<title>pubsub tunnel monitor test</title>
+
+<script src="tunnelmonitor.js"></script>
+<script src="/kn?do_method=lib"></script>
+
+<script><!--
+
+function oc(connectionStatus)
+{
+    document.bgColor = "#ccffcc";
+    alert("Connected");
+}
+
+function od(connectionStatus)
+{
+    document.bgColor = "#ffcccc";
+    alert("Disconnected");
+}
+
+// -->
+</script>
+
+</head>
+
+<body
+    onload="
+    kn_tunnelMonitor({onConnect:oc,onDisconnect:od});
+    "
+
+    text="black"
+    bgcolor="white"
+>
+<form
+    action="javascript:void(0)//"
+    onsubmit="
+    parent.kn_heartbeatCallback(self, this.elements.interval.value);
+    return false;
+    "
+>
+Interval1: <input name="interval" value="" /> (in seconds)
+<input type="submit"
+    value="Simulate parent.kn_heartbeatCallback(self, Interval1)"
+/>
+</form>
+<form
+    action="javascript:void(0)//"
+    onsubmit="
+    parent.kn_sendCallback(this, null);
+    return false;
+    "
+>
+Interval1: <input name="interval" value="" /> (in seconds)
+<input type="submit"
+    value="Simulate parent.kn_sendCallback(this, null)"
+/>
+</form>
+<form
+    action="javascript:void(0)//"
+    onsubmit="
+    self.kn_tunnelMonitorReset(this.elements.interval.value);
+    return false;
+    "
+>
+Interval2: <input name="interval" value="" /> (in seconds)
+<input type="submit"
+    value="Simulate kn_tunnelMonitorReset(Interval2)"
+/>
+</form>
+</body>
+</html>
