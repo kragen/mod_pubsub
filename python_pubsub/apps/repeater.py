@@ -1,17 +1,17 @@
 #!/usr/bin/python
 
 """
-    repeater.py -- Command-line "repeater" application
-    that subscribes to a source topic on one PubSub Server
-    and publishes to a mirror on another PubSub Server.
+    repeater.py -- Command-line "repeater" application that
+    subscribes to a source topic on the "from" PubSub Server
+    and publishes to a mirror topic on the "to" PubSub Server.
 
     To call:
-        ./repeater.py from_server to_server topic
+        ./repeater.py from-server to-server topic
         
     Example of usage:
         ./repeater.py http://www.mod-pubsub.org:9000/kn http://127.0.0.1:8000/kn /what/apps/blogchatter/pings
 
-    $Id: repeater.py,v 1.2 2003/06/14 03:03:17 ifindkarma Exp $
+    $Id: repeater.py,v 1.3 2003/06/14 03:12:34 ifindkarma Exp $
     
     Contact Information:
         http://mod-pubsub.sf.net/
@@ -82,12 +82,14 @@ class Repeater(StatusMonitor):
 
 def main(argv):
 
-    if len(argv) != 3:
-        exit
+    try:
+        topic = argv[3]
+    except:    
+        print "Usage: ./repeater.py from-server to-server topic"
+        return 0
         
     client1_url = argv[1]
     client2_url = argv[2]
-    topic = argv[3]
     
     ua = pubsublib.HTTPUserAgent()
     client1 = pubsublib.SimpleClient(ua, client1_url)
