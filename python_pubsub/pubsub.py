@@ -20,7 +20,7 @@
 # Copyright (c) 2000-2003 KnowNow, Inc.  All Rights Reserved.
 # Copyright (c) 2003 Joyce Park.  All Rights Reserved.
 # Copyright (c) 2003 Robert Leftwich.  All Rights Reserved.
-# $Id: pubsub.py,v 1.28 2003/05/22 02:36:28 ifindkarma Exp $
+# $Id: pubsub.py,v 1.29 2003/05/30 04:31:40 troutgirl Exp $
 
 # @KNOWNOW_LICENSE_START@
 #
@@ -307,6 +307,23 @@ class Topic(Event):
     def notify(self, event):
         """Given an Event, post it --- if this is allowed."""
         self.post(event)
+
+    def clean(self):
+        """Simple brain-dead event deletion -- replace at will!"""
+        # Must clean subtopics, routes, and events
+        if self.kn_subtopics is not None:
+            self.kn_subtopics.clean()
+        if self.kn_routes is not None:
+            self.kn_routes.clean()
+        # Clean yourself
+        # Walk through both event array and eventdict and delete all the expired items
+        for i in range(len(self.events)):
+            evt = self.events[i]
+            if evt is not None:
+                if evt.is_expired():
+                    del self.events[i]
+                    del self.eventdict[evt['kn_id']]
+            
     def getname(self):
         return string.join(map(urllib.quote, self.name), '/')
     def update_event(self, event):
@@ -578,6 +595,9 @@ class ServerSaver:
         self.scheduler = scheduler
         self.reschedule()
     def __call__(self):
+        #Fixme:  this would be a good place to do some deletion
+        #Call clean method on root event 
+        self.root.clean()
         write_event_pool(self.filename, self.root)
         self.reschedule()
     def reschedule(self):
@@ -698,6 +718,7 @@ def tunnel(conn, uri, httpreq, query):
     if query.has_key('kn_expires'):
         conn.server.scheduler.schedule_processing(TunnelCloser(route), absolute_expiry(query['kn_expires'][0]),
                                                   'tunnel closer')
+        # Fixme:  Should be also deleting the tunnel
 
 def query_to_event(q):
     ev = {}
