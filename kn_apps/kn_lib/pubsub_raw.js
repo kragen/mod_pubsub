@@ -5,7 +5,7 @@
 // and a separate browser piece so it can be used with
 // things like Konfabulator.
 
-// Copyright 2000-2003 KnowNow, Inc.  All Rights Reserved.
+// Copyright 2000-2004 KnowNow, Inc.  All rights reserved.
 
 // @KNOWNOW_LICENSE_START@
 // 
@@ -17,29 +17,29 @@
 // notice, this list of conditions and the following disclaimer.
 // 
 // 2. Redistributions in binary form must reproduce the above copyright
-// notice, this list of conditions and the following disclaimer in
-// the documentation and/or other materials provided with the
-// distribution.
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
 // 
-// 3. The name "KnowNow" is a trademark of KnowNow, Inc. and may not
-// be used to endorse or promote any product without prior written
-// permission from KnowNow, Inc.
+// 3. Neither the name of the KnowNow, Inc., nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
 // 
-// THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
-// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-// IN NO EVENT SHALL KNOWNOW, INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
-// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-// GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-// IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 // @KNOWNOW_LICENSE_END@
+// 
 
-// $Id: pubsub_raw.js,v 1.10 2003/07/23 05:25:04 bsittler Exp $
+// $Id: pubsub_raw.js,v 1.11 2004/04/19 05:39:12 bsittler Exp $
 
 ////////////////////////////////////////////////////////////////////////
 // Notes on notation:
@@ -408,7 +408,7 @@ function _kn_initMicroserver()
         kn = _kn_object(
 
             // CVS uses RCS for versioning
-            'RCSID', "$Id: pubsub_raw.js,v 1.10 2003/07/23 05:25:04 bsittler Exp $", //#
+            'RCSID', "$Id: pubsub_raw.js,v 1.11 2004/04/19 05:39:12 bsittler Exp $", //#
 
             'ownerWindow', window,
             'leaderWindow', window,
@@ -4194,6 +4194,13 @@ function kn_tunnelLoadCallback(theWindow)
 
 //
 // $Log: pubsub_raw.js,v $
+// Revision 1.11  2004/04/19 05:39:12  bsittler
+// Propagate updated license text and associated copyright date to all
+// affected files.
+//
+// Also replaced a few KNOWNOW_LICENSE_BEGINs with the correct
+// KNOWNOW_LICENSE_START.
+//
 // Revision 1.10  2003/07/23 05:25:04  bsittler
 // Added kn_options=nopost which uses GET rather than POST to submit
 // requests.  Used in conjunction with kn_options=single
